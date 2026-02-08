@@ -75,12 +75,18 @@
 </script>
 
 <div class="bottom-sai left-sai top-sai fixed z-sidebar w-72 bg-tinted-700 transition-colors">
-  <Link external class="mb-6 mt-6 flex flex-col items-center gap-2 px-6" href="https://navcom.app">
-    <img
-      alt="Navcom logo"
-      class="h-16 w-auto mix-blend-screen drop-shadow-lg"
-      src="/images/WingCommanderLogo.gif" />
-    <h1 class="staatliches text-2xl uppercase tracking-[0.16em] text-tinted-100">Navcom</h1>
+  <Link
+    external
+    class="mb-4 mt-4 flex w-full items-center justify-center px-6"
+    href="https://navcom.app">
+    <div class="flex w-full flex-col items-center gap-2">
+      <img
+        alt="Navcom logo"
+        src="/images/WingCommanderLogo-cropped.gif"
+        class="select-none mix-blend-screen"
+        draggable="false" />
+      <h1 class="staatliches text-tinted-50 text-2xl uppercase tracking-[0.2em]">Navcom</h1>
+    </div>
   </Link>
   <MenuDesktopItem path="/notes" isActive={isFeedPage || isListPage}>Feeds</MenuDesktopItem>
   <MenuDesktopItem
