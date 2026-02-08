@@ -1,7 +1,7 @@
 # Typography & Iconography
 
 ## Typography
-- Primary face: choose an angular/technical, open-licensed family (e.g., Orbitron, Michroma, Rajdhani). Avoid rounded humanist shapes.
+- Primary face: Aldrich (added to the app assets). It fits the angular/technical brief. Alternatives: Orbitron, Michroma, Rajdhani.
 - Secondary face (body/copy): a neutral sans with crisp edges (e.g., IBM Plex Sans, Space Grotesk) to keep readability high.
 - Weights: 400/500 for body, 600/700 for headings and buttons. Avoid ultra-thin weights on dark backgrounds.
 - Letter spacing: slight positive tracking on uppercase labels (0.04–0.08em) to emphasize mil-tech tone.

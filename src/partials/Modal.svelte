@@ -113,7 +113,7 @@
       class:pointer-events-none={closing}
       class:ml-72={innerWidth >= 1024 && !overlay}>
       <div
-        class="absolute inset-0 cursor-pointer bg-black opacity-50"
+        class="absolute inset-0 cursor-pointer bg-[radial-gradient(circle_at_50%_20%,rgba(34,211,238,0.08),rgba(0,0,0,0.68))] backdrop-blur-sm"
         on:click|stopPropagation={tryClose} />
       <div
         class="modal-content scroll-container p-sai ml-0 h-full overflow-auto"
@@ -152,7 +152,7 @@
             {/if}
             <div on:click|stopPropagation class="">
               <div
-                class="relative m-auto h-full min-h-screen w-full cursor-auto overflow-hidden bg-neutral-800">
+                class="relative m-auto h-full min-h-screen w-full cursor-auto overflow-hidden rounded-[14px] border border-neutral-700 bg-[linear-gradient(180deg,rgba(15,17,20,0.95),rgba(5,6,8,0.98))] shadow-[0_20px_60px_rgba(0,0,0,0.55),0_0_0_1px_rgba(99,230,255,0.12)]">
                 <div class="modal-content-inner m-auto flex max-w-2xl flex-col gap-4 p-4">
                   <slot />
                 </div>

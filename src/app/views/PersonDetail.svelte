@@ -61,6 +61,7 @@
   import WotScore from "src/partials/WotScore.svelte"
   import FeedItem from "../shared/FeedItem.svelte"
   import {fly} from "svelte/transition"
+  import Chip from "src/partials/Chip.svelte"
 
   export let pubkey
   export let relays = []
@@ -219,18 +220,14 @@
       </div>
     </div>
   </AltColor>
-  <div class="bg-tinted-800-d pt-3">
+  <div class="panel mt-3 p-3">
     <Tabs {tabs} {activeTab} {setActiveTab}>
-      <div slot="tab" let:tab class="flex gap-2 px-2">
+      <div slot="tab" let:tab class="flex items-center gap-2 px-2">
         {toTitle(tab)}
         {#if tab === "following" && $followsCount > 0}
-          <div class="h-6 rounded-full bg-neutral-700 px-2">
-            {$followsCount}
-          </div>
+          <Chip small pad accent class="!px-2">{$followsCount}</Chip>
         {:else if tab === "followers" && $followersCount > 0}
-          <div class="h-6 rounded-full bg-neutral-700 px-2">
-            {$followersCount}+
-          </div>
+          <Chip small pad accent class="!px-2">{$followersCount}+</Chip>
         {/if}
       </div>
     </Tabs>

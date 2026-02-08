@@ -35,24 +35,24 @@
   {#each $handle.relays || [] as url}
     <RelayCard {url} />
   {:else}
-    <p class="flex gap-2 items-center">
-      <i class="fa fa-info-circle" />
-      No relays are advertised at {display}.
-    </p>
+    <div class="panel mt-2 flex items-center gap-2 p-3 text-neutral-200">
+      <i class="fa fa-info-circle text-warning" />
+      <span>No relays are advertised at {display}.</span>
+    </div>
   {/each}
 {:else}
-  <p>
-    <i class="fa-solid fa-info-circle" />
-    No Nostr address found.
-  </p>
+  <div class="panel mt-2 flex items-center gap-2 p-3 text-neutral-200">
+    <i class="fa-solid fa-info-circle text-warning" />
+    <span>No Nostr address found.</span>
+  </div>
 {/if}
 {#if lightningAddress}
   <CopyValue label="Lightning Address" value={lightningAddress} />
 {:else}
-  <p>
-    <i class="fa-solid fa-info-circle" />
-    No lightning address found.
-  </p>
+  <div class="panel mt-2 flex items-center gap-2 p-3 text-neutral-200">
+    <i class="fa-solid fa-info-circle text-warning" />
+    <span>No lightning address found.</span>
+  </div>
 {/if}
 {#if $profile}
   <Field>

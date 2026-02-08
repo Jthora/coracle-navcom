@@ -64,6 +64,11 @@
     </p>
   {/if}
 {:else}
-  <Heading>No information on "{toTitle(topic)}"</Heading>
-  <p>Sorry, we couldn't find any information on "{toTitle(topic)}".</p>
+  <div class="panel flex items-start gap-3 p-4 text-neutral-200">
+    <i class="fa fa-triangle-exclamation text-warning" />
+    <div>
+      <Heading class="mb-1">No information on "{toTitle(topic)}"</Heading>
+      <p>Sorry, we couldn't find any information on "{toTitle(topic)}".</p>
+    </div>
+  </div>
 {/if}

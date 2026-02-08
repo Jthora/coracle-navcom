@@ -65,8 +65,11 @@
       {/if}
     </div>
   {:else}
-    <div in:fly|local={{y: 20}} class="rounded-md p-6 shadow">
-      <div class="place text-center text-neutral-100">No notices found.</div>
+    <div
+      in:fly|local={{y: 20}}
+      class="panel flex items-center justify-center gap-3 p-5 text-center text-neutral-200">
+      <i class="fa fa-triangle-exclamation text-warning" />
+      <span>No notices found.</span>
     </div>
   {/each}
 </AltColor>

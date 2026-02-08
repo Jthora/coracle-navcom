@@ -4,7 +4,7 @@
   import {pubkey, signer, deriveRelayStats, deriveRelay, derivePubkeyRelays} from "@welshman/app"
   import {displayUrl, ensureMailto, quantify} from "src/util/misc"
   import {getAvgRating} from "src/util/nostr"
-  import AltColor from "src/partials/AltColor.svelte"
+  import Card from "src/partials/Card.svelte"
   import Chip from "src/partials/Chip.svelte"
   import Rating from "src/partials/Rating.svelte"
   import Link from "src/partials/Link.svelte"
@@ -60,7 +60,7 @@
 
 <svelte:window bind:innerWidth />
 
-<AltColor background class="justify-between rounded-md p-6 shadow">
+<Card class="panel-interactive justify-between !px-6 !py-5">
   <div class="flex items-center justify-between gap-2">
     <div class="flex min-w-0 items-center gap-3">
       {#if $relay?.icon}
@@ -136,6 +136,8 @@
         <div slot="trigger">
           <Chip
             pad
+            accent={$readRelayUrls.includes(url)}
+            light={!$readRelayUrls.includes(url)}
             class={cx("cursor-pointer transition-opacity", {
               "opacity-50": !$readRelayUrls.includes(url),
             })}
@@ -152,6 +154,8 @@
         <div slot="trigger">
           <Chip
             pad
+            accent={$writeRelayUrls.includes(url)}
+            light={!$writeRelayUrls.includes(url)}
             class={cx("cursor-pointer transition-opacity", {
               "opacity-50": !$writeRelayUrls.includes(url),
             })}
@@ -168,6 +172,8 @@
           <div slot="trigger">
             <Chip
               pad
+              accent={$messagingRelayUrls.includes(url)}
+              light={!$messagingRelayUrls.includes(url)}
               class={cx("cursor-pointer transition-opacity", {
                 "opacity-50": !$messagingRelayUrls.includes(url),
               })}
@@ -183,7 +189,7 @@
       {/if}
     </div>
   {/if}
-</AltColor>
+</Card>
 
 {#if isMobile && details}
   <Modal mini onEscape={close}>

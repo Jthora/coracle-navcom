@@ -15,25 +15,31 @@
   }
 </script>
 
-<Card>
+<Card class="panel-interactive">
   <HandlerSummary {handler}>
     <div class="pt-1">
       {#if handler.website}
         <Link external href={handler.website} class="mb-2 mr-2 inline-block">
-          <Chip>
+          <Chip accent>
             <i class="fa fa-link" />
             {displayDomain(handler.website)}
           </Chip>
         </Link>
       {/if}
       {#if handler.lud16}
-        <Chip class="mb-2 mr-2 inline-block cursor-pointer" on:click={() => copy(handler.lud16)}>
+        <Chip
+          accent
+          class="mb-2 mr-2 inline-block cursor-pointer"
+          on:click={() => copy(handler.lud16)}>
           <i class="fa fa-bolt" />
           {handler.lud16}
         </Chip>
       {/if}
       {#if handler.nip05}
-        <Chip class="mb-2 mr-2 inline-block cursor-pointer" on:click={() => copy(handler.nip05)}>
+        <Chip
+          accent
+          class="mb-2 mr-2 inline-block cursor-pointer"
+          on:click={() => copy(handler.nip05)}>
           <i class="fa fa-at" />
           {handler.nip05}
         </Chip>

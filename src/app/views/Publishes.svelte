@@ -11,8 +11,10 @@
   let selected: string
 </script>
 
-<Subheading>Published Events</Subheading>
-<Tabs {tabs} {activeTab} setActiveTab={tab => (activeTab = tab)} />
+<div class="panel p-4">
+  <Subheading>Published Events</Subheading>
+  <Tabs class="mt-2" {tabs} {activeTab} setActiveTab={tab => (activeTab = tab)} />
+</div>
 {#if activeTab === "events"}
   <PublishesEvents />
 {:else if activeTab === "connections"}

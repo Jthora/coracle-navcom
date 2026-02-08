@@ -10,15 +10,13 @@
   export let small = false
   export let onRemove = null
 
-  $: className = cx($$props.class, "inline-block rounded-full border border-solid cy-chip", {
-    "border-neutral-800": light,
-    "border-neutral-100": dark,
-    "!border-danger": danger,
-    "!bg-accent": accent,
-    "!border-warning": warning,
-    "py-1 px-2": !small,
-    "py-0.5 px-2 text-sm": small,
-    "mb-1 mr-1": pad,
+  $: className = cx($$props.class, "cy-chip", {
+    "chip-muted": light,
+    "chip-accent": accent,
+    "chip-danger": danger,
+    "chip-warning": warning,
+    "chip-small": small,
+    "chip-pad": pad,
   })
 </script>
 

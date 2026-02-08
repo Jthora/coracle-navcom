@@ -38,19 +38,21 @@
   document.title = displayRelayUrl(url)
 </script>
 
-<div class="flex items-center justify-between gap-2">
-  <RelayTitle {url} />
-  <RelayActions {url} />
-</div>
-{#if rating}
-  <div class="text-sm">
-    <Rating inert value={rating} />
+<div class="panel flex flex-col gap-2 p-4">
+  <div class="flex items-center justify-between gap-2">
+    <RelayTitle {url} />
+    <RelayActions {url} />
   </div>
-{/if}
-{#if $relay?.description}
-  <p>{$relay?.description}</p>
-{/if}
-<Tabs {tabs} {activeTab} {setActiveTab} />
+  {#if rating}
+    <div class="text-sm">
+      <Rating inert value={rating} />
+    </div>
+  {/if}
+  {#if $relay?.description}
+    <p class="text-neutral-200">{$relay?.description}</p>
+  {/if}
+  <Tabs class="mt-2" {tabs} {activeTab} {setActiveTab} />
+</div>
 {#if activeTab === "reviews"}
   <Feed feed={reviewsFeed} />
 {:else}

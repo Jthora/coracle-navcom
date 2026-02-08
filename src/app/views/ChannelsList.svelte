@@ -7,8 +7,8 @@
   import Tabs from "src/partials/Tabs.svelte"
   import Link from "src/partials/Link.svelte"
   import Popover from "src/partials/Popover.svelte"
+  import Chip from "src/partials/Chip.svelte"
   import FlexColumn from "src/partials/FlexColumn.svelte"
-  import Content from "src/partials/Content.svelte"
   import ChannelsListItem from "src/app/views/ChannelsListItem.svelte"
   import {router} from "src/app/util/router"
   import {channels, hasNewMessages, setChecked} from "src/engine"
@@ -49,37 +49,39 @@
 </script>
 
 <FlexColumn bind:element>
-  <div class="flex justify-between">
-    <div class="flex items-center gap-2">
-      <i class="fa fa-comments fa-lg" />
-      <h2 class="staatliches text-2xl">Your conversations</h2>
-    </div>
-    <Link modal class="btn btn-accent" href="/channels/create" disabled={!$signer}>
-      <i class="fa-solid fa-plus" /> Create
-    </Link>
-  </div>
-  <div class="relative">
-    <Tabs tabs={["conversations", "requests"]} {activeTab} {setActiveTab}>
-      <div slot="tab" let:tab class="flex gap-2">
-        <div>{toTitle(tab)}</div>
-        <div class="h-6 rounded-full bg-neutral-700 px-2">
-          {(tab === "conversations" ? $accepted : $requests).length}
-        </div>
+  <div class="panel p-4">
+    <div class="flex justify-between">
+      <div class="flex items-center gap-2">
+        <i class="fa fa-comments fa-lg text-accent" />
+        <h2 class="text-lg uppercase tracking-[0.08em]">Your conversations</h2>
       </div>
-      <Popover triggerType="mouseenter" class="-mt-4 px-4">
-        <div slot="trigger">
-          <i
-            class="fa fa-bell cursor-pointer"
-            class:text-neutral-600={!$hasNewMessages}
-            on:click={markAllChannelsRead} />
+      <Link modal class="btn btn-accent" href="/channels/create" disabled={!$signer}>
+        <i class="fa-solid fa-plus" /> Create
+      </Link>
+    </div>
+    <div class="relative mt-3">
+      <Tabs tabs={["conversations", "requests"]} {activeTab} {setActiveTab}>
+        <div slot="tab" let:tab class="flex items-center gap-2">
+          <div>{toTitle(tab)}</div>
+          <Chip small pad accent class="!px-2">
+            {(tab === "conversations" ? $accepted : $requests).length}
+          </Chip>
         </div>
-        <div slot="tooltip">Mark all as read</div>
-      </Popover>
-    </Tabs>
+        <Popover triggerType="mouseenter" class="-mt-4 px-4">
+          <div slot="trigger">
+            <i
+              class="fa fa-bell cursor-pointer"
+              class:text-neutral-600={!$hasNewMessages}
+              on:click={markAllChannelsRead} />
+          </div>
+          <div slot="tooltip">Mark all as read</div>
+        </Popover>
+      </Tabs>
+    </div>
   </div>
   {#each tabChannels.slice(0, limit) as channel (channel.id)}
     <ChannelsListItem {channel} />
   {:else}
-    <Content size="lg" class="text-center">No messages found.</Content>
+    <div class="panel p-6 text-center text-neutral-200">No messages found.</div>
   {/each}
 </FlexColumn>

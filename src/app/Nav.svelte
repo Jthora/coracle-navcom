@@ -50,18 +50,18 @@
 <!-- top nav -->
 {#if innerWidth >= 1024}
   <div class="top-sai left-sai right-sai fixed z-nav">
-    <div class="flex h-16 items-center justify-end gap-8 bg-neutral-900 pl-4 pr-8">
+    <div
+      class="border-neutral-700/70 flex h-16 items-center justify-end gap-8 border-b bg-[radial-gradient(circle_at_12%_0%,rgba(34,211,238,0.12),transparent_30%),linear-gradient(180deg,var(--neutral-900),var(--neutral-950))] pl-4 pr-8 text-neutral-100 shadow-[0_10px_26px_rgba(0,0,0,0.35)] backdrop-blur-sm">
       <div class="relative">
-        <div class="flex">
+        <div class="flex items-center gap-2">
           <Input
             dark
-            class="border-tinted-700 !bg-neutral-800 py-px outline-none"
+            class="!border-neutral-700 !bg-neutral-900"
             on:blur={onSearchBlur}
             on:keydown={onSearchKeydown}
             bind:element={searchInput}
             bind:value={$searchTerm} />
-          <Button class="btn z-feature -ml-2 border-none !bg-tinted-700 !text-tinted-200"
-            >Search</Button>
+          <Button class="btn btn-low z-feature -ml-1">Search</Button>
         </div>
         {#if $searchTerm}
           <div
@@ -107,11 +107,11 @@
 <!-- bottom nav -->
 {#if innerWidth < 1024}
   <div
-    class="px-sai pb-sai fixed bottom-0 left-0 right-0 z-nav border-neutral-600 bg-tinted-800 dark:bg-black">
+    class="px-sai pb-sai fixed bottom-0 left-0 right-0 z-nav border-t border-tinted-600 bg-[linear-gradient(180deg,rgba(15,17,20,0.92),rgba(5,6,8,0.96))] shadow-[0_-8px_26px_rgba(0,0,0,0.45)] backdrop-blur-sm">
     <div class="flex items-center justify-between rounded-t-xl px-4 py-2">
       <div class="w-1/3">
         <div
-          class="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border-solid border-neutral-600 text-accent dark:border-tinted-600 dark:bg-tinted-800"
+          class="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-neutral-700 bg-neutral-900 text-accent shadow-[0_0_0_1px_rgba(99,230,255,0.2),0_0_12px_rgba(34,211,238,0.25)]"
           on:click={openSearch}>
           <i class="fa fa-search -mb-1 -mr-1 text-xl" />
         </div>

@@ -37,9 +37,13 @@
 </script>
 
 <FlexColumn bind:element>
-  {#each results as pubkey (pubkey)}
-    <Card>
-      <PersonSummary {pubkey} />
-    </Card>
-  {/each}
+  {#if results.length === 0}
+    <div class="panel p-6 text-center text-neutral-200">No people found</div>
+  {:else}
+    {#each results as pubkey (pubkey)}
+      <Card>
+        <PersonSummary {pubkey} />
+      </Card>
+    {/each}
+  {/if}
 </FlexColumn>

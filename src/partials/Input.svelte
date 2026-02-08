@@ -27,17 +27,24 @@
 </script>
 
 <div
-  class={cx($$props.class, "shadow-inset relative h-7 overflow-hidden rounded", {
-    "!bg-transparent": $$props.type === "range",
-    "bg-neutral-900 text-neutral-100": dark,
-    "bg-white dark:text-neutral-900": !dark,
-  })}>
+  class={cx(
+    $$props.class,
+    "relative h-9 overflow-hidden rounded-[4px] border border-neutral-700 bg-neutral-900 text-neutral-100 shadow-[inset_0_1px_0_rgba(99,230,255,0.18)] transition-all focus-within:border-[color:var(--accent)] focus-within:shadow-[0_0_0_1px_rgba(99,230,255,0.25),0_0_0_4px_rgba(34,211,238,0.18)]",
+    {
+      "!border-0 !bg-transparent !shadow-none": $$props.type === "range",
+      "bg-neutral-900 text-neutral-100": dark,
+      "bg-white text-neutral-900": !dark,
+    },
+  )}>
   <input
     {...$$props}
-    class={cx("h-7 w-full bg-transparent px-3 pb-px outline-none placeholder:text-neutral-400", {
-      "pl-10": showBefore,
-      "pr-10": showAfter,
-    })}
+    class={cx(
+      "h-9 w-full bg-transparent px-3 pb-px caret-[var(--accent)] outline-none placeholder:text-neutral-500",
+      {
+        "pl-10": showBefore,
+        "pr-10": showAfter,
+      },
+    )}
     value={inputValue}
     bind:this={element}
     on:input={onInput}

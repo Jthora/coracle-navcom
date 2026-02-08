@@ -201,9 +201,11 @@
     </p>
     <div />
     {#if state.follows.length === 0}
-      <div class="my-8 flex items-center justify-center gap-2 text-center">
-        <i class="fa fa-triangle-exclamation" />
-        <span>No people selected</span>
+      <div class="my-8">
+        <div class="panel flex items-center justify-center gap-3 p-4 text-center text-neutral-200">
+          <i class="fa fa-triangle-exclamation text-warning" />
+          <span>No people selected</span>
+        </div>
       </div>
     {:else}
       {#each state.follows as pubkey (pubkey)}
@@ -228,9 +230,11 @@
     </p>
     <div />
     {#if state.relays.length === 0}
-      <div class="my-8 flex items-center justify-center gap-2 text-center">
-        <i class="fa fa-triangle-exclamation" />
-        <span>No relays selected</span>
+      <div class="my-8">
+        <div class="panel flex items-center justify-center gap-3 p-4 text-center text-neutral-200">
+          <i class="fa fa-triangle-exclamation text-warning" />
+          <span>No relays selected</span>
+        </div>
       </div>
     {:else}
       <FlexColumn small>

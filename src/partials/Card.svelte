@@ -51,11 +51,9 @@
 
 <div on:mousedown={startClick} on:touchstart={startClick} on:click={onClick}>
   <AltColor
-    background
-    class={cx($$props.class, "rounded text-neutral-100", {
+    class={cx($$props.class, "panel text-neutral-100", {
       "px-7 py-5": !noPad,
-      "cursor-pointer border-r-4 border-transparent transition-colors hover:border-neutral-600":
-        interactive,
+      "panel-interactive": interactive,
     })}>
     <slot />
   </AltColor>

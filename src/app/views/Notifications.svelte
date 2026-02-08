@@ -2,6 +2,7 @@
   import {onMount} from "svelte"
   import {createScroller} from "src/util/misc"
   import Tabs from "src/partials/Tabs.svelte"
+  import Chip from "src/partials/Chip.svelte"
   import OnboardingTasks from "src/app/shared/OnboardingTasks.svelte"
   import NotificationSectionMain from "src/app/views/NotificationSectionMain.svelte"
   import NotificationSectionReactions from "src/app/views/NotificationSectionReactions.svelte"
@@ -42,22 +43,20 @@
 
 <svelte:window bind:innerWidth />
 
-<Tabs tabs={allTabs} {activeTab} {setActiveTab}>
-  <div slot="tab" let:tab class="flex gap-2">
-    <div>{tab}</div>
-    {#if activeTab !== tab}
-      {#if tab === allTabs[0] && $unreadMainNotifications.length > 0}
-        <div class="h-6 rounded-full bg-neutral-700 px-2">
-          {$unreadMainNotifications.length}
-        </div>
-      {:else if tab === allTabs[1] && $unreadReactionNotifications.length > 0}
-        <div class="h-6 rounded-full bg-neutral-700 px-2">
-          {$unreadReactionNotifications.length}
-        </div>
+<div class="panel p-3">
+  <Tabs tabs={allTabs} {activeTab} {setActiveTab}>
+    <div slot="tab" let:tab class="flex items-center gap-2">
+      <div>{tab}</div>
+      {#if activeTab !== tab}
+        {#if tab === allTabs[0] && $unreadMainNotifications.length > 0}
+          <Chip small pad accent class="!px-2">{$unreadMainNotifications.length}</Chip>
+        {:else if tab === allTabs[1] && $unreadReactionNotifications.length > 0}
+          <Chip small pad accent class="!px-2">{$unreadReactionNotifications.length}</Chip>
+        {/if}
       {/if}
-    {/if}
-  </div>
-</Tabs>
+    </div>
+  </Tabs>
+</div>
 
 {#if $sessionWithMeta?.onboarding_tasks_completed}
   <OnboardingTasks />

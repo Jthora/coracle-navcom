@@ -176,12 +176,13 @@
           out:slide|local>
           {#if hiddenReplies.length > 0}
             <button
-              class="cursor-pointer rounded-md bg-gradient-to-l from-transparent via-tinted-700 to-tinted-700 py-2 text-neutral-100 outline-0 transition-colors hover:bg-tinted-700"
+              class="panel-row cursor-pointer !items-center !justify-start gap-3 !px-3 !py-2"
               on:click={() => {
                 showHiddenReplies = true
               }}>
-              <i class="fa fa-up-down pr-2 text-sm" />
-              Show {quantify(hiddenReplies.length, "other reply", "more replies")}
+              <i class="fa fa-up-down text-sm text-accent" />
+              <span class="text-sm text-neutral-100"
+                >Show {quantify(hiddenReplies.length, "other reply", "more replies")}</span>
             </button>
             {#if visibleReplies.length > 0}
               <AltColor background class="absolute -left-4 -top-10 h-28 w-1" />

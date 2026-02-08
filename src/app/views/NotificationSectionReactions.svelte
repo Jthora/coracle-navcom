@@ -41,6 +41,8 @@
       <NoteReactions {context} {event} />
     </NotificationItem>
   {:else}
-    <p class="py-12 text-center">No notifications found - check back later!</p>
+    <div class="panel p-6 text-center text-neutral-200">
+      No notifications found - check back later!
+    </div>
   {/each}
 </FlexColumn>

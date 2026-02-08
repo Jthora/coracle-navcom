@@ -31,14 +31,17 @@
 <svelte:window bind:innerWidth />
 
 <div class="flex flex-grow flex-col gap-4">
-  <div class="relative flex justify-between gap-4">
-    <Button on:click={inert ? null : showDetail} class="flex gap-4 overflow-hidden">
+  <div class="relative flex flex-col gap-2">
+    <button
+      type="button"
+      class="panel-row !items-center !justify-start gap-4 !px-4 !py-3"
+      on:click={inert ? null : showDetail}>
       <PersonCircle class="h-14 w-14" {pubkey} />
-      <div class="flex min-w-0 flex-grow flex-col gap-1">
+      <div class="flex min-w-0 flex-grow flex-col gap-1 text-left">
         <PersonName class="text-lg" {pubkey} />
         <PersonHandle {pubkey} />
       </div>
-    </Button>
+    </button>
     {#if !hideActions}
       <div class="flex items-start justify-end">
         <div class="flex items-center justify-end gap-2">

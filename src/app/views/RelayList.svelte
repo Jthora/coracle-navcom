@@ -161,14 +161,18 @@
       <i class="fa-solid fa-compass" /> Add Relay
     </Button>
   </div>
-  <p>
-    Relays are hubs for your content and connections. At least one is required to interact with the
-    network, but you can join as many as you like.
-  </p>
+  <div class="panel p-4">
+    <p class="mt-2 text-neutral-200">
+      Relays are hubs for your content and connections. At least one is required to interact with
+      the network, but you can join as many as you like.
+    </p>
+  </div>
   {#if currentRelayUrls.length === 0}
-    <div class="mt-8 flex items-center justify-center gap-2 text-center">
-      <i class="fa fa-triangle-exclamation" />
-      No relays connected
+    <div class="mt-6">
+      <div class="panel flex items-center justify-center gap-3 p-4 text-center text-neutral-100">
+        <i class="fa fa-triangle-exclamation text-warning" />
+        <span>No relays connected</span>
+      </div>
     </div>
   {/if}
   <div class="grid grid-cols-1 gap-4">
@@ -180,11 +184,13 @@
     <i class="fa fa-circle-nodes fa-lg" />
     <h2 class="staatliches text-2xl">Other relays</h2>
   </div>
-  <p>
-    Below are relays used by people in your network. Adding these may improve your ability to load
-    profiles and content.
-  </p>
-  <Tabs {tabs} {activeTab} {setActiveTab} />
+  <div class="panel p-4">
+    <p class="mt-2 text-neutral-200">
+      Below are relays used by people in your network. Adding these may improve your ability to load
+      profiles and content.
+    </p>
+    <Tabs class="mt-3" {tabs} {activeTab} {setActiveTab} />
+  </div>
   {#if activeTab === "reviews"}
     {#each reviews.slice(0, limit) as review (review.id)}
       <FeedItem note={review} />
@@ -197,11 +203,13 @@
       placeholder="Search relays or add a custom url">
       <i slot="before" class="fa-solid fa-search" />
     </Input>
-    {#each $searchRelays(q).slice(0, limit) as { url, description } (url)}
-      <RelayCard {url} ratings={ratings[url]}>
-        <p slot="description">{description}</p>
-      </RelayCard>
-    {/each}
+    <div class="panel flex flex-col gap-3 p-4">
+      {#each $searchRelays(q).slice(0, limit) as { url, description } (url)}
+        <RelayCard {url} ratings={ratings[url]}>
+          <p slot="description">{description}</p>
+        </RelayCard>
+      {/each}
+    </div>
   {/if}
 </FlexColumn>
 
