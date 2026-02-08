@@ -11,7 +11,7 @@
     thunks,
     thunkIsComplete,
   } from "@welshman/app"
-  import {toggleTheme, theme} from "src/partials/state"
+  import {toggleTheme} from "src/partials/state"
   import MenuItem from "src/partials/MenuItem.svelte"
   import FlexColumn from "src/partials/FlexColumn.svelte"
   import Link from "src/partials/Link.svelte"
@@ -75,12 +75,12 @@
 </script>
 
 <div class="bottom-sai left-sai top-sai fixed z-sidebar w-72 bg-tinted-700 transition-colors">
-  <Link external class="mb-4 mt-4 flex items-center gap-2 px-6" href="https://navcom.app">
+  <Link external class="mb-6 mt-6 flex flex-col items-center gap-2 px-6" href="https://navcom.app">
     <img
-      alt="App Logo"
-      src={$theme === "dark"
-        ? import.meta.env.VITE_APP_WORDMARK_DARK
-        : import.meta.env.VITE_APP_WORDMARK_LIGHT} />
+      alt="Navcom logo"
+      class="h-16 w-auto mix-blend-screen drop-shadow-lg"
+      src="/images/WingCommanderLogo.gif" />
+    <h1 class="staatliches text-2xl uppercase tracking-[0.16em] text-tinted-100">Navcom</h1>
   </Link>
   <MenuDesktopItem path="/notes" isActive={isFeedPage || isListPage}>Feeds</MenuDesktopItem>
   <MenuDesktopItem
