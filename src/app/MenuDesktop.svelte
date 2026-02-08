@@ -79,13 +79,12 @@
     external
     class="mb-4 mt-4 flex w-full items-center justify-center px-6"
     href="https://navcom.app">
-    <div class="flex w-full flex-col items-center gap-2">
+    <div class="flex w-full flex-col items-center">
       <img
         alt="Navcom logo"
         src="/images/WingCommanderLogo-cropped.gif"
         class="select-none mix-blend-screen"
         draggable="false" />
-      <h1 class="staatliches text-tinted-50 text-2xl uppercase tracking-[0.2em]">Navcom</h1>
     </div>
   </Link>
   <MenuDesktopItem path="/notes" isActive={isFeedPage || isListPage}>Feeds</MenuDesktopItem>
