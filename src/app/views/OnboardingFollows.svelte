@@ -123,6 +123,10 @@
   </p>
   <p class="text-2xl font-bold">Find your people</p>
 </div>
+<p class="text-neutral-300">
+  Your HQ feed starts scoped to Starcom topics (Starcom/Navcom/Archangel/Thora). You can switch to
+  your own feed later.
+</p>
 <p>
   Pick a category to find some people to follow, or click <Button
     class="underline"

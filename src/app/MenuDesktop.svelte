@@ -23,8 +23,12 @@
   import {slowConnections} from "src/app/state"
   import {router} from "src/app/util/router"
   import {hasNewMessages, hasNewNotifications} from "src/engine"
+  import {env} from "src/engine"
 
   const {page} = router
+
+  const opsTag = env.OPS_TAG || "starcom-ops"
+  const opsFeedPath = `/topics/${opsTag}`
 
   const closeSubMenu = () => {
     subMenu = null
@@ -87,7 +91,9 @@
         draggable="false" />
     </div>
   </Link>
-  <MenuDesktopItem path="/notes" isActive={isFeedPage || isListPage}>Feeds</MenuDesktopItem>
+  <MenuDesktopItem path="/notes" isActive={isFeedPage || isListPage}>HQ Feed</MenuDesktopItem>
+  <MenuDesktopItem path={opsFeedPath} isActive={$page?.path === opsFeedPath}
+    >Ops Feed</MenuDesktopItem>
   <MenuDesktopItem
     path="/settings/relays"
     disabled={!$signer}
@@ -115,13 +121,12 @@
     disabled={!$signer}
     isActive={$page?.path.startsWith("/channels")}>
     <div class="relative inline-block">
-      Messages
+      Ops Chat
       {#if $hasNewMessages}
         <div class="absolute -right-2.5 top-1 h-1.5 w-1.5 rounded bg-accent" />
       {/if}
     </div>
   </MenuDesktopItem>
-  <MenuDesktopItem modal path="/lists" disabled={!$signer}>Lists</MenuDesktopItem>
   <FlexColumn small class="absolute bottom-0 w-72">
     <Button
       class="staatliches px-8 text-start text-tinted-400 hover:text-tinted-100"

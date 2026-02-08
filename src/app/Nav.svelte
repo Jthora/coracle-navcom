@@ -54,7 +54,7 @@
       class="border-neutral-700/70 ml-72 flex h-16 items-center border-b bg-[radial-gradient(circle_at_12%_0%,rgba(34,211,238,0.12),transparent_30%),linear-gradient(180deg,var(--neutral-900),var(--neutral-950))] pl-6 pr-8 text-neutral-100 shadow-[0_10px_26px_rgba(0,0,0,0.35)] backdrop-blur-sm">
       <div class="flex w-full items-center justify-between gap-6">
         <div class="flex items-center gap-3">
-          <h1 class="staatliches text-tinted-50 text-2xl uppercase tracking-[0.2em]">Navcom</h1>
+          <h1 class="staatliches text-tinted-50 text-2xl uppercase tracking-[0.2em]">Starcom HQ</h1>
         </div>
         <div class="flex items-center gap-6">
           <div class="relative">

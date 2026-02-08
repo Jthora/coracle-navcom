@@ -141,6 +141,8 @@ import {readable, derived, writable} from "svelte/store"
 export const env = {
   CLIENT_ID: import.meta.env.VITE_CLIENT_ID as string,
   CLIENT_NAME: import.meta.env.VITE_CLIENT_NAME as string,
+  DEFAULT_TOPICS: fromCsv(import.meta.env.VITE_DEFAULT_TOPICS) as string[],
+  OPS_TAG: (import.meta.env.VITE_OPS_TAG as string) || "starcom-ops",
   DEFAULT_FOLLOWS: fromCsv(import.meta.env.VITE_DEFAULT_FOLLOWS) as string,
   DEFAULT_RELAYS: fromCsv(import.meta.env.VITE_DEFAULT_RELAYS).map(normalizeRelayUrl) as string[],
   INDEXER_RELAYS: fromCsv(import.meta.env.VITE_INDEXER_RELAYS).map(normalizeRelayUrl) as string[],
@@ -152,6 +154,7 @@ export const env = {
   BLOSSOM_URLS: fromCsv(import.meta.env.VITE_BLOSSOM_URLS) as string[],
   ONBOARDING_LISTS: fromCsv(import.meta.env.VITE_ONBOARDING_LISTS) as string[],
   PLATFORM_PUBKEY: import.meta.env.VITE_PLATFORM_PUBKEY as string,
+  DEFAULT_CHANNEL: import.meta.env.VITE_DEFAULT_CHANNEL as string,
   PLATFORM_ZAP_SPLIT: parseFloat(import.meta.env.VITE_PLATFORM_ZAP_SPLIT) as number,
   SEARCH_RELAYS: fromCsv(import.meta.env.VITE_SEARCH_RELAYS).map(normalizeRelayUrl) as string[],
   SIGNER_RELAYS: fromCsv(import.meta.env.VITE_SIGNER_RELAYS).map(normalizeRelayUrl) as string[],

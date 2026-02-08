@@ -10,7 +10,7 @@
   import MenuMobileItem from "src/app/MenuMobileItem.svelte"
   import {slowConnections, menuIsOpen} from "src/app/state"
   import {router} from "src/app/util/router"
-  import {hasNewMessages, hasNewNotifications} from "src/engine"
+  import {hasNewMessages, hasNewNotifications, env} from "src/engine"
 
   const closeSubMenu = () => {
     subMenu = null
@@ -39,6 +39,8 @@
   }
 
   let subMenu
+  const opsTag = env.OPS_TAG || "starcom-ops"
+  const opsFeedPath = `/topics/${opsTag}`
 </script>
 
 {#if $menuIsOpen}
@@ -85,13 +87,10 @@
           {/if}
         </div>
       </MenuMobileItem>
-      <MenuMobileItem modal disabled={!$signer} href="/groups" on:click={closeMenu}>
-        <i class="fa fa-circle-nodes" /> Groups
-      </MenuMobileItem>
       <MenuMobileItem disabled={!$signer} href="/channels" on:click={closeMenu}>
-        <i class="fa fa-message" />
+        <i class="fa fa-headset" />
         <div class="relative inline-block">
-          Messages
+          Ops Chat
           {#if $hasNewMessages}
             <div
               class="absolute -right-2 top-0 h-2 w-2 rounded border border-solid border-white bg-accent" />
@@ -99,7 +98,10 @@
         </div>
       </MenuMobileItem>
       <MenuMobileItem on:click={openFeeds}>
-        <i class="fa fa-rss" /> Feeds
+        <i class="fa fa-rss" /> HQ Feed
+      </MenuMobileItem>
+      <MenuMobileItem href={opsFeedPath} on:click={closeMenu}>
+        <i class="fa fa-hashtag" /> Ops Feed
       </MenuMobileItem>
     </div>
     <div class="staatliches mt-8 block flex h-8 justify-center gap-2 px-8 text-tinted-400">
@@ -134,9 +136,7 @@
       <MenuMobileItem disabled={!$signer} href="/settings" on:click={closeMenu}>
         <i class="fa fa-sliders" /> App Settings
       </MenuMobileItem>
-      <MenuMobileItem disabled={!$signer} href="/lists" on:click={closeMenu}>
-        <i class="fa fa-list" /> Lists
-      </MenuMobileItem>
+      <!-- Lists hidden to simplify nav -->
     </div>
   </SliderMenu>
 {/if}
