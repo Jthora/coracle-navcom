@@ -51,55 +51,62 @@
 {#if innerWidth >= 1024}
   <div class="top-sai left-sai right-sai fixed z-nav">
     <div
-      class="border-neutral-700/70 flex h-16 items-center justify-end gap-8 border-b bg-[radial-gradient(circle_at_12%_0%,rgba(34,211,238,0.12),transparent_30%),linear-gradient(180deg,var(--neutral-900),var(--neutral-950))] pl-4 pr-8 text-neutral-100 shadow-[0_10px_26px_rgba(0,0,0,0.35)] backdrop-blur-sm">
-      <div class="relative">
-        <div class="flex items-center gap-2">
-          <Input
-            dark
-            class="!border-neutral-700 !bg-neutral-900"
-            on:blur={onSearchBlur}
-            on:keydown={onSearchKeydown}
-            bind:element={searchInput}
-            bind:value={$searchTerm} />
-          <Button class="btn btn-low z-feature -ml-1">Search</Button>
+      class="border-neutral-700/70 ml-72 flex h-16 items-center border-b bg-[radial-gradient(circle_at_12%_0%,rgba(34,211,238,0.12),transparent_30%),linear-gradient(180deg,var(--neutral-900),var(--neutral-950))] pl-6 pr-8 text-neutral-100 shadow-[0_10px_26px_rgba(0,0,0,0.35)] backdrop-blur-sm">
+      <div class="flex w-full items-center justify-between gap-6">
+        <div class="flex items-center gap-3">
+          <h1 class="staatliches text-tinted-50 text-2xl uppercase tracking-[0.2em]">Navcom</h1>
         </div>
-        {#if $searchTerm}
-          <div
-            on:mousedown|preventDefault
-            out:fly|local={{y: 20, duration: 200}}
-            class="absolute right-0 top-10 w-96 rounded opacity-100 shadow-2xl transition-colors">
-            <div class="max-h-[70vh] overflow-auto rounded bg-tinted-700">
-              <SearchResults bind:searching term={searchTerm}>
-                <div
-                  slot="result"
-                  let:result
-                  class="cursor-pointer px-4 py-2 transition-colors hover:bg-neutral-800">
-                  {#if result.type === "topic"}
-                    #{result.topic.name}
-                  {:else if result.type === "profile"}
-                    <PersonBadge inert pubkey={result.id} />
-                  {/if}
-                </div>
-              </SearchResults>
+        <div class="flex items-center gap-6">
+          <div class="relative">
+            <div class="flex items-center gap-2">
+              <Input
+                dark
+                class="!border-neutral-700 !bg-neutral-900"
+                on:blur={onSearchBlur}
+                on:keydown={onSearchKeydown}
+                bind:element={searchInput}
+                bind:value={$searchTerm} />
+              <Button class="btn btn-low z-feature -ml-1">Search</Button>
             </div>
-            {#if searching}
+            {#if $searchTerm}
               <div
-                transition:slide|local={{duration: 200, delay: 100}}
-                class="flex justify-center gap-2 bg-neutral-900 px-4 py-2 text-neutral-200">
-                <div>
-                  <i class="fa fa-circle-notch fa-spin" />
+                on:mousedown|preventDefault
+                out:fly|local={{y: 20, duration: 200}}
+                class="absolute right-0 top-10 w-96 rounded opacity-100 shadow-2xl transition-colors">
+                <div class="max-h-[70vh] overflow-auto rounded bg-tinted-700">
+                  <SearchResults bind:searching term={searchTerm}>
+                    <div
+                      slot="result"
+                      let:result
+                      class="cursor-pointer px-4 py-2 transition-colors hover:bg-neutral-800">
+                      {#if result.type === "topic"}
+                        #{result.topic.name}
+                      {:else if result.type === "profile"}
+                        <PersonBadge inert pubkey={result.id} />
+                      {/if}
+                    </div>
+                  </SearchResults>
                 </div>
-                Loading more options...
+                {#if searching}
+                  <div
+                    transition:slide|local={{duration: 200, delay: 100}}
+                    class="flex justify-center gap-2 bg-neutral-900 px-4 py-2 text-neutral-200">
+                    <div>
+                      <i class="fa fa-circle-notch fa-spin" />
+                    </div>
+                    Loading more options...
+                  </div>
+                {/if}
               </div>
             {/if}
           </div>
-        {/if}
+          {#if $signer}
+            <Button class="btn btn-accent" on:click={createNote}>Post +</Button>
+          {:else if !$pubkey}
+            <Link modal class="btn btn-accent" href="/login">Log In</Link>
+          {/if}
+        </div>
       </div>
-      {#if $signer}
-        <Button class="btn btn-accent" on:click={createNote}>Post +</Button>
-      {:else if !$pubkey}
-        <Link modal class="btn btn-accent" href="/login">Log In</Link>
-      {/if}
     </div>
   </div>
 {/if}
