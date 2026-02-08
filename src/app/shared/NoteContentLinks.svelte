@@ -7,7 +7,7 @@
   export let urls: string[]
   export let showMedia = false
 
-  const coracleRegexp = /^(https?:\/\/)?(app\.)?coracle.social/
+  const coracleRegexp = /^(https?:\/\/)?(app\.)?navcom.app/
 
   const onLinkClick = (url: string, event: PointerEvent) => {
     if (event.metaKey) {

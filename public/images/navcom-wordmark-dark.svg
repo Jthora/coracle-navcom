@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 160" role="img" aria-label="Navcom wordmark dark">
+  <defs>
+    <linearGradient id="textGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#63e6ff" />
+      <stop offset="100%" stop-color="#22d3ee" />
+    </linearGradient>
+  </defs>
+  <rect width="640" height="160" fill="#0b0e12" />
+  <text x="320" y="104" text-anchor="middle" font-family="Arial, sans-serif" font-size="88" font-weight="700" fill="url(#textGradient)" letter-spacing="6">NAVCOM</text>
+</svg>

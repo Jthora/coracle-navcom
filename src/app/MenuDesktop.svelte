@@ -75,7 +75,7 @@
 </script>
 
 <div class="bottom-sai left-sai top-sai fixed z-sidebar w-72 bg-tinted-700 transition-colors">
-  <Link external class="mb-4 mt-4 flex items-center gap-2 px-6" href="https://info.coracle.social">
+  <Link external class="mb-4 mt-4 flex items-center gap-2 px-6" href="https://navcom.app">
     <img
       alt="App Logo"
       src={$theme === "dark"

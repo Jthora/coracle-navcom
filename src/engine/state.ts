@@ -843,7 +843,7 @@ if (!initialized) {
     })
   })
 
-  ready = initStorage("coracle", 9, {
+  ready = initStorage("navcom", 9, {
     relays: new RelaysStorageAdapter({name: "relays"}),
     handles: new HandlesStorageAdapter({name: "handles"}),
     zappers: new ZappersStorageAdapter({name: "zappers"}),

@@ -20,7 +20,7 @@
 
 <FlexColumn class="gap-8">
   <div class="flex flex-col items-center justify-center">
-    <Heading>Coracle</Heading>
+    <Heading>Navcom</Heading>
     <h2 class="m-auto text-center">A Nostr client for feeds that puts relays first.</h2>
     {#if hash}
       <p class="mt-1 text-xs">Running build {hash.slice(0, 8)}</p>
@@ -61,14 +61,14 @@
     <p class="flex justify-center gap-4">
       <Popover triggerType="mouseenter">
         <div slot="trigger">
-          <Link external href="https://github.com/coracle-social/coracle"
+          <Link external href="https://navcom.app"
             ><i class="fa fa-code-branch" /></Link>
         </div>
         <div slot="tooltip">Source Code</div>
       </Popover>
       <Popover triggerType="mouseenter">
         <div slot="trigger">
-          <Link external href="https://info.coracle.social">
+          <Link external href="https://navcom.app">
             <i class="fa fa-earth-americas" />
           </Link>
         </div>

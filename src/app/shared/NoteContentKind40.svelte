@@ -11,7 +11,7 @@
   const {name, picture, about} = parseJson(note.content)
   const noteId = nip19.noteEncode(note.kind === 40 ? note.id : getTagValue("e", note.tags))
 
-  const goToChat = () => window.open(`https://chat.coracle.social/chat/${noteId}`)
+  const goToChat = () => window.open(`https://chat.navcom.app/chat/${noteId}`)
 </script>
 
 <Card interactive on:click={goToChat}>

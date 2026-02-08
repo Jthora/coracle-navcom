@@ -9,6 +9,8 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 .env
+.env.local
+.navcom-app-key.txt
 
 node_modules
 dist
