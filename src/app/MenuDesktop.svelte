@@ -121,7 +121,6 @@
       {/if}
     </div>
   </MenuDesktopItem>
-  <MenuDesktopItem modal path="/groups" disabled={!$signer}>Groups</MenuDesktopItem>
   <MenuDesktopItem modal path="/lists" disabled={!$signer}>Lists</MenuDesktopItem>
   <FlexColumn small class="absolute bottom-0 w-72">
     <Button
@@ -165,24 +164,28 @@
     {:else if subMenu === "account"}
       <MenuDesktopSecondary onEscape={closeSubMenu}>
         <MenuItem
-          class="staatliches flex items-center gap-4 py-4 pl-8"
+          class="staatliches flex items-center gap-4 py-4 pl-8 text-neutral-100"
           href={router.at("people").of($pubkey).toString()}>
           <i class="fa fa-user-circle" /> Profile
         </MenuItem>
-        <MenuItem class="staatliches flex items-center gap-4 py-4 pl-8" href="/settings/keys">
+        <MenuItem
+          class="staatliches flex items-center gap-4 py-4 pl-8 text-neutral-100"
+          href="/settings/keys">
           <i class="fa fa-key" /> Keys
         </MenuItem>
         <MenuItem
-          class="staatliches flex items-center gap-4 py-4 pl-8"
+          class="staatliches flex items-center gap-4 py-4 pl-8 text-neutral-100"
           href={router.at("invite/create").qp({initialPubkey: $pubkey}).toString()}>
           <i class="fa fa-paper-plane" /> Create Invite
         </MenuItem>
         <MenuItem
-          class="staatliches flex items-center gap-4 py-4 pl-8"
+          class="staatliches flex items-center gap-4 py-4 pl-8 text-neutral-100"
           on:click={() => setSubMenu("accounts")}>
           <i class="fa fa-right-left" /> Switch Account
         </MenuItem>
-        <MenuItem class="staatliches flex items-center gap-4 py-4 pl-8" href="/logout">
+        <MenuItem
+          class="staatliches flex items-center gap-4 py-4 pl-8 text-neutral-100"
+          href="/logout">
           <i class="fa fa-right-to-bracket" /> Log Out
         </MenuItem>
       </MenuDesktopSecondary>
@@ -190,7 +193,7 @@
       <MenuDesktopSecondary onEscape={closeSubMenu}>
         {#each Object.values($sessions) as s (s.pubkey)}
           {#if s.pubkey !== $pubkey}
-            <MenuItem class="py-4" on:click={() => pubkey.set(s.pubkey)}>
+            <MenuItem class="py-4 text-neutral-100" on:click={() => pubkey.set(s.pubkey)}>
               <div class="flex items-center gap-2">
                 <PersonCircle
                   class="h-8 w-8 border border-solid border-tinted-200"
@@ -201,7 +204,7 @@
           {/if}
         {/each}
         <MenuItem
-          class="staatliches flex items-center gap-4 py-4"
+          class="staatliches flex items-center gap-4 py-4 text-neutral-100"
           on:click={() => router.at("login").open()}>
           <i class="fa fa-plus" /> Add Account
         </MenuItem>
