@@ -24,6 +24,7 @@
   import {router} from "src/app/util/router"
   import {hasNewMessages, hasNewNotifications} from "src/engine"
   import {env} from "src/engine"
+  import {ANNOUNCEMENTS_PATH} from "src/app/announcements"
   import {showInfo} from "src/partials/Toast.svelte"
 
   const {page} = router
@@ -105,6 +106,9 @@
   </Link>
   <MenuDesktopItem path={opsFeedPath} isActive={$page?.path === opsFeedPath}
     >Ops Feed</MenuDesktopItem>
+  <MenuDesktopItem path={ANNOUNCEMENTS_PATH} isActive={$page?.path === ANNOUNCEMENTS_PATH}>
+    Announcements
+  </MenuDesktopItem>
   <MenuDesktopItem
     path="/settings/relays"
     disabled={!$signer}

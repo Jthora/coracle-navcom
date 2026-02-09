@@ -2,7 +2,6 @@
   import {pubkey} from "@welshman/app"
   import {synced, localStorageProvider} from "@welshman/store"
   import Button from "src/partials/Button.svelte"
-  import Card from "src/partials/Card.svelte"
   import Feed from "src/app/shared/Feed.svelte"
   import {router} from "src/app/util/router"
   import {defaultFeed, env} from "src/engine"
@@ -20,10 +19,6 @@
   const hasTopicPreset = Boolean(feed && topics?.length)
 
   const opsTag = env.OPS_TAG || "starcom-ops"
-  const opsFeedHref = `/topics/${opsTag}`
-  const hqTopicsFallback = ["starcom", "navcom", "archangel", "thora"]
-  const hqFirstTopic = (env.DEFAULT_TOPICS?.[0] || hqTopicsFallback[0]) as string
-  const hqTopicsPath = `/topics/${hqFirstTopic}`
   const isOpsFeed = topics?.length === 1 && topics[0] === opsTag
 
   $: initialFeed = hasTopicPreset && $feedMode === "topic" ? feed : $defaultFeed
@@ -31,37 +26,6 @@
 
   document.title = "Feeds"
 </script>
-
-{#if isOpsFeed}
-  <Card class="panel-interactive mb-3 flex items-center justify-between gap-3">
-    <div class="flex flex-col text-sm text-neutral-200">
-      <span class="font-semibold">Starcom Ops</span>
-      <span class="text-neutral-400"
-        >Live ops chatter. You're in read-only mode until you log in.</span>
-    </div>
-    {#if $pubkey}
-      <Button class="btn btn-low" on:click={() => router.go({path: hqTopicsPath})}>
-        View HQ topics
-      </Button>
-    {:else}
-      <div class="flex gap-2">
-        <Button class="btn btn-low" on:click={() => router.go({path: hqTopicsPath})}>
-          HQ topics
-        </Button>
-        <Button class="btn btn-accent" on:click={showLogin}>Log in to post</Button>
-      </div>
-    {/if}
-  </Card>
-{:else}
-  <Card class="panel-interactive mb-3 flex items-center justify-between gap-3">
-    <div class="flex flex-col text-sm text-neutral-200">
-      <span class="font-semibold">Ops Feed</span>
-      <span class="text-neutral-400">Open coordination on #{opsTag}.</span>
-    </div>
-    <Button class="btn btn-accent" on:click={() => router.go({path: opsFeedHref})}
-      >Open feed</Button>
-  </Card>
-{/if}
 
 {#if hasTopicPreset && !isOpsFeed}
   <div class="mb-3 flex flex-wrap items-center gap-2 text-sm text-neutral-300">

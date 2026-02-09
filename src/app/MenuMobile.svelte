@@ -11,6 +11,7 @@
   import {slowConnections, menuIsOpen} from "src/app/state"
   import {router} from "src/app/util/router"
   import {hasNewMessages, hasNewNotifications, env} from "src/engine"
+  import {ANNOUNCEMENTS_PATH} from "src/app/announcements"
   import {showInfo} from "src/partials/Toast.svelte"
 
   const closeSubMenu = () => {
@@ -109,6 +110,9 @@
       </MenuMobileItem>
       <MenuMobileItem href={opsFeedPath} on:click={closeMenu}>
         <i class="fa fa-hashtag" /> Ops Feed
+      </MenuMobileItem>
+      <MenuMobileItem href={ANNOUNCEMENTS_PATH} on:click={closeMenu}>
+        <i class="fa fa-bullhorn" /> Announcements
       </MenuMobileItem>
     </div>
     <div class="staatliches mt-8 block flex h-8 justify-center gap-2 px-8 text-tinted-400">

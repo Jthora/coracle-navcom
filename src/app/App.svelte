@@ -20,6 +20,7 @@
   import * as domain from "src/domain"
   import {loadUserData} from "src/app/state"
   import {themeVariables, appName} from "src/partials/state"
+  import {ANNOUNCEMENTS_PATH} from "src/app/announcements"
   import Toast from "src/partials/Toast.svelte"
   import ChatEnable from "src/app/views/ChatEnable.svelte"
   import Menu from "src/app/Menu.svelte"
@@ -36,6 +37,7 @@
   import FeedCreate from "src/app/views/FeedCreate.svelte"
   import FeedEdit from "src/app/views/FeedEdit.svelte"
   import FeedList from "src/app/views/FeedList.svelte"
+  import Announcements from "src/app/views/Announcements.svelte"
   import Help from "src/app/views/Help.svelte"
   import Home from "src/app/views/Home.svelte"
   import InviteAccept from "src/app/views/InviteAccept.svelte"
@@ -143,6 +145,8 @@
       address: asNaddr("address"),
     },
   })
+
+  router.register(ANNOUNCEMENTS_PATH, Announcements)
 
   router.register("/lists", ListList)
   router.register("/lists/create", ListCreate)
