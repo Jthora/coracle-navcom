@@ -104,11 +104,11 @@
         draggable="false" />
     </div>
   </Link>
-  <MenuDesktopItem path={opsFeedPath} isActive={$page?.path === opsFeedPath}
-    >Ops Feed</MenuDesktopItem>
   <MenuDesktopItem path={ANNOUNCEMENTS_PATH} isActive={$page?.path === ANNOUNCEMENTS_PATH}>
     Announcements
   </MenuDesktopItem>
+  <MenuDesktopItem path={opsFeedPath} isActive={$page?.path === opsFeedPath}
+    >Ops Feed</MenuDesktopItem>
   <MenuDesktopItem
     path="/settings/relays"
     disabled={!$signer}
