@@ -8,6 +8,8 @@
 
   export let feed = null
   export let topics: string[] = []
+  export let hideTopicChrome = false
+  export let showControls = true
 
   const feedMode = synced({
     key: "Feed.mode",
@@ -27,7 +29,7 @@
   document.title = "Feeds"
 </script>
 
-{#if hasTopicPreset && !isOpsFeed}
+{#if hasTopicPreset && !isOpsFeed && !hideTopicChrome}
   <div class="mb-3 flex flex-wrap items-center gap-2 text-sm text-neutral-300">
     {#each topics as t (t)}
       <span class="panel border border-neutral-700 px-2 py-1 text-neutral-200">#{t}</span>
@@ -41,7 +43,7 @@
   </div>
 {/if}
 
-{#if !$pubkey}
+{#if !$pubkey && !hideTopicChrome}
   <div class="py-16 text-center">
     <p class="text-xl">Don't have an account?</p>
     <p>
@@ -52,7 +54,7 @@
   </div>
 {/if}
 
-{#if hasTopicPreset}
+{#if hasTopicPreset && !hideTopicChrome}
   <div class="mb-2 flex flex-wrap items-center justify-between gap-2 text-sm text-neutral-300">
     <div class="flex items-center gap-1">
       <Button
@@ -74,4 +76,4 @@
   </div>
 {/if}
 
-<Feed showControls feed={initialFeed} />
+<Feed {showControls} feed={initialFeed} />
