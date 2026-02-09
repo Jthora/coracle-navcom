@@ -24,11 +24,25 @@
   import {router} from "src/app/util/router"
   import {hasNewMessages, hasNewNotifications} from "src/engine"
   import {env} from "src/engine"
+  import {showInfo} from "src/partials/Toast.svelte"
 
   const {page} = router
 
   const opsTag = env.OPS_TAG || "starcom-ops"
   const opsFeedPath = `/topics/${opsTag}`
+
+  const goOpsChat = event => {
+    if (!$signer) {
+      event?.preventDefault()
+      showInfo("Sign in to post in Ops Chat. You can still read Starcom Ops feed.", {
+        timeout: 4500,
+      })
+      router.go({path: opsFeedPath})
+      return
+    }
+
+    router.go({path: "/channels"})
+  }
 
   const closeSubMenu = () => {
     subMenu = null
@@ -73,8 +87,6 @@
     return {pending, success, failure}
   })
 
-  $: isFeedPage = Boolean($page?.path.match(/^\/(notes)?$/))
-  $: isListPage = Boolean($page?.path.match(/^\/(lists)?$/))
   $: userDisplay = deriveProfileDisplay($pubkey)
 </script>
 
@@ -91,7 +103,6 @@
         draggable="false" />
     </div>
   </Link>
-  <MenuDesktopItem path="/notes" isActive={isFeedPage || isListPage}>HQ Feed</MenuDesktopItem>
   <MenuDesktopItem path={opsFeedPath} isActive={$page?.path === opsFeedPath}
     >Ops Feed</MenuDesktopItem>
   <MenuDesktopItem
@@ -119,7 +130,8 @@
   <MenuDesktopItem
     path="/channels"
     disabled={!$signer}
-    isActive={$page?.path.startsWith("/channels")}>
+    isActive={$page?.path.startsWith("/channels")}
+    on:click={goOpsChat}>
     <div class="relative inline-block">
       Ops Chat
       {#if $hasNewMessages}

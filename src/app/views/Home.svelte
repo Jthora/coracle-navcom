@@ -7,15 +7,12 @@
   export let feed = null
   export let topic = null
 
-  const fallbackTopics = ["starcom", "navcom", "archangel", "thora"]
-  const defaultTopics = (env.DEFAULT_TOPICS?.filter(Boolean) || fallbackTopics).filter(Boolean)
+  const opsTag = env.OPS_TAG || "starcom-ops"
 
-  $: topics = topic ? [topic] : defaultTopics
+  $: topics = topic ? [topic] : [opsTag]
   $: topicFeed = topic
     ? makeFeed({definition: makeTagFeed("#t", topic)})
-    : defaultTopics.length
-      ? makeFeed({definition: makeTagFeed("#t", ...defaultTopics)})
-      : null
+    : makeFeed({definition: makeTagFeed("#t", opsTag)})
   $: activeFeed = feed || topicFeed
 </script>
 

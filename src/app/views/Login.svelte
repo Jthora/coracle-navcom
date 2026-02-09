@@ -56,11 +56,18 @@
       <Heading>Welcome!</Heading>
       <p>
         {appName} is built using the
-        <Link class="underline" external href="https://nostr.com/">nostr protocol</Link>, which allows
-        you to own your social identity.
+        <Link class="underline" external href="https://nostr.com/">nostr protocol</Link>, which
+        allows you to own your social identity.
+      </p>
+      <p class="text-neutral-300">
+        You can read Starcom Ops without signing in. To post, you'll need a nostr signer (browser
+        extension or mobile signer app). Pick an option below or create an account if you're new.
       </p>
     </div>
     <div class="relative flex flex-col gap-4">
+      <Button class="btn btn-tall btn-low" on:click={signUp}>
+        <i class="fa fa-user-plus" /> Register (no signer yet)
+      </Button>
       {#if getNip07()}
         <Button class="btn btn-tall btn-accent" on:click={useExtension}>
           <i class="fa fa-puzzle-piece" /> Use Browser Extension
@@ -79,9 +86,5 @@
         <i class="fa fa-compass" /> Browse Signer Apps
       </Link>
     </div>
-    <span class="text-center">
-      Need an account?
-      <Button class="underline" on:click={signUp}>Register instead</Button>
-    </span>
   </FlexColumn>
 </div>

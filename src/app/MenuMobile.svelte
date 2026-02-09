@@ -11,6 +11,7 @@
   import {slowConnections, menuIsOpen} from "src/app/state"
   import {router} from "src/app/util/router"
   import {hasNewMessages, hasNewNotifications, env} from "src/engine"
+  import {showInfo} from "src/partials/Toast.svelte"
 
   const closeSubMenu = () => {
     subMenu = null
@@ -33,14 +34,23 @@
     setSubMenu("account")
   }
 
-  const openFeeds = () => {
-    router.at("notes").push()
-    closeMenu()
-  }
-
   let subMenu
   const opsTag = env.OPS_TAG || "starcom-ops"
   const opsFeedPath = `/topics/${opsTag}`
+
+  const goOpsChat = event => {
+    if (!$signer) {
+      event?.preventDefault()
+      showInfo("Sign in to post in Ops Chat. You can still read Starcom Ops feed.", {
+        timeout: 4500,
+      })
+      router.go({path: opsFeedPath})
+      closeMenu()
+      return
+    }
+
+    closeMenu()
+  }
 </script>
 
 {#if $menuIsOpen}
@@ -87,7 +97,7 @@
           {/if}
         </div>
       </MenuMobileItem>
-      <MenuMobileItem disabled={!$signer} href="/channels" on:click={closeMenu}>
+      <MenuMobileItem disabled={!$signer} href="/channels" on:click={goOpsChat}>
         <i class="fa fa-headset" />
         <div class="relative inline-block">
           Ops Chat
@@ -96,9 +106,6 @@
               class="absolute -right-2 top-0 h-2 w-2 rounded border border-solid border-white bg-accent" />
           {/if}
         </div>
-      </MenuMobileItem>
-      <MenuMobileItem on:click={openFeeds}>
-        <i class="fa fa-rss" /> HQ Feed
       </MenuMobileItem>
       <MenuMobileItem href={opsFeedPath} on:click={closeMenu}>
         <i class="fa fa-hashtag" /> Ops Feed
