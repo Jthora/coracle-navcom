@@ -39,6 +39,7 @@
   import NoteOptions from "src/app/shared/NoteOptions.svelte"
   import {makeEditor} from "src/app/editor"
   import {drafts} from "src/app/state"
+  import {normalizeEditorTags} from "src/app/util/tags"
   import {router} from "src/app/util/router"
   import {env, getClientTags, sign, userSettings, broadcastUserRelays} from "src/engine"
 
@@ -79,7 +80,7 @@
 
     if (!skipNsecWarning && content.match(/\bnsec1.+/)) return nsecWarning.set(true)
 
-    const tags = [...editor.storage.nostr.getEditorTags(), ...getClientTags()]
+    const tags = [...normalizeEditorTags(editor.storage.nostr.getEditorTags()), ...getClientTags()]
 
     if (options.warning) {
       tags.push(["content-warning", options.warning])

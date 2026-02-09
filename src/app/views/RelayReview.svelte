@@ -12,6 +12,7 @@
   import {router} from "src/app/util/router"
   import {getClientTags} from "src/engine"
   import {makeEditor} from "src/app/editor"
+  import {normalizeEditorTags} from "src/app/util/tags"
 
   export let url
 
@@ -26,7 +27,7 @@
         content,
         tags: [
           ...getClientTags(),
-          ...editor.storage.nostr.getEditorTags(),
+          ...normalizeEditorTags(editor.storage.nostr.getEditorTags()),
           ["L", "review"],
           ["l", "review/relay", "review"],
           ["rating", rating],

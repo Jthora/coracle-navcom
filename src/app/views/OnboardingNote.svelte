@@ -7,6 +7,7 @@
   import EditorContent from "src/app/editor/EditorContent.svelte"
   import Button from "src/partials/Button.svelte"
   import {makeEditor} from "src/app/editor"
+  import {normalizeEditorTags} from "src/app/util/tags"
 
   export let state
   export let signup
@@ -25,7 +26,10 @@
       // Publish our welcome note
       if (content) {
         const relays = Router.get().FromUser().policy(addMaximalFallbacks).getUrls()
-        const template = makeEvent(NOTE, {content, tags: editor.storage.nostr.getEditorTags()})
+        const template = makeEvent(NOTE, {
+          content,
+          tags: normalizeEditorTags(editor.storage.nostr.getEditorTags()),
+        })
         const event = await makePow(own(template, state.pubkey), 20).result
 
         await publishThunk({event, relays})

@@ -23,6 +23,7 @@
   import NoteOptions from "src/app/shared/NoteOptions.svelte"
   import NsecWarning from "src/app/shared/NsecWarning.svelte"
   import {drafts} from "src/app/state"
+  import {normalizeEditorTags} from "src/app/util/tags"
   import {getClientTags, sign, broadcastUserRelays, userSettings} from "src/engine"
   import {makeEditor} from "src/app/editor"
 
@@ -97,7 +98,7 @@
 
     const kind = parent.kind === NOTE ? NOTE : COMMENT
     const parentTags = kind === NOTE ? tagEventForReply(parent) : tagEventForComment(parent)
-    const editorTags = editor.storage.nostr.getEditorTags()
+    const editorTags = normalizeEditorTags(editor.storage.nostr.getEditorTags())
     const tags = uniqTags([...editorTags, ...parentTags, ...getClientTags()])
     const draft = editor.getJSON()
 
