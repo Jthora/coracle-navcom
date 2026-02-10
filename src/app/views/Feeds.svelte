@@ -15,12 +15,14 @@
 
   const opsTag = env.OPS_TAG || "starcom_ops"
   const isOpsFeed = topics?.length === 1 && topics[0] === opsTag
+  const intelTag = env.INTEL_TAG || "starcom_intel"
+  const isIntelFeed = topics?.length === 1 && topics[0] === intelTag
 
   $: initialFeed = hasTopicPreset ? feed : $defaultFeed
   document.title = "Feeds"
 </script>
 
-{#if hasTopicPreset && !isOpsFeed && !hideTopicChrome}
+{#if hasTopicPreset && !isOpsFeed && !isIntelFeed && !hideTopicChrome}
   <div class="mb-3 flex flex-wrap items-center gap-2 text-sm text-neutral-300">
     {#each topics as t (t)}
       <span class="panel border border-neutral-700 px-2 py-1 text-neutral-200">#{t}</span>
