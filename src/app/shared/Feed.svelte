@@ -182,7 +182,7 @@
     <div transition:fly|local={{y: 20, delay: 500}} class="flex flex-col items-center py-24">
       <img
         alt=""
-        class="h-20 w-20 mix-blend-screen"
+        class="h-20 w-20 opacity-50 mix-blend-screen"
         style="mix-blend-mode: screen"
         src="/images/CommanderIcon-80.png"
         loading="lazy" />
