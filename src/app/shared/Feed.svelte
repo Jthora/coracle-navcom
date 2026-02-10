@@ -180,14 +180,11 @@
 {#if !hideSpinner}
   {#if exhausted}
     <div transition:fly|local={{y: 20, delay: 500}} class="flex flex-col items-center py-24">
-      <svg
-        aria-hidden="true"
-        class="h-20 w-20 text-white"
-        viewBox="0 0 24 24"
-        fill="currentColor"
-        role="img">
-        <path d="M12 2l2.9 6.9 7.1.6-5.4 4.7 1.7 7-6.3-3.8-6.3 3.8 1.7-7-5.4-4.7 7.1-.6z" />
-      </svg>
+      <img
+        alt=""
+        class="h-20 w-20 mix-blend-screen"
+        src="/images/CommanderIcon-80.png"
+        loading="lazy" />
     </div>
   {:else}
     <div out:fade|local>
