@@ -31,6 +31,7 @@ ssl
 scratch.md
 psql-tmux.json
 sandbox.sql
+*.psd
 
 # Generated on build
 public/icons
