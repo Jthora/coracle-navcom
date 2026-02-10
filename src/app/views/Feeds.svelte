@@ -1,6 +1,5 @@
 <script lang="ts">
   import {pubkey} from "@welshman/app"
-  import {synced, localStorageProvider} from "@welshman/store"
   import Button from "src/partials/Button.svelte"
   import Feed from "src/app/shared/Feed.svelte"
   import {router} from "src/app/util/router"
@@ -11,21 +10,13 @@
   export let hideTopicChrome = false
   export let showControls = true
 
-  const feedMode = synced({
-    key: "Feed.mode",
-    defaultValue: "topic",
-    storage: localStorageProvider,
-  })
-
   const showLogin = () => router.at("login").open()
   const hasTopicPreset = Boolean(feed && topics?.length)
 
   const opsTag = env.OPS_TAG || "starcom_ops"
   const isOpsFeed = topics?.length === 1 && topics[0] === opsTag
 
-  $: initialFeed = hasTopicPreset && $feedMode === "topic" ? feed : $defaultFeed
-  $: topicLabel = topics?.length ? topics.map(t => `#${t}`).join(", ") : ""
-
+  $: initialFeed = hasTopicPreset ? feed : $defaultFeed
   document.title = "Feeds"
 </script>
 
@@ -34,12 +25,6 @@
     {#each topics as t (t)}
       <span class="panel border border-neutral-700 px-2 py-1 text-neutral-200">#{t}</span>
     {/each}
-    <Button
-      class="btn btn-low px-3 py-1"
-      on:click={() => feedMode.set("topic")}
-      disabled={$feedMode === "topic"}>
-      Reset HQ scope
-    </Button>
   </div>
 {/if}
 
@@ -51,28 +36,6 @@
         class="text-inherit cursor-pointer bg-transparent p-0 underline"
         on:click={showLogin}>here</Button> to join the nostr network.
     </p>
-  </div>
-{/if}
-
-{#if hasTopicPreset && !hideTopicChrome}
-  <div class="mb-2 flex flex-wrap items-center justify-between gap-2 text-sm text-neutral-300">
-    <div class="flex items-center gap-1">
-      <Button
-        class={"btn px-3 py-1 " + ($feedMode === "topic" ? "btn-accent" : "btn-low")}
-        on:click={() => feedMode.set("topic")}>
-        Topic feed
-      </Button>
-      <Button
-        class={"btn px-3 py-1 " + ($feedMode === "user" ? "btn-accent" : "btn-low")}
-        on:click={() => feedMode.set("user")}>
-        My feed
-      </Button>
-    </div>
-    {#if topicLabel}
-      <div class="text-neutral-400">
-        HQ scope filters to {topicLabel}; My feed shows your follows.
-      </div>
-    {/if}
   </div>
 {/if}
 
