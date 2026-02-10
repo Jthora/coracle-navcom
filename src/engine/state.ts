@@ -142,7 +142,7 @@ export const env = {
   CLIENT_ID: import.meta.env.VITE_CLIENT_ID as string,
   CLIENT_NAME: import.meta.env.VITE_CLIENT_NAME as string,
   DEFAULT_TOPICS: fromCsv(import.meta.env.VITE_DEFAULT_TOPICS) as string[],
-  OPS_TAG: (import.meta.env.VITE_OPS_TAG as string) || "starcom-ops",
+  OPS_TAG: (import.meta.env.VITE_OPS_TAG as string) || "starcom_ops",
   DEFAULT_FOLLOWS: fromCsv(import.meta.env.VITE_DEFAULT_FOLLOWS) as string,
   DEFAULT_RELAYS: fromCsv(import.meta.env.VITE_DEFAULT_RELAYS).map(normalizeRelayUrl) as string[],
   INDEXER_RELAYS: fromCsv(import.meta.env.VITE_INDEXER_RELAYS).map(normalizeRelayUrl) as string[],

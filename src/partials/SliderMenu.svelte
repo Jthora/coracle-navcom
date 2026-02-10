@@ -15,10 +15,10 @@
       transition:fly|local={{y: 600, duration: 300}}
       class="fixed bottom-0 left-0 right-0 z-modal rounded-t-2xl bg-neutral-800 pt-8"
       on:click={onEscape}>
-      <div class="flex flex-col justify-center gap-1 text-lg">
+      <div class="flex flex-col justify-center gap-1 text-lg text-neutral-100">
         <slot />
       </div>
-      <div class="flex h-16 cursor-pointer items-center justify-end p-3 text-tinted-200">
+      <div class="flex h-16 cursor-pointer items-center justify-end p-3 text-tinted-100">
         <i class="fa fa-times fa-2x" on:click|stopPropagation={onEscape} />
       </div>
     </div>

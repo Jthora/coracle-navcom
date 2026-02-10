@@ -7,7 +7,7 @@
   export let feed = null
   export let topic = null
 
-  const opsTag = env.OPS_TAG || "starcom-ops"
+  const opsTag = env.OPS_TAG || "starcom_ops"
 
   $: topics = topic ? [topic] : [opsTag]
   $: topicFeed = topic

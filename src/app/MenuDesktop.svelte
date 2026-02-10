@@ -29,7 +29,7 @@
 
   const {page} = router
 
-  const opsTag = env.OPS_TAG || "starcom-ops"
+  const opsTag = env.OPS_TAG || "starcom_ops"
   const opsFeedPath = `/topics/${opsTag}`
 
   const goOpsChat = event => {

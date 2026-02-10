@@ -20,7 +20,7 @@
   const showLogin = () => router.at("login").open()
   const hasTopicPreset = Boolean(feed && topics?.length)
 
-  const opsTag = env.OPS_TAG || "starcom-ops"
+  const opsTag = env.OPS_TAG || "starcom_ops"
   const isOpsFeed = topics?.length === 1 && topics[0] === opsTag
 
   $: initialFeed = hasTopicPreset && $feedMode === "topic" ? feed : $defaultFeed
