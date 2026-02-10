@@ -180,7 +180,8 @@
     },
   })
 
-  router.register("/", Home)
+  router.register("/", Announcements)
+  router.register("/open", Home)
   router.register("/topics/:topic", Home)
   router.register("/notes", Home)
   router.register("/notes/create", NoteCreate, {

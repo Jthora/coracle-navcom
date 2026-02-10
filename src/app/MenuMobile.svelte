@@ -113,14 +113,14 @@
       <MenuMobileItem href={ANNOUNCEMENTS_PATH} on:click={closeMenu}>
         <i class="fa fa-bullhorn" /> Announcements
       </MenuMobileItem>
-      <MenuMobileItem href="/" on:click={closeMenu}>
-        <i class="fa fa-house" /> Main Feed
-      </MenuMobileItem>
       <MenuMobileItem href={opsFeedPath} on:click={closeMenu}>
         <i class="fa fa-hashtag" /> Ops Feed
       </MenuMobileItem>
       <MenuMobileItem href={intelFeedPath} on:click={closeMenu}>
         <i class="fa fa-satellite" /> Intel Feed
+      </MenuMobileItem>
+      <MenuMobileItem href="/open" on:click={closeMenu}>
+        <i class="fa fa-house" /> Open Feed
       </MenuMobileItem>
     </div>
     <div class="staatliches mt-8 block flex h-8 justify-center gap-2 px-8 text-tinted-400">

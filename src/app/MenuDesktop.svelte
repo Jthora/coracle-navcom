@@ -106,14 +106,16 @@
         draggable="false" />
     </div>
   </Link>
-  <MenuDesktopItem path={ANNOUNCEMENTS_PATH} isActive={$page?.path === ANNOUNCEMENTS_PATH}>
+  <MenuDesktopItem
+    path={ANNOUNCEMENTS_PATH}
+    isActive={$page?.path === ANNOUNCEMENTS_PATH || $page?.path === "/"}>
     Announcements
   </MenuDesktopItem>
-  <MenuDesktopItem path="/" isActive={$page?.path === "/"}>Main Feed</MenuDesktopItem>
   <MenuDesktopItem path={opsFeedPath} isActive={$page?.path === opsFeedPath}
     >Ops Feed</MenuDesktopItem>
   <MenuDesktopItem path={intelFeedPath} isActive={$page?.path === intelFeedPath}
     >Intel Feed</MenuDesktopItem>
+  <MenuDesktopItem path="/open" isActive={$page?.path === "/open"}>Open Feed</MenuDesktopItem>
   <MenuDesktopItem
     path="/settings/relays"
     disabled={!$signer}
