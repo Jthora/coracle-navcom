@@ -183,6 +183,7 @@
       <img
         alt=""
         class="h-20 w-20 mix-blend-screen"
+        style="mix-blend-mode: screen"
         src="/images/CommanderIcon-80.png"
         loading="lazy" />
     </div>
