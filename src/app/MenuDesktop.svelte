@@ -31,6 +31,8 @@
 
   const opsTag = env.OPS_TAG || "starcom_ops"
   const opsFeedPath = `/topics/${opsTag}`
+  const intelTag = env.INTEL_TAG || "starcom_intel"
+  const intelFeedPath = `/topics/${intelTag}`
 
   const goOpsChat = event => {
     if (!$signer) {
@@ -107,8 +109,11 @@
   <MenuDesktopItem path={ANNOUNCEMENTS_PATH} isActive={$page?.path === ANNOUNCEMENTS_PATH}>
     Announcements
   </MenuDesktopItem>
+  <MenuDesktopItem path="/" isActive={$page?.path === "/"}>Main Feed</MenuDesktopItem>
   <MenuDesktopItem path={opsFeedPath} isActive={$page?.path === opsFeedPath}
     >Ops Feed</MenuDesktopItem>
+  <MenuDesktopItem path={intelFeedPath} isActive={$page?.path === intelFeedPath}
+    >Intel Feed</MenuDesktopItem>
   <MenuDesktopItem
     path="/settings/relays"
     disabled={!$signer}
