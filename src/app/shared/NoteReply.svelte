@@ -24,6 +24,7 @@
   import NsecWarning from "src/app/shared/NsecWarning.svelte"
   import {drafts} from "src/app/state"
   import {normalizeEditorTags} from "src/app/util/tags"
+  import {trackFirstPostAfterOnboarding} from "src/app/util/onboarding-first-post"
   import {getClientTags, sign, broadcastUserRelays, userSettings} from "src/engine"
   import {makeEditor} from "src/app/editor"
 
@@ -140,6 +141,7 @@
     loading = false
     onReplyPublish(thunk)
     broadcastUserRelays(relays)
+    trackFirstPostAfterOnboarding(thunk)
   }
 
   const onBodyClick = e => {

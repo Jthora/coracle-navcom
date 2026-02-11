@@ -40,6 +40,7 @@
   import {makeEditor} from "src/app/editor"
   import {drafts} from "src/app/state"
   import {normalizeEditorTags} from "src/app/util/tags"
+  import {trackFirstPostAfterOnboarding} from "src/app/util/onboarding-first-post"
   import {router} from "src/app/util/router"
   import {env, getClientTags, sign, userSettings, broadcastUserRelays} from "src/engine"
 
@@ -169,6 +170,8 @@
 
       thunk = publishThunk({relays, event: signedEvent, delay: $userSettings.send_delay})
     }
+
+    trackFirstPostAfterOnboarding(thunk)
 
     new Promise<void>(resolve => {
       thunk.subscribe(t => {

@@ -9,7 +9,7 @@
   import PersonBadge from "src/app/shared/PersonBadge.svelte"
   import {menuIsOpen, searchTerm} from "src/app/state"
   import {router} from "src/app/util/router"
-  import {hasNewMessages, hasNewNotifications} from "src/engine"
+  import {hasNewMessages, hasNewNotifications, env} from "src/engine"
 
   let innerWidth = 0
   let searching = false
@@ -31,7 +31,11 @@
 
   const createNote = () => {
     if (!$pubkey) {
-      return router.at("/login").open()
+      if (env.ENABLE_GUIDED_SIGNUP) {
+        return router.at("/signup").qp({returnTo: "/notes/create"}).open()
+      }
+
+      return router.at("/login").qp({returnTo: "/notes/create"}).open()
     }
 
     const params = {} as any
@@ -103,7 +107,11 @@
           {#if $signer}
             <Button class="btn btn-accent" on:click={createNote}>Post +</Button>
           {:else if !$pubkey}
-            <Link modal class="btn btn-accent" href="/login">Log In</Link>
+            {#if env.ENABLE_GUIDED_SIGNUP}
+              <Link modal class="btn btn-accent" href="/signup">Get started</Link>
+            {:else}
+              <Link modal class="btn btn-accent" href="/login">Log in</Link>
+            {/if}
           {/if}
         </div>
       </div>
@@ -127,7 +135,11 @@
         {#if $signer}
           <Button class="btn btn-accent" on:click={createNote}>Post +</Button>
         {:else if !$pubkey}
-          <Link modal class="btn btn-accent" href="/login">Log In</Link>
+          {#if env.ENABLE_GUIDED_SIGNUP}
+            <Link modal class="btn btn-accent" href="/signup">Get started</Link>
+          {:else}
+            <Link modal class="btn btn-accent" href="/login">Log in</Link>
+          {/if}
         {/if}
       </div>
       <div class="relative flex w-1/3 justify-end">

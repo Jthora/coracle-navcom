@@ -1,130 +1,499 @@
 <script lang="ts">
   import {onMount} from "svelte"
-  import {uniq, nth} from "@welshman/lib"
-  import {
-    getPubkeyTagValues,
-    RelayMode,
-    getAddress,
-    Address,
-    getIdFilters,
-    getRelaysFromList,
-  } from "@welshman/util"
+  import {get} from "svelte/store"
   import {Router, addMaximalFallbacks} from "@welshman/router"
-  import {session, userRelayList, thunkIsComplete} from "@welshman/app"
-  import FlexColumn from "src/partials/FlexColumn.svelte"
-  import OnboardingIntro from "src/app/views/OnboardingIntro.svelte"
-  import OnboardingKeys from "src/app/views/OnboardingKeys.svelte"
-  import OnboardingFollows from "src/app/views/OnboardingFollows.svelte"
-  import OnboardingNote from "src/app/views/OnboardingNote.svelte"
+  import {FOLLOWS, makeEvent, RelayMode, getRelaysFromList, makeSecret} from "@welshman/util"
   import {
-    env,
-    myRequest,
-    anonymous,
-    loadPubkeys,
-    requestRelayAccess,
-    listenForNotifications,
-    broadcastUserData,
-  } from "src/engine"
+    userRelayList,
+    loginWithNip01,
+    setProfile,
+    pubkey,
+    publishThunk,
+    tagPubkey,
+  } from "@welshman/app"
+  import {nsecDecode} from "src/util/nostr"
+  import FlexColumn from "src/partials/FlexColumn.svelte"
+  import Button from "src/partials/Button.svelte"
+  import {showWarning} from "src/partials/Toast.svelte"
+  import Start from "src/app/views/onboarding/Start.svelte"
+  import KeyChoice from "src/app/views/onboarding/KeyChoice.svelte"
+  import ProfileLite from "src/app/views/onboarding/ProfileLite.svelte"
+  import Complete from "src/app/views/onboarding/Complete.svelte"
+  import {setChecked, loadPubkeys, listenForNotifications, env, setOutboxPolicies} from "src/engine"
   import {router} from "src/app/util/router"
-  import {setChecked} from "src/engine"
+  import {boot} from "src/app/state"
+  import {
+    onboardingState,
+    setOnboardingPath,
+    setOnboardingStage,
+    setBackupNeeded,
+    markOnboardingComplete,
+    syncOnboardingAccount,
+    ensureCompletionIfKeyed,
+  } from "src/app/state/onboarding"
+  import {trackOnboarding, trackOnboardingEdge, trackOnboardingError} from "src/util/telemetry"
+  import ImportPasswordPrompt from "src/app/views/onboarding/ImportPasswordPrompt.svelte"
+  import {decrypt} from "nostr-tools/nip49"
+  import {bytesToHex} from "@welshman/lib"
+  import {uniqueRelays, uniqueFollowTags} from "src/app/views/onboarding/util"
 
-  export let invite = null
-  export let stage = "intro"
+  type Stage = "start" | "key" | "profile" | "done"
+  type Path = "managed" | "import" | "external_signer"
+
+  export let invite: any = null
+  export let stage: Stage = "start"
   export let nstartCompleted = false
+  export let returnTo: string | null = null
 
-  let state = {
-    pubkey: "",
-    profile: {
-      name: "",
-      about: "",
-      picture: "",
-    },
-    follows: $session ? [] : $anonymous.follows.map(nth(1)),
-    relays:
-      $anonymous.relays.length === 0
-        ? env.DEFAULT_RELAYS.map(url => ["r", url])
-        : $anonymous.relays,
-    onboardingLists: [],
+  const validStages: Stage[] = ["start", "key", "profile", "done"]
+
+  $: currentStage = validStages.includes(stage) ? stage : "start"
+  $: hasKey = Boolean($pubkey)
+
+  let selectedPath: Path = "managed"
+  let keyError: string | null = null
+  let keyLoading = false
+  let finishing = false
+  let relaysApplied = false
+  let starterApplied = false
+  let backupNeeded = false
+  let profile = {handle: "", displayName: "", starterFollows: true}
+  let relayEdgeLogged = false
+  let followsEdgeLogged = false
+  let hydrated = false
+  let queueRelays = false
+  let queueFollows = false
+  let externalTimeout: number | null = null
+  let externalTimedOut = false
+  let importEncrypted: string | null = null
+  let showImportPassword = false
+  let importPasswordError: string | null = null
+  let importPasswordLoading = false
+
+  const flushQueues = () => {
+    if (queueRelays) {
+      applyRelaysIfNeeded()
+    }
+    if (queueFollows) {
+      applyStarterFollowsIfEnabled()
+    }
   }
 
-  if (Array.isArray(invite?.people)) {
-    state.follows = [...state.follows, ...invite.people]
-  }
-
-  if (invite?.relays) {
-    state.relays = [...state.relays, ...invite.relays.map(url => ["r", url])]
-  }
-
-  const setStage = s => {
-    stage = s
-  }
-
-  const signup = async () => {
-    router.at("notes").push()
-
-    // Immediately request access to any relays with a claim
-    for (const {url, claim} of invite?.parsedRelays || []) {
-      if (claim) {
-        const thunk = await requestRelayAccess(url, claim)
-
-        await new Promise<void>(resolve => {
-          thunk.subscribe(t => {
-            if (thunkIsComplete(t)) {
-              resolve()
-            }
-          })
-        })
-      }
+  // Preload starter follows for visibility
+  onMount(() => {
+    if (!env.ENABLE_GUIDED_SIGNUP && !env.ENABLE_GUIDED_SIGNUP_SHADOW) {
+      router.at("/login").open()
+      return
     }
 
-    // Make sure our profile gets to the right relays
-    broadcastUserData(getRelaysFromList($userRelayList, RelayMode.Write))
+    window.addEventListener("online", flushQueues)
+    window.addEventListener("offline", () => {
+      if (!relayEdgeLogged && !queueRelays) {
+        trackOnboardingEdge("relay_offline", false)
+        relayEdgeLogged = true
+      }
+      if (!followsEdgeLogged && !queueFollows) {
+        trackOnboardingEdge("starter_offline", false)
+        followsEdgeLogged = true
+      }
+      queueRelays = true
+      queueFollows = true
+    })
 
-    // Start our notifications listener
-    listenForNotifications()
-    setChecked("*")
+    const stored = get(onboardingState)
+    selectedPath = (stored.path as Path) || "managed"
+    backupNeeded = stored.backupNeeded
+    stage = validStages.includes(stored.stage as Stage) ? (stored.stage as Stage) : "start"
+
+    syncOnboardingAccount(get(pubkey) || null)
+    ensureCompletionIfKeyed(Boolean(get(pubkey)))
+
+    if (stored.complete && get(pubkey)) {
+      markOnboardingComplete(selectedPath, backupNeeded)
+      stage = "done"
+      return exit()
+    }
+
+    setOnboardingStage(stage)
+    setOnboardingPath(selectedPath)
+    hydrated = true
+
+    loadPubkeys(env.DEFAULT_FOLLOWS)
+    trackOnboarding("onboarding_entry", {entry_point: returnTo ? "post_gate" : "direct"})
+    trackOnboarding("onboarding_step_completed", {step: stage})
+  })
+
+  const go = (next: Stage, opts: {complete?: boolean} = {}) => {
+    stage = next
+    if (opts.complete) {
+      markOnboardingComplete(selectedPath, backupNeeded)
+    } else {
+      setOnboardingStage(next)
+    }
+    trackOnboarding("onboarding_step_completed", {step: next})
   }
 
-  onMount(async () => {
-    const listOwners = uniq(env.ONBOARDING_LISTS.map(a => Address.from(a).pubkey))
+  const mapLegacyStage = () => {
+    const legacy = ["follows", "note", "keys", "intro"]
+    if (legacy.includes(stage as string)) {
+      stage = "start"
+      setOnboardingStage("start")
+    }
+  }
 
-    // Prime our database with our default follows and list owners
-    loadPubkeys([...env.DEFAULT_FOLLOWS, ...listOwners])
+  mapLegacyStage()
 
-    // Load our onboarding lists
-    myRequest({
-      autoClose: true,
-      filters: getIdFilters(env.ONBOARDING_LISTS),
-      relays: Router.get().FromPubkeys(listOwners).policy(addMaximalFallbacks).getUrls(),
-      onEvent: e => {
-        if (!state.onboardingLists.find(l => getAddress(l) === getAddress(e))) {
-          state.onboardingLists = state.onboardingLists.concat(e)
+  $: syncOnboardingAccount($pubkey || null)
+  $: ensureCompletionIfKeyed(hasKey)
+  $: if (
+    hydrated &&
+    $onboardingState.stage !== stage &&
+    validStages.includes($onboardingState.stage as Stage)
+  ) {
+    stage = $onboardingState.stage as Stage
+  }
+  $: if (hydrated && $onboardingState.backupNeeded !== backupNeeded) {
+    backupNeeded = $onboardingState.backupNeeded
+  }
+  $: if (hydrated && $onboardingState.path && $onboardingState.path !== selectedPath) {
+    selectedPath = $onboardingState.path as Path
+  }
+
+  const handleManaged = async () => {
+    keyError = null
+    keyLoading = true
+    try {
+      const secret = makeSecret()
+      loginWithNip01(secret)
+      boot()
+      selectedPath = "managed"
+      backupNeeded = false
+      go("profile")
+      trackOnboarding("onboarding_path_selected", {path: "managed"})
+      setOnboardingPath("managed")
+      setBackupNeeded(false)
+
+      if (externalTimedOut) {
+        trackOnboardingEdge("external_signer_timeout", true)
+        externalTimedOut = false
+      }
+    } catch (e) {
+      console.error(e)
+      keyError = "Could not create a managed key. Try again."
+      trackOnboardingError("managed_key_failure")
+    } finally {
+      keyLoading = false
+      externalTimedOut = false
+      if (externalTimeout) {
+        clearTimeout(externalTimeout)
+        externalTimeout = null
+      }
+    }
+  }
+
+  const handleImport = async (secretInput: string) => {
+    keyError = null
+    keyLoading = true
+    try {
+      const trimmed = secretInput.trim()
+      if (!trimmed.startsWith("nsec1")) {
+        if (trimmed.startsWith("ncryptsec")) {
+          importEncrypted = trimmed
+          showImportPassword = true
+          return
         }
 
-        loadPubkeys(getPubkeyTagValues(e.tags))
-      },
-    })
-  })
+        throw new Error("invalid_format")
+      }
+
+      const secret = nsecDecode(trimmed)
+      loginWithNip01(secret)
+      boot()
+      selectedPath = "import"
+      backupNeeded = true
+      go("profile")
+      trackOnboarding("onboarding_path_selected", {path: "import"})
+      setOnboardingPath("import")
+      setBackupNeeded(true)
+    } catch (e) {
+      console.error(e)
+      keyError = "That key didn’t look valid. Check and try again."
+      trackOnboardingError("import_invalid")
+    } finally {
+      keyLoading = false
+    }
+  }
+
+  const handleImportEncrypted = async (password: string) => {
+    if (!importEncrypted) return
+    importPasswordError = null
+    importPasswordLoading = true
+    try {
+      const bytes = decrypt(importEncrypted, password)
+      const hex = bytesToHex(bytes)
+      loginWithNip01(hex)
+      boot()
+      selectedPath = "import"
+      backupNeeded = true
+      showImportPassword = false
+      importEncrypted = null
+      go("profile")
+      trackOnboarding("onboarding_path_selected", {path: "import"})
+      setOnboardingPath("import")
+      setBackupNeeded(true)
+    } catch (e) {
+      console.error(e)
+      importPasswordError = "Couldn’t decrypt that key. Check the password and try again."
+      trackOnboardingError("import_decrypt_failed")
+    } finally {
+      importPasswordLoading = false
+      keyLoading = false
+    }
+  }
+
+  const handleExternal = () => {
+    selectedPath = "external_signer"
+    backupNeeded = false
+    router.at("/login").open()
+    trackOnboarding("onboarding_path_selected", {path: "external_signer"})
+    setOnboardingPath("external_signer")
+    setBackupNeeded(false)
+
+    if (externalTimeout) {
+      clearTimeout(externalTimeout)
+    }
+
+    externalTimeout = window.setTimeout(() => {
+      if (!$pubkey) {
+        externalTimedOut = true
+        trackOnboardingEdge("external_signer_timeout", false)
+        showWarning("Signer didn’t respond. Try the recommended managed key.")
+        go("key")
+        selectedPath = "managed"
+      }
+    }, 8000)
+  }
+
+  const applyRelaysIfNeeded = async (attempt = 0) => {
+    const urls = getRelaysFromList($userRelayList)
+    if (urls.length > 0) {
+      relaysApplied = true
+      queueRelays = false
+      if (relayEdgeLogged) {
+        trackOnboardingEdge("relay_offline", true)
+        relayEdgeLogged = false
+      }
+      return
+    }
+
+    if (typeof navigator !== "undefined" && navigator.onLine === false) {
+      queueRelays = true
+      relaysApplied = false
+      if (!relayEdgeLogged) {
+        trackOnboardingEdge("relay_offline", false)
+        relayEdgeLogged = true
+      }
+      return
+    }
+
+    try {
+      const relays = uniqueRelays(env.DEFAULT_RELAYS.map(url => ["r", url]))
+      await setOutboxPolicies(() => relays)
+      relaysApplied = true
+      queueRelays = false
+      if (relayEdgeLogged) {
+        trackOnboardingEdge("relay_publish_fail", true)
+        relayEdgeLogged = false
+      }
+    } catch (e) {
+      console.error(e)
+      relaysApplied = false
+      if (attempt === 0) {
+        showWarning("Relay defaults not applied. Retrying in the background.")
+        if (!relayEdgeLogged) {
+          trackOnboardingEdge("relay_publish_fail", false)
+          relayEdgeLogged = true
+        }
+      }
+      if (attempt < 2) {
+        const delay = 800 * Math.pow(2, attempt)
+        setTimeout(() => applyRelaysIfNeeded(attempt + 1), delay)
+      } else {
+        queueRelays = true
+      }
+    }
+  }
+
+  const applyStarterFollowsIfEnabled = async (attempt = 0) => {
+    if (!profile.starterFollows) {
+      starterApplied = false
+      return
+    }
+
+    if (typeof navigator !== "undefined" && navigator.onLine === false) {
+      queueFollows = true
+      starterApplied = false
+      if (!followsEdgeLogged) {
+        trackOnboardingEdge("starter_offline", false)
+        followsEdgeLogged = true
+      }
+      return
+    }
+
+    try {
+      const tags = uniqueFollowTags(env.DEFAULT_FOLLOWS, tagPubkey)
+      const event = makeEvent(FOLLOWS, {tags})
+      await publishThunk({
+        event,
+        relays: Router.get().FromUser().policy(addMaximalFallbacks).getUrls(),
+      })
+      starterApplied = true
+      queueFollows = false
+      if (followsEdgeLogged) {
+        trackOnboardingEdge("starter_fail", true)
+        followsEdgeLogged = false
+      }
+    } catch (e) {
+      console.error(e)
+      starterApplied = false
+      if (attempt === 0) {
+        showWarning("Starter follows not applied. Retrying in the background.")
+        if (!followsEdgeLogged) {
+          trackOnboardingEdge("starter_fail", false)
+          followsEdgeLogged = true
+        }
+      }
+      if (attempt < 2) {
+        const delay = 800 * Math.pow(2, attempt)
+        setTimeout(() => applyStarterFollowsIfEnabled(attempt + 1), delay)
+      } else {
+        queueFollows = true
+      }
+    }
+  }
+
+  const applyProfileIfProvided = async () => {
+    if (!profile.handle && !profile.displayName) return
+
+    const values: Record<string, string> = {}
+    if (profile.handle) values.name = profile.handle
+    if (profile.displayName) values.display_name = profile.displayName
+
+    try {
+      setProfile(values)
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
+  const finish = async () => {
+    if (!$pubkey) {
+      keyError = "We couldn't detect a key. Please complete the key step first."
+      go("key")
+      return
+    }
+
+    finishing = true
+
+    try {
+      await applyProfileIfProvided()
+      await applyRelaysIfNeeded()
+      await applyStarterFollowsIfEnabled()
+
+      // Ensure profile data is present on write relays
+      const writeRelays = getRelaysFromList($userRelayList, RelayMode.Write)
+      if (writeRelays.length > 0) {
+        loadPubkeys([$pubkey])
+        loadPubkeys(env.DEFAULT_FOLLOWS)
+      }
+
+      listenForNotifications()
+      setChecked("*")
+
+      trackOnboarding("onboarding_completed", {
+        path: selectedPath,
+        starter_follows_applied: starterApplied,
+        relays_applied: relaysApplied,
+      })
+
+      go("done", {complete: true})
+    } finally {
+      finishing = false
+    }
+  }
+
+  const normalizedReturnTo = () => {
+    if (!returnTo) return null
+    if (returnTo.startsWith("/")) return returnTo
+    return `/${returnTo}`
+  }
+
+  const exit = () => {
+    const target = normalizedReturnTo()
+    if (target) {
+      router.go({path: target})
+    } else {
+      router.at("notes").push()
+    }
+  }
 </script>
 
 <FlexColumn class="mt-8">
-  {#key stage}
-    {#if stage === "intro"}
-      <OnboardingIntro {setStage} />
-    {:else if stage === "keys"}
-      <OnboardingKeys {setStage} {nstartCompleted} />
-    {:else if stage === "follows"}
-      <OnboardingFollows {setStage} bind:state />
-    {:else if stage === "note"}
-      <OnboardingNote {setStage} {signup} {state} />
+  {#key currentStage}
+    {#if currentStage === "start"}
+      <Start {hasKey} onContinue={() => go("key")} onSkipExisting={exit} />
+    {:else if currentStage === "key"}
+      <KeyChoice
+        {selectedPath}
+        loading={keyLoading}
+        error={keyError}
+        on:select={e => (selectedPath = e.detail.path)}
+        on:managed={handleManaged}
+        on:import={e => handleImport(e.detail.secret)}
+        on:external={handleExternal} />
+      <div class="mt-4 flex justify-between text-sm text-neutral-400">
+        <div>Managed is fastest. Advanced options remain available.</div>
+        <div class="flex gap-2">
+          <Button class="btn btn-low" on:click={() => go("start")}>Back</Button>
+          <Button class="btn btn-accent" on:click={() => go("profile")}>Skip for now</Button>
+        </div>
+      </div>
+    {:else if currentStage === "profile"}
+      <ProfileLite
+        handle={profile.handle}
+        displayName={profile.displayName}
+        starterFollows={profile.starterFollows}
+        loading={finishing}
+        onChange={values => (profile = values)}
+        onBack={() => go("key")}
+        onContinue={finish} />
+    {:else if currentStage === "done"}
+      <Complete
+        {relaysApplied}
+        {starterApplied}
+        {backupNeeded}
+        onBack={() => go("profile")}
+        onFinish={exit} />
     {/if}
   {/key}
   <div class="m-auto flex gap-2">
-    {#each ["intro", "keys", "follows", "note"] as s}
+    {#each ["start", "key", "profile", "done"] as s}
       <div
         class="h-2 w-2 rounded-full"
-        class:bg-neutral-300={s === stage}
-        class:bg-neutral-500={s !== stage} />
+        class:bg-neutral-300={s === currentStage}
+        class:bg-neutral-500={s !== currentStage} />
     {/each}
   </div>
+
+  <ImportPasswordPrompt
+    open={showImportPassword}
+    loading={importPasswordLoading}
+    error={importPasswordError}
+    on:submit={e => handleImportEncrypted(e.detail.password)}
+    on:cancel={() => {
+      showImportPassword = false
+      importEncrypted = null
+      importPasswordError = null
+      keyLoading = false
+    }} />
 </FlexColumn>

@@ -58,6 +58,9 @@
   import NoteDetail from "src/app/views/NoteDetail.svelte"
   import Notifications from "src/app/views/Notifications.svelte"
   import Onboarding from "src/app/views/Onboarding.svelte"
+  import BackupReminder from "src/app/views/onboarding/BackupReminder.svelte"
+  import ManagedExportPrompt from "src/app/views/onboarding/ManagedExportPrompt.svelte"
+  import OnboardingBanner from "src/app/views/onboarding/OnboardingBanner.svelte"
   import PersonDetail from "src/app/views/PersonDetail.svelte"
   import PersonFollowers from "src/app/views/PersonFollowers.svelte"
   import PersonFollows from "src/app/views/PersonFollows.svelte"
@@ -225,7 +228,11 @@
     requireUser: true,
   })
 
-  router.register("/signup", Onboarding)
+  router.register("/signup", Onboarding, {
+    serializers: {
+      returnTo: asString("returnTo"),
+    },
+  })
 
   router.register("/people/list", PersonList, {
     serializers: {
@@ -449,6 +456,9 @@
       <ForegroundButtons />
       <Nav />
       <Menu />
+      <OnboardingBanner />
+      <BackupReminder />
+      <ManagedExportPrompt />
       <Toast />
     {/key}
   </div>

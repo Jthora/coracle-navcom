@@ -8,6 +8,7 @@ import {nsecDecode} from "src/util/nostr"
 import {router} from "src/app/util"
 import App from "src/app/App.svelte"
 import {installPrompt} from "src/partials/state"
+import {env} from "src/engine"
 
 // Nstart login - hash is replaced somewhere else, maybe router?
 if (window.location.hash?.startsWith("#nostr-login")) {
@@ -43,10 +44,13 @@ if (window.location.hash?.startsWith("#nostr-login")) {
     }
 
     if (success) {
-      setTimeout(
-        () => router.at("/signup").cx({stage: "follows", nstartCompleted: true}).open(),
-        300,
-      )
+      setTimeout(() => {
+        if (env.ENABLE_GUIDED_SIGNUP) {
+          router.at("/signup").cx({stage: "follows", nstartCompleted: true}).open()
+        } else {
+          router.at("/login").open()
+        }
+      }, 300)
     }
   })()
 }
