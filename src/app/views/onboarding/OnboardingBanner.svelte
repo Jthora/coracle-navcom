@@ -17,9 +17,10 @@
 </script>
 
 {#if (env.ENABLE_GUIDED_SIGNUP || env.ENABLE_GUIDED_SIGNUP_SHADOW) && ($onboardingState.pending || $onboardingState.backupNeeded)}
-  <div class="z-banner pointer-events-none fixed left-0 right-0 top-0 flex justify-center">
+  <div
+    class="z-banner left-sai right-sai pointer-events-none fixed top-4 flex justify-center px-3 lg:top-20 lg:pl-72 lg:pr-6">
     <div
-      class="border-accent/40 bg-neutral-900/95 pointer-events-auto m-3 flex max-w-3xl flex-1 items-center gap-3 rounded border px-4 py-3 text-neutral-100 shadow-2xl">
+      class="border-accent/40 bg-neutral-900/95 pointer-events-auto flex w-full max-w-3xl flex-1 items-center gap-3 rounded border px-4 py-3 text-neutral-100 shadow-2xl">
       <div class="flex-1 text-sm">
         {#if $onboardingState.backupNeeded}
           Finish securing your key. Export or confirm your backup.
