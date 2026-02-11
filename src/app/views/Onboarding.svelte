@@ -40,6 +40,7 @@
   import {decrypt} from "nostr-tools/nip49"
   import {bytesToHex} from "@welshman/lib"
   import {uniqueRelays, uniqueFollowTags} from "src/app/views/onboarding/util"
+  import Popover from "src/partials/Popover.svelte"
 
   type Stage = "start" | "key" | "profile" | "done"
   type Path = "managed" | "import" | "external_signer"
@@ -544,6 +545,13 @@
             on:click={() => go("profile")}>
             Skip for now
           </Button>
+          <Popover triggerType="mouseenter">
+            <span slot="trigger" class="text-neutral-300"><i class="fa fa-info-circle" /></span>
+            <div slot="tooltip" class="max-w-xs text-sm text-neutral-100">
+              Skips picking a key right now and moves to profile. You’ll still need a key before
+              finishing, so choose one of the options when you’re ready.
+            </div>
+          </Popover>
         </div>
       </div>
     {:else if currentStage === "profile"}
@@ -564,13 +572,22 @@
         onFinish={exit} />
     {/if}
   {/key}
-  <div class="m-auto flex gap-2">
-    {#each ["start", "key", "profile", "done"] as s}
-      <div
-        class="h-2 w-2 rounded-full"
-        class:bg-neutral-300={s === currentStage}
-        class:bg-neutral-500={s !== currentStage} />
-    {/each}
+  <div class="m-auto flex items-center gap-2">
+    <div class="flex gap-2">
+      {#each ["start", "key", "profile", "done"] as s}
+        <div
+          class="h-2 w-2 rounded-full"
+          class:bg-neutral-300={s === currentStage}
+          class:bg-neutral-500={s !== currentStage} />
+      {/each}
+    </div>
+    <Popover triggerType="mouseenter">
+      <span slot="trigger" class="text-neutral-300"><i class="fa fa-info-circle" /></span>
+      <div slot="tooltip" class="max-w-xs text-sm text-neutral-100">
+        These dots show your progress through the four steps. You can go back, but some steps (like
+        choosing a key) must be completed before finishing.
+      </div>
+    </Popover>
   </div>
 
   <ImportPasswordPrompt
