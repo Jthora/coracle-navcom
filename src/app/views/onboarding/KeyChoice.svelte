@@ -30,7 +30,7 @@
     2/4
   </p>
   <div class="flex flex-col gap-1">
-    <p class="text-2xl font-bold">Choose your key path</p>
+    <p class="text-2xl font-bold text-neutral-100">Choose your key path</p>
     <p class="text-neutral-200">
       Recommended: let Navcom manage your key so you can post now. Advanced: bring/import a key or
       use an external signer.
