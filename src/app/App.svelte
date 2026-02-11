@@ -436,19 +436,30 @@
 
   // App data boostrap and relay meta fetching
 
-  ready.then(async () => {
-    // Our stores are throttled by 300, so wait until they're populated
-    // before loading app data
-    await sleep(350)
+  ready
+    .then(async () => {
+      // Our stores are throttled by 300, so wait until they're populated
+      // before loading app data
+      await sleep(350)
 
-    if ($session) {
-      loadUserData()
-    }
-  })
+      if ($session) {
+        loadUserData()
+      }
+    })
+    .catch(e => {
+      console.error("engine init failed", e)
+    })
 </script>
 
 {#await ready}
-  <!-- pass -->
+  <div class="text-tinted-200">
+    <Routes />
+    <div class="pointer-events-none fixed inset-0 flex items-start justify-center p-4">
+      <div class="bg-neutral-900/80 rounded px-3 py-2 text-sm text-neutral-200 shadow-lg">
+        Loading app…
+      </div>
+    </div>
+  </div>
 {:then}
   <div class="text-tinted-200">
     <Routes />
@@ -461,5 +472,12 @@
       <ManagedExportPrompt />
       <Toast />
     {/key}
+  </div>
+{:catch error}
+  <div class="text-tinted-200">
+    <Routes />
+    <div class="border-warning/40 bg-warning/10 m-4 rounded border p-3 text-sm text-warning">
+      App init failed; check storage/permissions and reload.
+    </div>
   </div>
 {/await}
