@@ -7,6 +7,8 @@
   export let selectedPath: "managed" | "import" | "external_signer" = "managed"
   export let loading = false
   export let error: string | null = null
+  export let hasNip07 = false
+  export let signerApps: {name: string; packageName: string; iconUrl: string}[] = []
 
   const dispatch = createEventDispatcher()
 
@@ -22,6 +24,11 @@
   const continueImport = () => dispatch("import", {secret: importValue})
 
   const useExternal = () => dispatch("external")
+
+  const useExtension = () => dispatch("extension")
+
+  const useSignerApp = (app: {name: string; packageName: string; iconUrl: string}) =>
+    dispatch("signerApp", {app})
 </script>
 
 <div class="flex flex-wrap items-start gap-3">
@@ -114,6 +121,52 @@
     </Button>
   </div>
 </div>
+
+{#if hasNip07}
+  <div
+    class={`panel mt-3 space-y-2 p-4 ${selectedPath === "external_signer" ? "border-accent" : ""}`}>
+    <div class="flex flex-wrap items-center justify-between gap-2">
+      <p class="text-lg font-semibold text-neutral-100">Use browser extension</p>
+      {#if selectedPath === "external_signer"}
+        <span class="bg-accent/20 rounded-full px-2 py-0.5 text-xs text-accent">Selected</span>
+      {/if}
+    </div>
+    <p class="text-neutral-300">Sign in with your installed NIP-07 browser extension.</p>
+    <div class="flex flex-col gap-2 sm:flex-row">
+      <Button
+        class="btn btn-accent flex-1 whitespace-normal text-center"
+        {loading}
+        on:click={useExtension}>
+        Use extension
+      </Button>
+      <Button
+        class="btn flex-1 whitespace-normal text-center"
+        on:click={() => select("external_signer")}>
+        Keep selected
+      </Button>
+    </div>
+  </div>
+{/if}
+
+{#if signerApps.length > 0}
+  <div class="panel mt-3 space-y-2 p-4">
+    <div class="flex flex-wrap items-center justify-between gap-2">
+      <p class="text-lg font-semibold text-neutral-100">Use signer app</p>
+      <span class="bg-accent/20 rounded-full px-2 py-0.5 text-xs text-accent">Mobile</span>
+    </div>
+    <p class="text-neutral-300">Choose an installed signer app detected on this device.</p>
+    <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+      {#each signerApps as app (app.packageName)}
+        <Button
+          class="btn flex w-full items-center justify-center gap-2 whitespace-normal text-center"
+          on:click={() => useSignerApp(app)}>
+          <img src={app.iconUrl} alt={app.name} width="20" height="20" />
+          Use {app.name}
+        </Button>
+      {/each}
+    </div>
+  </div>
+{/if}
 
 {#if error}
   <p class="mt-3 text-sm text-warning">{error}</p>

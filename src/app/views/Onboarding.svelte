@@ -6,11 +6,15 @@
   import {
     userRelayList,
     loginWithNip01,
+    loginWithNip07,
+    loginWithNip55,
     setProfile,
     pubkey,
     publishThunk,
     tagPubkey,
   } from "@welshman/app"
+  import {Capacitor} from "@capacitor/core"
+  import {getNip07, Nip07Signer, getNip55, Nip55Signer} from "@welshman/signer"
   import {nsecDecode} from "src/util/nostr"
   import FlexColumn from "src/partials/FlexColumn.svelte"
   import Button from "src/partials/Button.svelte"
@@ -40,6 +44,12 @@
   type Stage = "start" | "key" | "profile" | "done"
   type Path = "managed" | "import" | "external_signer"
 
+  type SignerApp = {
+    name: string
+    packageName: string
+    iconUrl: string
+  }
+
   export let invite: any = null
   export let stage: Stage = "start"
   export let nstartCompleted = false
@@ -65,6 +75,8 @@
   let queueFollows = false
   let externalTimeout: number | null = null
   let externalTimedOut = false
+  let hasNip07 = false
+  let signerApps: SignerApp[] = []
   let importEncrypted: string | null = null
   let showImportPassword = false
   let importPasswordError: string | null = null
@@ -121,6 +133,16 @@
     loadPubkeys(env.DEFAULT_FOLLOWS)
     trackOnboarding("onboarding_entry", {entry_point: returnTo ? "post_gate" : "direct"})
     trackOnboarding("onboarding_step_completed", {step: stage})
+
+    hasNip07 = Boolean(getNip07())
+
+    const loadNip55 = async () => {
+      if (Capacitor.isNativePlatform()) {
+        signerApps = await getNip55()
+      }
+    }
+
+    loadNip55()
   })
 
   const go = (next: Stage, opts: {complete?: boolean} = {}) => {
@@ -272,6 +294,62 @@
         selectedPath = "managed"
       }
     }, 8000)
+  }
+
+  const handleExtension = async () => {
+    try {
+      keyError = null
+      keyLoading = true
+      const signer = new Nip07Signer()
+      const signerPubkey = await signer.getPubkey()
+      loginWithNip07(signerPubkey)
+      boot()
+      selectedPath = "external_signer"
+      backupNeeded = false
+      setOnboardingPath("external_signer")
+      setBackupNeeded(false)
+      trackOnboarding("onboarding_path_selected", {path: "external_signer", via: "nip07"})
+      go("profile")
+    } catch (e) {
+      console.error(e)
+      keyError = "Extension did not respond. Try again or pick another option."
+      trackOnboardingError("external_extension_failed")
+    } finally {
+      keyLoading = false
+      externalTimedOut = false
+      if (externalTimeout) {
+        clearTimeout(externalTimeout)
+        externalTimeout = null
+      }
+    }
+  }
+
+  const handleSignerApp = async (app: SignerApp) => {
+    try {
+      keyError = null
+      keyLoading = true
+      const signer = new Nip55Signer(app.packageName)
+      const signerPubkey = await signer.getPubkey()
+      loginWithNip55(signerPubkey, app.packageName)
+      boot()
+      selectedPath = "external_signer"
+      backupNeeded = false
+      setOnboardingPath("external_signer")
+      setBackupNeeded(false)
+      trackOnboarding("onboarding_path_selected", {path: "external_signer", via: "nip55"})
+      go("profile")
+    } catch (e) {
+      console.error(e)
+      keyError = "Signer app did not respond. Try again or pick another option."
+      trackOnboardingError("external_signer_app_failed")
+    } finally {
+      keyLoading = false
+      externalTimedOut = false
+      if (externalTimeout) {
+        clearTimeout(externalTimeout)
+        externalTimeout = null
+      }
+    }
   }
 
   const applyRelaysIfNeeded = async (attempt = 0) => {
@@ -445,12 +523,16 @@
     {:else if currentStage === "key"}
       <KeyChoice
         {selectedPath}
+        {hasNip07}
+        {signerApps}
         loading={keyLoading}
         error={keyError}
         on:select={e => (selectedPath = e.detail.path)}
         on:managed={handleManaged}
         on:import={e => handleImport(e.detail.secret)}
-        on:external={handleExternal} />
+        on:external={handleExternal}
+        on:extension={handleExtension}
+        on:signerApp={e => handleSignerApp(e.detail.app)} />
       <div class="mt-4 flex justify-between text-sm text-neutral-400">
         <div>Managed is fastest. Advanced options remain available.</div>
         <div class="flex gap-2">
