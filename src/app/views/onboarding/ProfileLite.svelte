@@ -40,12 +40,6 @@
       class="-ml-1 -mt-1 flex h-10 w-10 items-center justify-center rounded-full bg-neutral-700 text-base text-neutral-100">
       3/4
     </p>
-    <Popover triggerType="mouseenter" class="inline-flex items-center align-middle">
-      <span slot="trigger" class="text-neutral-300"><i class="fa fa-info-circle" /></span>
-      <div slot="tooltip" class="max-w-xs text-sm text-neutral-100">
-        Step 3 of 4. You can go back if you want to change your key choice.
-      </div>
-    </Popover>
   </div>
   <div class="flex flex-col gap-1">
     <div class="flex items-center gap-2">
@@ -64,13 +58,21 @@
 </div>
 
 <div class="mt-4 space-y-4">
-  <Field label="Handle (optional)">
-    <Popover triggerType="mouseenter" class="mb-1 inline-flex items-center align-middle"
-      ><span slot="trigger" class="text-neutral-300"><i class="fa fa-info-circle" /></span>
-      <div slot="tooltip" class="max-w-xs text-sm text-neutral-100">
-        A short name others can mention you with. Avoid sensitive info; you can change it later.
-      </div>
-    </Popover>
+  <Field>
+    <div slot="label" class="flex justify-between">
+      <label
+        class="flex items-center gap-2 font-semibold uppercase tracking-[0.06em] text-neutral-100">
+        Handle (optional)
+      </label>
+      <Popover
+        triggerType="mouseenter"
+        class="inline-flex shrink-0 items-center align-middle text-neutral-300">
+        <span slot="trigger"><i class="fa fa-info-circle" /></span>
+        <div slot="tooltip" class="max-w-xs text-sm text-neutral-100">
+          A short name others can mention you with. Avoid sensitive info; you can change it later.
+        </div>
+      </Popover>
+    </div>
     <Input
       name="handle"
       placeholder="handle"
@@ -80,13 +82,21 @@
       autocapitalize="off"
       spellcheck={false} />
   </Field>
-  <Field label="Display name (optional)">
-    <Popover triggerType="mouseenter" class="mb-1 inline-flex items-center align-middle"
-      ><span slot="trigger" class="text-neutral-300"><i class="fa fa-info-circle" /></span>
-      <div slot="tooltip" class="max-w-xs text-sm text-neutral-100">
-        How your name appears in feeds. Freeform text; you can edit it anytime.
-      </div>
-    </Popover>
+  <Field>
+    <div slot="label" class="flex justify-between">
+      <label
+        class="flex items-center gap-2 font-semibold uppercase tracking-[0.06em] text-neutral-100">
+        Display name (optional)
+      </label>
+      <Popover
+        triggerType="mouseenter"
+        class="inline-flex shrink-0 items-center align-middle text-neutral-300">
+        <span slot="trigger"><i class="fa fa-info-circle" /></span>
+        <div slot="tooltip" class="max-w-xs text-sm text-neutral-100">
+          How your name appears in feeds. Freeform text; you can edit it anytime.
+        </div>
+      </Popover>
+    </div>
     <Input
       name="displayName"
       placeholder="Display name"
