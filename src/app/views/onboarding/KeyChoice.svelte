@@ -38,7 +38,7 @@
       class="-ml-1 -mt-1 flex h-10 w-10 items-center justify-center rounded-full bg-neutral-700 text-base text-neutral-100">
       2/4
     </p>
-    <Popover triggerType="mouseenter">
+    <Popover triggerType="mouseenter" class="inline-flex items-center align-middle">
       <span slot="trigger" class="text-neutral-300"><i class="fa fa-info-circle" /></span>
       <div slot="tooltip" class="max-w-xs text-sm text-neutral-100">
         Step 2 of 4. You can go back to start or forward after choosing a key path.
@@ -48,7 +48,7 @@
   <div class="flex flex-col gap-1">
     <div class="flex items-center gap-2">
       <p class="text-2xl font-bold text-neutral-100">Choose your key path</p>
-      <Popover triggerType="mouseenter">
+      <Popover triggerType="mouseenter" class="inline-flex items-center align-middle">
         <span slot="trigger" class="text-neutral-300"><i class="fa fa-info-circle" /></span>
         <div slot="tooltip" class="max-w-xs text-sm text-neutral-100">
           Pick how you want to hold or sign with your key: quick managed, bring your own key, or use
@@ -68,7 +68,7 @@
     <div class="flex flex-wrap items-center justify-between gap-2">
       <div class="flex items-center gap-2">
         <p class="text-lg font-semibold text-neutral-100">Managed (recommended)</p>
-        <Popover triggerType="mouseenter">
+        <Popover triggerType="mouseenter" class="inline-flex items-center align-middle">
           <span slot="trigger" class="text-neutral-300"><i class="fa fa-info-circle" /></span>
           <div slot="tooltip" class="max-w-xs text-sm text-neutral-100">
             Fastest path. We generate and store a Navcom key for you. You can export or switch to
@@ -97,7 +97,7 @@
     <div class="flex flex-wrap items-center justify-between gap-2">
       <div class="flex items-center gap-2">
         <p class="text-lg font-semibold text-neutral-100">Import your key</p>
-        <Popover triggerType="mouseenter">
+        <Popover triggerType="mouseenter" class="inline-flex items-center align-middle">
           <span slot="trigger" class="text-neutral-300"><i class="fa fa-info-circle" /></span>
           <div slot="tooltip" class="max-w-xs text-sm text-neutral-100">
             Paste your own nsec (or encrypted ncryptsec with a password). You keep full custody.
@@ -140,7 +140,7 @@
   <div class="flex flex-wrap items-center justify-between gap-2">
     <div class="flex items-center gap-2">
       <p class="text-lg font-semibold text-neutral-100">Use external signer</p>
-      <Popover triggerType="mouseenter">
+      <Popover triggerType="mouseenter" class="inline-flex items-center align-middle">
         <span slot="trigger" class="text-neutral-300"><i class="fa fa-info-circle" /></span>
         <div slot="tooltip" class="max-w-xs text-sm text-neutral-100">
           Opens signer options like browser extensions or mobile signers. If nothing responds, we’ll
@@ -173,7 +173,7 @@
     <div class="flex flex-wrap items-center justify-between gap-2">
       <div class="flex items-center gap-2">
         <p class="text-lg font-semibold text-neutral-100">Use browser extension</p>
-        <Popover triggerType="mouseenter">
+        <Popover triggerType="mouseenter" class="inline-flex items-center align-middle">
           <span slot="trigger" class="text-neutral-300"><i class="fa fa-info-circle" /></span>
           <div slot="tooltip" class="max-w-xs text-sm text-neutral-100">
             Signs with your installed NIP-07 extension. Your key stays in the extension; we only ask
@@ -207,7 +207,7 @@
     <div class="flex flex-wrap items-center justify-between gap-2">
       <div class="flex items-center gap-2">
         <p class="text-lg font-semibold text-neutral-100">Use signer app</p>
-        <Popover triggerType="mouseenter">
+        <Popover triggerType="mouseenter" class="inline-flex items-center align-middle">
           <span slot="trigger" class="text-neutral-300"><i class="fa fa-info-circle" /></span>
           <div slot="tooltip" class="max-w-xs text-sm text-neutral-100">
             Use a detected mobile/native signer (NIP-55). We request your public key and signing;

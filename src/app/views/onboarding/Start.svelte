@@ -13,7 +13,7 @@
       class="-ml-1 -mt-1 flex h-10 w-10 items-center justify-center rounded-full bg-neutral-700 text-base text-neutral-100">
       1/4
     </p>
-    <Popover triggerType="mouseenter">
+    <Popover triggerType="mouseenter" class="inline-flex items-center align-middle">
       <span slot="trigger" class="text-neutral-300">
         <i class="fa fa-info-circle" />
       </span>
@@ -26,7 +26,7 @@
   <div class="flex flex-col gap-1">
     <div class="flex items-center gap-2">
       <p class="text-2xl font-bold text-neutral-100">Get started</p>
-      <Popover triggerType="mouseenter">
+      <Popover triggerType="mouseenter" class="inline-flex items-center align-middle">
         <span slot="trigger" class="text-neutral-300">
           <i class="fa fa-info-circle" />
         </span>
@@ -44,7 +44,7 @@
 <div class="panel mt-4 space-y-3 p-4 text-neutral-200">
   <div class="flex items-center gap-2">
     <p>What to expect:</p>
-    <Popover triggerType="mouseenter">
+    <Popover triggerType="mouseenter" class="inline-flex items-center align-middle">
       <span slot="trigger" class="text-neutral-300">
         <i class="fa fa-info-circle" />
       </span>
@@ -57,8 +57,8 @@
   <ul class="list-disc space-y-1 pl-5 text-neutral-300">
     <li>
       We create a Navcom key for you (export anytime).
-      <Popover triggerType="mouseenter">
-        <span slot="trigger" class="ml-1 text-neutral-300"><i class="fa fa-info-circle" /></span>
+      <Popover triggerType="mouseenter" class="ml-1 inline-flex items-center align-middle">
+        <span slot="trigger" class="text-neutral-300"><i class="fa fa-info-circle" /></span>
         <div slot="tooltip" class="max-w-xs text-sm text-neutral-100">
           We generate a private key and keep it available to you; you can download/export it later
           or switch to another signer whenever you want.
@@ -67,8 +67,8 @@
     </li>
     <li>
       Optional: bring your own key instead.
-      <Popover triggerType="mouseenter">
-        <span slot="trigger" class="ml-1 text-neutral-300"><i class="fa fa-info-circle" /></span>
+      <Popover triggerType="mouseenter" class="ml-1 inline-flex items-center align-middle">
+        <span slot="trigger" class="text-neutral-300"><i class="fa fa-info-circle" /></span>
         <div slot="tooltip" class="max-w-xs text-sm text-neutral-100">
           If you already have an nsec or encrypted key, you can paste it and keep full custody.
           We’ll never store it without your say-so.
@@ -77,8 +77,8 @@
     </li>
     <li>
       Optional profile fields; you can skip.
-      <Popover triggerType="mouseenter">
-        <span slot="trigger" class="ml-1 text-neutral-300"><i class="fa fa-info-circle" /></span>
+      <Popover triggerType="mouseenter" class="ml-1 inline-flex items-center align-middle">
+        <span slot="trigger" class="text-neutral-300"><i class="fa fa-info-circle" /></span>
         <div slot="tooltip" class="max-w-xs text-sm text-neutral-100">
           Handle and display name are optional. You can fill them in now or update them later in
           settings.
@@ -87,8 +87,8 @@
     </li>
     <li>
       Defaults applied silently so you can see posts immediately.
-      <Popover triggerType="mouseenter">
-        <span slot="trigger" class="ml-1 text-neutral-300"><i class="fa fa-info-circle" /></span>
+      <Popover triggerType="mouseenter" class="ml-1 inline-flex items-center align-middle">
+        <span slot="trigger" class="text-neutral-300"><i class="fa fa-info-circle" /></span>
         <div slot="tooltip" class="max-w-xs text-sm text-neutral-100">
           We add starter relays and follows so your feed isn’t empty. You can remove or change them
           anytime after onboarding.

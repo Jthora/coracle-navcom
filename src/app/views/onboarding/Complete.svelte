@@ -15,7 +15,7 @@
       class="-ml-1 -mt-1 flex h-10 w-10 items-center justify-center rounded-full bg-neutral-700 text-base text-neutral-100">
       4/4
     </p>
-    <Popover triggerType="mouseenter">
+    <Popover triggerType="mouseenter" class="inline-flex items-center align-middle">
       <span slot="trigger" class="text-neutral-300"><i class="fa fa-info-circle" /></span>
       <div slot="tooltip" class="max-w-xs text-sm text-neutral-100">
         Final step. You can still go back to adjust profile or key choices if needed.
@@ -25,7 +25,7 @@
   <div class="flex flex-col gap-1">
     <div class="flex items-center gap-2">
       <p class="text-2xl font-bold text-neutral-100">You're ready</p>
-      <Popover triggerType="mouseenter">
+      <Popover triggerType="mouseenter" class="inline-flex items-center align-middle">
         <span slot="trigger" class="text-neutral-300"><i class="fa fa-info-circle" /></span>
         <div slot="tooltip" class="max-w-xs text-sm text-neutral-100">
           Posting is enabled. You can tweak relays, follows, and backups later in settings.
@@ -42,7 +42,7 @@
   <div class="flex flex-wrap items-center justify-between gap-2">
     <div class="flex items-center gap-2">
       <span>Relay defaults</span>
-      <Popover triggerType="mouseenter">
+      <Popover triggerType="mouseenter" class="inline-flex items-center align-middle">
         <span slot="trigger" class="text-neutral-300"><i class="fa fa-info-circle" /></span>
         <div slot="tooltip" class="max-w-xs text-sm text-neutral-100">
           We preloaded relays so you can read and post immediately. You can change them later in
@@ -56,7 +56,7 @@
   <div class="flex flex-wrap items-center justify-between gap-2">
     <div class="flex items-center gap-2">
       <span>Starter follows</span>
-      <Popover triggerType="mouseenter">
+      <Popover triggerType="mouseenter" class="inline-flex items-center align-middle">
         <span slot="trigger" class="text-neutral-300"><i class="fa fa-info-circle" /></span>
         <div slot="tooltip" class="max-w-xs text-sm text-neutral-100">
           A short curated list so your feed isn’t empty. You can unfollow any of them anytime.

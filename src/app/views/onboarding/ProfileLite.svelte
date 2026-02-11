@@ -40,7 +40,7 @@
       class="-ml-1 -mt-1 flex h-10 w-10 items-center justify-center rounded-full bg-neutral-700 text-base text-neutral-100">
       3/4
     </p>
-    <Popover triggerType="mouseenter">
+    <Popover triggerType="mouseenter" class="inline-flex items-center align-middle">
       <span slot="trigger" class="text-neutral-300"><i class="fa fa-info-circle" /></span>
       <div slot="tooltip" class="max-w-xs text-sm text-neutral-100">
         Step 3 of 4. You can go back if you want to change your key choice.
@@ -50,7 +50,7 @@
   <div class="flex flex-col gap-1">
     <div class="flex items-center gap-2">
       <p class="text-2xl font-bold text-neutral-100">Profile (optional)</p>
-      <Popover triggerType="mouseenter">
+      <Popover triggerType="mouseenter" class="inline-flex items-center align-middle">
         <span slot="trigger" class="text-neutral-300"><i class="fa fa-info-circle" /></span>
         <div slot="tooltip" class="max-w-xs text-sm text-neutral-100">
           Adding profile info is optional. You can skip now and edit it later in settings.
@@ -65,9 +65,8 @@
 
 <div class="mt-4 space-y-4">
   <Field label="Handle (optional)">
-    <Popover triggerType="mouseenter">
-      <span slot="trigger" class="mb-1 inline-block text-neutral-300"
-        ><i class="fa fa-info-circle" /></span>
+    <Popover triggerType="mouseenter" class="mb-1 inline-flex items-center align-middle"
+      ><span slot="trigger" class="text-neutral-300"><i class="fa fa-info-circle" /></span>
       <div slot="tooltip" class="max-w-xs text-sm text-neutral-100">
         A short name others can mention you with. Avoid sensitive info; you can change it later.
       </div>
@@ -82,9 +81,8 @@
       spellcheck={false} />
   </Field>
   <Field label="Display name (optional)">
-    <Popover triggerType="mouseenter">
-      <span slot="trigger" class="mb-1 inline-block text-neutral-300"
-        ><i class="fa fa-info-circle" /></span>
+    <Popover triggerType="mouseenter" class="mb-1 inline-flex items-center align-middle"
+      ><span slot="trigger" class="text-neutral-300"><i class="fa fa-info-circle" /></span>
       <div slot="tooltip" class="max-w-xs text-sm text-neutral-100">
         How your name appears in feeds. Freeform text; you can edit it anytime.
       </div>
@@ -102,7 +100,7 @@
     <div class="flex flex-wrap items-center justify-between gap-2">
       <div class="flex items-center gap-2">
         <p class="text-lg font-semibold">Starter follows</p>
-        <Popover triggerType="mouseenter">
+        <Popover triggerType="mouseenter" class="inline-flex items-center align-middle">
           <span slot="trigger" class="text-neutral-300"><i class="fa fa-info-circle" /></span>
           <div slot="tooltip" class="max-w-xs text-sm text-neutral-100">
             Adds a small curated list so your feed isn’t empty. You can unfollow any of them later.
