@@ -456,7 +456,7 @@
     })
 </script>
 
-<div class="text-tinted-200">
+<div class="text-neutral-100">
   <Routes />
   {#if initPending}
     <div class="pointer-events-none fixed inset-0 flex items-start justify-center p-4">

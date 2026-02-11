@@ -8,11 +8,11 @@
 
 <div class="flex items-start gap-3">
   <p
-    class="-ml-1 -mt-1 flex h-10 w-10 items-center justify-center rounded-full bg-neutral-700 text-base">
+    class="-ml-1 -mt-1 flex h-10 w-10 items-center justify-center rounded-full bg-neutral-700 text-base text-neutral-100">
     1/4
   </p>
   <div class="flex flex-col gap-1">
-    <p class="text-2xl font-bold">Get started</p>
+    <p class="text-2xl font-bold text-neutral-100">Get started</p>
     <p class="text-neutral-200">
       Set up a Navcom key and post in under a minute. No jargon, minimal steps.
     </p>

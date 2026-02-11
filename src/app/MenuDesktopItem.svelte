@@ -16,7 +16,7 @@
     "text-3xl": !small && isActive,
     "text-2xl": !small && !isActive,
     "text-accent": isActive,
-    "text-tinted-400 hover:text-tinted-100": !isActive,
+    "text-neutral-200 hover:text-accent": !isActive,
   })
 </script>
 

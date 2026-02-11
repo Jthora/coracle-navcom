@@ -152,12 +152,12 @@
   </MenuDesktopItem>
   <FlexColumn small class="absolute bottom-0 w-72">
     <Button
-      class="staatliches px-8 text-start text-tinted-400 hover:text-tinted-100"
+      class="staatliches px-8 text-start text-neutral-200 hover:text-accent"
       on:click={() => setSubMenu("settings")}>Settings</Button>
-    <div class="staatliches flex h-8 gap-2 px-8 text-tinted-500">
-      <Link class="hover:text-tinted-100" href="/about">About</Link> /
-      <Link external class="hover:text-tinted-100" href="/terms.html">Terms</Link> /
-      <Link external class="hover:text-tinted-100" href="/privacy.html">Privacy</Link>
+    <div class="staatliches flex h-8 gap-2 px-8 text-neutral-200">
+      <Link class="hover:text-accent" href="/about">About</Link> /
+      <Link external class="hover:text-accent" href="/terms.html">Terms</Link> /
+      <Link external class="hover:text-accent" href="/privacy.html">Privacy</Link>
     </div>
     {#if subMenu === "settings"}
       <MenuDesktopSecondary onEscape={closeSubMenu}>

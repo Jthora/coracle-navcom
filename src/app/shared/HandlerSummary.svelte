@@ -20,11 +20,11 @@
   <FlexColumn xs>
     <p class="text-lg">{handler.name}</p>
     {#if handler.about}
-      <p class="text-tinted-200">{handler.about}</p>
+      <p class="text-neutral-200">{handler.about}</p>
     {/if}
     <slot />
     {#if $recommendations.length > 0}
-      <div class="text-tinted-200">
+      <div class="text-neutral-200">
         <PeopleAction {pubkeys} {actionText} />
       </div>
     {/if}
