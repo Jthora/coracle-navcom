@@ -81,15 +81,16 @@
       {/if}
     </div>
     <p class="text-neutral-300">We generate and store a Navcom key. You can export it anytime.</p>
-    <div class="flex flex-col gap-2 sm:flex-row">
+    <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
       <Button
-        class="btn btn-accent flex-1 whitespace-normal text-center"
+        class="btn btn-accent w-full whitespace-normal text-center"
         {loading}
         on:click={continueManaged}>
         Use recommended
       </Button>
-      <Button class="btn flex-1 whitespace-normal text-center" on:click={() => select("managed")}
-        >Keep selected</Button>
+      <Button class="btn w-full whitespace-normal text-center" on:click={() => select("managed")}>
+        Keep selected
+      </Button>
     </div>
   </div>
 
@@ -122,14 +123,14 @@
         autocapitalize="off"
         spellcheck={false} />
     </Field>
-    <div class="flex flex-col gap-2 sm:flex-row">
+    <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
       <Button
-        class="btn btn-accent flex-1 whitespace-normal text-center"
+        class="btn btn-accent w-full whitespace-normal text-center"
         {loading}
         on:click={continueImport}>
         Use this key
       </Button>
-      <Button class="btn flex-1 whitespace-normal text-center" on:click={() => select("import")}>
+      <Button class="btn w-full whitespace-normal text-center" on:click={() => select("import")}>
         Keep selected
       </Button>
     </div>
