@@ -81,7 +81,7 @@
       {/if}
     </div>
     <p class="text-neutral-300">We generate and store a Navcom key. You can export it anytime.</p>
-    <div class="grid grid-cols-1 gap-2 md:grid-cols-2">
+    <div class="flex flex-col gap-2">
       <Button
         class="btn btn-accent w-full whitespace-normal text-center"
         {loading}
@@ -123,7 +123,7 @@
         autocapitalize="off"
         spellcheck={false} />
     </Field>
-    <div class="grid grid-cols-1 gap-2 md:grid-cols-2">
+    <div class="flex flex-col gap-2">
       <Button
         class="btn btn-accent w-full whitespace-normal text-center"
         {loading}
