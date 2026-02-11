@@ -22,17 +22,17 @@
 </div>
 
 <div class="panel mt-4 space-y-2 p-4 text-neutral-200">
-  <div class="flex items-center justify-between">
+  <div class="flex flex-wrap items-center justify-between gap-2">
     <span>Relay defaults</span>
     <span class={relaysApplied ? "text-success" : "text-warning"}
       >{relaysApplied ? "Applied" : "Pending"}</span>
   </div>
-  <div class="flex items-center justify-between">
+  <div class="flex flex-wrap items-center justify-between gap-2">
     <span>Starter follows</span>
     <span class={starterApplied ? "text-success" : "text-warning"}
       >{starterApplied ? "Applied" : "Skipped"}</span>
   </div>
-  <div class="flex items-center justify-between">
+  <div class="flex flex-wrap items-center justify-between gap-2">
     <span>Backup reminder</span>
     <span class={backupNeeded ? "text-warning" : "text-neutral-300"}
       >{backupNeeded ? "We'll remind you" : "Not required"}</span>
@@ -40,6 +40,10 @@
 </div>
 
 <div class="mt-4 flex flex-col gap-2 sm:flex-row">
-  <Button class="btn" on:click={onBack}><i class="fa fa-arrow-left" /> Back</Button>
-  <Button class="btn btn-accent flex-1" on:click={onFinish}>Go to Navcom</Button>
+  <Button class="btn whitespace-normal text-center" on:click={onBack}>
+    <i class="fa fa-arrow-left" /> Back
+  </Button>
+  <Button class="btn btn-accent flex-1 whitespace-normal text-center" on:click={onFinish}>
+    Go to Navcom
+  </Button>
 </div>

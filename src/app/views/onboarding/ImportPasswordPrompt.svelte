@@ -39,8 +39,13 @@
         <p class="text-sm text-warning">{error}</p>
       {/if}
       <div class="flex gap-2">
-        <Button class="btn" on:click={cancel} disabled={loading}>Cancel</Button>
-        <Button class="btn btn-accent flex-1" on:click={submit} disabled={!password || loading}>
+        <Button class="btn whitespace-normal text-center" on:click={cancel} disabled={loading}>
+          Cancel
+        </Button>
+        <Button
+          class="btn btn-accent flex-1 whitespace-normal text-center"
+          on:click={submit}
+          disabled={!password || loading}>
           {#if loading}
             <i class="fa fa-spinner fa-spin" /> Decrypting...
           {:else}

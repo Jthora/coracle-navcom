@@ -15,8 +15,10 @@
       Optional: save a backup so you can sign in elsewhere.
     </p>
     <div class="mt-2 flex gap-2">
-      <Button class="btn btn-low flex-1" on:click={dismiss}>Dismiss</Button>
-      <Button class="btn btn-accent flex-1" on:click={goToExport}>
+      <Button class="btn btn-low flex-1 whitespace-normal text-center" on:click={dismiss}>
+        Dismiss
+      </Button>
+      <Button class="btn btn-accent flex-1 whitespace-normal text-center" on:click={goToExport}>
         <i class="fa fa-download" /> Export
       </Button>
     </div>

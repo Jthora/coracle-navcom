@@ -454,8 +454,14 @@
       <div class="mt-4 flex justify-between text-sm text-neutral-400">
         <div>Managed is fastest. Advanced options remain available.</div>
         <div class="flex gap-2">
-          <Button class="btn btn-low" on:click={() => go("start")}>Back</Button>
-          <Button class="btn btn-accent" on:click={() => go("profile")}>Skip for now</Button>
+          <Button class="btn btn-low whitespace-normal text-center" on:click={() => go("start")}>
+            Back
+          </Button>
+          <Button
+            class="btn btn-accent whitespace-normal text-center"
+            on:click={() => go("profile")}>
+            Skip for now
+          </Button>
         </div>
       </div>
     {:else if currentStage === "profile"}

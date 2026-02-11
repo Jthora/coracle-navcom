@@ -28,8 +28,12 @@
   </ul>
 </div>
 <div class="mt-4 flex flex-col gap-2 sm:flex-row">
-  <Button class="btn btn-accent flex-1" on:click={onContinue}>Continue</Button>
+  <Button class="btn btn-accent flex-1 whitespace-normal text-center" on:click={onContinue}>
+    Continue
+  </Button>
   {#if hasKey && onSkipExisting}
-    <Button class="btn flex-1" on:click={onSkipExisting}>I already have a key</Button>
+    <Button class="btn flex-1 whitespace-normal text-center" on:click={onSkipExisting}>
+      I already have a key
+    </Button>
   {/if}
 </div>

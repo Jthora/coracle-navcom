@@ -68,7 +68,7 @@
       spellcheck={false} />
   </Field>
   <div class="panel space-y-2 p-4">
-    <div class="flex items-center justify-between">
+    <div class="flex flex-wrap items-center justify-between gap-2">
       <p class="text-lg font-semibold">Starter follows</p>
       <Toggle bind:value={starterFollows} on:change={() => update({starterFollows})} />
     </div>
@@ -79,6 +79,13 @@
 </div>
 
 <div class="mt-4 flex flex-col gap-2 sm:flex-row">
-  <Button class="btn" on:click={onBack}><i class="fa fa-arrow-left" /> Back</Button>
-  <Button class="btn btn-accent flex-1" {loading} on:click={onContinue}>Continue</Button>
+  <Button class="btn whitespace-normal text-center" on:click={onBack}>
+    <i class="fa fa-arrow-left" /> Back
+  </Button>
+  <Button
+    class="btn btn-accent flex-1 whitespace-normal text-center"
+    {loading}
+    on:click={onContinue}>
+    Continue
+  </Button>
 </div>

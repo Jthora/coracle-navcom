@@ -14,10 +14,12 @@
       Export or write down your key. Posting stays enabled, but don’t lose access.
     </p>
     <div class="mt-2 flex gap-2">
-      <Button class="btn btn-low flex-1" on:click={goToExport}>
+      <Button class="btn btn-low flex-1 whitespace-normal text-center" on:click={goToExport}>
         <i class="fa fa-download" /> Export key
       </Button>
-      <Button class="btn btn-accent flex-1" on:click={confirmBackup}>I’ve backed up</Button>
+      <Button class="btn btn-accent flex-1 whitespace-normal text-center" on:click={confirmBackup}>
+        I’ve backed up
+      </Button>
     </div>
   </div>
 {/if}
