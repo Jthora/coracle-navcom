@@ -60,7 +60,6 @@
   import Onboarding from "src/app/views/Onboarding.svelte"
   import BackupReminder from "src/app/views/onboarding/BackupReminder.svelte"
   import ManagedExportPrompt from "src/app/views/onboarding/ManagedExportPrompt.svelte"
-  import OnboardingBanner from "src/app/views/onboarding/OnboardingBanner.svelte"
   import PersonDetail from "src/app/views/PersonDetail.svelte"
   import PersonFollowers from "src/app/views/PersonFollowers.svelte"
   import PersonFollows from "src/app/views/PersonFollows.svelte"
@@ -469,7 +468,6 @@
     <ForegroundButtons />
     <Nav />
     <Menu />
-    <OnboardingBanner />
     <BackupReminder />
     <ManagedExportPrompt />
     <Toast />
