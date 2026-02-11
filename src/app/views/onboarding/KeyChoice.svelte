@@ -41,7 +41,7 @@
 <div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
   <div class={`panel space-y-2 p-4 ${selectedPath === "managed" ? "border-accent" : ""}`}>
     <div class="flex flex-wrap items-center justify-between gap-2">
-      <p class="text-lg font-semibold">Managed (recommended)</p>
+      <p class="text-lg font-semibold text-neutral-100">Managed (recommended)</p>
       {#if selectedPath === "managed"}
         <span class="bg-accent/20 rounded-full px-2 py-0.5 text-xs text-accent">Selected</span>
       {/if}
@@ -61,7 +61,7 @@
 
   <div class={`panel space-y-3 p-4 ${selectedPath === "import" ? "border-accent" : ""}`}>
     <div class="flex flex-wrap items-center justify-between gap-2">
-      <p class="text-lg font-semibold">Import your key</p>
+      <p class="text-lg font-semibold text-neutral-100">Import your key</p>
       {#if selectedPath === "import"}
         <span class="bg-accent/20 rounded-full px-2 py-0.5 text-xs text-accent">Selected</span>
       {/if}
@@ -95,7 +95,7 @@
 
 <div class="panel mt-3 space-y-2 p-4">
   <div class="flex flex-wrap items-center justify-between gap-2">
-    <p class="text-lg font-semibold">Use external signer</p>
+    <p class="text-lg font-semibold text-neutral-100">Use external signer</p>
     {#if selectedPath === "external_signer"}
       <span class="bg-accent/20 rounded-full px-2 py-0.5 text-xs text-accent">Selected</span>
     {/if}
