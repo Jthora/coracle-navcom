@@ -26,7 +26,7 @@
 
 <div class="flex flex-wrap items-start gap-3">
   <p
-    class="-ml-1 -mt-1 flex h-10 w-10 items-center justify-center rounded-full bg-neutral-700 text-base">
+    class="-ml-1 -mt-1 flex h-10 w-10 items-center justify-center rounded-full bg-neutral-700 text-base text-neutral-100">
     2/4
   </p>
   <div class="flex flex-col gap-1">
