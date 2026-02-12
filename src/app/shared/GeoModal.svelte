@@ -1,6 +1,7 @@
 <script lang="ts">
   import {createEventDispatcher, onMount} from "svelte"
   import {defaultGeointState, safeParseJson} from "src/app/util/geoint"
+  import MapPickerModal from "src/app/shared/MapPickerModal.svelte"
 
   import type {GeointState} from "src/app/util/geoint"
 
@@ -21,6 +22,17 @@
   let error: string | null = null
   let jsonWarning: string | null = null
   const additionalPlaceholder = '{"note":"details"}'
+  let showMapPicker = false
+  let mapPicked = false
+
+  const handleMapSave = ({lat: pickedLat, lon: pickedLon}: {lat: number; lon: number}) => {
+    lat = Number(pickedLat.toFixed(6))
+    lon = Number(pickedLon.toFixed(6))
+    showMapPicker = false
+    mapPicked = true
+    const latInput = document?.getElementById("geo-modal-lat") as HTMLInputElement | null
+    latInput?.focus()
+  }
 
   const loadFromValue = () => {
     lat = value.lat ?? null
@@ -85,6 +97,20 @@
     dispatch("close")
   }
 
+  const handleOverlayClick = (event: MouseEvent) => {
+    const target = event.target as HTMLElement
+
+    if (target?.dataset?.role === "geo-modal-overlay") {
+      handleCancel()
+    }
+  }
+
+  const handleOverlayKeydown = (event: KeyboardEvent) => {
+    if (event.key === "Escape") {
+      handleCancel()
+    }
+  }
+
   const handleCancel = () => {
     loadFromValue()
     onCancel?.()
@@ -106,10 +132,22 @@
   $: loadFromValue()
 </script>
 
+{#if showMapPicker}
+  <MapPickerModal
+    lat={typeof lat === "number" ? lat : Number(lat) || null}
+    lon={typeof lon === "number" ? lon : Number(lon) || null}
+    onClose={() => (showMapPicker = false)}
+    onSave={handleMapSave} />
+{/if}
+
 <div
   class="z-50 fixed inset-0 flex items-start justify-center bg-black/60 p-4 md:items-center"
   role="dialog"
-  aria-modal="true">
+  aria-modal="true"
+  data-role="geo-modal-overlay"
+  on:click={handleOverlayClick}
+  on:keydown={handleOverlayKeydown}
+  tabindex="-1">
   <div
     class="h-full max-h-full w-full overflow-y-auto rounded-2xl bg-neutral-900 p-4 shadow-xl md:h-auto md:max-h-[90vh] md:max-w-xl">
     <div class="flex items-center justify-between pb-2">
@@ -125,13 +163,21 @@
     <div class="grid gap-3 md:grid-cols-2">
       <label class="flex flex-col gap-1">
         <span class="text-sm text-neutral-200">Latitude *</span>
-        <input
-          id="geo-modal-lat"
-          class="rounded border border-neutral-700 bg-neutral-800 p-2 text-white"
-          type="number"
-          step="0.000001"
-          bind:value={lat}
-          placeholder="47.6062" />
+        <div class="flex gap-2">
+          <input
+            id="geo-modal-lat"
+            class="flex-1 rounded border border-neutral-700 bg-neutral-800 p-2 text-white"
+            type="number"
+            step="0.000001"
+            bind:value={lat}
+            placeholder="47.6062" />
+          <button
+            type="button"
+            class="hidden rounded border border-neutral-600 px-3 py-2 text-xs text-white hover:border-neutral-400 md:block"
+            on:click={() => (showMapPicker = true)}>
+            Pick on map
+          </button>
+        </div>
       </label>
 
       <label class="flex flex-col gap-1">
@@ -143,6 +189,36 @@
           bind:value={lon}
           placeholder="-122.3321" />
       </label>
+
+      <div class="flex flex-col gap-1 md:col-span-2">
+        <div class="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            class="rounded border border-neutral-600 px-3 py-2 text-sm text-white hover:border-neutral-400 md:hidden"
+            on:click={() => (showMapPicker = true)}>
+            Pick on map
+          </button>
+          <button
+            type="button"
+            class="rounded border border-neutral-600 px-3 py-2 text-xs text-white hover:border-neutral-400"
+            on:click={() => {
+              lat = Number(lat) || 0
+              lon = Number(lon) || 0
+              mapPicked = false
+            }}>
+            Apply typed coords
+          </button>
+          {#if mapPicked}
+            <span class="bg-emerald-600/30 text-emerald-100 rounded-full px-2 py-1 text-xs">
+              Set from map
+            </span>
+          {/if}
+        </div>
+        <p class="text-xs text-neutral-400">
+          Choose a location on an OpenStreetMap-based picker with a draggable pin, or enter
+          coordinates directly.
+        </p>
+      </div>
 
       <label class="flex flex-col gap-1">
         <span class="text-sm text-neutral-200">Altitude (optional)</span>

@@ -70,6 +70,45 @@ describe("shapePostForSubmit", () => {
     }
   })
 
+  it("does not duplicate the geo hashtag", () => {
+    const result = shapePostForSubmit({
+      type: "geoint",
+      baseText: "Intel note #starcom_intel",
+      tags: [],
+      geointState: {lat: 1, lon: 1, additional: null},
+    })
+
+    const [human] = (result.content as string).split(GEOJSON_DELIMITER)
+    expect(human.trim()).toBe("Intel note #starcom_intel")
+  })
+
+  it("appends geo hashtag when text is empty", () => {
+    const result = shapePostForSubmit({
+      type: "geoint",
+      baseText: " ",
+      tags: [],
+      geointState: {lat: 0, lon: 0, additional: null},
+    })
+
+    const [human, payloadJson] = (result.content as string).split(GEOJSON_DELIMITER)
+    expect(human.trim()).toBe("#starcom_intel")
+    const payload = JSON.parse(payloadJson)
+    expect(payload.properties.description).toBe("")
+  })
+
+  it("blocks when combined geo content exceeds size budget", () => {
+    const big = "a".repeat(11_000)
+    const result = shapePostForSubmit({
+      type: "geoint",
+      baseText: big,
+      tags: [],
+      geointState: {lat: 10, lon: 10, additional: null},
+    })
+
+    expect(result.sizeBlocked).toBeTruthy()
+    expect(result.content).toBeUndefined()
+  })
+
   it("preserves existing option tags (warning/expiration)", () => {
     const state: GeointState = {
       lat: 10,
