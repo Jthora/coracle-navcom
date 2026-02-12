@@ -403,8 +403,19 @@
   }
 
   const handleGeoSave = (state: GeointState) => {
-    geointState = state
-    drafts.set(geoDraftKey("geoint"), state)
+    const normalizedState: GeointState = {
+      ...state,
+      lat: state.lat === null || state.lat === undefined ? null : Number(state.lat),
+      lon: state.lon === null || state.lon === undefined ? null : Number(state.lon),
+      alt: state.alt === null || state.alt === undefined ? null : Number(state.alt),
+      confidence:
+        state.confidence === null || state.confidence === undefined
+          ? null
+          : Number(state.confidence),
+    }
+
+    geointState = normalizedState
+    drafts.set(geoDraftKey("geoint"), normalizedState)
     geoError = null
     showGeoModal = false
     extraJsonWarning = null
@@ -425,15 +436,31 @@
     geohashWarning = null
   }
 
-  const hasValidGeo = () =>
-    geointState.lat !== null &&
-    geointState.lon !== null &&
-    Number.isFinite(Number(geointState.lat)) &&
-    Number.isFinite(Number(geointState.lon)) &&
-    geointState.lat >= -90 &&
-    geointState.lat <= 90 &&
-    geointState.lon >= -180 &&
-    geointState.lon <= 180
+  const isValidGeoState = (state?: GeointState | null) => {
+    if (!state) return false
+
+    const lat = Number(state.lat)
+    const lon = Number(state.lon)
+
+    return (
+      Number.isFinite(lat) &&
+      Number.isFinite(lon) &&
+      lat >= -90 &&
+      lat <= 90 &&
+      lon >= -180 &&
+      lon <= 180
+    )
+  }
+
+  const hasValidGeo = () => {
+    if (isValidGeoState(geointState)) {
+      return true
+    }
+
+    const draftState = drafts.get(geoDraftKey("geoint")) as GeointState | undefined
+
+    return isValidGeoState(draftState)
+  }
 
   let showPreview = false
   let showOptions = false

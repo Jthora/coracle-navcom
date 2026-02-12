@@ -25,10 +25,16 @@
       {/if}
     </div>
     <div class="flex gap-2">
-      <button class="rounded border border-neutral-600 px-3 py-1 text-xs" on:click={onEdit}>
+      <button
+        type="button"
+        class="rounded border border-neutral-600 px-3 py-1 text-xs"
+        on:click={onEdit}>
         Edit
       </button>
-      <button class="rounded border border-neutral-600 px-3 py-1 text-xs" on:click={onClear}>
+      <button
+        type="button"
+        class="rounded border border-neutral-600 px-3 py-1 text-xs"
+        on:click={onClear}>
         Clear
       </button>
     </div>
