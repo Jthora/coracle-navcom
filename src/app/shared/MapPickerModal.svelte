@@ -1,6 +1,9 @@
 <script lang="ts">
   import {onMount} from "svelte"
   import "leaflet/dist/leaflet.css"
+  import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png"
+  import markerIcon from "leaflet/dist/images/marker-icon.png"
+  import markerShadow from "leaflet/dist/images/marker-shadow.png"
 
   export let lat: number | null = null
   export let lon: number | null = null
@@ -24,6 +27,15 @@
   const loadLeafletLocal = async () => {
     const mod = await import("leaflet")
     leaflet = (mod as any).default ?? mod
+
+    if (leaflet?.Icon?.Default) {
+      leaflet.Icon.Default.mergeOptions({
+        iconRetinaUrl: markerIcon2x,
+        iconUrl: markerIcon,
+        shadowUrl: markerShadow,
+      })
+    }
+
     return leaflet
   }
 
