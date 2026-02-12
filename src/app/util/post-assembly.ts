@@ -27,6 +27,12 @@ export type ShapePostInput = {
   geointState?: GeointState
 }
 
+const addTagIfMissing = (tags: string[][], next: string[]) => {
+  if (!tags.some(tag => tag[0] === next[0] && tag[1] === next[1])) {
+    tags.push(next)
+  }
+}
+
 export const shapePostForSubmit = ({
   type,
   baseText,
@@ -47,7 +53,8 @@ export const shapePostForSubmit = ({
   if (type === "ops") {
     const humanText = ensureHashtag(trimmed, "#starcom_ops")
 
-    nextTags.push(["app", "starcom"])
+    addTagIfMissing(nextTags, ["app", "starcom"])
+    addTagIfMissing(nextTags, ["t", "starcom_ops"])
 
     return {content: humanText, tags: nextTags}
   }
@@ -79,14 +86,15 @@ export const shapePostForSubmit = ({
   const subtypeTag = (state.subtype || "").trim() || DEFAULT_GEOINT_TYPE
   const hashTag = geohashFromLatLon(lat, lon)
 
-  nextTags.push(["app", "starcom-geoint"])
-  nextTags.push(["geo", geoTag])
-  nextTags.push(["geoint-type", subtypeTag])
+  addTagIfMissing(nextTags, ["app", "starcom-geoint"])
+  addTagIfMissing(nextTags, ["t", "starcom_intel"])
+  addTagIfMissing(nextTags, ["geo", geoTag])
+  addTagIfMissing(nextTags, ["geoint-type", subtypeTag])
 
   let geohashWarning: string | undefined
 
   if (hashTag) {
-    nextTags.push(["g", hashTag])
+    addTagIfMissing(nextTags, ["g", hashTag])
   } else {
     geohashWarning = "Geohash unavailable; post will send without it."
   }

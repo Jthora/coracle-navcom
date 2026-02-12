@@ -27,6 +27,7 @@ describe("shapePostForSubmit", () => {
     expect(result.error).toBeUndefined()
     expect(result.content).toBe("Routine check #starcom_ops")
     expect(result.tags).toContainEqual(["app", "starcom"])
+    expect(result.tags).toContainEqual(["t", "starcom_ops"])
   })
 
   it("builds geo content with delimiter, payload, and geo tags", () => {
@@ -61,6 +62,7 @@ describe("shapePostForSubmit", () => {
     expect(payload.properties.version).toBe(1)
 
     expect(result.tags).toContainEqual(["app", "starcom-geoint"])
+    expect(result.tags).toContainEqual(["t", "starcom_intel"])
     expect(result.tags).toContainEqual(["geoint-type", "report"])
     expect(result.tags).toContainEqual(["geo", "lat:40.000000,lon:-74.000000"])
 
@@ -136,5 +138,16 @@ describe("shapePostForSubmit", () => {
     expect(result.error).toBeUndefined()
     expect(result.tags).toContainEqual(["content-warning", "spoilers"])
     expect(result.tags).toContainEqual(["expiration", "12345"])
+  })
+
+  it("does not duplicate existing geoint topic tag", () => {
+    const result = shapePostForSubmit({
+      type: "geoint",
+      baseText: "Intel note #starcom_intel",
+      tags: [["t", "starcom_intel"]],
+      geointState: {lat: 12, lon: 34, additional: null},
+    })
+
+    expect(result.tags.filter(tag => tag[0] === "t" && tag[1] === "starcom_intel")).toHaveLength(1)
   })
 })

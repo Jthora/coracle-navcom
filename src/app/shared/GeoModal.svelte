@@ -195,8 +195,6 @@
     const modal = document?.getElementById("geo-modal-lat")
     modal?.focus()
   })
-
-  $: loadFromValue()
 </script>
 
 {#if showMapPicker}
@@ -223,6 +221,7 @@
         <p class="text-sm text-neutral-300">Coordinates are public. Share responsibly.</p>
       </div>
       <button
+        type="button"
         class="flex h-11 w-11 items-center justify-center text-neutral-300 md:h-auto md:w-auto"
         on:click={handleCancel}
         aria-label="Close geo modal">
@@ -337,13 +336,20 @@
 
     <div
       class="sticky bottom-0 mt-4 flex flex-wrap justify-end gap-2 bg-neutral-900 pb-[calc(env(safe-area-inset-bottom)+0.25rem)] pt-2 md:static md:bg-transparent md:pb-0 md:pt-0">
-      <button class="rounded border border-neutral-600 px-4 py-2 text-sm" on:click={handleClear}>
+      <button
+        type="button"
+        class="rounded border border-neutral-600 px-4 py-2 text-sm"
+        on:click={handleClear}>
         Clear
       </button>
-      <button class="rounded border border-neutral-600 px-4 py-2 text-sm" on:click={handleCancel}>
+      <button
+        type="button"
+        class="rounded border border-neutral-600 px-4 py-2 text-sm"
+        on:click={handleCancel}>
         Cancel
       </button>
       <button
+        type="button"
         class="rounded bg-white px-5 py-2 text-sm font-semibold text-black"
         on:click={handleSave}
         aria-label="Save GEOINT state">

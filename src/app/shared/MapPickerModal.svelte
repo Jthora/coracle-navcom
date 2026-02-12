@@ -190,6 +190,7 @@
         </p>
       </div>
       <button
+        type="button"
         class="flex h-11 w-11 items-center justify-center text-neutral-300 md:h-auto md:w-auto"
         bind:this={closeButton}
         on:click={onClose}
@@ -202,6 +203,7 @@
       <div class="text-red-400 flex flex-col gap-2 text-sm">
         <p>{loadError}</p>
         <button
+          type="button"
           class="w-fit rounded border border-neutral-600 px-3 py-2 text-xs text-white hover:border-neutral-400"
           on:click={retry}>
           Retry loading map
@@ -231,9 +233,12 @@
         {markerLon.toFixed(6)}
       </div>
       <div class="flex gap-2">
-        <button class="rounded border border-neutral-600 px-4 py-2 text-sm" on:click={onClose}
-          >Cancel</button>
         <button
+          type="button"
+          class="rounded border border-neutral-600 px-4 py-2 text-sm"
+          on:click={onClose}>Cancel</button>
+        <button
+          type="button"
           class="rounded bg-white px-4 py-2 text-sm font-semibold text-black disabled:opacity-60"
           disabled={!ready || loading}
           on:click={save}>
