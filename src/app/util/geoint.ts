@@ -42,6 +42,11 @@ export type GeoJsonPayload = {
   }
 }
 
+export type GeoPoint = {
+  lat: number
+  lon: number
+}
+
 export const ensureHashtag = (text: string, tag: string) => {
   const trimmed = (text || "").trim()
   const tokens = trimmed.split(/\s+/).filter(Boolean)
@@ -214,6 +219,65 @@ export const safeParseJson = (value: string) => {
 
     return {ok: false, error: error instanceof Error ? error.message : String(error)}
   }
+}
+
+const parseGeoTag = (value?: string | null): GeoPoint | null => {
+  if (!value) return null
+
+  const parts = value.split(",").map(part => part.trim())
+  const data = new Map<string, string>()
+
+  for (const part of parts) {
+    const [key, raw] = part.split(":")
+    if (!key || raw === undefined) continue
+    data.set(key.trim(), raw.trim())
+  }
+
+  const lat = Number(data.get("lat"))
+  const lon = Number(data.get("lon"))
+
+  if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null
+  if (lat < -90 || lat > 90 || lon < -180 || lon > 180) return null
+
+  return {lat, lon}
+}
+
+const parseGeoJsonPayload = (content?: string | null): GeoPoint | null => {
+  if (!content || !content.includes(GEOJSON_DELIMITER)) return null
+
+  const payloadRaw = content.split(GEOJSON_DELIMITER)[1]?.trim()
+  if (!payloadRaw) return null
+
+  try {
+    const parsed = JSON.parse(payloadRaw)
+    const coordinates = parsed?.geometry?.coordinates
+
+    if (!Array.isArray(coordinates) || coordinates.length < 2) return null
+
+    const lon = Number(coordinates[0])
+    const lat = Number(coordinates[1])
+
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null
+    if (lat < -90 || lat > 90 || lon < -180 || lon > 180) return null
+
+    return {lat, lon}
+  } catch {
+    return null
+  }
+}
+
+export const extractGeointPoint = (event: {
+  tags?: string[][]
+  content?: string
+}): GeoPoint | null => {
+  const geoTagValue = event?.tags?.find(tag => tag?.[0] === "geo")?.[1]
+  const fromTag = parseGeoTag(geoTagValue)
+
+  if (fromTag) {
+    return fromTag
+  }
+
+  return parseGeoJsonPayload(event?.content)
 }
 
 export const sizeCheck = (content: string) => {

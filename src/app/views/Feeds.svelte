@@ -41,4 +41,4 @@
   </div>
 {/if}
 
-<Feed {showControls} feed={initialFeed} />
+<Feed {showControls} feed={initialFeed} showGeoThumb={isIntelFeed} />

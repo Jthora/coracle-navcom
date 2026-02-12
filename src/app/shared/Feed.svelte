@@ -33,6 +33,7 @@
   export let hideSpinner = false
   export let shouldSort = false
   export let maxDepth = 2
+  export let showGeoThumb = false
 
   let abortController = new AbortController()
 
@@ -158,7 +159,7 @@
       let:getContext
       let:i>
       <div in:fly={{y: 20}}>
-        <FeedItem showMeta topLevel {getContext} {depth} {anchor} note={event} />
+        <FeedItem showMeta topLevel {getContext} {depth} {anchor} note={event} {showGeoThumb} />
       </div>
       {#if i > 20 && hash(event.id) % 100 === 0 && $promptDismissed < ago(WEEK)}
         <Card class="panel-interactive group flex items-center justify-between">

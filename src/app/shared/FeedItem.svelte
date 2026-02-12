@@ -30,6 +30,7 @@
   export let showParent = true
   export let showLoading = false
   export let showMedia = getSetting("show_media")
+  export let showGeoThumb = false
 
   setContext("topLevel", topLevel)
 
@@ -141,6 +142,7 @@
         {showEntire}
         {showParent}
         {showMedia}
+        {showGeoThumb}
         bind:replyIsOpen
         {addPendingReply}
         {removePendingReply} />

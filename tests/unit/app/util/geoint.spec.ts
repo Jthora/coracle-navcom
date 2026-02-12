@@ -4,6 +4,7 @@ import {
   WARN_BYTES,
   buildGeoJsonPayload,
   buildGeoTagString,
+  extractGeointPoint,
   ensureHashtag,
   geohashFromLatLon,
   safeParseJson,
@@ -135,5 +136,35 @@ describe("sizeCheck", () => {
     const result = sizeCheck(content)
 
     expect(result.warn || result.block).toBe(true)
+  })
+})
+
+describe("extractGeointPoint", () => {
+  it("extracts from geo tag when present", () => {
+    const point = extractGeointPoint({
+      tags: [["geo", "lat:47.600000,lon:-122.300000"]],
+      content: "#starcom_intel",
+    })
+
+    expect(point).toEqual({lat: 47.6, lon: -122.3})
+  })
+
+  it("falls back to geojson payload when geo tag missing", () => {
+    const point = extractGeointPoint({
+      tags: [],
+      content:
+        '#starcom_intel ---GEOJSON---{"type":"Feature","geometry":{"type":"Point","coordinates":[-122.3,47.6]},"properties":{}}',
+    })
+
+    expect(point).toEqual({lat: 47.6, lon: -122.3})
+  })
+
+  it("returns null when coordinates are invalid", () => {
+    const point = extractGeointPoint({
+      tags: [["geo", "lat:200,lon:10"]],
+      content: "#starcom_intel",
+    })
+
+    expect(point).toBeNull()
   })
 })

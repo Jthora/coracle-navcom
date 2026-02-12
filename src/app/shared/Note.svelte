@@ -15,6 +15,7 @@
   import {thunks, pubkey} from "@welshman/app"
   import NoteActions from "src/app/shared/NoteActions.svelte"
   import NoteContent from "src/app/shared/NoteContent.svelte"
+  import GeoThumbnail from "src/app/shared/GeoThumbnail.svelte"
   import NoteHeader from "src/app/shared/NoteHeader.svelte"
   import NoteReply from "src/app/shared/NoteReply.svelte"
   import Button from "src/partials/Button.svelte"
@@ -32,6 +33,7 @@
   export let showParent = true
   export let showEntire = false
   export let showMedia = getSetting("show_media")
+  export let showGeoThumb = false
   export let replyIsOpen = false
   export let addPendingReply = (thunk: Thunk) => undefined
   export let removePendingReply = (thunk: Thunk) => undefined
@@ -124,6 +126,9 @@
     {:else}
       <div class:!pl-0={headerlessKinds.includes(event.kind)} class="mt-2 sm:pl-14">
         <NoteContent note={event} {depth} {showEntire} {showMedia} />
+        {#if showGeoThumb && event.kind === 1}
+          <GeoThumbnail {event} />
+        {/if}
       </div>
       <div class:!pl-10={headerlessKinds.includes(event.kind)} class="pt-4 sm:pl-14">
         {#if pending && event.pubkey === $pubkey && !topLevel && thunk}
