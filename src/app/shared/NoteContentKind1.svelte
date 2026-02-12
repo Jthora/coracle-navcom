@@ -33,6 +33,7 @@
   import PersonLink from "src/app/shared/PersonLink.svelte"
   import NoteContentQuote from "src/app/shared/NoteContentQuote.svelte"
   import NoteCheckImages from "src/app/shared/NoteCheckImages.svelte"
+  import {stripGeoJsonFromContent} from "src/app/util/geoint"
 
   export let note
   export let minLength = 500
@@ -72,7 +73,9 @@
 
   const getUrls = (links: ParsedLinkValue[]) => links.map(link => link.url.toString())
 
-  $: rawContent = parse(note)
+  $: displayContent = stripGeoJsonFromContent(note?.content || "")
+  $: noteForParse = {...note, content: displayContent}
+  $: rawContent = parse(noteForParse)
   $: fullContent = showMedia ? reduceLinks(rawContent) : rawContent
   $: shortContent = showEntire
     ? fullContent

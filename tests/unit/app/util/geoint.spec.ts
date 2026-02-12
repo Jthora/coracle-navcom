@@ -8,6 +8,7 @@ import {
   ensureHashtag,
   geohashFromLatLon,
   safeParseJson,
+  stripGeoJsonFromContent,
   sizeCheck,
 } from "src/app/util/geoint"
 
@@ -112,6 +113,24 @@ describe("safeParseJson", () => {
 
     expect(result.ok).toBe(false)
     expect(result.error).toBeDefined()
+  })
+})
+
+describe("stripGeoJsonFromContent", () => {
+  it("returns original content when delimiter absent", () => {
+    expect(stripGeoJsonFromContent("hello world")).toBe("hello world")
+  })
+
+  it("strips delimiter and payload", () => {
+    const text =
+      '#starcom_intel ---GEOJSON---{"type":"Feature","geometry":{"type":"Point","coordinates":[1,2]},"properties":{}}'
+
+    expect(stripGeoJsonFromContent(text)).toBe("#starcom_intel")
+  })
+
+  it("trims trailing whitespace before delimiter", () => {
+    const text = "hi there   ---GEOJSON---{}"
+    expect(stripGeoJsonFromContent(text)).toBe("hi there")
   })
 })
 

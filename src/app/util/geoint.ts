@@ -221,6 +221,17 @@ export const safeParseJson = (value: string) => {
   }
 }
 
+export const stripGeoJsonFromContent = (content: string) => {
+  const text = content || ""
+  const idx = text.indexOf(GEOJSON_DELIMITER)
+
+  if (idx === -1) {
+    return text
+  }
+
+  return text.slice(0, idx).trimEnd()
+}
+
 const parseGeoTag = (value?: string | null): GeoPoint | null => {
   if (!value) return null
 
