@@ -1,5 +1,6 @@
 <script lang="ts">
   import {onMount} from "svelte"
+  import "leaflet/dist/leaflet.css"
 
   export let lat: number | null = null
   export let lon: number | null = null
@@ -19,21 +20,26 @@
     "https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js",
   ]
 
+  const loadLeafletLocal = async () => {
+    const mod = await import("leaflet")
+    leaflet = (mod as any).default ?? mod
+    return leaflet
+  }
+
   const ensureLeaflet = async () => {
     if (typeof window === "undefined") return
-
-    const existingCss = document.getElementById("leaflet-css") as HTMLLinkElement | null
-    if (!existingCss) {
-      const link = document.createElement("link")
-      link.id = "leaflet-css"
-      link.rel = "stylesheet"
-      link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-      document.head.appendChild(link)
-    }
 
     if ((window as any).L) {
       leaflet = (window as any).L
       return
+    }
+
+    try {
+      await loadLeafletLocal()
+      return
+    } catch (err) {
+      // fall through to CDN
+      console.warn("Local leaflet load failed; trying CDN", err)
     }
 
     const loadScript = (src: string) =>
