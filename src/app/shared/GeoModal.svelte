@@ -24,6 +24,75 @@
   const additionalPlaceholder = '{"note":"details"}'
   let showMapPicker = false
   let mapPicked = false
+  let mapLat: number | null = null
+  let mapLon: number | null = null
+  let latPlaceholder = "47.6062"
+  let lonPlaceholder = "-122.3321"
+  let deviceLat: number | null = null
+  let deviceLon: number | null = null
+  let locating = false
+
+  const parseCoordInput = (value: number | string | null) => {
+    if (value === null || value === undefined) return null
+    if (typeof value === "string" && value.trim() === "") return null
+
+    const num = Number(value)
+
+    return Number.isFinite(num) ? num : null
+  }
+
+  const applyDeviceLocationIfEmpty = () => {
+    if (deviceLat !== null && parseCoordInput(lat) === null) {
+      lat = deviceLat
+    }
+
+    if (deviceLon !== null && parseCoordInput(lon) === null) {
+      lon = deviceLon
+    }
+  }
+
+  const requestDeviceLocation = () => {
+    if (typeof navigator === "undefined" || !navigator?.geolocation || locating) return
+
+    locating = true
+
+    navigator.geolocation.getCurrentPosition(
+      position => {
+        locating = false
+        deviceLat = Number(position.coords.latitude.toFixed(6))
+        deviceLon = Number(position.coords.longitude.toFixed(6))
+        applyDeviceLocationIfEmpty()
+      },
+      () => {
+        locating = false
+      },
+      {enableHighAccuracy: true, maximumAge: 30000, timeout: 7000},
+    )
+  }
+
+  const resolveLatLon = () => {
+    const latNum = parseCoordInput(lat) ?? deviceLat
+    const lonNum = parseCoordInput(lon) ?? deviceLon
+
+    if (latNum === null || lonNum === null) {
+      return {error: "Enter coordinates or allow location access to use your current position."}
+    }
+
+    if (!Number.isFinite(latNum) || !Number.isFinite(lonNum)) {
+      return {error: "Add valid latitude and longitude"}
+    }
+
+    if (latNum < -90 || latNum > 90 || lonNum < -180 || lonNum > 180) {
+      return {error: "Latitude must be between -90 and 90; longitude between -180 and 180"}
+    }
+
+    return {lat: latNum, lon: lonNum}
+  }
+
+  $: mapLat = parseCoordInput(lat) ?? deviceLat
+  $: mapLon = parseCoordInput(lon) ?? deviceLon
+  $: latPlaceholder = deviceLat !== null ? deviceLat.toFixed(6) : "47.6062"
+  $: lonPlaceholder = deviceLon !== null ? deviceLon.toFixed(6) : "-122.3321"
 
   const handleMapSave = ({lat: pickedLat, lon: pickedLon}: {lat: number; lon: number}) => {
     lat = Number(pickedLat.toFixed(6))
@@ -44,6 +113,8 @@
     additionalRaw = value.additional ? JSON.stringify(value.additional, null, 2) : ""
     error = null
     jsonWarning = null
+    mapPicked = false
+    applyDeviceLocationIfEmpty()
   }
 
   const reset = () => {
@@ -56,22 +127,17 @@
     additionalRaw = ""
     error = null
     jsonWarning = null
+    mapPicked = false
+    applyDeviceLocationIfEmpty()
   }
 
   const handleSave = () => {
     error = null
     jsonWarning = null
+    const resolved = resolveLatLon()
 
-    const latNum = Number(lat)
-    const lonNum = Number(lon)
-
-    if (!Number.isFinite(latNum) || !Number.isFinite(lonNum)) {
-      error = "Add valid latitude and longitude"
-      return
-    }
-
-    if (latNum < -90 || latNum > 90 || lonNum < -180 || lonNum > 180) {
-      error = "Latitude must be between -90 and 90; longitude between -180 and 180"
+    if ("error" in resolved) {
+      error = resolved.error
       return
     }
 
@@ -84,8 +150,8 @@
     }
 
     const nextState: GeointState = {
-      lat: latNum,
-      lon: lonNum,
+      lat: resolved.lat,
+      lon: resolved.lon,
       alt: alt === null || alt === "" ? null : Number(alt),
       subtype: subtype?.trim() || null,
       confidence: confidence === null || confidence === "" ? null : Number(confidence),
@@ -95,6 +161,20 @@
 
     onSave?.(nextState)
     dispatch("close")
+  }
+
+  const applyTypedCoords = () => {
+    const resolved = resolveLatLon()
+
+    if ("error" in resolved) {
+      error = resolved.error
+      return
+    }
+
+    error = null
+    lat = resolved.lat
+    lon = resolved.lon
+    mapPicked = false
   }
 
   const handleOverlayClick = (event: MouseEvent) => {
@@ -125,6 +205,7 @@
 
   onMount(() => {
     loadFromValue()
+    requestDeviceLocation()
     const modal = document?.getElementById("geo-modal-lat")
     modal?.focus()
   })
@@ -134,8 +215,8 @@
 
 {#if showMapPicker}
   <MapPickerModal
-    lat={typeof lat === "number" ? lat : Number(lat) || null}
-    lon={typeof lon === "number" ? lon : Number(lon) || null}
+    lat={mapLat}
+    lon={mapLon}
     onClose={() => (showMapPicker = false)}
     onSave={handleMapSave} />
 {/if}
@@ -160,24 +241,43 @@
       </button>
     </div>
 
+    <div class="mb-2 flex flex-wrap items-center justify-between gap-2">
+      <div class="flex items-center gap-2">
+        <span class="text-sm font-semibold text-neutral-200">Coordinates</span>
+        {#if mapPicked}
+          <span class="bg-emerald-600/30 text-emerald-100 rounded-full px-2 py-1 text-xs">
+            Set from map
+          </span>
+        {/if}
+      </div>
+      <div class="flex items-center gap-2">
+        <button
+          type="button"
+          class="rounded border border-neutral-600 px-3 py-2 text-xs text-white hover:border-neutral-400"
+          on:click={applyTypedCoords}>
+          Apply typed coords
+        </button>
+        <button
+          type="button"
+          class="rounded border border-neutral-600 p-2 text-white hover:border-neutral-400"
+          aria-label="Pick location on map"
+          on:click={() => (showMapPicker = true)}>
+          <i class="fa fa-map" />
+        </button>
+      </div>
+    </div>
+
     <div class="grid gap-3 md:grid-cols-2">
       <label class="flex flex-col gap-1">
         <span class="text-sm text-neutral-200">Latitude *</span>
-        <div class="flex gap-2">
-          <input
-            id="geo-modal-lat"
-            class="flex-1 rounded border border-neutral-700 bg-neutral-800 p-2 text-white"
-            type="number"
-            step="0.000001"
-            bind:value={lat}
-            placeholder="47.6062" />
-          <button
-            type="button"
-            class="hidden rounded border border-neutral-600 px-3 py-2 text-xs text-white hover:border-neutral-400 md:block"
-            on:click={() => (showMapPicker = true)}>
-            Pick on map
-          </button>
-        </div>
+        <input
+          id="geo-modal-lat"
+          class="flex-1 rounded border border-neutral-700 bg-neutral-800 p-2 text-white"
+          type="number"
+          step="0.000001"
+          bind:value={lat}
+          placeholder={latPlaceholder}
+          on:input={() => (mapPicked = false)} />
       </label>
 
       <label class="flex flex-col gap-1">
@@ -187,38 +287,9 @@
           type="number"
           step="0.000001"
           bind:value={lon}
-          placeholder="-122.3321" />
+          placeholder={lonPlaceholder}
+          on:input={() => (mapPicked = false)} />
       </label>
-
-      <div class="flex flex-col gap-1 md:col-span-2">
-        <div class="flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            class="rounded border border-neutral-600 px-3 py-2 text-sm text-white hover:border-neutral-400 md:hidden"
-            on:click={() => (showMapPicker = true)}>
-            Pick on map
-          </button>
-          <button
-            type="button"
-            class="rounded border border-neutral-600 px-3 py-2 text-xs text-white hover:border-neutral-400"
-            on:click={() => {
-              lat = Number(lat) || 0
-              lon = Number(lon) || 0
-              mapPicked = false
-            }}>
-            Apply typed coords
-          </button>
-          {#if mapPicked}
-            <span class="bg-emerald-600/30 text-emerald-100 rounded-full px-2 py-1 text-xs">
-              Set from map
-            </span>
-          {/if}
-        </div>
-        <p class="text-xs text-neutral-400">
-          Choose a location on an OpenStreetMap-based picker with a draggable pin, or enter
-          coordinates directly.
-        </p>
-      </div>
 
       <label class="flex flex-col gap-1">
         <span class="text-sm text-neutral-200">Altitude (optional)</span>
@@ -259,6 +330,11 @@
           bind:value={timestamp}
           placeholder={new Date().toISOString()} />
       </label>
+
+      <div class="text-xs text-neutral-400 md:col-span-2">
+        Choose a location on the map with the draggable pin, type coordinates manually, or leave
+        them blank to use your current position.
+      </div>
     </div>
 
     <label class="mt-3 flex flex-col gap-1">
