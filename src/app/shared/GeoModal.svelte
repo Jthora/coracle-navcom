@@ -163,20 +163,6 @@
     dispatch("close")
   }
 
-  const applyTypedCoords = () => {
-    const resolved = resolveLatLon()
-
-    if ("error" in resolved) {
-      error = resolved.error
-      return
-    }
-
-    error = null
-    lat = resolved.lat
-    lon = resolved.lon
-    mapPicked = false
-  }
-
   const handleOverlayClick = (event: MouseEvent) => {
     const target = event.target as HTMLElement
 
@@ -253,12 +239,6 @@
       <div class="flex items-center gap-2">
         <button
           type="button"
-          class="rounded border border-neutral-600 px-3 py-2 text-xs text-white hover:border-neutral-400"
-          on:click={applyTypedCoords}>
-          Apply typed coords
-        </button>
-        <button
-          type="button"
           class="rounded border border-neutral-600 p-2 text-white hover:border-neutral-400"
           aria-label="Pick location on map"
           on:click={() => (showMapPicker = true)}>
@@ -333,7 +313,7 @@
 
       <div class="text-xs text-neutral-400 md:col-span-2">
         Choose a location on the map with the draggable pin, type coordinates manually, or leave
-        them blank to use your current position.
+        them blank to use your current position. Typed values apply automatically.
       </div>
     </div>
 

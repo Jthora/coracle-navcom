@@ -14,6 +14,10 @@
   let markerLon = lon ?? 0
   let ready = false
   let leaflet: any = null
+  const leafletSources = [
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
+    "https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js",
+  ]
 
   const ensureLeaflet = async () => {
     if (typeof window === "undefined") return
@@ -32,20 +36,39 @@
       return
     }
 
-    await new Promise<void>((resolve, reject) => {
-      const script = document.createElement("script")
-      script.id = "leaflet-js"
-      script.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-      script.async = true
-      script.onload = () => {
-        leaflet = (window as any).L
-        resolve()
-      }
-      script.onerror = () => reject(new Error("Failed to load map library"))
-      document.body.appendChild(script)
-    })
+    const loadScript = (src: string) =>
+      new Promise<void>((resolve, reject) => {
+        const existing = document.getElementById("leaflet-js")
+        if (existing) existing.remove()
 
-    leaflet = (window as any).L
+        const script = document.createElement("script")
+        script.id = "leaflet-js"
+        script.src = src
+        script.async = true
+        script.onload = () => {
+          leaflet = (window as any).L
+          if (leaflet) {
+            resolve()
+          } else {
+            reject(new Error("Map library unavailable after load"))
+          }
+        }
+        script.onerror = () => reject(new Error("Failed to load map library"))
+        document.body.appendChild(script)
+      })
+
+    let lastError: Error | null = null
+
+    for (const src of leafletSources) {
+      try {
+        await loadScript(src)
+        return
+      } catch (err) {
+        lastError = err instanceof Error ? err : new Error(String(err))
+      }
+    }
+
+    throw lastError ?? new Error("Failed to load map library")
   }
 
   onMount(async () => {
