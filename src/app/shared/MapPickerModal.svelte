@@ -175,12 +175,13 @@
 </script>
 
 <div
-  class="fixed inset-0 z-[120] flex items-center justify-center bg-black/70 p-4"
+  class="fixed inset-0 z-[120] flex items-center justify-center bg-black/70 p-2 md:p-4"
   role="dialog"
   aria-modal="true"
   tabindex="-1"
   on:keydown={handleKeydown}>
-  <div class="w-full max-w-3xl rounded-2xl bg-neutral-900 p-4 shadow-2xl">
+  <div
+    class="h-full max-h-full w-full overflow-y-auto rounded-2xl bg-neutral-900 p-4 shadow-2xl md:h-auto md:max-h-[90vh] md:max-w-3xl">
     <div class="mb-3 flex items-center justify-between">
       <div>
         <p class="text-lg font-semibold text-white">Pick location</p>
@@ -189,7 +190,7 @@
         </p>
       </div>
       <button
-        class="text-neutral-300"
+        class="flex h-11 w-11 items-center justify-center text-neutral-300 md:h-auto md:w-auto"
         bind:this={closeButton}
         on:click={onClose}
         aria-label="Close map picker">
@@ -216,20 +217,21 @@
         {/if}
         <div
           bind:this={mapContainer}
-          class="h-[420px] w-full overflow-hidden rounded-xl bg-neutral-800"
+          class="h-[52dvh] min-h-[280px] w-full overflow-hidden rounded-xl bg-neutral-800 md:h-[420px]"
           aria-busy={loading} />
       </div>
     {/if}
 
-    <div class="mt-3 flex flex-wrap items-center justify-between gap-3">
-      <div class="text-sm text-neutral-200">
+    <div
+      class="sticky bottom-0 mt-3 flex flex-wrap items-center justify-between gap-3 bg-neutral-900 pb-[calc(env(safe-area-inset-bottom)+0.25rem)] pt-2 md:static md:bg-transparent md:pb-0 md:pt-0">
+      <div class="text-xs text-neutral-200 sm:text-sm">
         <span class="font-semibold">Lat:</span>
         {markerLat.toFixed(6)}
         <span class="ml-3 font-semibold">Lon:</span>
         {markerLon.toFixed(6)}
       </div>
       <div class="flex gap-2">
-        <button class="rounded border border-neutral-600 px-3 py-2 text-sm" on:click={onClose}
+        <button class="rounded border border-neutral-600 px-4 py-2 text-sm" on:click={onClose}
           >Cancel</button>
         <button
           class="rounded bg-white px-4 py-2 text-sm font-semibold text-black disabled:opacity-60"
