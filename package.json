@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite --host",
     "test": "npm run test:unit && npm run test:e2e",
-    "test:unit": "vitest --dir=tests/unit --watch=false",
+    "test:unit": "vitest --watch=false",
     "test:e2e": "cypress run",
     "build": "rm -rf dist && pwa-assets-generator && vite build",
     "run:android": "cap sync && cap run android",
@@ -106,5 +106,8 @@
     "onlyBuiltDependencies": [
       "sharp"
     ]
+  },
+  "devDependencies": {
+    "jsdom": "^28.0.0"
   }
 }

@@ -1,0 +1,237 @@
+# GEOINT Posting Progress Tracker
+
+Use this to track implementation progress. Stages → Phases → Steps → Tasks → Sub-tasks. Each task has 1–4 sub-tasks, with a unique count per task.
+
+- [x] 1. Stage: Foundations
+  - [x] 1.1 Phase: Planning
+    - [x] 1.1.1 Step: Requirements alignment
+          - [x] 1.1.1.1 Task: Confirm tag/hashtag policies (ops/geoint, delimiter, size limits)
+            - [x] 1.1.1.1.a Sub-task: Document final hashtag rules in data-and-tags
+          - [x] 1.1.1.2 Task: Decide geohash precision and map dependency approach
+            - [x] 1.1.1.2.a Sub-task: Compare helper vs dependency for geohash
+            - [x] 1.1.1.2.b Sub-task: Note chosen map strategy in tech-notes
+    - [x] 1.1.2 Step: Draft updates
+      - [x] 1.1.2.1 Task: Update DRAFT_KEY scheme per type
+        - [x] 1.1.2.1.a Sub-task: Add type suffix to draft keys
+        - [x] 1.1.2.1.b Sub-task: Migrate legacy draft keys fallback
+        - [x] 1.1.2.1.c Sub-task: Verify drafts restore per type
+      - [x] 1.1.2.2 Task: Define geo state shape and storage
+        - [x] 1.1.2.2.a Sub-task: Choose fields and defaults
+        - [x] 1.1.2.2.b Sub-task: Persist per-type geo state with drafts
+        - [x] 1.1.2.2.c Sub-task: Reset geo state after publish
+        - [x] 1.1.2.2.d Sub-task: Document schema in tech-notes
+  - [x] 1.2 Phase: Helper scaffolding
+    - [x] 1.2.1 Step: Utility functions
+      - [x] 1.2.1.1 Task: Implement ensureHashtag helper
+        - [x] 1.2.1.1.a Sub-task: Handle empty and trimmed text
+      - [x] 1.2.1.2 Task: Implement buildGeoTagString helper
+        - [x] 1.2.1.2.a Sub-task: Format lat/lon to fixed precision
+        - [x] 1.2.1.2.b Sub-task: Omit alt when null
+      - [x] 1.2.1.3 Task: Implement geohashFromLatLon helper (or stub)
+        - [x] 1.2.1.3.a Sub-task: Add try/catch to skip on failure
+        - [x] 1.2.1.3.b Sub-task: Decide precision constant
+        - [x] 1.2.1.3.c Sub-task: Write minimal unit test
+      - [x] 1.2.1.4 Task: Implement buildGeoJsonPayload helper
+        - [x] 1.2.1.4.a Sub-task: Ensure lon/lat/alt ordering
+        - [x] 1.2.1.4.b Sub-task: Insert properties.version
+        - [x] 1.2.1.4.c Sub-task: Normalize confidence to 0–1
+        - [x] 1.2.1.4.d Sub-task: Default timestamp to now if missing
+      - [x] 1.2.1.5 Task: Implement safeParseJson + sizeCheck helpers
+        - [x] 1.2.1.5.a Sub-task: Return warn/block flags from sizeCheck
+        - [x] 1.2.1.5.b Sub-task: Log parse errors for debugging
+        - [x] 1.2.1.5.c Sub-task: Add helper unit tests
+        - [x] 1.2.1.5.d Sub-task: Wire thresholds (5 KB warn, 10 KB block)
+
+- [ ] 2. Stage: UI/UX Implementation
+  - [ ] 2.1 Phase: Selector and layout
+    - [x] 2.1.1 Step: Type selector
+      - [x] 2.1.1.1 Task: Add segmented control (Default/Ops/GEOINT)
+        - [x] 2.1.1.1.a Sub-task: Active/hover/disabled styles
+        - [x] 2.1.1.1.b Sub-task: Mobile stacking behavior
+      - [x] 2.1.1.2 Task: Keyboard/focus states and aria labels
+        - [x] 2.1.1.2.a Sub-task: Set aria-pressed for active
+        - [x] 2.1.1.2.b Sub-task: Ensure tab order precedes editor
+        - [x] 2.1.1.2.c Sub-task: Add Escape/Enter semantics if applicable
+    - [x] 2.1.2 Step: Layout adjustments
+      - [x] 2.1.2.1 Task: Preserve existing editor/footer controls
+        - [x] 2.1.2.1.a Sub-task: Verify counters/options/upload unaffected
+      - [x] 2.1.2.2 Task: Insert GEOINT notice area
+        - [x] 2.1.2.2.a Sub-task: Add copy and styling
+        - [x] 2.1.2.2.b Sub-task: Hide when not GEOINT
+        - [x] 2.1.2.2.c Sub-task: Responsive spacing check
+  - [ ] 2.2 Phase: GEOINT data entry
+    - [x] 2.2.1 Step: Modal/drawer
+      - [x] 2.2.1.1 Task: Build modal shell with manual lat/lon inputs
+        - [x] 2.2.1.1.a Sub-task: Add form labels and placeholders
+        - [x] 2.2.1.1.b Sub-task: Focus trap and Escape close
+        - [x] 2.2.1.1.c Sub-task: Mobile full-screen behavior
+      - [x] 2.2.1.2 Task: Add optional fields (alt, subtype, confidence, timestamp, extra JSON)
+        - [x] 2.2.1.2.a Sub-task: Confidence slider 0–100
+        - [x] 2.2.1.2.b Sub-task: Timestamp default to now, ISO format
+        - [x] 2.2.1.2.c Sub-task: Extra JSON textarea with hint
+        - [x] 2.2.1.2.d Sub-task: Alt numeric input handling
+      - [x] 2.2.1.3 Task: Wire validation + save/cancel/clear
+        - [x] 2.2.1.3.a Sub-task: Disable save until lat/lon valid
+        - [x] 2.2.1.3.b Sub-task: Clear resets geo state
+        - [x] 2.2.1.3.c Sub-task: Cancel restores previous values
+    - [x] 2.2.2 Step: Summary chip
+      - [x] 2.2.2.1 Task: Show coords/subtype/confidence summary
+        - [x] 2.2.2.1.a Sub-task: Format coords to 6 decimals
+      - [x] 2.2.2.2 Task: Edit/Clear actions hooked to modal/state
+        - [x] 2.2.2.2.a Sub-task: Edit reopens modal with existing state
+        - [x] 2.2.2.2.b Sub-task: Clear wipes geo and disables send
+        - [x] 2.2.2.2.c Sub-task: Update chip visibility on clear
+  - [ ] 2.3 Phase: Preview and warnings
+      - [x] 2.3.1 Step: Preview rendering
+        - [x] 2.3.1.1 Task: Show final text with hashtags
+          - [x] 2.3.1.1.a Sub-task: Render ops/geo hashtag visibly
+          - [x] 2.3.1.1.b Sub-task: Preserve line breaks
+        - [x] 2.3.1.2 Task: Collapsible GeoJSON block for GEOINT
+          - [x] 2.3.1.2.a Sub-task: Pretty-print JSON (indent 2)
+          - [x] 2.3.1.2.b Sub-task: Toggle collapse/expand
+          - [x] 2.3.1.2.c Sub-task: Label payload and delimiter clearly
+      - [x] 2.3.2 Step: Notices and errors
+        - [x] 2.3.2.1 Task: Inline GEOINT public warning
+          - [x] 2.3.2.1.a Sub-task: Copy string matches docs
+          - [x] 2.3.2.1.b Sub-task: Subdued styling; non-blocking
+        - [x] 2.3.2.2 Task: Blocking errors near Send; warnings near selector
+          - [x] 2.3.2.2.a Sub-task: Show missing coords error
+          - [x] 2.3.2.2.b Sub-task: Show size warn/block messages
+          - [x] 2.3.2.2.c Sub-task: Show extra-JSON warning non-blocking
+
+- [ ] 3. Stage: Submit Pipeline
+  - [ ] 3.1 Phase: Content assembly
+    - [x] 3.1.1 Step: Default path unchanged
+      - [x] 3.1.1.1 Task: Ensure baseline path remains intact
+        - [x] 3.1.1.1.a Sub-task: Compare payload pre/post change in dev
+    - [x] 3.1.2 Step: Ops path
+      - [x] 3.1.2.1 Task: Apply ensureHashtag(#starcom_ops) and optional app tag
+        - [x] 3.1.2.1.a Sub-task: Dedupe user-provided hashtag
+        - [x] 3.1.2.1.b Sub-task: Insert app tag if policy decided
+    - [x] 3.1.3 Step: GEOINT path
+      - [x] 3.1.3.1 Task: Validate coords and build tags (app/client/geo/geoint-type/geohash?)
+        - [x] 3.1.3.1.a Sub-task: Clamp lat/lon ranges
+        - [x] 3.1.3.1.b Sub-task: Default geoint-type when missing
+        - [x] 3.1.3.1.c Sub-task: Attach geohash if available
+      - [x] 3.1.3.2 Task: Build content with delimiter + payload
+        - [x] 3.1.3.2.a Sub-task: Append delimiter once
+        - [x] 3.1.3.2.b Sub-task: Compact JSON stringify
+        - [x] 3.1.3.2.c Sub-task: Include description in properties
+        - [x] 3.1.3.2.d Sub-task: Ensure hashtag added before delimiter
+      - [x] 3.1.3.3 Task: Enforce size checks
+        - [x] 3.1.3.3.a Sub-task: Block over 10 KB
+        - [x] 3.1.3.3.b Sub-task: Warn over 5 KB
+  - [x] 3.2 Phase: Options and publish
+    - [x] 3.2.1 Step: POW/schedule/expiration integration
+      - [x] 3.2.1.1 Task: Ensure options still apply after type shaping
+        - [x] 3.2.1.1.a Sub-task: Validate scheduled geo post signs/publishes
+        - [x] 3.2.1.1.b Sub-task: Validate POW still computes on final content
+    - [x] 3.2.2 Step: Drafts and reset
+      - [x] 3.2.2.1 Task: Save/load per-type drafts on type switch
+        - [x] 3.2.2.1.a Sub-task: Auto-save on blur/type change
+        - [x] 3.2.2.1.b Sub-task: Restore on selector change
+      - [x] 3.2.2.2 Task: Clear active type draft after successful publish
+        - [x] 3.2.2.2.a Sub-task: Clear geo state with draft
+        - [x] 3.2.2.2.b Sub-task: Keep other types’ drafts intact
+
+- [ ] 4. Stage: Validation and Safety
+  - [ ] 4.1 Phase: Blocking rules
+    - [ ] 4.1.1 Step: GEOINT required fields
+      - [x] 4.1.1.1 Task: Block send without valid lat/lon
+        - [x] 4.1.1.1.a Sub-task: Disable Send until valid
+        - [x] 4.1.1.1.b Sub-task: Show inline error message
+    - [x] 4.1.2 Step: Size guard
+      - [x] 4.1.2.1 Task: Warn >5 KB; block >10 KB
+        - [x] 4.1.2.1.a Sub-task: Measure UTF-8 byte length
+        - [x] 4.1.2.1.b Sub-task: Display warning copy
+        - [x] 4.1.2.1.c Sub-task: Prevent submit on block
+    - [ ] 4.2 Phase: Warnings and UX polish
+      - [x] 4.2.1 Step: Extra JSON handling
+        - [x] 4.2.1.1 Task: Warn and drop on parse failure
+          - [x] 4.2.1.1.a Sub-task: Toast or inline warning placement
+    - [x] 4.2.2 Step: Geohash optionality
+      - [x] 4.2.2.1 Task: Skip silently on failure; warn optionally
+        - [x] 4.2.2.1.a Sub-task: Log to console in dev mode only
+        - [x] 4.2.2.1.b Sub-task: Do not block send
+
+- [ ] 5. Stage: Testing and QA
+  - [ ] 5.1 Phase: Unit tests
+    - [x] 5.1.1 Step: Helpers
+      - [x] 5.1.1.1 Task: ensureHashtag cases
+        - [x] 5.1.1.1.a Sub-task: Existing tag unchanged
+        - [x] 5.1.1.1.b Sub-task: Empty text adds tag alone
+      - [x] 5.1.1.2 Task: Geo tag/payload formatting
+        - [x] 5.1.1.2.a Sub-task: Alt omitted when null
+        - [x] 5.1.1.2.b Sub-task: Confidence normalized
+        - [x] 5.1.1.2.c Sub-task: Timestamp default applied
+      - [x] 5.1.1.3 Task: Size check thresholds
+        - [x] 5.1.1.3.a Sub-task: Warn state tested
+        - [x] 5.1.1.3.b Sub-task: Block state tested
+        - [x] 5.1.1.3.c Sub-task: Bytes vs chars verified
+    - [x] 5.1.2 Step: Submit assembly
+      - [x] 5.1.2.1 Task: Content building per type
+        - [x] 5.1.2.1.a Sub-task: Default path regression test
+        - [x] 5.1.2.1.b Sub-task: Ops hashtag dedupe test
+        - [x] 5.1.2.1.c Sub-task: GEOINT delimiter + JSON present
+        - [x] 5.1.2.1.d Sub-task: Geo tags present
+  - [ ] 5.2 Phase: Manual/Integration QA
+    - [ ] 5.2.1 Step: Scenarios
+      - [ ] 5.2.1.1 Task: Default regression (send/schedule/POW/upload/quote)
+        - [ ] 5.2.1.1.a Sub-task: Verify no extra tags added
+      - [ ] 5.2.1.2 Task: Ops hashtag dedupe
+        - [ ] 5.2.1.2.a Sub-task: User-prepended tag case
+        - [ ] 5.2.1.2.b Sub-task: Empty text case
+      - [ ] 5.2.1.3 Task: GEOINT happy path (coords, tags, payload, preview)
+        - [ ] 5.2.1.3.a Sub-task: Preview shows JSON
+        - [ ] 5.2.1.3.b Sub-task: Tags include app/client/geo/geoint-type
+        - [ ] 5.2.1.3.c Sub-task: Geohash present when enabled
+      - [ ] 5.2.1.4 Task: GEOINT missing coords block
+        - [ ] 5.2.1.4.a Sub-task: Send disabled
+        - [ ] 5.2.1.4.b Sub-task: Error message visible
+      - [ ] 5.2.1.5 Task: Size warn/block
+        - [ ] 5.2.1.5.a Sub-task: Warn threshold hit
+        - [ ] 5.2.1.5.b Sub-task: Block threshold hit
+      - [ ] 5.2.1.6 Task: Invalid extra JSON warning
+        - [ ] 5.2.1.6.a Sub-task: Warning shown; payload excluded
+      - [ ] 5.2.1.7 Task: Drafts per type persistence
+        - [ ] 5.2.1.7.a Sub-task: Switch types retains per-type drafts
+        - [ ] 5.2.1.7.b Sub-task: Publish clears active type only
+      - [ ] 5.2.1.8 Task: Accessibility pass (keyboard/modal)
+        - [ ] 5.2.1.8.a Sub-task: Focus trap works
+        - [ ] 5.2.1.8.b Sub-task: Escape closes modal
+        - [ ] 5.2.1.8.c Sub-task: Selector tab order correct
+
+- [ ] 6. Stage: Documentation and Rollout
+  - [ ] 6.1 Phase: Docs and developer notes
+    - [ ] 6.1.1 Step: Update build docs post-implementation
+      - [ ] 6.1.1.1 Task: Note final decisions (geohash, size limits, copy)
+        - [ ] 6.1.1.1.a Sub-task: Sync overview/data/tech/tasks docs
+    - [ ] 6.1.2 Step: Add how-to for crafting GEOINT posts manually (dev note)
+      - [ ] 6.1.2.1 Task: Provide sample curl/JSON event
+        - [ ] 6.1.2.1.a Sub-task: Include example tags and payload
+  - [ ] 6.2 Phase: Rollout/flagging
+    - [ ] 6.2.1 Step: Feature flag or guard
+      - [ ] 6.2.1.1 Task: Add guard to disable GEOINT UI if needed
+        - [ ] 6.2.1.1.a Sub-task: Toggle hides selector options gracefully
+        - [ ] 6.2.1.1.b Sub-task: Default to existing behavior when off
+    - [ ] 6.2.2 Step: Telemetry (optional)
+      - [ ] 6.2.2.1 Task: Log type selections and validation blocks (no coords logged)
+        - [ ] 6.2.2.1.a Sub-task: Ensure PII/coords not emitted
+        - [ ] 6.2.2.1.b Sub-task: Sample rates configured
+        - [ ] 6.2.2.1.c Sub-task: Toggleable in dev/prod
+
+- [ ] 7. Stage: Acceptance
+  - [ ] 7.1 Phase: DoD review
+    - [ ] 7.1.1 Step: Validate acceptance criteria
+      - [ ] 7.1.1.1 Task: Confirm Starcom parses sample GEOINT post
+        - [ ] 7.1.1.1.a Sub-task: View in Starcom simulator
+        - [ ] 7.1.1.1.b Sub-task: Validate pin placement from geo tag
+        - [ ] 7.1.1.1.c Sub-task: Validate payload parse without errors
+      - [ ] 7.1.1.2 Task: Confirm regressions absent in Default/Ops flows
+        - [ ] 7.1.1.2.a Sub-task: Compare events before/after
+        - [ ] 7.1.1.2.b Sub-task: Check options (schedule/POW) still work
+      - [ ] 7.1.1.3 Task: Confirm accessibility checks passed
+        - [ ] 7.1.1.3.a Sub-task: Keyboard navigation verified
+        - [ ] 7.1.1.3.b Sub-task: Screen reader labels present
+        - [ ] 7.1.1.3.c Sub-task: Color contrast acceptable
+        - [ ] 7.1.1.3.d Sub-task: Modal close affordances confirmed
