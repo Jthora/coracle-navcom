@@ -15,6 +15,7 @@
   let markerLon = lon ?? 0
   let ready = false
   let leaflet: any = null
+  const LEAFLET_TIMEOUT_MS = 8000
   const leafletSources = [
     "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
     "https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js",
@@ -51,15 +52,23 @@
         script.id = "leaflet-js"
         script.src = src
         script.async = true
+        const timeout = window.setTimeout(
+          () => reject(new Error("Map library timed out while loading")),
+          LEAFLET_TIMEOUT_MS,
+        )
         script.onload = () => {
           leaflet = (window as any).L
+          window.clearTimeout(timeout)
           if (leaflet) {
             resolve()
           } else {
             reject(new Error("Map library unavailable after load"))
           }
         }
-        script.onerror = () => reject(new Error("Failed to load map library"))
+        script.onerror = () => {
+          window.clearTimeout(timeout)
+          reject(new Error("Failed to load map library"))
+        }
         document.body.appendChild(script)
       })
 
@@ -90,6 +99,11 @@
 
   const initMap = () => {
     if (typeof window === "undefined" || !leaflet) return
+    if (!mapContainer) {
+      loadError = "Map container unavailable"
+      loading = false
+      return
+    }
 
     const startLat = lat ?? 0
     const startLon = lon ?? 0
@@ -98,12 +112,15 @@
       .map(mapContainer)
       .setView([startLat, startLon], lat !== null && lon !== null ? 10 : 2)
 
-    leaflet
-      .tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: "&copy; OpenStreetMap contributors",
-        maxZoom: 19,
-      })
-      .addTo(map)
+    const tiles = leaflet.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: "&copy; OpenStreetMap contributors",
+      maxZoom: 19,
+    })
+    tiles.on("tileerror", () => {
+      loadError = "Map tiles could not be loaded. Check network or allow OpenStreetMap tiles."
+      loading = false
+    })
+    tiles.addTo(map)
 
     const marker = leaflet.marker([startLat, startLon], {draggable: true}).addTo(map)
 
