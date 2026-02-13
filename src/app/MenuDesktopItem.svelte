@@ -78,6 +78,34 @@
     animation: nav-active-static-trail 10s infinite;
   }
 
+  .nav-active-line-zigzag {
+    position: absolute;
+    top: -4px;
+    left: 0;
+    width: 96px;
+    height: 8px;
+    opacity: 0;
+    transform: translateX(-110%);
+    animation: nav-active-line-zigzag-sweep 10s infinite;
+    pointer-events: none;
+  }
+
+  .nav-active-line-zigzag svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .nav-active-line-zigzag polyline {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+    filter: drop-shadow(0 0 2px currentColor);
+  }
+
   @keyframes nav-active-heartbeat {
     0%,
     6.8%,
@@ -186,6 +214,40 @@
       transform: translateX(24px);
     }
   }
+
+  @keyframes nav-active-line-zigzag-sweep {
+    0%,
+    6.8%,
+    100% {
+      opacity: 0;
+      transform: translateX(-110%);
+    }
+
+    1.1% {
+      opacity: 0.35;
+      transform: translateX(-86%);
+    }
+
+    2.2% {
+      opacity: 0.95;
+      transform: translateX(-52%);
+    }
+
+    3.4% {
+      opacity: 0.82;
+      transform: translateX(-20%);
+    }
+
+    4.6% {
+      opacity: 0.56;
+      transform: translateX(10%);
+    }
+
+    6.2% {
+      opacity: 0;
+      transform: translateX(58%);
+    }
+  }
 </style>
 
 <script lang="ts">
@@ -215,10 +277,16 @@
     <slot />
     {#if isActive}
       <div
-        in:fly|local={{x: 50, duration: 450, easing: elasticOut}}
+        in:fly|local={{x: 50, duration: 1000, easing: elasticOut}}
         class="nav-active-line relative h-px w-full overflow-visible bg-accent"
         class:top-4={!small}
         class:top-3={small}>
+        <div class="nav-active-line-zigzag" aria-hidden="true">
+          <svg viewBox="0 0 96 8" preserveAspectRatio="none">
+            <polyline
+              points="0,4 8,4 14,1.1 20,6.8 26,1.3 32,6.7 38,1.4 44,6.6 50,1.5 56,6.4 62,1.9 68,6.1 74,2.4 80,5.5 88,4.2 96,4" />
+          </svg>
+        </div>
         <div class="nav-active-line-heartbeat" aria-hidden="true">
           <svg viewBox="0 0 156 12" preserveAspectRatio="none">
             <polyline
