@@ -71,12 +71,16 @@ window.addEventListener("beforeinstallprompt", e => {
 })
 
 // Handle back button on android
-CapacitorApp.addListener("backButton", ({canGoBack}) => {
-  if (!canGoBack) {
-    CapacitorApp.exitApp()
-  } else {
-    window.history.back()
-  }
+Promise.resolve(
+  CapacitorApp.addListener("backButton", ({canGoBack}) => {
+    if (!canGoBack) {
+      CapacitorApp.exitApp()
+    } else {
+      window.history.back()
+    }
+  }),
+).catch(() => {
+  // backButton is only available in native contexts
 })
 
 export default new App({

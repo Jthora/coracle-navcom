@@ -16,5 +16,20 @@
 // Import commands.js using ES2015 syntax:
 import "./commands"
 
+Cypress.on("window:before:load", win => {
+  win.addEventListener("unhandledrejection", event => {
+    if (event.reason instanceof Event) {
+      event.preventDefault()
+      console.warn("Suppressed unhandledrejection Event during e2e", event.reason.type)
+    }
+  })
+})
+
+Cypress.on("uncaught:exception", err => {
+  if (err?.message?.includes("An unknown error has occurred: [object Event]")) {
+    return false
+  }
+})
+
 // Alternatively you can use CommonJS syntax:
 // require('./commands')

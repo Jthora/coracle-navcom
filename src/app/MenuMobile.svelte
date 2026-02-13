@@ -8,6 +8,8 @@
   import PersonCircle from "src/app/shared/PersonCircle.svelte"
   import PersonHandle from "src/app/shared/PersonHandle.svelte"
   import MenuMobileItem from "src/app/MenuMobileItem.svelte"
+  import {hasUnreadGroupMessages, totalUnreadGroupMessages} from "src/app/groups/state"
+  import {trackGroupTelemetry} from "src/app/groups/telemetry"
   import {slowConnections, menuIsOpen} from "src/app/state"
   import {router} from "src/app/util/router"
   import {hasNewMessages, hasNewNotifications, env} from "src/engine"
@@ -44,7 +46,7 @@
   const goOpsChat = event => {
     if (!$signer) {
       event?.preventDefault()
-      showInfo("Sign in to post in Ops Chat. You can still read Starcom Ops feed.", {
+      showInfo("Sign in to use Direct Messages. You can still read Starcom Ops feed.", {
         timeout: 4500,
       })
       router.go({path: opsFeedPath})
@@ -53,6 +55,35 @@
     }
 
     closeMenu()
+  }
+
+  const goGroups = () => {
+    trackGroupTelemetry(
+      "group_nav_opened",
+      {
+        surface: "mobile",
+        unreadTotal: $totalUnreadGroupMessages,
+      },
+      {
+        dedupeKey: "group-nav-opened-mobile",
+        minIntervalMs: 10_000,
+      },
+    )
+    closeMenu()
+  }
+
+  $: if ($hasUnreadGroupMessages) {
+    trackGroupTelemetry(
+      "group_unread_badge_seen",
+      {
+        surface: "mobile",
+        unreadTotal: $totalUnreadGroupMessages,
+      },
+      {
+        dedupeKey: "group-unread-badge-mobile",
+        minIntervalMs: 60_000,
+      },
+    )
   }
 </script>
 
@@ -103,8 +134,18 @@
       <MenuMobileItem disabled={!$signer} href="/channels" on:click={goOpsChat}>
         <i class="fa fa-headset" />
         <div class="relative inline-block">
-          Ops Chat
+          Direct Messages
           {#if $hasNewMessages}
+            <div
+              class="absolute -right-2 top-0 h-2 w-2 rounded border border-solid border-white bg-accent" />
+          {/if}
+        </div>
+      </MenuMobileItem>
+      <MenuMobileItem disabled={!$signer} href="/groups" on:click={goGroups}>
+        <i class="fa fa-users" />
+        <div class="relative inline-block">
+          Groups
+          {#if $hasUnreadGroupMessages}
             <div
               class="absolute -right-2 top-0 h-2 w-2 rounded border border-solid border-white bg-accent" />
           {/if}

@@ -4,6 +4,7 @@
   import {isMobile} from "src/util/html"
   import {showWarning} from "src/partials/Toast.svelte"
   import Modal from "src/partials/Modal.svelte"
+  import LazyRouteHost from "src/app/LazyRouteHost.svelte"
   import {menuIsOpen} from "src/app/state"
   import {router} from "src/app/util/router"
 
@@ -77,11 +78,11 @@
       },
     )}>
     {#if $page}
-      {@const {component} = router.getMatch($page.path).route}
+      {@const {route} = router.getMatch($page.path)}
       {#key router.getKey($page)}
         <div class="m-auto w-full max-w-2xl">
           <div class="flex max-w-2xl flex-grow flex-col gap-4 p-4">
-            <svelte:component this={component} {...router.getProps($page)} />
+            <LazyRouteHost {route} props={router.getProps($page)} />
           </div>
         </div>
       {/key}
@@ -90,13 +91,13 @@
 {/key}
 
 {#each [...$modals].reverse().filter(m => !m.virtual) as m, i (router.getKey(m) + i)}
-  {@const {component} = router.getMatch(m.path).route}
+  {@const {route} = router.getMatch(m.path)}
   <Modal
     mini={m.mini}
     overlay={m.overlay}
     drawer={!isMobile && m.drawer}
     virtual={false}
     canClose={!m.noEscape}>
-    <svelte:component this={component} {...router.getProps(m)} />
+    <LazyRouteHost {route} props={router.getProps(m)} />
   </Modal>
 {/each}

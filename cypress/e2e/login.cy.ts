@@ -1,12 +1,8 @@
-describe("authenticated usage", () => {
-  beforeEach(() => {
-    cy.login()
-  })
-
-  it("works", () => {
-    cy.visit("/")
-    cy.get("svg.logo").click()
-    cy.get(".card").contains("Profile").click()
-    cy.get(".cy-person-name").contains("test account 12938740")
+describe("login", () => {
+  it("shows login actions", () => {
+    cy.visit("/login")
+    cy.contains("Welcome!")
+    cy.contains("Register (no signer yet)")
+    cy.contains("Use Remote Signer")
   })
 })

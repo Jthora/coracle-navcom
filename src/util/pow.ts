@@ -71,7 +71,11 @@ if (benchmark.get() === 0) {
   const pow = makePow(event, benchmarkDifficulty)
   const start = Date.now()
 
-  pow.result.then(() => {
-    benchmark.set(Date.now() - start)
-  })
+  pow.result
+    .then(() => {
+      benchmark.set(Date.now() - start)
+    })
+    .catch(() => {
+      benchmark.set(1)
+    })
 }

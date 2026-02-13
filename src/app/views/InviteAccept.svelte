@@ -1,12 +1,13 @@
 <script lang="ts">
   import {session} from "@welshman/app"
   import {normalizeRelayUrl} from "@welshman/util"
+  import {groupProjections} from "src/app/groups/state"
   import PersonList from "src/app/shared/PersonList.svelte"
   import RelayCard from "src/app/shared/RelayCard.svelte"
   import Onboarding from "src/app/views/Onboarding.svelte"
   import {
-    buildGroupJoinPrefillPath,
     getGroupInviteEntryMeta,
+    resolveGroupInviteDestinationPath,
     resolveAutoJoinGroupInvite,
     resolveGroupInviteAcceptPayloads,
   } from "src/app/invite/accept"
@@ -32,6 +33,26 @@
 
   let autoJoinTriggered = false
 
+  const hasActiveMembership = (groupId: string) => {
+    const accountPubkey = $session?.pubkey
+
+    if (!accountPubkey) return false
+
+    const projection = $groupProjections.get(groupId)
+    const membership = projection?.members[accountPubkey]
+
+    return membership?.status === "active"
+  }
+
+  const getDestinationPath = (group: (typeof parsedGroups)[number]) =>
+    resolveGroupInviteDestinationPath({
+      group,
+      hasActiveMembership: hasActiveMembership(group.groupId),
+    })
+
+  const getDestinationLabel = (group: (typeof parsedGroups)[number]) =>
+    hasActiveMembership(group.groupId) ? "Open Group Chat" : "Open Join Flow"
+
   onMount(() => {
     const autoJoinTarget = resolveAutoJoinGroupInvite({
       hasSession: Boolean($session),
@@ -44,7 +65,7 @@
     if (!autoJoinTarget || autoJoinTriggered) return
 
     autoJoinTriggered = true
-    window.location.assign(buildGroupJoinPrefillPath(autoJoinTarget))
+    window.location.assign(getDestinationPath(autoJoinTarget))
   })
 </script>
 
@@ -100,7 +121,8 @@
                     </div>
                   {/if}
                 </div>
-                <Link class="btn" href={buildGroupJoinPrefillPath(group)}>Open Join Flow</Link>
+                <Link class="btn" href={getDestinationPath(group)}
+                  >{getDestinationLabel(group)}</Link>
               </div>
             </div>
           {/each}

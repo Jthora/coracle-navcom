@@ -59,7 +59,7 @@
 
       if (result.ok) {
         showInfo(message)
-        router.at(`groups/${encodeURIComponent(parsed.value.canonicalId)}`).push()
+        router.at(`groups/${encodeURIComponent(parsed.value.canonicalId)}/chat`).push()
       } else {
         showWarning(message)
       }
@@ -84,7 +84,7 @@
     try {
       await publishGroupJoin({groupId: parsed.value.canonicalId})
       showInfo("Join request submitted.")
-      router.at(`groups/${encodeURIComponent(parsed.value.canonicalId)}`).push()
+      router.at(`groups/${encodeURIComponent(parsed.value.canonicalId)}/chat`).push()
     } catch (error) {
       showWarning("Unable to submit join request.")
     } finally {

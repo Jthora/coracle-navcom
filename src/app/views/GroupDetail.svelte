@@ -13,7 +13,7 @@
     section === "overview" ? "Overview" : section[0].toUpperCase() + section.slice(1)
   $: document.title = detail ? `${detail.title} · Groups` : "Group · Groups"
 
-  const toRoute = (nextSection: "overview" | "members" | "moderation" | "settings") => {
+  const toRoute = (nextSection: "overview" | "chat" | "members" | "moderation" | "settings") => {
     const base = `/groups/${encodeURIComponent(groupId)}`
 
     return nextSection === "overview" ? base : `${base}/${nextSection}`
@@ -55,6 +55,7 @@
     </div>
 
     <div class="mt-4 flex flex-wrap gap-2 text-sm">
+      <Link class="btn" href={toRoute("chat")}>Chat</Link>
       <Link class="btn" href={toRoute("overview")}>Overview</Link>
       <Link class="btn" href={toRoute("members")}>Members</Link>
       <Link class="btn" href={toRoute("moderation")}>Moderation</Link>

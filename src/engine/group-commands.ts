@@ -1,5 +1,9 @@
 import {pubkey} from "@welshman/app"
+import {publishThunk} from "@welshman/app"
+import {makeEvent} from "@welshman/util"
+import {Router, addMaximalFallbacks} from "@welshman/router"
 import {canPerformGroupControlAction} from "src/domain/group-control"
+import {GROUP_KINDS} from "src/domain/group-kinds"
 import {
   mapGroupCommandError,
   normalizeGroupCommandAck,
@@ -238,5 +242,32 @@ export const publishGroupCompromisedDeviceRemediation = async (
         role,
       )
     },
+  })
+}
+
+export const publishGroupMessage = async ({
+  groupId,
+  content,
+}: {
+  groupId: string
+  content: string
+}) => {
+  const normalizedGroupId = groupId.trim()
+  const normalizedContent = content.trim()
+
+  if (!normalizedGroupId) {
+    throw new Error("Invalid group address.")
+  }
+
+  if (!normalizedContent) {
+    throw new Error("Message content cannot be empty.")
+  }
+
+  return publishThunk({
+    event: makeEvent(GROUP_KINDS.NIP_EE.GROUP_EVENT, {
+      content: normalizedContent,
+      tags: [["h", normalizedGroupId]],
+    }),
+    relays: Router.get().FromUser().policy(addMaximalFallbacks).getUrls(),
   })
 }

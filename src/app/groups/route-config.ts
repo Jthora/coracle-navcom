@@ -10,6 +10,7 @@ export const GROUP_ROUTE_PATHS = [
   "/groups",
   "/groups/create",
   "/groups/:groupId",
+  "/groups/:groupId/chat",
   "/groups/:groupId/members",
   "/groups/:groupId/moderation",
   "/groups/:groupId/settings",
@@ -21,6 +22,7 @@ export const registerGroupRoutesWithComponent = (
     list: unknown
     create: unknown
     detail: unknown
+    chat: unknown
     admin: unknown
   },
 ) => {
@@ -49,6 +51,7 @@ export const registerGroupRoutesWithComponent = (
   }
 
   router.register("/groups/:groupId", components.detail, detailOptions)
+  router.register("/groups/:groupId/chat", components.chat, detailOptions)
   router.register("/groups/:groupId/members", components.detail, detailOptions)
   router.register("/groups/:groupId/moderation", components.admin, detailOptions)
   router.register("/groups/:groupId/settings", components.admin, detailOptions)

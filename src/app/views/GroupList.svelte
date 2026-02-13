@@ -1,9 +1,15 @@
 <script lang="ts">
   import {onMount} from "svelte"
   import Link from "src/partials/Link.svelte"
-  import {groupSummaries, groupsHydrated, markGroupsHydrated} from "src/app/groups/state"
+  import {
+    groupSummaries,
+    groupsHydrated,
+    markGroupsHydrated,
+    unreadGroupMessageCounts,
+  } from "src/app/groups/state"
 
-  const toGroupHref = (groupId: string) => `/groups/${encodeURIComponent(groupId)}`
+  const toGroupHref = (groupId: string) => `/groups/${encodeURIComponent(groupId)}/chat`
+  const getUnreadCount = (groupId: string) => $unreadGroupMessageCounts.get(groupId) || 0
 
   onMount(() => {
     markGroupsHydrated()
@@ -35,6 +41,13 @@
           <p class="mt-1 text-sm text-neutral-300">{group.description || "No description yet."}</p>
         </div>
         <div class="text-right text-xs text-neutral-400">
+          {#if getUnreadCount(group.id) > 0}
+            <div
+              class="mb-1 inline-flex items-center gap-1 rounded border border-accent px-2 py-0.5 text-accent">
+              <i class="fa fa-bell" />
+              {getUnreadCount(group.id)}
+            </div>
+          {/if}
           <div>{group.memberCount} members</div>
           <div>{group.protocol.toUpperCase()}</div>
         </div>

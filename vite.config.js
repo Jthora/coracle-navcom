@@ -12,6 +12,38 @@ dotenv.config({path: ".env"})
 dotenv.config({path: ".env.template"})
 
 const accentColor = process.env.VITE_LIGHT_THEME.match(/accent:(#\w+)/)[1]
+const normalizeModuleId = id => id.split(path.sep).join("/")
+const nonCriticalPreloadChunks = ["vendor-qr-scanner", "vendor-leaflet", "vendor-hls"]
+
+const manualChunks = id => {
+  const moduleId = normalizeModuleId(id)
+
+  if (!moduleId.includes("/node_modules/")) {
+    return undefined
+  }
+
+  if (moduleId.includes("/node_modules/leaflet/")) return "vendor-leaflet"
+  if (moduleId.includes("/node_modules/hls.js/")) return "vendor-hls"
+  if (moduleId.includes("/node_modules/qr-scanner/")) return "vendor-qr-scanner"
+  if (moduleId.includes("/node_modules/@welshman/")) return "vendor-welshman"
+  if (moduleId.includes("/node_modules/@capacitor/")) return "vendor-capacitor"
+  if (
+    moduleId.includes("/node_modules/nostr-tools/") ||
+    moduleId.includes("/node_modules/@noble/")
+  ) {
+    return "vendor-crypto"
+  }
+  if (moduleId.includes("/node_modules/@fortawesome/")) return "vendor-icons"
+  if (
+    moduleId.includes("/node_modules/svelte/") ||
+    moduleId.includes("/node_modules/@sveltejs/") ||
+    moduleId.includes("/node_modules/svelte-")
+  ) {
+    return "vendor-svelte"
+  }
+
+  return "vendor-misc"
+}
 
 export default defineConfig(async () => {
   const icons = await favicons("public" + process.env.VITE_APP_LOGO)
@@ -28,6 +60,18 @@ export default defineConfig(async () => {
     },
     build: {
       sourcemap: true,
+      modulePreload: {
+        resolveDependencies: (_filename, deps) => {
+          return deps.filter(
+            dep => !nonCriticalPreloadChunks.some(chunkName => dep.includes(chunkName)),
+          )
+        },
+      },
+      rollupOptions: {
+        output: {
+          manualChunks,
+        },
+      },
     },
     resolve: {
       alias: {

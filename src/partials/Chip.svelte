@@ -11,6 +11,7 @@
   export let onRemove = null
 
   $: className = cx($$props.class, "cy-chip", {
+    "chip-dark": dark,
     "chip-muted": light,
     "chip-accent": accent,
     "chip-danger": danger,

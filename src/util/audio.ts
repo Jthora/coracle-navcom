@@ -1,23 +1,48 @@
 import EventEmitter from "events"
-import Hls from "hls.js"
+import type Hls from "hls.js"
 
 export class AudioController extends EventEmitter {
   completed = false
   progress = 0
   interval: any = null
   audio = new Audio()
+  requiresHls = false
+  loadingHls: Promise<void> | null = null
   hls?: Hls
 
   constructor(readonly url) {
     super()
 
     if (url.endsWith("m3u8")) {
-      this.hls = new Hls()
-      this.hls.loadSource(this.url)
-      this.hls.attachMedia(this.audio)
+      this.requiresHls = true
+      this.audio.src = url
     } else {
       this.audio.src = url
     }
+  }
+
+  ensureHls = async () => {
+    if (!this.requiresHls || this.hls) {
+      return
+    }
+
+    if (!this.loadingHls) {
+      this.loadingHls = import("hls.js")
+        .then(({default: Hls}) => {
+          this.hls = new Hls()
+          this.hls.loadSource(this.url)
+          this.hls.attachMedia(this.audio)
+        })
+        .catch(error => {
+          this.emit("error", error)
+          throw error
+        })
+        .finally(() => {
+          this.loadingHls = null
+        })
+    }
+
+    await this.loadingHls
   }
 
   reportProgress = () => {
@@ -38,9 +63,10 @@ export class AudioController extends EventEmitter {
     this.reportProgress()
   }
 
-  play = () => {
+  play = async () => {
     if (!this.interval) {
-      this.audio.play()
+      await this.ensureHls()
+      await this.audio.play()
       this.emit("play")
       this.interval = setInterval(this.reportProgress, 30)
     }
@@ -57,11 +83,11 @@ export class AudioController extends EventEmitter {
     }
   }
 
-  toggle = e => {
+  toggle = async () => {
     if (this.interval) {
       this.pause()
     } else {
-      this.play()
+      await this.play()
     }
   }
 

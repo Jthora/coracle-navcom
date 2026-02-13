@@ -20,6 +20,8 @@
   import PersonHandle from "src/app/shared/PersonHandle.svelte"
   import MenuDesktopItem from "src/app/MenuDesktopItem.svelte"
   import MenuDesktopSecondary from "src/app/MenuDesktopSecondary.svelte"
+  import {hasUnreadGroupMessages, totalUnreadGroupMessages} from "src/app/groups/state"
+  import {trackGroupTelemetry} from "src/app/groups/telemetry"
   import {slowConnections} from "src/app/state"
   import {router} from "src/app/util/router"
   import {hasNewMessages, hasNewNotifications} from "src/engine"
@@ -37,7 +39,7 @@
   const goOpsChat = event => {
     if (!$signer) {
       event?.preventDefault()
-      showInfo("Sign in to post in Ops Chat. You can still read Starcom Ops feed.", {
+      showInfo("Sign in to use Direct Messages. You can still read Starcom Ops feed.", {
         timeout: 4500,
       })
       router.go({path: opsFeedPath})
@@ -45,6 +47,34 @@
     }
 
     router.go({path: "/channels"})
+  }
+
+  const goGroups = () => {
+    trackGroupTelemetry(
+      "group_nav_opened",
+      {
+        surface: "desktop",
+        unreadTotal: $totalUnreadGroupMessages,
+      },
+      {
+        dedupeKey: "group-nav-opened-desktop",
+        minIntervalMs: 10_000,
+      },
+    )
+  }
+
+  $: if ($hasUnreadGroupMessages) {
+    trackGroupTelemetry(
+      "group_unread_badge_seen",
+      {
+        surface: "desktop",
+        unreadTotal: $totalUnreadGroupMessages,
+      },
+      {
+        dedupeKey: "group-unread-badge-desktop",
+        minIntervalMs: 60_000,
+      },
+    )
   }
 
   const closeSubMenu = () => {
@@ -144,8 +174,20 @@
     isActive={$page?.path.startsWith("/channels")}
     on:click={goOpsChat}>
     <div class="relative inline-block">
-      Ops Chat
+      Direct Messages
       {#if $hasNewMessages}
+        <div class="absolute -right-2.5 top-1 h-1.5 w-1.5 rounded bg-accent" />
+      {/if}
+    </div>
+  </MenuDesktopItem>
+  <MenuDesktopItem
+    path="/groups"
+    disabled={!$signer}
+    isActive={$page?.path.startsWith("/groups")}
+    on:click={goGroups}>
+    <div class="relative inline-block">
+      Groups
+      {#if $hasUnreadGroupMessages}
         <div class="absolute -right-2.5 top-1 h-1.5 w-1.5 rounded bg-accent" />
       {/if}
     </div>

@@ -8,6 +8,7 @@ describe("app/groups routes", () => {
     const list = {name: "GroupList"}
     const create = {name: "GroupCreateJoin"}
     const detailComponent = {name: "GroupDetail"}
+    const chatComponent = {name: "GroupConversation"}
     const adminComponent = {name: "GroupSettingsAdmin"}
 
     const router = {
@@ -20,6 +21,7 @@ describe("app/groups routes", () => {
       list,
       create,
       detail: detailComponent,
+      chat: chatComponent,
       admin: adminComponent,
     })
 
@@ -27,12 +29,14 @@ describe("app/groups routes", () => {
       "/groups",
       "/groups/create",
       "/groups/:groupId",
+      "/groups/:groupId/chat",
       "/groups/:groupId/members",
       "/groups/:groupId/moderation",
       "/groups/:groupId/settings",
     ])
 
     const detail = calls.find(c => c.path === "/groups/:groupId")
+    const chat = calls.find(c => c.path === "/groups/:groupId/chat")
     const moderation = calls.find(c => c.path === "/groups/:groupId/moderation")
     const settings = calls.find(c => c.path === "/groups/:groupId/settings")
     const groupsList = calls.find(c => c.path === "/groups")
@@ -47,6 +51,7 @@ describe("app/groups routes", () => {
     expect(groupsList?.component).toBe(list)
     expect(groupsCreate?.component).toBe(create)
     expect(detail?.component).toBe(detailComponent)
+    expect(chat?.component).toBe(chatComponent)
     expect(moderation?.component).toBe(adminComponent)
     expect(settings?.component).toBe(adminComponent)
   })

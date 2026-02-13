@@ -1,7 +1,9 @@
 import {describe, expect, it} from "vitest"
 import {
+  buildGroupChatPath,
   buildGroupJoinPrefillPath,
   getGroupInviteEntryMeta,
+  resolveGroupInviteDestinationPath,
   resolveAutoJoinGroupInvite,
   resolveGroupInviteAcceptPayloads,
 } from "src/app/invite/accept"
@@ -53,6 +55,28 @@ describe("app/invite accept helpers", () => {
     expect(href).toBe(
       "/groups/create?groupId=relay.example%27ops&preferredMode=secure-nip-ee&missionTier=2&label=Ops+Team",
     )
+  })
+
+  it("builds group chat route path", () => {
+    expect(buildGroupChatPath("relay.example'ops")).toBe("/groups/relay.example'ops/chat")
+  })
+
+  it("resolves invite destination to chat when active membership exists", () => {
+    expect(
+      resolveGroupInviteDestinationPath({
+        group: {groupId: "relay.example'ops"},
+        hasActiveMembership: true,
+      }),
+    ).toBe("/groups/relay.example'ops/chat")
+  })
+
+  it("resolves invite destination to join flow when membership is not active", () => {
+    expect(
+      resolveGroupInviteDestinationPath({
+        group: {groupId: "relay.example'ops", preferredMode: "baseline-nip29", missionTier: 1},
+        hasActiveMembership: false,
+      }),
+    ).toBe("/groups/create?groupId=relay.example%27ops&preferredMode=baseline-nip29&missionTier=1")
   })
 
   it("returns formatted metadata line for invite entry", () => {

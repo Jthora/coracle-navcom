@@ -132,7 +132,11 @@
     hydrated = true
 
     loadPubkeys(env.DEFAULT_FOLLOWS)
-    trackOnboarding("onboarding_entry", {entry_point: returnTo ? "post_gate" : "direct"})
+    trackOnboarding("onboarding_entry", {
+      entry_point: returnTo ? "post_gate" : "direct",
+      has_invite: Boolean(invite),
+      nstart_completed: Boolean(nstartCompleted),
+    })
     trackOnboarding("onboarding_step_completed", {step: stage})
 
     hasNip07 = Boolean(getNip07())

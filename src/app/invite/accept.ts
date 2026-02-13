@@ -95,6 +95,16 @@ export const buildGroupJoinPrefillPath = (group: GroupInvitePayload) => {
   return `/groups/create?${params.toString()}`
 }
 
+export const buildGroupChatPath = (groupId: string) => `/groups/${encodeURIComponent(groupId)}/chat`
+
+export const resolveGroupInviteDestinationPath = ({
+  group,
+  hasActiveMembership,
+}: {
+  group: GroupInvitePayload
+  hasActiveMembership: boolean
+}) => (hasActiveMembership ? buildGroupChatPath(group.groupId) : buildGroupJoinPrefillPath(group))
+
 export const getGroupInviteEntryMeta = (group: GroupInvitePayload) => {
   const parts: string[] = []
 

@@ -28,32 +28,21 @@
   import Routes from "src/app/Routes.svelte"
   import Nav from "src/app/Nav.svelte"
   import ForegroundButtons from "src/app/ForegroundButtons.svelte"
-  import About from "src/app/views/About.svelte"
   import Bech32Entity from "src/app/views/Bech32Entity.svelte"
   import ChannelCreate from "src/app/views/ChannelCreate.svelte"
   import ChannelsDetail from "src/app/views/ChannelsDetail.svelte"
   import ChannelsList from "src/app/views/ChannelsList.svelte"
-  import DataExport from "src/app/views/DataExport.svelte"
-  import DataImport from "src/app/views/DataImport.svelte"
   import FeedCreate from "src/app/views/FeedCreate.svelte"
   import FeedEdit from "src/app/views/FeedEdit.svelte"
   import FeedList from "src/app/views/FeedList.svelte"
   import Announcements from "src/app/views/Announcements.svelte"
-  import Help from "src/app/views/Help.svelte"
   import Home from "src/app/views/Home.svelte"
   import InviteAccept from "src/app/views/InviteAccept.svelte"
-  import InviteCreate from "src/app/views/InviteCreate.svelte"
   import LabelCreate from "src/app/views/LabelCreate.svelte"
-  import ListCreate from "src/app/views/ListCreate.svelte"
-  import ListDetail from "src/app/views/ListDetail.svelte"
-  import ListEdit from "src/app/views/ListEdit.svelte"
-  import ListList from "src/app/views/ListList.svelte"
-  import ListSelect from "src/app/views/ListSelect.svelte"
   import Login from "src/app/views/Login.svelte"
   import LoginBunker from "src/app/views/LoginBunker.svelte"
   import LoginConnect from "src/app/views/LoginConnect.svelte"
   import Logout from "src/app/views/Logout.svelte"
-  import MediaDetail from "src/app/views/MediaDetail.svelte"
   import NoteCreate from "src/app/views/NoteCreate.svelte"
   import NoteDelete from "src/app/views/NoteDelete.svelte"
   import NoteDetail from "src/app/views/NoteDetail.svelte"
@@ -66,22 +55,9 @@
   import PersonFollows from "src/app/views/PersonFollows.svelte"
   import PersonInfo from "src/app/views/PersonInfo.svelte"
   import PersonList from "src/app/shared/PersonList.svelte"
-  import Publishes from "src/app/views/Publishes.svelte"
-  import QRCode from "src/app/views/QRCode.svelte"
-  import RelayDetail from "src/app/views/RelayDetail.svelte"
-  import RelayList from "src/app/views/RelayList.svelte"
-  import RelayReview from "src/app/views/RelayReview.svelte"
   import ReportCreate from "src/app/views/ReportCreate.svelte"
   import Search from "src/app/views/Search.svelte"
   import ThreadDetail from "src/app/views/ThreadDetail.svelte"
-  import UserContent from "src/app/views/UserContent.svelte"
-  import UserData from "src/app/views/UserData.svelte"
-  import UserWallet from "src/app/views/UserWallet.svelte"
-  import WalletConnect from "src/app/views/WalletConnect.svelte"
-  import WalletDisconnect from "src/app/views/WalletDisconnect.svelte"
-  import UserKeys from "src/app/views/UserKeys.svelte"
-  import UserProfile from "src/app/views/UserProfile.svelte"
-  import UserSettings from "src/app/views/UserSettings.svelte"
   import Zap from "src/app/views/Zap.svelte"
   import {onMount} from "svelte"
   import {logUsage} from "src/app/state"
@@ -104,7 +80,7 @@
 
   // Routes
 
-  router.register("/about", About)
+  router.registerLazy("/about", () => import("src/app/views/About.svelte"))
   router.register("/search", Search)
 
   router.register("/channels", ChannelsList, {
@@ -128,7 +104,7 @@
 
   registerGroupRoutes(router)
 
-  router.register("/help/:topic", Help)
+  router.registerLazy("/help/:topic", () => import("src/app/views/Help.svelte"))
 
   router.register("/invite", InviteAccept, {
     serializers: {
@@ -137,7 +113,7 @@
       groups: asInviteGroups,
     },
   })
-  router.register("/invite/create", InviteCreate, {
+  router.registerLazy("/invite/create", () => import("src/app/views/InviteCreate.svelte"), {
     serializers: {
       initialPubkey: asUrlComponent("initialPubkey"),
       initialGroupAddress: asUrlComponent("initialGroupAddress"),
@@ -154,19 +130,19 @@
 
   router.register(ANNOUNCEMENTS_PATH, Announcements)
 
-  router.register("/lists", ListList)
-  router.register("/lists/create", ListCreate)
-  router.register("/lists/:address", ListDetail, {
+  router.registerLazy("/lists", () => import("src/app/views/ListList.svelte"))
+  router.registerLazy("/lists/create", () => import("src/app/views/ListCreate.svelte"))
+  router.registerLazy("/lists/:address", () => import("src/app/views/ListDetail.svelte"), {
     serializers: {
       address: asNaddr("address"),
     },
   })
-  router.register("/lists/:address/edit", ListEdit, {
+  router.registerLazy("/lists/:address/edit", () => import("src/app/views/ListEdit.svelte"), {
     serializers: {
       address: asNaddr("address"),
     },
   })
-  router.register("/lists/select", ListSelect, {
+  router.registerLazy("/lists/select", () => import("src/app/views/ListSelect.svelte"), {
     serializers: {
       type: asString("type"),
       value: asString("value"),
@@ -180,7 +156,7 @@
   })
   router.register("/logout", Logout)
 
-  router.register("/media/:url", MediaDetail, {
+  router.registerLazy("/media/:url", () => import("src/app/views/MediaDetail.svelte"), {
     serializers: {
       url: asUrlComponent("url"),
     },
@@ -267,56 +243,64 @@
     },
   })
 
-  router.register("/qrcode/:code", QRCode, {
+  router.registerLazy("/qrcode/:code", () => import("src/app/views/QRCode.svelte"), {
     serializers: {
       code: asUrlComponent("code"),
     },
   })
 
-  router.register("/publishes", Publishes)
+  router.registerLazy("/publishes", () => import("src/app/views/Publishes.svelte"))
 
-  router.register("/relays/:entity", RelayDetail, {
+  router.registerLazy("/relays/:entity", () => import("src/app/views/RelayDetail.svelte"), {
     serializers: {
       entity: asRelay,
     },
   })
-  router.register("/relays/:entity/review", RelayReview, {
+  router.registerLazy("/relays/:entity/review", () => import("src/app/views/RelayReview.svelte"), {
     serializers: {
       entity: asRelay,
     },
   })
 
-  router.register("/settings", UserSettings, {
+  router.registerLazy("/settings", () => import("src/app/views/UserSettings.svelte"), {
     requireUser: true,
   })
-  router.register("/settings/content", UserContent, {
+  router.registerLazy("/settings/content", () => import("src/app/views/UserContent.svelte"), {
     requireUser: true,
   })
-  router.register("/settings/data", UserData, {
+  router.registerLazy("/settings/data", () => import("src/app/views/UserData.svelte"), {
     requireUser: true,
   })
-  router.register("/settings/wallet", UserWallet, {
+  router.registerLazy("/settings/wallet", () => import("src/app/views/UserWallet.svelte"), {
     requireUser: true,
   })
-  router.register("/settings/wallet/connect", WalletConnect, {
+  router.registerLazy(
+    "/settings/wallet/connect",
+    () => import("src/app/views/WalletConnect.svelte"),
+    {
+      requireUser: true,
+    },
+  )
+  router.registerLazy(
+    "/settings/wallet/disconnect",
+    () => import("src/app/views/WalletDisconnect.svelte"),
+    {
+      requireUser: true,
+    },
+  )
+  router.registerLazy("/settings/data/export", () => import("src/app/views/DataExport.svelte"), {
     requireUser: true,
   })
-  router.register("/settings/wallet/disconnect", WalletDisconnect, {
+  router.registerLazy("/settings/data/import", () => import("src/app/views/DataImport.svelte"), {
     requireUser: true,
   })
-  router.register("/settings/data/export", DataExport, {
+  router.registerLazy("/settings/keys", () => import("src/app/views/UserKeys.svelte"), {
     requireUser: true,
   })
-  router.register("/settings/data/import", DataImport, {
+  router.registerLazy("/settings/profile", () => import("src/app/views/UserProfile.svelte"), {
     requireUser: true,
   })
-  router.register("/settings/keys", UserKeys, {
-    requireUser: true,
-  })
-  router.register("/settings/profile", UserProfile, {
-    requireUser: true,
-  })
-  router.register("/settings/relays", RelayList)
+  router.registerLazy("/settings/relays", () => import("src/app/views/RelayList.svelte"))
 
   router.register("/zap", Zap, {
     required: ["splits"],

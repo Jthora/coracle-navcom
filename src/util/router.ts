@@ -127,6 +127,7 @@ export type RegisterOpts = {
   serializers?: ComponentSerializers
   requireUser?: boolean
   requireSigner?: boolean
+  loadComponent?: () => Promise<any>
   guard?: (ctx: {path: string; route: Route; props: Record<string, any>}) => {
     ok: boolean
     message?: string
@@ -136,7 +137,7 @@ export type RegisterOpts = {
 
 export type Route = RegisterOpts & {
   path: string
-  component: any
+  component?: any
 }
 
 export type HistoryItem = {
@@ -302,9 +303,34 @@ export class Router {
   register = (
     path: string,
     component: any,
+    {serializers, requireUser, requireSigner, required, guard, loadComponent}: RegisterOpts = {},
+  ) => {
+    this.routes.push({
+      path,
+      component,
+      loadComponent,
+      required,
+      serializers,
+      requireUser,
+      requireSigner,
+      guard,
+    })
+  }
+
+  registerLazy = (
+    path: string,
+    loadComponent: () => Promise<any>,
     {serializers, requireUser, requireSigner, required, guard}: RegisterOpts = {},
   ) => {
-    this.routes.push({path, component, required, serializers, requireUser, requireSigner, guard})
+    this.routes.push({
+      path,
+      loadComponent,
+      required,
+      serializers,
+      requireUser,
+      requireSigner,
+      guard,
+    })
   }
 
   getMatch(path): {route: Route; params: Record<string, any>} {

@@ -6,6 +6,7 @@
   import Link from "src/partials/Link.svelte"
   import SearchResults from "src/app/shared/SearchResults.svelte"
   import PersonCircle from "src/app/shared/PersonCircle.svelte"
+  import {hasUnreadGroupMessages} from "src/app/groups/state"
   import PersonBadge from "src/app/shared/PersonBadge.svelte"
   import {menuIsOpen, searchTerm} from "src/app/state"
   import {router} from "src/app/util/router"
@@ -159,7 +160,7 @@
             <PersonCircle
               class="-ml-4 h-11 w-11 border-4 border-white dark:border-black"
               pubkey={$pubkey} />
-            {#if $hasNewNotifications || $hasNewMessages}
+            {#if $hasNewNotifications || $hasNewMessages || $hasUnreadGroupMessages}
               <div class="absolute right-1 top-1 h-2 w-2 rounded bg-accent" />
             {/if}
           {/if}
