@@ -2,6 +2,7 @@
   import cx from "classnames"
   import {signer, pubkey} from "@welshman/app"
   import {isMobile} from "src/util/html"
+  import {showWarning} from "src/partials/Toast.svelte"
   import Modal from "src/partials/Modal.svelte"
   import {menuIsOpen} from "src/app/state"
   import {router} from "src/app/util/router"
@@ -40,6 +41,26 @@
         if (!props[k]) {
           router.go({path: "/", replace: true})
           break
+        }
+      }
+    }
+  }
+
+  // Route-level guards for route-specific checks (e.g. group tier/access constraints)
+  $: {
+    if ($current) {
+      const {route} = router.getMatch($current.path)
+
+      if (route.guard) {
+        const result = route.guard({path: $current.path, route, props: router.getProps($current)})
+
+        if (!result.ok) {
+          showWarning(result.message || "You can’t open that page right now.")
+
+          const path =
+            result.redirectTo && result.redirectTo !== $current.path ? result.redirectTo : "/"
+
+          router.go({path, replace: true})
         }
       }
     }

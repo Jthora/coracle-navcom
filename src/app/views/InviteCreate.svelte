@@ -12,10 +12,19 @@
   import ListItem from "src/partials/ListItem.svelte"
   import SearchSelect from "src/partials/SearchSelect.svelte"
   import Subheading from "src/partials/Subheading.svelte"
-  import {pickVals, toSpliced} from "src/util/misc"
+  import {showWarning} from "src/partials/Toast.svelte"
+  import {
+    buildInviteQueryParams,
+    createDefaultInviteGroupDraft,
+    getGroupInviteHints,
+    toGroupInvitePayload,
+    type InviteGroupDraft,
+  } from "src/app/invite/create"
+  import {toSpliced} from "src/util/misc"
   import {onMount} from "svelte"
 
   export let initialPubkey = null
+  export let initialGroupAddress = null
 
   const showSection = section => {
     sections = [...sections, section]
@@ -30,6 +39,10 @@
 
     if (section === "relays") {
       relays = []
+    }
+
+    if (section === "groups") {
+      group = createDefaultInviteGroupDraft(initialGroupAddress || "")
     }
   }
 
@@ -48,21 +61,57 @@
   let sections = []
   let pubkeys = []
   let relays = []
+  let group = createDefaultInviteGroupDraft(initialGroupAddress || "")
+  $: groupHints = getGroupInviteHints(group)
+  $: includePeople = sections.includes("people")
+  $: includeRelays = sections.includes("relays")
+  $: includeGroup = sections.includes("groups")
+  $: hasGroupPayload = !!toGroupInvitePayload(group)
+  $: canSubmit =
+    (includePeople && pubkeys.length > 0) ||
+    (includeRelays && relays.length > 0) ||
+    (includeGroup && hasGroupPayload)
+
+  const onGroupIdInput = (event: Event) => {
+    const target = event.currentTarget as HTMLInputElement
+
+    group = {...group, groupId: target.value}
+  }
+
+  const onGroupModeChange = (event: Event) => {
+    const target = event.currentTarget as HTMLSelectElement
+
+    group = {...group, preferredMode: target.value as InviteGroupDraft["preferredMode"]}
+  }
+
+  const onGroupMissionTierChange = (event: Event) => {
+    const target = event.currentTarget as HTMLSelectElement
+
+    group = {...group, missionTier: Number(target.value) as InviteGroupDraft["missionTier"]}
+  }
+
+  const onGroupLabelInput = (event: Event) => {
+    const target = event.currentTarget as HTMLInputElement
+
+    group = {...group, label: target.value}
+  }
 
   const onSubmit = () => {
-    const invite: any = {}
+    if (includeGroup && !hasGroupPayload) {
+      showWarning("Provide a valid group invite with supported mode and tier.")
 
-    if (sections.includes("people")) {
-      invite.people = pubkeys.join(",")
+      return
     }
 
-    if (sections.includes("relays")) {
-      invite.relays = relays.map(r => pickVals(["url", "claim"], r).join("|")).join(",")
-    }
+    const params = buildInviteQueryParams({
+      people: includePeople ? pubkeys : [],
+      relays: includeRelays ? relays.map(({url, claim}) => ({url, claim})) : [],
+      group: includeGroup ? group : undefined,
+    })
 
     router
       .at("qrcode")
-      .of(window.origin + "/invite?" + new URLSearchParams(invite).toString())
+      .of(window.origin + "/invite?" + params.toString())
       .open()
   }
 
@@ -70,6 +119,14 @@
     if (initialPubkey) {
       showSection("people")
       pubkeys = pubkeys.concat(initialPubkey)
+    }
+
+    if (initialGroupAddress) {
+      showSection("groups")
+      group = {
+        ...group,
+        groupId: initialGroupAddress,
+      }
     }
 
     // Not sure why, but the inputs are getting automatically focused
@@ -128,6 +185,60 @@
         </SearchSelect>
       </FlexColumn>
     </Card>
+  {:else if section === "groups"}
+    <Card>
+      <FlexColumn>
+        <div class="flex justify-between">
+          <Subheading>Group</Subheading>
+          <i class="fa fa-times cursor-pointer" on:click={() => hideSection("groups")} />
+        </div>
+        <p>
+          Add a group invite payload to this QR link. Recipients can use the group context for
+          faster join onboarding.
+        </p>
+
+        <Input
+          placeholder="Group address (e.g. relay.example'ops)"
+          bind:value={group.groupId}
+          on:input={onGroupIdInput} />
+
+        <div class="grid gap-2 sm:grid-cols-2">
+          <label class="text-sm text-neutral-300">
+            Preferred mode
+            <select
+              class="mt-1 h-9 w-full rounded border border-neutral-700 bg-neutral-900 px-3 text-neutral-100"
+              bind:value={group.preferredMode}
+              on:change={onGroupModeChange}>
+              <option value="baseline-nip29">baseline-nip29</option>
+              <option value="secure-nip-ee">secure-nip-ee</option>
+            </select>
+          </label>
+
+          <label class="text-sm text-neutral-300">
+            Mission tier
+            <select
+              class="mt-1 h-9 w-full rounded border border-neutral-700 bg-neutral-900 px-3 text-neutral-100"
+              bind:value={group.missionTier}
+              on:change={onGroupMissionTierChange}>
+              <option value={0}>Tier 0</option>
+              <option value={1}>Tier 1</option>
+              <option value={2}>Tier 2</option>
+            </select>
+          </label>
+        </div>
+
+        <Input
+          placeholder="Optional group label"
+          bind:value={group.label}
+          on:input={onGroupLabelInput} />
+
+        <div class="space-y-2 text-sm text-neutral-300">
+          {#each groupHints as hint, i (`group-hint-${i}`)}
+            <div class="rounded border border-neutral-700 px-3 py-2">{hint}</div>
+          {/each}
+        </div>
+      </FlexColumn>
+    </Card>
   {/if}
 {/each}
 <div class="flex justify-end gap-4">
@@ -137,7 +248,8 @@
   <Button disabled={sections.includes("relays")} on:click={() => showSection("relays")}>
     <i class="fa fa-plus" /> Add relays
   </Button>
+  <Button disabled={sections.includes("groups")} on:click={() => showSection("groups")}>
+    <i class="fa fa-plus" /> Add group
+  </Button>
 </div>
-<Button class="btn btn-accent" disabled={[...pubkeys, ...relays].length === 0} on:click={onSubmit}>
-  Create Invite Link
-</Button>
+<Button class="btn btn-accent" disabled={!canSubmit} on:click={onSubmit}>Create Invite Link</Button>

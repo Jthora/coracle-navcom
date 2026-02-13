@@ -21,6 +21,7 @@
   import {loadUserData} from "src/app/state"
   import {themeVariables, appName} from "src/partials/state"
   import {ANNOUNCEMENTS_PATH} from "src/app/announcements"
+  import {registerGroupRoutes} from "src/app/groups/routes"
   import Toast from "src/partials/Toast.svelte"
   import ChatEnable from "src/app/views/ChatEnable.svelte"
   import Menu from "src/app/Menu.svelte"
@@ -90,6 +91,7 @@
     asPerson,
     asNaddr,
     asCsv,
+    asInviteGroups,
     asJson,
     asString,
     asUrlComponent,
@@ -124,13 +126,15 @@
     },
   })
 
+  registerGroupRoutes(router)
+
   router.register("/help/:topic", Help)
 
   router.register("/invite", InviteAccept, {
     serializers: {
       people: asCsv("people"),
       relays: asCsv("relays"),
-      groups: asCsv("groups"),
+      groups: asInviteGroups,
     },
   })
   router.register("/invite/create", InviteCreate, {

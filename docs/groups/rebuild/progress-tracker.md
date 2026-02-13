@@ -1,0 +1,380 @@
+# Groups Rebuild Progress Tracker
+
+Status: Active
+Owner: Copilot + Core Team
+Last Updated: 2026-02-12
+
+## Usage
+
+- Check the box when a task is complete.
+- Keep numbering stable once assigned.
+- Update `Last Updated` on any change.
+- Do not delete completed items; append new items.
+
+## Stage 1 — Strategy and Foundations
+
+- [x] 1.0 Stage 1 Complete
+  - [x] 1.1 Phase: Discovery and Direction
+    - [x] 1.1.1 Step: Baseline audit
+      - [x] 1.1.1.1 Task: Audit messaging architecture gaps
+        - [x] 1.1.1.1.a Subtask: Inventory message send/read paths
+        - [x] 1.1.1.1.b Subtask: Map current state stores and derivations
+        - [x] 1.1.1.1.c Subtask: Capture blockers tied to groups support
+      - [x] 1.1.1.2 Task: Identify route and store coupling
+        - [x] 1.1.1.2.a Subtask: Trace route serializers using channel IDs
+        - [x] 1.1.1.2.b Subtask: Locate channel-ID assumptions in projections
+      - [x] 1.1.1.3 Task: Identify protocol/interop constraints
+        - [x] 1.1.1.3.a Subtask: Review protocol status and current viability
+        - [x] 1.1.1.3.b Subtask: Capture relay capability uncertainty areas
+        - [x] 1.1.1.3.c Subtask: Record risks for secure mode adoption
+    - [~] 1.1.2 Step: Protocol strategy by mission tier
+      - [x] 1.1.2.1 Task: Define mission-tier defaults
+        - [x] 1.1.2.1.a Subtask: Define Tier 0 default mode
+        - [x] 1.1.2.1.b Subtask: Define Tier 1 default mode
+        - [x] 1.1.2.1.c Subtask: Define Tier 2 default mode
+      - [x] 1.1.2.2 Task: Define fallback constraints
+        - [x] 1.1.2.2.a Subtask: Define downgrade policy per tier
+        - [x] 1.1.2.2.b Subtask: Define user-visible warning requirements
+      - [ ] 1.1.2.3 Task: Final sign-off from Security/Product
+        - [ ] 1.1.2.3.a Subtask: Security review meeting
+        - [ ] 1.1.2.3.b Subtask: Product approval and scope lock
+  - [x] 1.2 Phase: Planning documents
+    - [x] 1.2.1 Step: Create charter and strategy docs
+      - [x] 1.2.1.1 Task: 00 charter and success criteria
+        - [x] 1.2.1.1.a Subtask: Define measurable success metrics
+        - [x] 1.2.1.1.b Subtask: Define governance and exit gates
+      - [x] 1.2.1.2 Task: 01 threat model and mission tiers
+        - [x] 1.2.1.2.a Subtask: Define adversary classes
+        - [x] 1.2.1.2.b Subtask: Define tiered security requirements
+        - [x] 1.2.1.2.c Subtask: Define downgrade constraints
+      - [x] 1.2.1.3 Task: 02 protocol strategy matrix
+        - [x] 1.2.1.3.a Subtask: Define mode selection matrix
+        - [x] 1.2.1.3.b Subtask: Define promotion/rollback criteria
+    - [x] 1.2.2 Step: Create implementation control docs
+      - [x] 1.2.2.1 Task: 03 current state audit
+        - [x] 1.2.2.1.a Subtask: Document architecture gaps
+      - [x] 1.2.2.2 Task: 04 target architecture
+        - [x] 1.2.2.2.a Subtask: Define component boundaries
+        - [x] 1.2.2.2.b Subtask: Define data-flow sequences
+      - [x] 1.2.2.3 Task: 05 event kinds and contracts
+        - [x] 1.2.2.3.a Subtask: Define schema governance
+        - [x] 1.2.2.3.b Subtask: Define reject/warn matrix
+        - [x] 1.2.2.3.c Subtask: Define versioning strategy
+      - [x] 1.2.2.4 Task: 06 relay capability matrix
+        - [x] 1.2.2.4.a Subtask: Define capability categories
+        - [x] 1.2.2.4.b Subtask: Define required interop lanes
+      - [x] 1.2.2.5 Task: 07 milestone implementation plan
+        - [x] 1.2.2.5.a Subtask: Define milestone scopes
+        - [x] 1.2.2.5.b Subtask: Define exit criteria per milestone
+      - [x] 1.2.2.6 Task: 08 security hardening lifecycle
+        - [x] 1.2.2.6.a Subtask: Define key lifecycle controls
+        - [x] 1.2.2.6.b Subtask: Define secure storage policy
+        - [x] 1.2.2.6.c Subtask: Define incident controls
+      - [x] 1.2.2.7 Task: 09 test strategy and gates
+        - [x] 1.2.2.7.a Subtask: Define test pyramid and gates
+        - [x] 1.2.2.7.b Subtask: Define evidence package rules
+      - [x] 1.2.2.8 Task: 10 rollout/fallback/kill-switch
+        - [x] 1.2.2.8.a Subtask: Define staged rollout phases
+        - [x] 1.2.2.8.b Subtask: Define kill-switch taxonomy
+        - [x] 1.2.2.8.c Subtask: Define rollback workflow
+      - [x] 1.2.2.9 Task: 11 decision log and change log
+        - [x] 1.2.2.9.a Subtask: Define ADR/change templates
+        - [x] 1.2.2.9.b Subtask: Seed initial decision records
+
+## Stage 2 — Domain and Data Model
+
+- [x] 2.0 Stage 2 Complete
+  - [x] 2.1 Phase: Group identity and contracts
+    - [x] 2.1.1 Step: Define identifier model
+      - [x] 2.1.1.1 Task: Canonical `groupId` format and parser
+        - [x] 2.1.1.1.a Subtask: Specify canonical format
+        - [x] 2.1.1.1.b Subtask: Implement parser and validator
+        - [x] 2.1.1.1.c Subtask: Add invalid-case error codes
+      - [x] 2.1.1.2 Task: Legacy channel mapping policy
+        - [x] 2.1.1.2.a Subtask: Define mapping rules and limits
+        - [x] 2.1.1.2.b Subtask: Define rollback-safe alias strategy
+      - [x] 2.1.1.3 Task: Serialization/deserialization test vectors
+        - [x] 2.1.1.3.a Subtask: Create golden vectors
+    - [x] 2.1.2 Step: Event-kind registry and schema validators
+      - [x] 2.1.2.1 Task: Create schema registry scaffold
+        - [x] 2.1.2.1.a Subtask: Define kind-to-schema map
+        - [x] 2.1.2.1.b Subtask: Add validator registration API
+      - [x] 2.1.2.2 Task: Implement reject/warn reason codes
+        - [x] 2.1.2.2.a Subtask: Define reason-code enum
+        - [x] 2.1.2.2.b Subtask: Standardize diagnostics payload
+        - [x] 2.1.2.2.c Subtask: Add regression tests
+      - [x] 2.1.2.3 Task: Add normalization rules
+        - [x] 2.1.2.3.a Subtask: Normalize tags and keys
+        - [x] 2.1.2.3.b Subtask: Enforce deterministic sort order
+  - [x] 2.2 Phase: Domain entities and projections
+    - [x] 2.2.1 Step: Group domain entities
+      - [x] 2.2.1.1 Task: Add Group entity
+        - [x] 2.2.1.1.a Subtask: Define Group type fields
+        - [x] 2.2.1.1.b Subtask: Add constructor/mapper helpers
+      - [x] 2.2.1.2 Task: Add GroupMembership entity
+        - [x] 2.2.1.2.a Subtask: Define role and status model
+        - [x] 2.2.1.2.b Subtask: Add membership transition metadata
+        - [x] 2.2.1.2.c Subtask: Add serialization helpers
+      - [x] 2.2.1.3 Task: Add GroupPolicy entity
+        - [x] 2.2.1.3.a Subtask: Define tier and mode policy fields
+        - [x] 2.2.1.3.b Subtask: Define override expiry semantics
+      - [x] 2.2.1.4 Task: Add GroupAuditEvent entity
+        - [x] 2.2.1.4.a Subtask: Define audit event schema
+    - [x] 2.2.2 Step: Repository projections
+      - [x] 2.2.2.1 Task: Group summary projection
+        - [x] 2.2.2.1.a Subtask: Build summary reducer
+        - [x] 2.2.2.1.b Subtask: Add list-screen selectors
+      - [x] 2.2.2.2 Task: Group detail projection
+        - [x] 2.2.2.2.a Subtask: Build detail reducer
+        - [x] 2.2.2.2.b Subtask: Add detail hydration rules
+        - [x] 2.2.2.2.c Subtask: Add stale-state recovery behavior
+      - [x] 2.2.2.3 Task: Membership projection
+        - [x] 2.2.2.3.a Subtask: Build roster reducer
+        - [x] 2.2.2.3.b Subtask: Add role conflict resolution
+      - [x] 2.2.2.4 Task: Moderation projection
+        - [x] 2.2.2.4.a Subtask: Build moderation timeline reducer
+        - [x] 2.2.2.4.b Subtask: Add idempotency safeguards
+      - [x] 2.2.2.5 Task: Projection checkpoint persistence
+        - [x] 2.2.2.5.a Subtask: Design checkpoint format
+        - [x] 2.2.2.5.b Subtask: Implement save/restore path
+        - [x] 2.2.2.5.c Subtask: Add corruption fallback
+        - [x] 2.2.2.5.d Subtask: Add migration version markers
+
+## Stage 3 — Baseline Groups Implementation
+
+- [x] 3.0 Stage 3 Complete
+  - [x] 3.1 Phase: Membership and relay readiness
+    - [x] 3.1.1 Step: Membership state machine
+      - [x] 3.1.1.1 Task: Define transition table
+        - [x] 3.1.1.1.a Subtask: Enumerate valid states
+        - [x] 3.1.1.1.b Subtask: Define transition triggers
+      - [x] 3.1.1.2 Task: Implement transition guardrails
+        - [x] 3.1.1.2.a Subtask: Enforce role-based guards
+        - [x] 3.1.1.2.b Subtask: Enforce replay protection
+        - [x] 3.1.1.2.c Subtask: Emit deterministic errors
+      - [x] 3.1.1.3 Task: Add transition edge-case tests
+        - [x] 3.1.1.3.a Subtask: Add invalid-transition tests
+        - [x] 3.1.1.3.b Subtask: Add race-condition tests
+        - [x] 3.1.1.3.c Subtask: Add duplicate-event tests
+    - [x] 3.1.2 Step: Relay capability probing
+      - [x] 3.1.2.1 Task: Add capability probe service
+        - [x] 3.1.2.1.a Subtask: Define probe request set
+        - [x] 3.1.2.1.b Subtask: Implement probe executor
+      - [x] 3.1.2.2 Task: Cache and refresh capability snapshots
+        - [x] 3.1.2.2.a Subtask: Define cache TTL policy
+        - [x] 3.1.2.2.b Subtask: Add refresh triggers
+        - [x] 3.1.2.2.c Subtask: Add stale-cache fallback logic
+      - [x] 3.1.2.3 Task: Surface reason codes to UI
+        - [x] 3.1.2.3.a Subtask: Map reason codes to UX copy
+        - [x] 3.1.2.3.b Subtask: Add diagnostics panel bindings
+  - [x] 3.2 Phase: Baseline transport and workflows
+    - [x] 3.2.1 Step: Implement baseline relay-managed flows
+      - [x] 3.2.1.1 Task: Group create flow
+        - [x] 3.2.1.1.a Subtask: Implement create command path
+        - [x] 3.2.1.1.b Subtask: Add create ack handling
+        - [x] 3.2.1.1.c Subtask: Add error recovery UX
+      - [x] 3.2.1.2 Task: Join/leave flow
+        - [x] 3.2.1.2.a Subtask: Implement join command path
+        - [x] 3.2.1.2.b Subtask: Implement leave command path
+        - [x] 3.2.1.2.c Subtask: Add membership sync updates
+      - [x] 3.2.1.3 Task: Membership/admin control actions
+        - [x] 3.2.1.3.a Subtask: Implement put/remove member actions
+        - [x] 3.2.1.3.b Subtask: Implement metadata edit action
+        - [x] 3.2.1.3.c Subtask: Add permission-check integration
+        - [x] 3.2.1.3.d Subtask: Add control action tests
+    - [x] 3.2.2 Step: Routes and serializers
+      - [x] 3.2.2.1 Task: Add `/groups` route tree
+        - [x] 3.2.2.1.a Subtask: Register group routes
+        - [x] 3.2.2.1.b Subtask: Add route guard wiring
+      - [x] 3.2.2.2 Task: Add group serializers/parsers
+        - [x] 3.2.2.2.a Subtask: Implement group route serializer
+        - [x] 3.2.2.2.b Subtask: Implement parser and validation
+        - [x] 3.2.2.2.c Subtask: Add serializer tests
+      - [x] 3.2.2.3 Task: Add route-level guards
+        - [x] 3.2.2.3.a Subtask: Add auth/tier guard checks
+        - [x] 3.2.2.3.b Subtask: Add graceful guard failure UX
+    - [x] 3.2.3 Step: UI screens
+      - [x] 3.2.3.1 Task: Groups list screen
+        - [x] 3.2.3.1.a Subtask: Build list layout and empty states
+        - [x] 3.2.3.1.b Subtask: Bind summary projection data
+      - [x] 3.2.3.2 Task: Group detail screen
+        - [x] 3.2.3.2.a Subtask: Build detail header and status badges
+        - [x] 3.2.3.2.b Subtask: Bind timeline and membership preview
+        - [x] 3.2.3.2.c Subtask: Add loading/error variants
+      - [x] 3.2.3.3 Task: Group create/join screen
+        - [x] 3.2.3.3.a Subtask: Build create form UX
+        - [x] 3.2.3.3.b Subtask: Build join/invite entry UX
+        - [x] 3.2.3.3.c Subtask: Add policy/capability prompts
+      - [x] 3.2.3.4 Task: Group settings/admin screen
+        - [x] 3.2.3.4.a Subtask: Build policy editor UI
+        - [x] 3.2.3.4.b Subtask: Build admin action controls
+        - [x] 3.2.3.4.c Subtask: Add audit/event history panel
+        - [x] 3.2.3.4.d Subtask: Add guardrails for destructive actions
+
+## Stage 4 — Transport Abstraction and Secure Pilot
+
+- [x] 4.0 Stage 4 Complete
+  - [x] 4.1 Phase: Transport abstraction
+    - [x] 4.1.1 Step: Refactor composer to transport intent
+      - [x] 4.1.1.1 Task: Extract message intent model
+        - [x] 4.1.1.1.a Subtask: Define canonical intent payload
+        - [x] 4.1.1.1.b Subtask: Map composer input to intent
+      - [x] 4.1.1.2 Task: Route intent through transport resolver
+        - [x] 4.1.1.2.a Subtask: Implement resolver selection logic
+        - [x] 4.1.1.2.b Subtask: Add fallback dispatch path
+        - [x] 4.1.1.2.c Subtask: Add resolver diagnostics hooks
+      - [x] 4.1.1.3 Task: Keep channel regressions green
+        - [x] 4.1.1.3.a Subtask: Run channel regression suite
+        - [x] 4.1.1.3.b Subtask: Patch compatibility regressions
+    - [x] 4.1.2 Step: Implement pluggable transport API
+      - [x] 4.1.2.1 Task: Define `GroupTransport` interface
+        - [x] 4.1.2.1.a Subtask: Define adapter lifecycle methods
+        - [x] 4.1.2.1.b Subtask: Define error/result contracts
+      - [x] 4.1.2.2 Task: Implement baseline adapter binding
+        - [x] 4.1.2.2.a Subtask: Register baseline adapter
+        - [x] 4.1.2.2.b Subtask: Bind baseline send/subscribe hooks
+        - [x] 4.1.2.2.c Subtask: Validate projection integration
+      - [x] 4.1.2.3 Task: Add adapter contract tests
+        - [x] 4.1.2.3.a Subtask: Add adapter conformance suite
+        - [x] 4.1.2.3.b Subtask: Add failure mode conformance tests
+  - [x] 4.2 Phase: Secure pilot adapter
+    - [x] 4.2.1 Step: Implement secure adapter
+      - [x] 4.2.1.1 Task: Adapter send/subscribe/reconcile
+        - [x] 4.2.1.1.a Subtask: Implement send path
+        - [x] 4.2.1.1.b Subtask: Implement subscribe path
+        - [x] 4.2.1.1.c Subtask: Implement reconcile path
+        - [x] 4.2.1.1.d Subtask: Add adapter integration tests
+      - [x] 4.2.1.2 Task: Capability gate integration
+        - [x] 4.2.1.2.a Subtask: Bind gate checks before dispatch
+        - [x] 4.2.1.2.b Subtask: Add unsupported-capability UX
+      - [x] 4.2.1.3 Task: Tier policy enforcement integration
+        - [x] 4.2.1.3.a Subtask: Enforce tier-specific mode locks
+        - [x] 4.2.1.3.b Subtask: Enforce downgrade confirmation rules
+        - [x] 4.2.1.3.c Subtask: Add audit events for overrides
+    - [x] 4.2.2 Step: Key lifecycle services
+      - [x] 4.2.2.1 Task: Key material lifecycle manager
+        - [x] 4.2.2.1.a Subtask: Implement key state registry
+        - [x] 4.2.2.1.b Subtask: Implement key-use tracking hooks
+        - [x] 4.2.2.1.c Subtask: Implement expiry enforcement
+      - [x] 4.2.2.2 Task: Rotation scheduling and triggers
+        - [x] 4.2.2.2.a Subtask: Define rotation schedule policy
+        - [x] 4.2.2.2.b Subtask: Implement event-triggered rotation
+        - [x] 4.2.2.2.c Subtask: Add rotation failure retries
+      - [x] 4.2.2.3 Task: Revocation/remediation hooks
+        - [x] 4.2.2.3.a Subtask: Implement revocation command path
+        - [x] 4.2.2.3.b Subtask: Implement compromised-device remediation
+    - [x] 4.2.3 Step: Local secure storage
+      - [x] 4.2.3.1 Task: Encrypt secure group state at rest
+        - [x] 4.2.3.1.a Subtask: Define encrypted storage schema
+        - [x] 4.2.3.1.b Subtask: Implement read/write encryption path
+        - [x] 4.2.3.1.c Subtask: Add migration from plaintext cache
+      - [x] 4.2.3.2 Task: Add secure wipe support
+        - [x] 4.2.3.2.a Subtask: Implement scoped wipe operations
+        - [x] 4.2.3.2.b Subtask: Add verification checks
+      - [x] 4.2.3.3 Task: Add corruption recovery behavior
+        - [x] 4.2.3.3.a Subtask: Detect corrupted state markers
+        - [x] 4.2.3.3.b Subtask: Rehydrate from trusted remote state
+        - [x] 4.2.3.3.c Subtask: Notify user with actionable recovery message
+
+## Stage 5 — Moderation, Invites, and Ops Readiness
+
+- [x] 5.0 Stage 5 Complete
+  - [x] 5.1 Phase: Governance workflows
+    - [x] 5.1.1 Step: Moderation/admin actions
+      - [x] 5.1.1.1 Task: Add moderation action composer
+        - [x] 5.1.1.1.a Subtask: Implement action type picker
+        - [x] 5.1.1.1.b Subtask: Implement reason-code input
+      - [x] 5.1.1.2 Task: Add action history/audit feed
+        - [x] 5.1.1.2.a Subtask: Build history projection view
+        - [x] 5.1.1.2.b Subtask: Add filters and actor labels
+        - [x] 5.1.1.2.c Subtask: Add pagination/infinite load support
+      - [x] 5.1.1.3 Task: Add role-based UI restrictions
+        - [x] 5.1.1.3.a Subtask: Map roles to visible controls
+        - [x] 5.1.1.3.b Subtask: Add disabled-state affordances
+  - [x] 5.2 Phase: Invite and onboarding flow
+    - [x] 5.2.1 Step: Expand invites to groups
+      - [x] 5.2.1.1 Task: Extend invite schema
+        - [x] 5.2.1.1.a Subtask: Define group invite payload fields
+        - [x] 5.2.1.1.b Subtask: Add schema validation and parser
+        - [x] 5.2.1.1.c Subtask: Add backward-compat decode path
+      - [x] 5.2.1.2 Task: Add group invite QR generation
+        - [x] 5.2.1.2.a Subtask: Encode group payload into QR URL
+        - [x] 5.2.1.2.b Subtask: Add UX copy for mode/tier hints
+      - [x] 5.2.1.3 Task: Add invite accept path for groups
+        - [x] 5.2.1.3.a Subtask: Parse and validate invite payload
+        - [x] 5.2.1.3.b Subtask: Route to join flow with prefilled context
+        - [x] 5.2.1.3.c Subtask: Add accept-flow edge-case handling
+  - [x] 5.3 Phase: Documentation and runbook sync
+    - [x] 5.3.1 Step: Sync docs with implementation deltas
+      - [x] 5.3.1.1 Task: Update decision log entries
+        - [x] 5.3.1.1.a Subtask: Log architecture-impact decisions
+      - [x] 5.3.1.2 Task: Update interop matrix results
+        - [x] 5.3.1.2.a Subtask: Capture latest lane pass/fail status
+        - [x] 5.3.1.2.b Subtask: Record variance notes and mitigations
+      - [x] 5.3.1.3 Task: Update known-issues ledger
+        - [x] 5.3.1.3.a Subtask: Add unresolved issues with owners
+        - [x] 5.3.1.3.b Subtask: Add target fix milestones
+
+## Stage 6 — Validation and Controlled Rollout
+
+- [x] 6.0 Stage 6 Complete
+  - [x] 6.1 Phase: Integration matrix
+    - [x] 6.1.1 Step: Build and run integration matrix
+      - [x] 6.1.1.1 Task: Baseline lanes (required relays)
+        - [x] 6.1.1.1.a Subtask: Define baseline lane inventory
+        - [x] 6.1.1.1.b Subtask: Execute baseline lane runs
+        - [x] 6.1.1.1.c Subtask: Collect and file evidence artifacts
+      - [x] 6.1.1.2 Task: Secure pilot lanes
+        - [x] 6.1.1.2.a Subtask: Define secure lane prerequisites
+        - [x] 6.1.1.2.b Subtask: Execute secure lane runs
+        - [x] 6.1.1.2.c Subtask: Validate downgrade guard behavior
+        - [x] 6.1.1.2.d Subtask: File residual-risk notes
+      - [x] 6.1.1.3 Task: Mixed-capability fallback lanes
+        - [x] 6.1.1.3.a Subtask: Simulate capability mismatch cases
+        - [x] 6.1.1.3.b Subtask: Validate fallback UX and telemetry
+  - [x] 6.2 Phase: Release controls
+    - [x] 6.2.1 Step: Rollout/fallback/kill-switch readiness
+      - [x] 6.2.1.1 Task: Feature-flag stage policies
+        - [x] 6.2.1.1.a Subtask: Define stage-to-flag mapping
+        - [x] 6.2.1.1.b Subtask: Validate scoped flag rollout behavior
+      - [x] 6.2.1.2 Task: Kill-switch drill execution
+        - [x] 6.2.1.2.a Subtask: Run KS1/KS2 drill scenarios
+        - [x] 6.2.1.2.b Subtask: Measure mitigation time and correctness
+        - [x] 6.2.1.2.c Subtask: Document drill outcomes
+      - [x] 6.2.1.3 Task: Rollback drill execution
+        - [x] 6.2.1.3.a Subtask: Execute staged rollback drill
+        - [x] 6.2.1.3.b Subtask: Validate data consistency post-rollback
+        - [x] 6.2.1.3.c Subtask: Update rollback runbook gaps
+  - [x] 6.3 Phase: Final sign-off
+    - [x] 6.3.1 Step: Production readiness review
+      - [x] 6.3.1.1 Task: Security sign-off
+        - [x] 6.3.1.1.a Subtask: Complete security checklist review
+        - [x] 6.3.1.1.b Subtask: Resolve remaining high findings
+      - [x] 6.3.1.2 Task: QA sign-off
+        - [x] 6.3.1.2.a Subtask: Verify all release gates are green
+      - [x] 6.3.1.3 Task: Product/Ops sign-off
+        - [x] 6.3.1.3.a Subtask: Confirm rollout communications plan
+        - [x] 6.3.1.3.b Subtask: Confirm support runbook readiness
+
+## Stage 7 — Post-Signoff Remediation
+
+- [x] 7.0 Stage 7 Complete
+  - [x] 7.1 Phase: Medium-finding closure
+    - [x] 7.1.1 Step: Address known medium issues
+      - [x] 7.1.1.1 Task: Remove manual-only group invite join friction
+        - [x] 7.1.1.1.a Subtask: Add guarded auto-join resolver
+        - [x] 7.1.1.1.b Subtask: Wire invite accept auto-open behavior
+        - [x] 7.1.1.1.c Subtask: Add invite auto-join tests
+      - [x] 7.1.1.2 Task: Expand mixed-capability validation depth
+        - [x] 7.1.1.2.a Subtask: Add matrix-grade mixed-capability scenarios
+        - [x] 7.1.1.2.b Subtask: Validate fallback/block telemetry aggregates
+      - [x] 7.1.1.3 Task: Close medium findings and sync docs
+        - [x] 7.1.1.3.a Subtask: Close GI-2026-003 in known-issues ledger
+        - [x] 7.1.1.3.b Subtask: Close GI-2026-004 in known-issues ledger
+
+## Notes
+
+- Use `[x]` for complete.
+- Use `[ ]` for not started.
+- Use `[~]` for in progress.
+- Keep seeded numbering stable to preserve references.
