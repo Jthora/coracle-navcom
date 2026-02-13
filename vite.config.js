@@ -27,6 +27,8 @@ const manualChunks = id => {
   if (moduleId.includes("/node_modules/qr-scanner/")) return "vendor-qr-scanner"
   if (moduleId.includes("/node_modules/nostr-wasm/")) return "vendor-welshman"
   if (moduleId.includes("/node_modules/trava/")) return "vendor-welshman"
+  if (moduleId.includes("/node_modules/nostr-editor/")) return "vendor-welshman"
+  if (moduleId.includes("/node_modules/@tiptap/")) return "vendor-welshman"
   if (moduleId.includes("/node_modules/@welshman/")) return "vendor-welshman"
   if (moduleId.includes("/node_modules/@capacitor/")) return "vendor-capacitor"
   if (
