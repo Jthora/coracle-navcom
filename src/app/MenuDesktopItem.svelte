@@ -1,4 +1,19 @@
 <style>
+  .nav-active-line {
+    background-color: transparent;
+  }
+
+  .nav-active-line::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    height: 1px;
+    background: currentColor;
+    transform-origin: left center;
+    transform: scaleX(0);
+    animation: nav-active-line-expand 260ms cubic-bezier(0.2, 0.9, 0.25, 1) both;
+  }
+
   .nav-active-line-heartbeat {
     position: absolute;
     top: -6px;
@@ -9,6 +24,7 @@
     transform: translateX(-118%);
     animation: nav-active-heartbeat 10s infinite;
     filter: drop-shadow(0 0 3px currentColor);
+    transform-origin: left center;
     mask-image: linear-gradient(
       to right,
       transparent 0%,
@@ -108,40 +124,40 @@
 
   @keyframes nav-active-heartbeat {
     0%,
-    6.8%,
+    8%,
     100% {
       opacity: 0;
-      transform: translateX(-118%);
+      transform: translateX(-118%) scaleX(1) scaleY(1);
     }
 
     0.9% {
       opacity: 0.45;
-      transform: translateX(-94%);
+      transform: translateX(-94%) scaleX(1) scaleY(1);
     }
 
     1.9% {
       opacity: 1;
-      transform: translateX(-60%);
+      transform: translateX(-60%) scaleX(1) scaleY(1);
     }
 
-    2.9% {
-      opacity: 0.92;
-      transform: translateX(-35%);
+    3.2% {
+      opacity: 0.86;
+      transform: translateX(-36%) scaleX(0.78) scaleY(0.64);
     }
 
-    3.8% {
-      opacity: 0.78;
-      transform: translateX(-8%);
+    4.5% {
+      opacity: 0.62;
+      transform: translateX(-10%) scaleX(0.56) scaleY(0.4);
     }
 
-    4.9% {
-      opacity: 0.5;
-      transform: translateX(25%);
+    5.8% {
+      opacity: 0.42;
+      transform: translateX(16%) scaleX(0.42) scaleY(0.26);
     }
 
-    6.8% {
+    8% {
       opacity: 0;
-      transform: translateX(76%);
+      transform: translateX(64%) scaleX(0.28) scaleY(0.14);
     }
   }
 
@@ -193,7 +209,7 @@
   @keyframes nav-active-static-trail {
     0%,
     0.8%,
-    6.8%,
+    8%,
     100% {
       opacity: 0;
       transform: translateX(-10px);
@@ -217,7 +233,7 @@
 
   @keyframes nav-active-line-zigzag-sweep {
     0%,
-    6.8%,
+    8%,
     100% {
       opacity: 0;
       transform: translateX(-110%);
@@ -246,6 +262,16 @@
     6.2% {
       opacity: 0;
       transform: translateX(58%);
+    }
+  }
+
+  @keyframes nav-active-line-expand {
+    from {
+      transform: scaleX(0);
+    }
+
+    to {
+      transform: scaleX(1);
     }
   }
 </style>
@@ -278,7 +304,7 @@
     {#if isActive}
       <div
         in:fly|local={{x: 50, duration: 1000, easing: elasticOut}}
-        class="nav-active-line relative h-px w-full overflow-visible bg-accent"
+        class="nav-active-line relative h-px w-full overflow-visible"
         class:top-4={!small}
         class:top-3={small}>
         <div class="nav-active-line-zigzag" aria-hidden="true">
