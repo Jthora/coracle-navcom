@@ -75,6 +75,7 @@ export default defineConfig(async () => {
     },
     resolve: {
       alias: {
+        events: path.resolve(__dirname, "src/util/events.ts"),
         src: path.resolve(__dirname, "src"),
       },
     },
