@@ -28,48 +28,48 @@
 
   @keyframes nav-active-heartbeat {
     0%,
-    76.5%,
+    8%,
     100% {
       opacity: 0;
       transform: translateX(-135%);
     }
 
-    78.2% {
+    1.8% {
       opacity: 0.42;
       transform: translateX(-108%);
     }
 
-    79.3% {
+    2.8% {
       opacity: 0.76;
       transform: translateX(-84%);
     }
 
-    80.4% {
+    3.7% {
       opacity: 0.58;
       transform: translateX(-68%);
     }
 
-    81.9% {
+    4.5% {
       opacity: 1;
       transform: translateX(-28%);
     }
 
-    82.7% {
+    5.1% {
       opacity: 0.9;
       transform: translateX(-2%);
     }
 
-    83.9% {
+    5.9% {
       opacity: 0.72;
       transform: translateX(30%);
     }
 
-    84.8% {
+    6.7% {
       opacity: 0.48;
       transform: translateX(52%);
     }
 
-    86.2% {
+    8% {
       opacity: 0;
       transform: translateX(128%);
     }
@@ -103,7 +103,7 @@
     <slot />
     {#if isActive}
       <div
-        in:fly|local={{x: 50, duration: 1000, easing: elasticOut}}
+        in:fly|local={{x: 50, duration: 450, easing: elasticOut}}
         class="nav-active-line relative h-px w-full overflow-hidden bg-accent"
         class:top-4={!small}
         class:top-3={small}>
