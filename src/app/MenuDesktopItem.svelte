@@ -1,14 +1,28 @@
 <style>
   .nav-active-line-heartbeat {
     position: absolute;
-    top: -7px;
+    top: -6px;
     left: 0;
-    width: 120px;
-    height: 14px;
+    width: 156px;
+    height: 12px;
     opacity: 0;
-    transform: translateX(-135%);
+    transform: translateX(-118%);
     animation: nav-active-heartbeat 10s infinite;
-    filter: drop-shadow(0 0 4px currentColor);
+    filter: drop-shadow(0 0 3px currentColor);
+    mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      rgba(0, 0, 0, 0.14) 16%,
+      rgba(0, 0, 0, 0.95) 52%,
+      transparent 100%
+    );
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      rgba(0, 0, 0, 0.14) 16%,
+      rgba(0, 0, 0, 0.95) 52%,
+      transparent 100%
+    );
   }
 
   .nav-active-line-heartbeat svg {
@@ -20,7 +34,7 @@
   .nav-active-line-heartbeat polyline {
     fill: none;
     stroke: currentColor;
-    stroke-width: 1.4;
+    stroke-width: 1.25;
     stroke-linecap: round;
     stroke-linejoin: round;
     vector-effect: non-scaling-stroke;
@@ -28,50 +42,40 @@
 
   @keyframes nav-active-heartbeat {
     0%,
-    8%,
+    6.6%,
     100% {
       opacity: 0;
-      transform: translateX(-135%);
+      transform: translateX(-118%);
+    }
+
+    0.8% {
+      opacity: 0.3;
+      transform: translateX(-92%);
     }
 
     1.8% {
-      opacity: 0.42;
-      transform: translateX(-108%);
+      opacity: 0.95;
+      transform: translateX(-58%);
     }
 
     2.8% {
-      opacity: 0.76;
-      transform: translateX(-84%);
+      opacity: 0.82;
+      transform: translateX(-30%);
     }
 
-    3.7% {
-      opacity: 0.58;
-      transform: translateX(-68%);
-    }
-
-    4.5% {
-      opacity: 1;
-      transform: translateX(-28%);
-    }
-
-    5.1% {
-      opacity: 0.9;
+    3.8% {
+      opacity: 0.7;
       transform: translateX(-2%);
     }
 
-    5.9% {
-      opacity: 0.72;
-      transform: translateX(30%);
+    4.8% {
+      opacity: 0.46;
+      transform: translateX(28%);
     }
 
-    6.7% {
-      opacity: 0.48;
-      transform: translateX(52%);
-    }
-
-    8% {
+    6.6% {
       opacity: 0;
-      transform: translateX(128%);
+      transform: translateX(72%);
     }
   }
 </style>
@@ -104,13 +108,13 @@
     {#if isActive}
       <div
         in:fly|local={{x: 50, duration: 450, easing: elasticOut}}
-        class="nav-active-line relative h-px w-full overflow-hidden bg-accent"
+        class="nav-active-line relative h-px w-full overflow-visible bg-accent"
         class:top-4={!small}
         class:top-3={small}>
         <div class="nav-active-line-heartbeat" aria-hidden="true">
-          <svg viewBox="0 0 120 14" preserveAspectRatio="none">
+          <svg viewBox="0 0 156 12" preserveAspectRatio="none">
             <polyline
-              points="0,8 14,8 22,6 30,8 38,9.5 44,2.4 50,12.4 58,8 72,8 79,6.4 86,8 95,8.8 102,8 112,8 120,8" />
+              points="0,8 12,8 18,5 24,10.7 30,4.2 36,11.2 42,3.2 48,11.4 54,4.2 60,10.8 66,5 72,10 78,6 84,9.5 90,6.7 96,9 102,7.2 108,8.6 116,8 124,8 136,8 146,8 156,8" />
           </svg>
         </div>
       </div>
