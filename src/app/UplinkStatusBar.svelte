@@ -1,27 +1,3 @@
-<style>
-  .status-value {
-    color: var(--accent);
-    font-weight: 600;
-  }
-
-  .status-pulse {
-    animation: status-pulse 1.6s ease-in-out infinite;
-  }
-
-  @keyframes status-pulse {
-    0%,
-    100% {
-      transform: scale(1);
-      box-shadow: 0 0 0 0 currentColor;
-    }
-
-    50% {
-      transform: scale(1.07);
-      box-shadow: 0 0 0 6px transparent;
-    }
-  }
-</style>
-
 <script lang="ts">
   import {onMount} from "svelte"
   import {Pool} from "@welshman/net"
@@ -29,6 +5,10 @@
   import {RelayMode} from "@welshman/util"
   import {messages} from "src/engine"
   import {ConnectionType, getSocketStatus} from "src/domain/connection"
+  import UplinkStatusVent from "src/app/uplink-status/UplinkStatusVent.svelte"
+  import UplinkStatusDivider from "src/app/uplink-status/UplinkStatusDivider.svelte"
+  import UplinkStatusConnection from "src/app/uplink-status/UplinkStatusConnection.svelte"
+  import UplinkStatusItem from "src/app/uplink-status/UplinkStatusItem.svelte"
 
   let innerWidth = 0
   let elapsedMs = 0
@@ -73,39 +53,25 @@
 
 {#if innerWidth >= 1024}
   <div
-    class="bottom-sai right-sai border-neutral-600/70 bg-neutral-950/95 pointer-events-none fixed left-72 z-nav h-8 border-t text-[11px] tracking-[0.12em] backdrop-blur-sm">
-    <div class="aldrich relative flex h-full items-center overflow-hidden px-4">
-      <div
-        class="border-neutral-600/70 absolute inset-y-0 left-0 w-6 border-r bg-[linear-gradient(135deg,rgba(255,255,255,0.08),rgba(255,255,255,0)_48%)]" />
-      <div
-        class="border-neutral-600/70 absolute inset-y-0 right-0 w-6 border-l bg-[linear-gradient(-135deg,rgba(255,255,255,0.08),rgba(255,255,255,0)_48%)]" />
+    class="bottom-sai right-sai border-neutral-600/70 bg-neutral-950/95 pointer-events-none fixed left-72 z-nav h-7 border-t backdrop-blur-sm">
+    <div class="relative flex h-full items-center overflow-hidden">
+      <UplinkStatusVent side="left" />
+      <UplinkStatusVent side="right" />
 
-      <div class="z-10 relative flex items-center gap-4">
-        <div class="flex items-center gap-2">
-          <span
-            class="h-2 w-2 rounded-full"
-            class:bg-success={uplinkConnected}
-            class:status-pulse={uplinkConnected}
-            class:bg-neutral-500={!uplinkConnected} />
-          <span class="font-semibold uppercase text-neutral-300">Uplink:</span>
-          <span class:status-value={uplinkConnected} class:text-neutral-400={!uplinkConnected}
-            >{uplinkConnected ? "Connected" : "Disconnected"}</span>
-        </div>
-        <div class="bg-neutral-700/80 h-3 w-px" />
-        <div>
-          <span class="font-semibold uppercase text-neutral-300">Relays:</span>
-          <span class="status-value"> {connectedRelayCount}/{relayUrls.length}</span>
-        </div>
-        <div class="bg-neutral-700/80 h-3 w-px" />
-        <div>
-          <span class="font-semibold uppercase text-neutral-300">Messages:</span>
-          <span class="status-value"> {$messages.length}</span>
-        </div>
-        <div class="bg-neutral-700/80 h-3 w-px" />
-        <div>
-          <span class="font-semibold uppercase text-neutral-300">Uptime:</span>
-          <span class="status-value font-mono"> {uptime}</span>
-        </div>
+      <div class="z-10 relative ml-10 flex items-center gap-3">
+        <UplinkStatusConnection connected={uplinkConnected} />
+        <UplinkStatusDivider />
+        <UplinkStatusItem
+          label="Relays"
+          value={`${connectedRelayCount}/${relayUrls.length}`}
+          valueClass="text-accent" />
+        <UplinkStatusDivider />
+        <UplinkStatusItem
+          label="Messages"
+          value={String($messages.length)}
+          valueClass="text-accent" />
+        <UplinkStatusDivider />
+        <UplinkStatusItem label="Uptime" value={uptime} valueClass="font-mono text-accent" />
       </div>
     </div>
   </div>
