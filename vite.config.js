@@ -46,7 +46,7 @@ const manualChunks = id => {
     return "vendor-svelte"
   }
 
-  return "vendor-misc"
+  return "vendor-welshman"
 }
 
 export default defineConfig(async () => {
