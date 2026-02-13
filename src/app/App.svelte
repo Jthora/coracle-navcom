@@ -27,6 +27,7 @@
   import Menu from "src/app/Menu.svelte"
   import Routes from "src/app/Routes.svelte"
   import Nav from "src/app/Nav.svelte"
+  import UplinkStatusBar from "src/app/UplinkStatusBar.svelte"
   import ForegroundButtons from "src/app/ForegroundButtons.svelte"
   import Bech32Entity from "src/app/views/Bech32Entity.svelte"
   import ChannelCreate from "src/app/views/ChannelCreate.svelte"
@@ -456,6 +457,7 @@
     <ForegroundButtons />
     <Nav />
     <Menu />
+    <UplinkStatusBar />
     <BackupReminder />
     <ManagedExportPrompt />
     <Toast />
