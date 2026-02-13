@@ -11,7 +11,7 @@
     background: currentColor;
     transform-origin: left center;
     transform: scaleX(0);
-    animation: nav-active-line-expand 260ms cubic-bezier(0.2, 0.9, 0.25, 1) both;
+    animation: nav-active-line-expand 820ms cubic-bezier(0.2, 0.9, 0.25, 1) both;
   }
 
   .nav-active-line-heartbeat {
@@ -22,7 +22,7 @@
     height: 12px;
     opacity: 0;
     transform: translateX(-118%);
-    animation: nav-active-heartbeat 10s infinite;
+    animation: nav-active-heartbeat 900ms both;
     filter: drop-shadow(0 0 3px currentColor);
     transform-origin: left center;
     mask-image: linear-gradient(
@@ -91,7 +91,7 @@
       transparent 16px 23px
     );
     filter: blur(0.6px);
-    animation: nav-active-static-trail 10s infinite;
+    animation: nav-active-static-trail 900ms both;
   }
 
   .nav-active-line-zigzag {
@@ -102,7 +102,7 @@
     height: 8px;
     opacity: 0;
     transform: translateX(-110%);
-    animation: nav-active-line-zigzag-sweep 10s infinite;
+    animation: nav-active-line-zigzag-sweep 900ms both;
     pointer-events: none;
   }
 
@@ -123,39 +123,37 @@
   }
 
   @keyframes nav-active-heartbeat {
-    0%,
-    8%,
-    100% {
+    0% {
       opacity: 0;
       transform: translateX(-118%) scaleX(1) scaleY(1);
     }
 
-    0.9% {
+    12% {
       opacity: 0.45;
       transform: translateX(-94%) scaleX(1) scaleY(1);
     }
 
-    1.9% {
+    24% {
       opacity: 1;
       transform: translateX(-60%) scaleX(1) scaleY(1);
     }
 
-    3.2% {
+    40% {
       opacity: 0.86;
       transform: translateX(-36%) scaleX(0.78) scaleY(0.64);
     }
 
-    4.5% {
+    56% {
       opacity: 0.62;
       transform: translateX(-10%) scaleX(0.56) scaleY(0.4);
     }
 
-    5.8% {
+    72% {
       opacity: 0.42;
       transform: translateX(16%) scaleX(0.42) scaleY(0.26);
     }
 
-    8% {
+    100% {
       opacity: 0;
       transform: translateX(64%) scaleX(0.28) scaleY(0.14);
     }
@@ -208,24 +206,23 @@
 
   @keyframes nav-active-static-trail {
     0%,
-    0.8%,
-    8%,
+    10%,
     100% {
       opacity: 0;
       transform: translateX(-10px);
     }
 
-    2.1% {
+    26% {
       opacity: 0.5;
       transform: translateX(0);
     }
 
-    3.8% {
+    48% {
       opacity: 0.36;
       transform: translateX(14px);
     }
 
-    5.3% {
+    66% {
       opacity: 0.2;
       transform: translateX(24px);
     }
@@ -233,33 +230,32 @@
 
   @keyframes nav-active-line-zigzag-sweep {
     0%,
-    8%,
     100% {
       opacity: 0;
       transform: translateX(-110%);
     }
 
-    1.1% {
+    14% {
       opacity: 0.35;
       transform: translateX(-86%);
     }
 
-    2.2% {
+    28% {
       opacity: 0.95;
       transform: translateX(-52%);
     }
 
-    3.4% {
+    44% {
       opacity: 0.82;
       transform: translateX(-20%);
     }
 
-    4.6% {
+    62% {
       opacity: 0.56;
       transform: translateX(10%);
     }
 
-    6.2% {
+    84% {
       opacity: 0;
       transform: translateX(58%);
     }
