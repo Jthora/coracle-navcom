@@ -12,6 +12,11 @@
   const fullBleedPaths = new Set(["/intel/map"])
 
   let prevPage
+  let isCurrentFullBleed = false
+
+  $: {
+    isCurrentFullBleed = Boolean($page && fullBleedPaths.has($page.path))
+  }
 
   $: {
     if ($page && $page.path !== prevPage?.path) {
@@ -72,18 +77,17 @@
 {#key $pubkey}
   <div
     id="page"
-    class={cx(
-      "m-sai scroll-container relative overflow-auto pb-32 text-neutral-100 lg:pl-72 lg:pt-16",
-      {
-        "pointer-events-none": $menuIsOpen,
-      },
-    )}>
+    class={cx("m-sai scroll-container relative overflow-auto text-neutral-100 lg:pl-72 lg:pt-16", {
+      "pointer-events-none": $menuIsOpen,
+      "pb-32": !isCurrentFullBleed,
+      "pb-0": isCurrentFullBleed,
+    })}>
     {#if $page}
       {@const {route} = router.getMatch($page.path)}
       {@const isFullBleed = fullBleedPaths.has($page.path)}
       {#key router.getKey($page)}
         {#if isFullBleed}
-          <div class="w-full">
+          <div class="h-full w-full">
             <LazyRouteHost {route} props={router.getProps($page)} />
           </div>
         {:else}

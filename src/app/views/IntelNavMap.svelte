@@ -448,7 +448,7 @@
   })
 </script>
 
-<div class="relative h-[calc(100dvh-8rem)] w-full overflow-hidden lg:h-[calc(100dvh-4rem)]">
+<div class="relative h-full min-h-0 w-full overflow-hidden">
   <div
     bind:this={mapContainer}
     class="h-full w-full bg-neutral-900"
