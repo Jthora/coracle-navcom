@@ -2,84 +2,66 @@
   import {onDestroy, onMount} from "svelte"
   import type {TrustedEvent} from "@welshman/util"
   import {makeFeedController} from "@welshman/app"
-  import {makeIntersectionFeed, makeKindFeed, makeTagFeed} from "@welshman/feeds"
+  import {
+    isKindFeed,
+    isRelayFeed,
+    makeIntersectionFeed,
+    makeKindFeed,
+    makeTagFeed,
+    walkFeed,
+  } from "@welshman/feeds"
   import type {FeedController} from "@welshman/feeds"
   import "leaflet/dist/leaflet.css"
   import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png"
   import markerIcon from "leaflet/dist/images/marker-icon.png"
   import markerShadow from "leaflet/dist/images/marker-shadow.png"
-  import Card from "src/partials/Card.svelte"
-  import Link from "src/partials/Link.svelte"
-  import Spinner from "src/partials/Spinner.svelte"
-  import {extractGeointPoint, stripGeoJsonFromContent} from "src/app/util/geoint"
+  import {extractGeointPoint} from "src/app/util/geoint"
   import {noteKinds} from "src/util/nostr"
   import {env} from "src/engine"
+  import {makeFeed} from "src/domain"
 
   type LeafletLike = typeof import("leaflet")
 
   type GeointMarker = {
-    event: TrustedEvent
     lat: number
     lon: number
-    summary: string
+    id: string
+    createdAt: number
   }
 
   const intelTag = env.INTEL_TAG || "starcom_intel"
-  const mapZoom = 3
-  const maxSummaryLength = 160
+  const mapZoom = 2
+  const mapCenter: [number, number] = [18, 0]
+  const intelFeed = makeFeed({definition: makeTagFeed("#t", intelTag)})
 
   let mapContainer: HTMLDivElement
-  let loading = true
   let exhausted = false
   let loadError: string | null = null
   let markers: GeointMarker[] = []
+  let connected = false
 
   let leaflet: LeafletLike | null = null
   let map: any = null
   let markerLayer: any = null
   let ctrl: FeedController | null = null
   const abortController = new AbortController()
-  const eventById = new Map<string, TrustedEvent>()
+  const eventById = new Map<string, GeointMarker>()
 
-  const normalizeSummary = (event: TrustedEvent) => {
-    const text = stripGeoJsonFromContent(event.content || "")
-      .replace(/\s+/g, " ")
-      .trim()
+  const refreshMarkers = (event?: TrustedEvent) => {
+    if (event) {
+      const point = extractGeointPoint(event)
 
-    if (!text) {
-      return "(No description)"
+      if (point) {
+        eventById.set(event.id, {
+          id: event.id,
+          lat: point.lat,
+          lon: point.lon,
+          createdAt: event.created_at,
+        })
+      }
     }
 
-    return text.length > maxSummaryLength ? `${text.slice(0, maxSummaryLength - 1)}…` : text
-  }
-
-  const escapeHtml = (value: string) =>
-    value
-      .replaceAll("&", "&amp;")
-      .replaceAll("<", "&lt;")
-      .replaceAll(">", "&gt;")
-      .replaceAll('"', "&quot;")
-      .replaceAll("'", "&#039;")
-
-  const toMarker = (event: TrustedEvent): GeointMarker | null => {
-    const point = extractGeointPoint(event)
-
-    if (!point) {
-      return null
-    }
-
-    return {
-      event,
-      lat: point.lat,
-      lon: point.lon,
-      summary: normalizeSummary(event),
-    }
-  }
-
-  const refreshMarkers = () => {
-    const next = Array.from(eventById.values()).map(toMarker).filter(Boolean) as GeointMarker[]
-
-    markers = next.sort((a, b) => b.event.created_at - a.event.created_at)
+    markers = Array.from(eventById.values()).sort((a, b) => b.createdAt - a.createdAt)
     syncMapMarkers()
   }
 
@@ -104,7 +86,7 @@
       minZoom: 2,
     })
 
-    map.setView([20, 0], mapZoom)
+    map.setView(mapCenter, mapZoom)
 
     leaflet
       .tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -130,17 +112,11 @@
     const bounds = leaflet.latLngBounds([])
 
     for (const marker of markers) {
-      const createdAt = new Date(marker.event.created_at * 1000).toLocaleString()
-      const popup = `
-        <div style="max-width:260px">
-          <div style="font-weight:600;margin-bottom:4px">#${intelTag}</div>
-          <div style="font-size:12px;opacity:0.85;margin-bottom:6px">${escapeHtml(createdAt)}</div>
-          <div style="margin-bottom:8px">${escapeHtml(marker.summary)}</div>
-          <a href="/notes/${marker.event.id}" target="_blank" rel="noreferrer">Open message</a>
-        </div>
-      `
-
-      const pin = leaflet.marker([marker.lat, marker.lon]).bindPopup(popup)
+      const pin = leaflet
+        .marker([marker.lat, marker.lon])
+        .bindPopup(
+          `<a href="/notes/${marker.id}" target="_blank" rel="noreferrer">Open message</a>`,
+        )
 
       markerLayer.addLayer(pin)
       bounds.extend([marker.lat, marker.lon])
@@ -152,26 +128,40 @@
   }
 
   const subscribe = () => {
-    const feed = makeIntersectionFeed(makeKindFeed(...noteKinds), makeTagFeed("#t", intelTag))
+    let useWindowing = true
+    let hasKinds = false
+
+    walkFeed(intelFeed.definition, subFeed => {
+      hasKinds = hasKinds || isKindFeed(subFeed)
+      useWindowing = useWindowing && !isRelayFeed(subFeed)
+    })
+
+    const definition = hasKinds
+      ? intelFeed.definition
+      : makeIntersectionFeed(makeKindFeed(...noteKinds), intelFeed.definition)
 
     ctrl = makeFeedController({
-      feed,
-      useWindowing: true,
+      feed: definition,
+      useWindowing,
       signal: abortController.signal,
       onEvent: event => {
-        eventById.set(event.id, event)
-        refreshMarkers()
+        refreshMarkers(event)
       },
       onExhausted: () => {
         exhausted = true
-        loading = false
       },
     })
 
-    ctrl.load(200)
+    if (useWindowing) {
+      ctrl.load(400)
+    } else {
+      ctrl.load(1000)
+    }
   }
 
-  const formatCoordinates = (lat: number, lon: number) => `${lat.toFixed(4)}, ${lon.toFixed(4)}`
+  const handleResize = () => {
+    map?.invalidateSize()
+  }
 
   onMount(async () => {
     try {
@@ -179,16 +169,18 @@
       await initLeaflet()
       initMap()
       subscribe()
-      loading = false
+      connected = true
+      window.addEventListener("resize", handleResize)
+      handleResize()
     } catch (error) {
       loadError = error instanceof Error ? error.message : "Failed to load GEOINT map"
-      loading = false
     }
   })
 
   onDestroy(() => {
     abortController.abort()
     ctrl = null
+    window.removeEventListener("resize", handleResize)
 
     if (map) {
       map.remove()
@@ -198,62 +190,20 @@
   })
 </script>
 
-<Card class="panel p-4">
-  <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
-    <div>
-      <h1 class="text-xl font-semibold text-neutral-100">GEOINT Nav Map</h1>
-      <p class="text-sm text-neutral-300">
-        Mapping `#starcom_intel` messages that include GEOINT coordinates.
-      </p>
-    </div>
-    <Link class="btn" href={`/topics/${intelTag}`}>Back to Intel Feed</Link>
+<div
+  bind:this={mapContainer}
+  class="h-[calc(100dvh-8rem)] w-full bg-neutral-900 lg:h-[calc(100dvh-4rem)]"
+  aria-label="GEOINT map"
+  aria-busy={!connected} />
+
+{#if loadError}
+  <div
+    class="border-red-500/40 bg-red-500/90 pointer-events-none fixed bottom-4 right-4 rounded border px-3 py-2 text-xs text-white">
+    {loadError}
   </div>
-
-  {#if loadError}
-    <div class="border-red-500/40 bg-red-500/10 text-red-200 rounded border p-3 text-sm">
-      {loadError}
-    </div>
-  {:else}
-    <div
-      bind:this={mapContainer}
-      class="h-[56dvh] min-h-[360px] w-full overflow-hidden rounded border border-neutral-700 bg-neutral-900"
-      aria-label="GEOINT map"
-      aria-busy={loading} />
-
-    {#if loading && !exhausted}
-      <div class="py-4">
-        <Spinner />
-      </div>
-    {/if}
-
-    <div class="mt-4">
-      <div class="mb-2 flex items-center justify-between">
-        <h2 class="text-sm font-semibold uppercase tracking-wide text-neutral-200">
-          Plotted Messages ({markers.length})
-        </h2>
-      </div>
-
-      {#if markers.length === 0 && exhausted}
-        <p class="text-sm text-neutral-400">
-          No mappable `#starcom_intel` messages found yet. Add GEOINT coordinates to intel posts to
-          see markers.
-        </p>
-      {:else}
-        <div class="max-h-64 space-y-2 overflow-auto pr-1">
-          {#each markers as marker (marker.event.id)}
-            <Link
-              class="bg-neutral-800/40 block rounded border border-neutral-700 p-3 hover:border-neutral-500"
-              href={`/notes/${marker.event.id}`}>
-              <p class="text-sm text-neutral-100">{marker.summary}</p>
-              <p class="mt-1 text-xs text-neutral-400">
-                {formatCoordinates(marker.lat, marker.lon)} · {new Date(
-                  marker.event.created_at * 1000,
-                ).toLocaleString()}
-              </p>
-            </Link>
-          {/each}
-        </div>
-      {/if}
-    </div>
-  {/if}
-</Card>
+{:else if connected && markers.length === 0 && exhausted}
+  <div
+    class="bg-neutral-900/85 pointer-events-none fixed bottom-4 right-4 rounded border border-neutral-700 px-3 py-2 text-xs text-neutral-200">
+    No mapped #starcom_intel GEOINT events yet
+  </div>
+{/if}

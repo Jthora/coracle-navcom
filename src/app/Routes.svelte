@@ -9,6 +9,7 @@
   import {router} from "src/app/util/router"
 
   const {current, page, modals} = router
+  const fullBleedPaths = new Set(["/intel/map"])
 
   let prevPage
 
@@ -79,12 +80,19 @@
     )}>
     {#if $page}
       {@const {route} = router.getMatch($page.path)}
+      {@const isFullBleed = fullBleedPaths.has($page.path)}
       {#key router.getKey($page)}
-        <div class="m-auto w-full max-w-2xl">
-          <div class="flex max-w-2xl flex-grow flex-col gap-4 p-4">
+        {#if isFullBleed}
+          <div class="w-full">
             <LazyRouteHost {route} props={router.getProps($page)} />
           </div>
-        </div>
+        {:else}
+          <div class="m-auto w-full max-w-2xl">
+            <div class="flex max-w-2xl flex-grow flex-col gap-4 p-4">
+              <LazyRouteHost {route} props={router.getProps($page)} />
+            </div>
+          </div>
+        {/if}
       {/key}
     {/if}
   </div>
