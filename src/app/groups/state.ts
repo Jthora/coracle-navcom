@@ -1,15 +1,45 @@
 import {derived, writable} from "svelte/store"
-import {pubkey} from "@welshman/app"
+import {pubkey, repository} from "@welshman/app"
+import {Router, addMaximalFallbacks} from "@welshman/router"
+import {deriveEvents} from "@welshman/store"
 import type {TrustedEvent} from "@welshman/util"
 import type {GroupProjection} from "src/domain/group"
 import {buildGroupProjection} from "src/domain/group-projection"
 import {classifyGroupEventKind} from "src/domain/group-kinds"
-import {checked} from "src/engine/state"
+import {GROUP_KINDS} from "src/domain/group-kinds"
+import {checked, myRequest} from "src/engine/state"
 import {selectGroupListItems} from "src/domain/group-selectors"
 
 export const groupProjections = writable<Map<string, GroupProjection>>(new Map())
 
 export const groupsHydrated = writable(false)
+
+const groupKinds = [
+  GROUP_KINDS.NIP29.METADATA,
+  GROUP_KINDS.NIP29.ADMINS,
+  GROUP_KINDS.NIP29.MEMBERS,
+  GROUP_KINDS.NIP29.ROLES,
+  GROUP_KINDS.NIP29.PUT_USER,
+  GROUP_KINDS.NIP29.REMOVE_USER,
+  GROUP_KINDS.NIP29.EDIT_METADATA,
+  GROUP_KINDS.NIP29.DELETE_EVENT,
+  GROUP_KINDS.NIP29.CREATE_GROUP,
+  GROUP_KINDS.NIP29.DELETE_GROUP,
+  GROUP_KINDS.NIP29.CREATE_INVITE,
+  GROUP_KINDS.NIP29.JOIN_REQUEST,
+  GROUP_KINDS.NIP29.LEAVE_REQUEST,
+  GROUP_KINDS.NIP_EE.GROUP_EVENT,
+  GROUP_KINDS.NIP_EE.WELCOME,
+]
+
+const groupEvents = deriveEvents({
+  repository,
+  filters: [{kinds: groupKinds}],
+  includeDeleted: true,
+})
+
+let hydrationStarted = false
+let stopHydration: null | (() => void) = null
 
 export const groupSummaries = derived(groupProjections, $groupProjections =>
   selectGroupListItems($groupProjections),
@@ -76,7 +106,38 @@ export const markGroupsHydrated = () => {
   groupsHydrated.set(true)
 }
 
+export const ensureGroupsHydrated = () => {
+  if (hydrationStarted) {
+    return stopHydration
+  }
+
+  hydrationStarted = true
+
+  stopHydration = groupEvents.subscribe(events => {
+    setGroupProjections(buildGroupProjection(events as TrustedEvent[]))
+  })
+
+  const relays = Router.get().ForUser().policy(addMaximalFallbacks).getUrls()
+
+  if (relays.length > 0) {
+    myRequest({
+      relays,
+      autoClose: true,
+      filters: [{kinds: groupKinds, limit: 1000}],
+    })
+  }
+
+  return stopHydration
+}
+
+export const stopGroupsHydration = () => {
+  stopHydration?.()
+  stopHydration = null
+  hydrationStarted = false
+}
+
 export const resetGroupsState = () => {
+  stopGroupsHydration()
   groupProjections.set(new Map())
   groupsHydrated.set(false)
 }

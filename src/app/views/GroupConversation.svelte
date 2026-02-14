@@ -5,7 +5,7 @@
   import Link from "src/partials/Link.svelte"
   import Input from "src/partials/Input.svelte"
   import {showWarning} from "src/partials/Toast.svelte"
-  import {groupProjections, groupsHydrated} from "src/app/groups/state"
+  import {ensureGroupsHydrated, groupProjections, groupsHydrated} from "src/app/groups/state"
   import {trackGroupTelemetry} from "src/app/groups/telemetry"
   import {classifyGroupEventKind} from "src/domain/group-kinds"
   import {publishGroupMessage, setChecked} from "src/engine"
@@ -37,6 +37,7 @@
   }
 
   onMount(() => {
+    ensureGroupsHydrated()
     markGroupRead()
     trackGroupTelemetry("group_chat_opened", {
       route: "group-chat",

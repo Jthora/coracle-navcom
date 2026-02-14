@@ -86,9 +86,6 @@ import {
   LABEL,
   MUTES,
   NAMED_BOOKMARKS,
-  PROFILE,
-  RELAYS,
-  MESSAGING_RELAYS,
   asDecryptedEvent,
   getAddress,
   getAddressTagValues,
@@ -132,10 +129,11 @@ import {
   TrackerStorageAdapter,
   WrapManagerStorageAdapter,
   EventsStorageAdapter,
+  rankEventByRetentionClass,
   initStorage,
 } from "src/engine/storage"
 import {SearchHelper, fromCsv, parseJson, ensureProto} from "src/util/misc"
-import {appDataKeys} from "src/util/nostr"
+import {appDataKeys, noteKinds, reactionKinds, metaKinds} from "src/util/nostr"
 import {readable, derived, writable} from "svelte/store"
 
 export const env = {
@@ -648,7 +646,6 @@ export const recommendations = deriveEvents({
 
 export const deriveRecommendations = simpleCache(([address]: [string]) => {
   myLoad({
-    skipCache: true,
     relays: env.DEFAULT_RELAYS,
     filters: [
       {
@@ -664,7 +661,6 @@ export const deriveRecommendations = simpleCache(([address]: [string]) => {
 
 export const deriveHandlersForKind = simpleCache(([kind]: [number]) => {
   myLoad({
-    skipCache: true,
     relays: env.DEFAULT_RELAYS,
     filters: [
       {
@@ -864,12 +860,19 @@ if (!initialized) {
       limit: 10_000,
       rankEvent: (e: TrustedEvent) => {
         const $sessions = sessions.get()
-        const metaKinds = [PROFILE, FOLLOWS, MUTES, RELAYS, MESSAGING_RELAYS]
+        const follows = userFollows.get() || new Set<string>()
+        const isSessionRelated = Boolean($sessions[e.pubkey] || e.tags.some(t => $sessions[t[1]]))
+        const isIntel = e.tags.some(t => t[0] === "t" && t[1] === env.INTEL_TAG)
+        const isClassA = isSessionRelated || isIntel || noteKinds.includes(e.kind)
+        const isClassB =
+          reactionKinds.includes(e.kind) || (metaKinds.includes(e.kind) && follows.has(e.pubkey))
+        const isClassC = follows.has(e.pubkey)
 
-        if ($sessions[e.pubkey] || e.tags.some(t => $sessions[t[1]])) return 1
-        if (metaKinds.includes(e.kind) && userFollows.get()?.has(e.pubkey)) return 1
+        if (isClassA) return rankEventByRetentionClass(e, "high")
+        if (isClassB) return rankEventByRetentionClass(e, "medium")
+        if (isClassC) return rankEventByRetentionClass(e, "low")
 
-        return 0
+        return rankEventByRetentionClass(e, "drop")
       },
     }),
   })

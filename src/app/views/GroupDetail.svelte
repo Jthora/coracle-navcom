@@ -1,7 +1,8 @@
 <script lang="ts">
+  import {onMount} from "svelte"
   import {formatTimestamp} from "@welshman/lib"
   import Link from "src/partials/Link.svelte"
-  import {groupProjections, groupsHydrated} from "src/app/groups/state"
+  import {ensureGroupsHydrated, groupProjections, groupsHydrated} from "src/app/groups/state"
   import {buildGroupDetailViewModel, getGroupRouteSection} from "src/app/groups/selectors"
 
   export let groupId: string
@@ -20,6 +21,10 @@
   }
 
   const asShortKey = (pubkey: string) => `${pubkey.slice(0, 8)}…${pubkey.slice(-8)}`
+
+  onMount(() => {
+    ensureGroupsHydrated()
+  })
 </script>
 
 {#if !$groupsHydrated}

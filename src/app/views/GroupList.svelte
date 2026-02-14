@@ -2,9 +2,9 @@
   import {onMount} from "svelte"
   import Link from "src/partials/Link.svelte"
   import {
+    ensureGroupsHydrated,
     groupSummaries,
     groupsHydrated,
-    markGroupsHydrated,
     unreadGroupMessageCounts,
   } from "src/app/groups/state"
 
@@ -12,7 +12,7 @@
   const getUnreadCount = (groupId: string) => $unreadGroupMessageCounts.get(groupId) || 0
 
   onMount(() => {
-    markGroupsHydrated()
+    ensureGroupsHydrated()
     document.title = "Groups"
   })
 </script>

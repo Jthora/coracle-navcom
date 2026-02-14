@@ -4,7 +4,7 @@
   import {WEEK, now, ago, uniqBy, hash} from "@welshman/lib"
   import type {TrustedEvent} from "@welshman/util"
   import {synced, localStorageProvider} from "@welshman/store"
-  import type {FeedController, Feed as FeedDefinition} from "@welshman/feeds"
+  import type {Feed as FeedDefinition} from "@welshman/feeds"
   import {
     isRelayFeed,
     makeKindFeed,
@@ -12,7 +12,6 @@
     isKindFeed,
     walkFeed,
   } from "@welshman/feeds"
-  import {makeFeedController} from "@welshman/app"
   import {createScroller} from "src/util/misc"
   import {noteKinds} from "src/util/nostr"
   import {fly, fade} from "src/util/transition"
@@ -24,7 +23,14 @@
   import FeedControls from "src/app/shared/FeedControls.svelte"
   import {zap} from "src/app/util"
   import type {Feed} from "src/domain"
-  import {env, sortEventsDesc} from "src/engine"
+  import {
+    createFeedDataStream,
+    createQueryKey,
+    env,
+    getCachePolicy,
+    sortEventsDesc,
+    startCacheMetric,
+  } from "src/engine"
   import FeedItem from "src/app/shared/FeedItem.svelte"
 
   export let feed: Feed
@@ -60,6 +66,7 @@
     useWindowing = true
     events = []
     buffer = []
+    didRecordFirstEvent = false
 
     let hasKinds = false
 
@@ -72,15 +79,57 @@
       ? feed.definition
       : makeIntersectionFeed(makeKindFeed(...noteKinds), feed.definition)
 
-    ctrl = makeFeedController({
+    const queryKey = createQueryKey({
+      surface: "feed",
+      feedDefinition: definition,
+      options: {
+        shouldSort,
+        showControls,
+        maxDepth,
+        hideReplies: $shouldHideReplies,
+      },
+    })
+
+    stopCacheMetric = startCacheMetric(queryKey, "query_start", {
+      policy: getCachePolicy("feed"),
+      useWindowing,
+    })
+
+    let didApplySnapshot = false
+
+    ctrl = createFeedDataStream({
+      key: queryKey,
       feed: definition,
       useWindowing,
       signal: abortController.signal,
-      onEvent: e => {
-        buffer.push(e)
+      onResult: result => {
+        if (didApplySnapshot || result.source !== "cache" || result.events.length === 0) {
+          return
+        }
+
+        didApplySnapshot = true
+        events = result.events.slice(0, 10)
+        buffer = result.events.slice(10)
+
+        if (!didRecordFirstEvent) {
+          didRecordFirstEvent = true
+          stopCacheMetric?.("first_event", {eventCount: events.length})
+        }
+      },
+      onEvent: event => {
+        if (!didRecordFirstEvent) {
+          didRecordFirstEvent = true
+          stopCacheMetric?.("first_event", {eventCount: 1})
+        }
+
+        buffer.push(event)
       },
       onExhausted: () => {
         exhausted = true
+        stopCacheMetric?.("query_exhausted", {
+          eventCount: events.length + buffer.length,
+          exhausted: true,
+        })
       },
     })
 
@@ -104,7 +153,7 @@
     events = [...events, ...buffer.splice(0, 10)]
 
     if (useWindowing && buffer.length < 25) {
-      ctrl.load(25)
+      ctrl?.load(25)
     }
   }
 
@@ -112,9 +161,11 @@
   let depth = 0
   let exhausted = false
   let useWindowing = true
-  let ctrl: FeedController
+  let ctrl: ReturnType<typeof createFeedDataStream> | null = null
   let events: TrustedEvent[] = []
   let buffer: TrustedEvent[] = []
+  let stopCacheMetric: ReturnType<typeof startCacheMetric> | null = null
+  let didRecordFirstEvent = false
 
   $: {
     depth = $shouldHideReplies ? 0 : maxDepth
@@ -129,6 +180,13 @@
     })
 
     return () => {
+      if (!exhausted) {
+        stopCacheMetric?.("query_exhausted", {
+          eventCount: events.length + buffer.length,
+          exhausted: false,
+        })
+      }
+
       scroller.stop()
       abortController.abort()
     }

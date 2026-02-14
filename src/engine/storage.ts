@@ -301,6 +301,32 @@ export type EventsStorageAdapterOptions = {
   rankEvent: (event: TrustedEvent) => number
 }
 
+export type EventRetentionClass = "high" | "medium" | "low" | "drop"
+
+const retentionClassWeight: Record<EventRetentionClass, number> = {
+  high: 3,
+  medium: 2,
+  low: 1,
+  drop: 0,
+}
+
+export const rankEventByRetentionClass = (
+  event: TrustedEvent,
+  retentionClass: EventRetentionClass,
+  nowSeconds = Math.floor(Date.now() / 1000),
+) => {
+  const weight = retentionClassWeight[retentionClass]
+
+  if (weight === 0) {
+    return 0
+  }
+
+  const ageSeconds = Math.max(0, nowSeconds - event.created_at)
+  const freshnessScore = Math.max(0, 500_000 - ageSeconds)
+
+  return weight * 1_000_000 + freshnessScore
+}
+
 export class EventsStorageAdapter {
   keyPath = "id"
   eventCount = 0

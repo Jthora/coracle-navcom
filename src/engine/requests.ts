@@ -211,21 +211,18 @@ export const listenForNotifications = () => {
 
 export const loadLabels = (authors: string[]) =>
   myLoad({
-    skipCache: true,
     relays: Router.get().FromPubkeys(authors).policy(addMaximalFallbacks).getUrls(),
     filters: [addSinceToFilter({kinds: [LABEL], authors, "#L": ["#t"]})],
   })
 
 export const loadDeletes = () =>
   myLoad({
-    skipCache: true,
     relays: Router.get().FromUser().policy(addMaximalFallbacks).getUrls(),
     filters: [addSinceToFilter({kinds: [DELETE], authors: [pubkey.get()]})],
   })
 
 export const loadFeedsAndLists = () =>
   myLoad({
-    skipCache: true,
     relays: Router.get().FromUser().policy(addMaximalFallbacks).getUrls(),
     filters: [
       addSinceToFilter({
