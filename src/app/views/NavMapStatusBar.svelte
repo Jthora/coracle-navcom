@@ -59,13 +59,13 @@
 </script>
 
 <div
-  class="bg-black/72 pointer-events-auto absolute bottom-0 left-0 right-0 z-[420] flex h-10 items-center gap-2 border-t border-black/80 px-3 text-[11px] text-neutral-100 shadow-lg backdrop-blur-sm md:text-xs">
+  class="bg-black/72 pointer-events-auto absolute bottom-[50px] left-0 right-0 z-[420] flex h-10 items-center gap-2 border-t border-black/80 px-3 text-[11px] text-black shadow-lg backdrop-blur-sm md:text-xs">
   <div class="min-w-0 flex-1">
     <div class="flex items-center gap-2">
-      <span class="font-semibold text-neutral-100">{statusLabel}</span>
-      <span class="truncate text-neutral-300">{detailsLabel}</span>
+      <span class="font-semibold text-black">{statusLabel}</span>
+      <span class="truncate text-black">{detailsLabel}</span>
     </div>
-    <div class="truncate text-neutral-400">{lastSeenLabel}</div>
+    <div class="truncate text-black">{lastSeenLabel}</div>
   </div>
 
   {#if loading && !loadError}
