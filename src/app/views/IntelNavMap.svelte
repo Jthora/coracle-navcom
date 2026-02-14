@@ -102,8 +102,10 @@
   let map: any = null
   let markerLayer: any = null
   let ctrl: FeedController | null = null
+  let refreshTimer: ReturnType<typeof setInterval> | null = null
   const abortController = new AbortController()
   const eventById = new Map<string, GeointMarker>()
+  const REFRESH_INTERVAL_MS = 10000
 
   const escapeHtml = (value: string) =>
     value
@@ -261,11 +263,15 @@
       },
     })
 
-    if (useWindowing) {
-      ctrl.load(400)
-    } else {
-      ctrl.load(1000)
-    }
+    const burstSize = useWindowing ? 400 : 1000
+    const refreshSize = useWindowing ? 120 : 300
+
+    ctrl.load(burstSize)
+    ctrl.load(refreshSize)
+
+    refreshTimer = setInterval(() => {
+      ctrl?.load(refreshSize)
+    }, REFRESH_INTERVAL_MS)
   }
 
   const handleResize = () => {
@@ -289,6 +295,10 @@
   onDestroy(() => {
     abortController.abort()
     ctrl = null
+    if (refreshTimer) {
+      clearInterval(refreshTimer)
+      refreshTimer = null
+    }
     window.removeEventListener("resize", handleResize)
 
     if (map) {
