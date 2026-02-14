@@ -18,6 +18,7 @@ export type FeedDataStream = {
 
 export type CreateFeedDataStreamInput = {
   key: QueryKey
+  sharedKey?: string
   feed: FeedDefinition
   useWindowing: boolean
   signal?: AbortSignal
@@ -56,6 +57,7 @@ const toStale = (entry: QueryCacheEntry, policy: CachePolicy) => {
 
 export const createFeedDataStream = ({
   key,
+  sharedKey,
   feed,
   useWindowing,
   signal,
@@ -65,7 +67,8 @@ export const createFeedDataStream = ({
   policy = getCachePolicy(key.surface),
 }: CreateFeedDataStreamInput): FeedDataStream => {
   const keyString = queryKeyToString(key)
-  const cachedEntry = queryCache.get(keyString)
+  const cacheKey = sharedKey || keyString
+  const cachedEntry = queryCache.get(cacheKey)
 
   if (cachedEntry && cachedEntry.events.length > 0) {
     onResult?.({
@@ -85,11 +88,11 @@ export const createFeedDataStream = ({
     onEvent: event => {
       onEvent?.(event)
 
-      const entry = queryCache.get(keyString) || {events: []}
+      const entry = queryCache.get(cacheKey) || {events: []}
       const events = dedupeAndSortEvents(entry.events.concat(event), policy.maxItems)
       const lastSyncAt = Date.now()
 
-      queryCache.set(keyString, {events, lastSyncAt})
+      queryCache.set(cacheKey, {events, lastSyncAt})
 
       onResult?.({
         source: hadSnapshot ? "mixed" : "network",

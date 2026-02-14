@@ -103,6 +103,7 @@
 :root {
   font-family: Aldrich, "IBM Plex Sans", Lato, sans-serif;
   --bc-color-brand: var(--accent);
+  --main-status-height: 2rem;
 }
 
 html,

@@ -50,7 +50,7 @@
     ? loadError
     : markerCount > 0
       ? `${markerCount} intel annotations`
-      : "Waiting for #starcom_intel GEOINT notes"
+      : "Waiting for GEOINT data package"
 
   $: lastSeenLabel =
     lastEventAt === null
@@ -59,7 +59,7 @@
 </script>
 
 <div
-  class="bg-black/72 pointer-events-auto absolute bottom-[50px] left-0 right-0 z-[420] flex h-10 items-center gap-2 border-t border-black/80 px-3 text-[11px] text-black shadow-lg backdrop-blur-sm md:text-xs">
+  class="bg-black/72 pointer-events-auto absolute bottom-0 left-0 right-0 z-[420] flex h-10 items-center gap-2 border-t border-black/80 px-3 text-[11px] text-black shadow-lg backdrop-blur-sm md:text-xs">
   <div class="min-w-0 flex-1">
     <div class="flex items-center gap-2">
       <span class="font-semibold text-black">{statusLabel}</span>

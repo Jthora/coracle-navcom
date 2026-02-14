@@ -28,6 +28,7 @@
     createQueryKey,
     env,
     getCachePolicy,
+    queryKeyToString,
     sortEventsDesc,
     startCacheMetric,
   } from "src/engine"
@@ -78,6 +79,8 @@
     const definition = hasKinds
       ? feed.definition
       : makeIntersectionFeed(makeKindFeed(...noteKinds), feed.definition)
+    const intelTag = env.INTEL_TAG || "starcom_intel"
+    const isIntelQuery = JSON.stringify(definition).includes(intelTag)
 
     const queryKey = createQueryKey({
       surface: "feed",
@@ -99,6 +102,15 @@
 
     ctrl = createFeedDataStream({
       key: queryKey,
+      sharedKey: isIntelQuery
+        ? queryKeyToString(
+            createQueryKey({
+              surface: "map",
+              feedDefinition: definition,
+              options: {intelTag},
+            }),
+          )
+        : undefined,
       feed: definition,
       useWindowing,
       signal: abortController.signal,

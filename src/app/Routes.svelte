@@ -89,7 +89,8 @@
       {@const isFullBleed = fullBleedPaths.has($page.path)}
       {#key router.getKey($page)}
         {#if isFullBleed}
-          <div class="h-[calc(100dvh-8rem)] w-full lg:h-[calc(100dvh-4rem)]">
+          <div
+            class="h-[calc(100dvh-8rem)] w-full lg:h-[calc(100dvh-4rem-var(--main-status-height))]">
             <LazyRouteHost {route} props={router.getProps($page)} />
           </div>
         {:else}

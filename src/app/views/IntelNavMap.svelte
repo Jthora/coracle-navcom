@@ -111,6 +111,7 @@
     createQueryKey,
     env,
     getCachePolicy,
+    queryKeyToString,
     startCacheMetric,
   } from "src/engine"
   import {makeFeed} from "src/domain"
@@ -349,6 +350,7 @@
 
     ctrl = createFeedDataStream({
       key: queryKey,
+      sharedKey: queryKeyToString(queryKey),
       feed: definition,
       useWindowing,
       signal: abortController.signal,
