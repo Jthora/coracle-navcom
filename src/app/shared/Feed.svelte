@@ -133,9 +133,7 @@
       },
     })
 
-    if (!useWindowing) {
-      ctrl.load(1000)
-    }
+    ctrl.load(useWindowing ? 25 : 1000)
   }
 
   const toggleReplies = () => {

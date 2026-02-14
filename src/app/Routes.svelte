@@ -77,8 +77,10 @@
 {#key $pubkey}
   <div
     id="page"
-    class={cx("m-sai scroll-container relative overflow-auto text-neutral-100 lg:pl-72 lg:pt-16", {
+    class={cx("m-sai scroll-container relative text-neutral-100 lg:pl-72 lg:pt-16", {
       "pointer-events-none": $menuIsOpen,
+      "overflow-auto": !isCurrentFullBleed,
+      "overflow-hidden": isCurrentFullBleed,
       "pb-32": !isCurrentFullBleed,
       "pb-0": isCurrentFullBleed,
     })}>
@@ -87,7 +89,7 @@
       {@const isFullBleed = fullBleedPaths.has($page.path)}
       {#key router.getKey($page)}
         {#if isFullBleed}
-          <div class="h-full w-full">
+          <div class="h-[calc(100dvh-8rem)] w-full lg:h-[calc(100dvh-4rem)]">
             <LazyRouteHost {route} props={router.getProps($page)} />
           </div>
         {:else}
