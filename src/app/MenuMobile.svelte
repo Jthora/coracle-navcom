@@ -160,6 +160,9 @@
       <MenuMobileItem href={intelFeedPath} on:click={closeMenu}>
         <i class="fa fa-satellite" /> Intel Feed
       </MenuMobileItem>
+      <MenuMobileItem href="/intel/map" on:click={closeMenu}>
+        <i class="fa fa-map-location-dot" /> Nav Map
+      </MenuMobileItem>
       <MenuMobileItem href="/open" on:click={closeMenu}>
         <i class="fa fa-house" /> Open Feed
       </MenuMobileItem>

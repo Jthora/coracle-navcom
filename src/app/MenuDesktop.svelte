@@ -145,6 +145,8 @@
     >Ops Feed</MenuDesktopItem>
   <MenuDesktopItem path={intelFeedPath} isActive={$page?.path === intelFeedPath}
     >Intel Feed</MenuDesktopItem>
+  <MenuDesktopItem path="/intel/map" isActive={$page?.path === "/intel/map"}
+    >Nav Map</MenuDesktopItem>
   <MenuDesktopItem path="/open" isActive={$page?.path === "/open"}>Open Feed</MenuDesktopItem>
   <MenuDesktopItem
     path="/settings/relays"

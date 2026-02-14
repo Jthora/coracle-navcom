@@ -121,6 +121,8 @@
     },
   })
 
+  router.registerLazy("/intel/map", () => import("src/app/views/IntelNavMap.svelte"))
+
   router.register("/feeds", FeedList)
   router.register("/feeds/create", FeedCreate)
   router.register("/feeds/:address", FeedEdit, {

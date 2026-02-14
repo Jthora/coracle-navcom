@@ -30,6 +30,13 @@
   </div>
 {/if}
 
+{#if isIntelFeed}
+  <div class="mb-3 flex items-center justify-end">
+    <Button class="btn btn-low" on:click={() => router.at("/intel/map").push()}
+      >Open Nav Map</Button>
+  </div>
+{/if}
+
 {#if !$pubkey && !hideTopicChrome}
   <div class="py-16 text-center">
     <p class="text-xl">Don't have an account?</p>
