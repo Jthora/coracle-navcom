@@ -7,7 +7,7 @@
 </script>
 
 <div
-  class="border-neutral-700/90 bg-neutral-900/88 pointer-events-auto absolute left-2 right-2 top-2 z-[420] flex h-10 items-center justify-between gap-2 rounded-md border px-2 text-[11px] text-neutral-200 shadow-lg backdrop-blur-sm md:left-4 md:right-4 md:px-3 md:text-xs">
+  class="border-neutral-800/95 bg-neutral-950/95 pointer-events-auto absolute left-20 right-2 top-2 z-[420] flex h-10 items-center justify-between gap-2 rounded-md border px-2 text-[11px] text-neutral-100 shadow-lg backdrop-blur-sm md:right-4 md:px-3 md:text-xs">
   <div class="flex items-center gap-2 overflow-hidden">
     <span
       class="border-lime-400/35 bg-lime-500/12 text-lime-200 rounded border px-1.5 py-0.5 font-semibold tracking-wide">

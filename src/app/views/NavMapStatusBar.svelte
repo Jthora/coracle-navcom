@@ -59,7 +59,7 @@
 </script>
 
 <div
-  class="border-neutral-700/90 bg-neutral-900/88 pointer-events-auto absolute bottom-2 left-2 right-2 z-[420] flex h-10 items-center gap-2 rounded-md border px-2 text-[11px] text-neutral-200 shadow-lg backdrop-blur-sm md:bottom-4 md:left-4 md:right-4 md:px-3 md:text-xs">
+  class="border-neutral-800/95 bg-neutral-950/95 pointer-events-auto absolute bottom-0 left-0 right-0 z-[420] flex h-10 items-center gap-2 border-t px-3 text-[11px] text-neutral-100 shadow-lg backdrop-blur-sm md:text-xs">
   <div class="min-w-0 flex-1">
     <div class="flex items-center gap-2">
       <span class="font-semibold text-neutral-100">{statusLabel}</span>
