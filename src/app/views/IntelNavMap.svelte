@@ -1,3 +1,58 @@
+<style>
+  :global(.intel-marker-icon) {
+    background: transparent;
+    border: 0;
+  }
+
+  :global(.intel-marker-shell) {
+    display: flex;
+    height: 32px;
+    width: 32px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    border: 1px solid rgba(163, 230, 53, 0.65);
+    background: linear-gradient(180deg, rgba(39, 39, 42, 0.96), rgba(17, 24, 39, 0.96));
+    box-shadow:
+      0 0 0 1px rgba(0, 0, 0, 0.35),
+      0 6px 12px rgba(0, 0, 0, 0.38);
+    color: rgba(217, 249, 157, 1);
+    font-size: 14px;
+  }
+
+  :global(.intel-popup) {
+    color: rgb(229, 231, 235);
+    font-size: 0.85rem;
+    line-height: 1.45;
+  }
+
+  :global(.intel-popup-meta) {
+    margin-bottom: 0.45rem;
+    color: rgb(163, 163, 163);
+    font-size: 0.72rem;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+  }
+
+  :global(.intel-popup-content) {
+    max-height: 210px;
+    overflow: auto;
+    white-space: normal;
+    word-break: break-word;
+  }
+
+  :global(.intel-popup-content a) {
+    color: rgb(125, 211, 252);
+    text-decoration: underline;
+  }
+
+  :global(.intel-popup-actions) {
+    margin-top: 0.55rem;
+    border-top: 1px solid rgba(82, 82, 91, 0.7);
+    padding-top: 0.45rem;
+  }
+</style>
+
 <script lang="ts">
   import {onDestroy, onMount} from "svelte"
   import type {TrustedEvent} from "@welshman/util"
@@ -15,7 +70,8 @@
   import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png"
   import markerIcon from "leaflet/dist/images/marker-icon.png"
   import markerShadow from "leaflet/dist/images/marker-shadow.png"
-  import {extractGeointPoint} from "src/app/util/geoint"
+  import {parse, renderAsHtml} from "@welshman/content"
+  import {extractGeointPoint, stripGeoJsonFromContent} from "src/app/util/geoint"
   import {noteKinds} from "src/util/nostr"
   import {env} from "src/engine"
   import {makeFeed} from "src/domain"
@@ -27,6 +83,8 @@
     lon: number
     id: string
     createdAt: number
+    contentHtml: string
+    contentPreview: string
   }
 
   const intelTag = env.INTEL_TAG || "starcom_intel"
@@ -47,6 +105,37 @@
   const abortController = new AbortController()
   const eventById = new Map<string, GeointMarker>()
 
+  const escapeHtml = (value: string) =>
+    value
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;")
+
+  const renderIntelContentHtml = (event: TrustedEvent) => {
+    const stripped = stripGeoJsonFromContent(event.content || "")
+    const parsed = parse({...event, content: stripped})
+    const html = parsed
+      .slice(0, 80)
+      .map(part => renderAsHtml(part))
+      .join("")
+
+    return html.trim()
+  }
+
+  const toPreviewText = (event: TrustedEvent) => {
+    const stripped = stripGeoJsonFromContent(event.content || "")
+      .replace(/\s+/g, " ")
+      .trim()
+
+    if (!stripped) {
+      return "(No text content)"
+    }
+
+    return stripped.length > 140 ? `${stripped.slice(0, 139)}…` : stripped
+  }
+
   const refreshMarkers = (event?: TrustedEvent) => {
     if (event) {
       const point = extractGeointPoint(event)
@@ -57,6 +146,8 @@
           lat: point.lat,
           lon: point.lon,
           createdAt: event.created_at,
+          contentHtml: renderIntelContentHtml(event),
+          contentPreview: toPreviewText(event),
         })
       }
     }
@@ -111,12 +202,30 @@
 
     const bounds = leaflet.latLngBounds([])
 
+    const intelIcon = leaflet.divIcon({
+      className: "intel-marker-icon",
+      html: '<div class="intel-marker-shell"><i class="fa fa-file-lines" aria-hidden="true"></i></div>',
+      iconSize: [32, 32],
+      iconAnchor: [16, 30],
+      popupAnchor: [0, -22],
+    })
+
     for (const marker of markers) {
-      const pin = leaflet
-        .marker([marker.lat, marker.lon])
-        .bindPopup(
-          `<a href="/notes/${marker.id}" target="_blank" rel="noreferrer">Open message</a>`,
-        )
+      const createdAt = new Date(marker.createdAt * 1000).toLocaleString()
+      const popup = `
+        <div class="intel-popup">
+          <div class="intel-popup-meta">#${escapeHtml(intelTag)} · ${escapeHtml(createdAt)}</div>
+          <div class="intel-popup-content">${marker.contentHtml || escapeHtml(marker.contentPreview)}</div>
+          <div class="intel-popup-actions">
+            <a href="/notes/${marker.id}" target="_blank" rel="noreferrer">Open full message</a>
+          </div>
+        </div>
+      `
+
+      const pin = leaflet.marker([marker.lat, marker.lon], {icon: intelIcon}).bindPopup(popup, {
+        maxWidth: 360,
+        minWidth: 280,
+      })
 
       markerLayer.addLayer(pin)
       bounds.extend([marker.lat, marker.lon])
