@@ -1,0 +1,27 @@
+{
+  "generatedAt": "2026-02-20T00:25:14.258Z",
+  "operator": "release-operations",
+  "warnOnly": false,
+  "executionPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-kill-switch-execution.json",
+  "observationsPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/kill-switch-user-observations.json",
+  "outputJsonPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-kill-switch-user-behavior.json",
+  "outputMdPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-kill-switch-user-behavior.md",
+  "auditPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-kill-switch-user-behavior.ndjson",
+  "ticketId": "PQC-KILLSWITCH-001",
+  "observer": "qa",
+  "observedAt": "2026-02-20T00:05:00.000Z",
+  "checks": {
+    "dmSendAvailable": true,
+    "groupSendAvailable": true,
+    "fallbackIndicatorVisible": true,
+    "trustIndicatorUpdated": true,
+    "unexpectedCrash": false
+  },
+  "errorCount": 0,
+  "complete": true,
+  "issues": [],
+  "guidance": [
+    "User-facing behavior verification passed after kill-switch disable.",
+    "Proceed to recovery verification after re-enabling strict defaults."
+  ]
+}

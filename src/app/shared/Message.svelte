@@ -12,6 +12,7 @@
   import PersonCircle from "src/app/shared/PersonCircle.svelte"
   import PersonName from "src/app/shared/PersonName.svelte"
   import NoteInfo from "src/app/shared/NoteInfo.svelte"
+  import {getDmMessageSecurityState} from "src/app/shared/message-security"
   import {ensureMessagePlaintext, userSettings} from "src/engine"
   import {router} from "src/app/util/router"
 
@@ -25,6 +26,7 @@
 
   $: thunk = $thunks.find(t => t.event.id === message.id)
   $: remaining = Math.ceil($userSettings.send_delay / 1000) - $elapsed
+  $: dmSecurity = getDmMessageSecurityState(message)
 </script>
 
 <div in:fly={{y: 20}} class="grid gap-2 py-1">
@@ -76,12 +78,34 @@
           class="fa fa-info-circle cursor-pointer text-neutral-400"
           on:click={() => (showDetails = true)} />
         {#if message.kind === 4}
+          {#if dmSecurity}
+            <span
+              class="rounded border border-neutral-500 px-2 py-0.5 text-[10px] uppercase tracking-[0.08em]">
+              {dmSecurity.badge}
+            </span>
+          {/if}
           <Popover triggerType="mouseenter">
-            <i slot="trigger" class="fa fa-unlock cursor-pointer text-neutral-400" />
-            <p slot="tooltip">
-              This message was sent using nostr's legacy DMs, which have a number of shortcomings.
-              Read more <Link class="underline" modal href="/help/nip-17-dms">here</Link>.
-            </p>
+            <i
+              slot="trigger"
+              class={`fa fa-${dmSecurity?.icon === "lock" ? "lock" : "unlock"} cursor-pointer text-neutral-400`} />
+            <div slot="tooltip" class="flex max-w-xs flex-col gap-2">
+              {#if dmSecurity?.icon === "lock"}
+                <p>
+                  This message was sent with Navcom PQC DM mode ({dmSecurity?.badge}).
+                </p>
+              {:else}
+                <p>
+                  This message was sent using nostr's legacy DMs, which have a number of
+                  shortcomings. Read more <Link class="underline" modal href="/help/nip-17-dms"
+                    >here</Link
+                  >.
+                </p>
+              {/if}
+
+              {#if dmSecurity?.warning}
+                <p>{dmSecurity.warning}</p>
+              {/if}
+            </div>
           </Popover>
         {:else}
           <Popover triggerType="mouseenter">

@@ -1,0 +1,67 @@
+{
+  "generatedAt": "2026-02-20T00:04:54.451Z",
+  "operator": "release-operations",
+  "warnOnly": false,
+  "readinessPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-readiness.json",
+  "triagePath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-error-triage.json",
+  "checkpointPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-beta-checkpoint.json",
+  "cohortEnablementPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-internal-cohort-enablement.json",
+  "outputJsonPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-internal-baseline-health.json",
+  "outputMdPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-internal-baseline-health.md",
+  "auditPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-internal-baseline-health.ndjson",
+  "canExpandCohort": false,
+  "recommendation": "hold-internal-expansion",
+  "gateCount": 5,
+  "failedGateCount": 2,
+  "gates": [
+    {
+      "name": "readiness-ready",
+      "pass": false,
+      "detail": "Readiness thresholds are not passing; missing/failing metrics remain."
+    },
+    {
+      "name": "triage-owner-coverage",
+      "pass": true,
+      "detail": "Triage rows are owner-mapped."
+    },
+    {
+      "name": "checkpoint-gate",
+      "pass": false,
+      "detail": "Checkpoint still has 3 failed gate(s)."
+    },
+    {
+      "name": "cohort-plan-valid",
+      "pass": true,
+      "detail": "Internal cohort enablement plan is valid."
+    },
+    {
+      "name": "cohort-ready-exists",
+      "pass": true,
+      "detail": "At least one internal cohort is ready-to-enable."
+    }
+  ],
+  "failed": [
+    {
+      "name": "readiness-ready",
+      "pass": false,
+      "detail": "Readiness thresholds are not passing; missing/failing metrics remain."
+    },
+    {
+      "name": "checkpoint-gate",
+      "pass": false,
+      "detail": "Checkpoint still has 3 failed gate(s)."
+    }
+  ],
+  "checkpointRecommendation": "hold-populate-readiness-metrics",
+  "openIssueCounts": {
+    "total": 5,
+    "critical": 0,
+    "high": 2,
+    "medium": 3,
+    "low": 0
+  },
+  "guidance": [
+    "Baseline health gates failed for internal expansion.",
+    "Do not expand internal cohorts until failed gates are remediated and rerun."
+  ]
+}

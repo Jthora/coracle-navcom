@@ -1,0 +1,35 @@
+{
+  "generatedAt": "2026-02-19T23:45:36.235Z",
+  "operator": "release-operations",
+  "warnOnly": false,
+  "inputPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-feedback-collection.json",
+  "outputJsonPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-feedback-triage.json",
+  "outputMdPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-feedback-triage.md",
+  "auditPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-feedback-triage.ndjson",
+  "classifiedCount": 1,
+  "counts": {
+    "security": 0,
+    "perf": 0,
+    "interop": 1,
+    "unclassified": 0
+  },
+  "issues": [],
+  "complete": true,
+  "findings": [
+    {
+      "issueId": "PQC-BETA-001",
+      "title": "Intermittent decrypt fallback in mixed-client relay set",
+      "reporter": "beta-user-001",
+      "severity": "P2",
+      "status": "open",
+      "category": "interop",
+      "classTag": "interop",
+      "confidence": "high",
+      "rationale": "Derived from category=interop"
+    }
+  ],
+  "guidance": [
+    "All collected feedback issues are tagged to security/perf/interop classes.",
+    "Proceed to Stage 5.2.2.2.3 milestone feed integration."
+  ]
+}

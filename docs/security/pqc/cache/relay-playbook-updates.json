@@ -1,0 +1,21 @@
+{
+  "ticketId": "PQC-RELAY-SURGE-001",
+  "publishedAt": "2026-02-20T01:55:00.000Z",
+  "summary": "Captured operator guidance updates from relay rejection surge simulation.",
+  "updates": [
+    {
+      "id": "ru-1",
+      "title": "Add relay-size-hint refresh cadence to outage checklist",
+      "owner": "release-operations",
+      "priority": "high",
+      "dueAt": "2026-02-27T17:00:00.000Z"
+    },
+    {
+      "id": "ru-2",
+      "title": "Add fallback activation screenshot requirement for postmortem packet",
+      "owner": "security-response",
+      "priority": "medium",
+      "dueAt": "2026-03-06T17:00:00.000Z"
+    }
+  ]
+}

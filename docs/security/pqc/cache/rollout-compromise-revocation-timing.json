@@ -1,0 +1,31 @@
+{
+  "generatedAt": "2026-02-20T00:40:36.220Z",
+  "operator": "security-response",
+  "warnOnly": false,
+  "triagePath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-compromise-triage.json",
+  "inputPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/compromise-revocation-rekey-timing.json",
+  "outputJsonPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-compromise-revocation-timing.json",
+  "outputMdPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-compromise-revocation-timing.md",
+  "auditPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-compromise-revocation-timing.ndjson",
+  "ticketId": "PQC-COMPROMISE-001",
+  "thresholds": {
+    "maxRevocationSeconds": 300,
+    "maxForcedRotationSeconds": 900,
+    "maxEpochAdvanceSeconds": 900
+  },
+  "delays": {
+    "revocationDelaySeconds": 180,
+    "forcedRotationDelaySeconds": 420,
+    "epochAdvanceDelaySeconds": 600
+  },
+  "validation": {
+    "excludedCompromisedKeysFromSendPath": true,
+    "userRemediationCommunicationSent": true
+  },
+  "complete": true,
+  "issues": [],
+  "guidance": [
+    "Revocation and rekey timing validation passed.",
+    "Proceed to publish corrective actions from drill outcomes."
+  ]
+}

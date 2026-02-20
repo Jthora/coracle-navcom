@@ -1,0 +1,90 @@
+{
+  "generatedAt": "2026-02-20T00:18:55.158Z",
+  "operator": "release-operations",
+  "warnOnly": false,
+  "inputPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-telemetry.json",
+  "outputJsonPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-daily-monitor.json",
+  "outputMdPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-daily-monitor.md",
+  "historyPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-daily-monitor.ndjson",
+  "window": {
+    "start": "2026-02-19T00:00:00.000Z",
+    "end": "2026-02-20T00:00:00.000Z",
+    "label": "daily-dogfood-window"
+  },
+  "thresholds": {
+    "secureSuccessMin": 0.97,
+    "downgradeRateMax": 0.2
+  },
+  "secureSendSuccessRate": null,
+  "downgradeRate": null,
+  "deltas": {
+    "secureSuccessDelta": null,
+    "downgradeRateDelta": null
+  },
+  "evaluations": [
+    {
+      "key": "secureSendSuccessRate",
+      "label": "Secure send success rate",
+      "value": null,
+      "comparator": "min",
+      "target": 0.97,
+      "pass": false,
+      "status": "missing",
+      "reason": "metric-missing"
+    },
+    {
+      "key": "downgradeRate",
+      "label": "Downgrade rate",
+      "value": null,
+      "comparator": "max",
+      "target": 0.2,
+      "pass": false,
+      "status": "missing",
+      "reason": "metric-missing"
+    }
+  ],
+  "missing": [
+    {
+      "key": "secureSendSuccessRate",
+      "label": "Secure send success rate",
+      "value": null,
+      "comparator": "min",
+      "target": 0.97,
+      "pass": false,
+      "status": "missing",
+      "reason": "metric-missing"
+    },
+    {
+      "key": "downgradeRate",
+      "label": "Downgrade rate",
+      "value": null,
+      "comparator": "max",
+      "target": 0.2,
+      "pass": false,
+      "status": "missing",
+      "reason": "metric-missing"
+    }
+  ],
+  "failed": [],
+  "ready": false,
+  "downgradeTopClasses": [
+    {
+      "id": "decrypt-failed-invalid-wrap",
+      "label": "Decrypt failed: invalid recipient wrap",
+      "rate": null,
+      "count": null,
+      "owner": "Crypto Runtime"
+    },
+    {
+      "id": "downgrade-no-shared-alg",
+      "label": "Downgrade: no shared algorithm",
+      "rate": null,
+      "count": null,
+      "owner": "Messaging Foundations"
+    }
+  ],
+  "guidance": [
+    "Daily secure success/downgrade monitoring is not ready.",
+    "Populate missing telemetry metrics and remediate threshold failures before expansion."
+  ]
+}

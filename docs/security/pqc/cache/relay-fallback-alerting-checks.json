@@ -1,0 +1,23 @@
+{
+  "ticketId": "PQC-RELAY-SURGE-001",
+  "executedAt": "2026-02-20T01:40:00.000Z",
+  "fallback": {
+    "adaptiveRelaySelectionApplied": true,
+    "alternateRelayRetryEnabled": true,
+    "compatibilityFallbackEnabled": true,
+    "payloadLimitsAdjusted": true,
+    "chunkingPolicyAdjusted": true
+  },
+  "alerts": {
+    "relayRejectionSpikeAlertFired": true,
+    "fallbackActivationAlertFired": true,
+    "onCallAcknowledged": true,
+    "acknowledgedAt": "2026-02-20T01:42:00.000Z"
+  },
+  "results": {
+    "postFallbackRejectionRate": 0.07,
+    "targetMaxRejectionRate": 0.1,
+    "dmPathPass": true,
+    "groupPathPass": true
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "generatedAt": "2026-02-20T00:25:16.338Z",
+  "operator": "release-operations",
+  "warnOnly": false,
+  "executionPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-kill-switch-execution.json",
+  "userBehaviorPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-kill-switch-user-behavior.json",
+  "recoveryPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/kill-switch-recovery-checklist.json",
+  "outputJsonPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-kill-switch-recovery.json",
+  "outputMdPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-kill-switch-recovery.md",
+  "auditPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-kill-switch-recovery.ndjson",
+  "ticketId": "PQC-KILLSWITCH-001",
+  "reEnabledAt": "2026-02-20T00:10:00.000Z",
+  "restoredFlags": {
+    "pqc_enabled": true,
+    "pqc_dm_enabled": true,
+    "pqc_groups_enabled": true,
+    "pqc_strict_default": true,
+    "pqc_chunking_enabled": true
+  },
+  "smokeChecks": {
+    "dmPathPass": true,
+    "groupPathPass": true,
+    "alertsBelowThreshold": true,
+    "keyLifecycleConsistent": true
+  },
+  "complete": true,
+  "issues": [],
+  "guidance": [
+    "Kill-switch recovery verification passed after re-enable.",
+    "Kill-switch path validation task is complete for this drill window."
+  ]
+}

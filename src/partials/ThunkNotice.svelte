@@ -3,8 +3,10 @@
   import {PublishStatus} from "@welshman/net"
   import {formatTimestamp} from "@welshman/lib"
   import type {PublishNotice} from "src/domain/connection"
+  import {getRelaySizeRejectionNotice} from "src/engine/pqc/relay-size-rejection"
 
   export let notice: PublishNotice
+  $: relaySizeNotice = getRelaySizeRejectionNotice(notice?.message)
 
   let color = "text-success"
 
@@ -40,4 +42,7 @@
     >to {notice.url}</strong>
   <span class="shrink-0">[Kind {notice.eventKind}]</span>
   <span>{notice.message}</span>
+  {#if relaySizeNotice}
+    <span class="text-warning">{relaySizeNotice.summary}</span>
+  {/if}
 </div>

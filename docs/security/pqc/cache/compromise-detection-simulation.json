@@ -1,0 +1,35 @@
+{
+  "environment": "staging",
+  "ticketId": "PQC-COMPROMISE-001",
+  "executedAt": "2026-02-20T01:00:00.000Z",
+  "scenario": "Simulated compromise indicators for one PQ key with relay anomaly correlation.",
+  "indicators": [
+    {
+      "id": "ioc-1",
+      "type": "unexpected-key-signature-pattern",
+      "severity": "high",
+      "source": "telemetry",
+      "detectedAt": "2026-02-20T00:56:00.000Z"
+    },
+    {
+      "id": "ioc-2",
+      "type": "sudden-downgrade-spike",
+      "severity": "high",
+      "source": "rollout-monitor",
+      "detectedAt": "2026-02-20T00:57:00.000Z"
+    }
+  ],
+  "affectedKeyIds": ["pqc-key-ops-001"],
+  "affectedGroups": ["ops-alpha"],
+  "triage": {
+    "incidentClass": "IC-1",
+    "severity": "P1",
+    "owner": "security-response",
+    "containmentControls": {
+      "killSwitchApplied": true,
+      "compatibilityForced": true,
+      "groupSecureModeTemporarilyDisabled": true,
+      "relayIsolationApplied": true
+    }
+  }
+}

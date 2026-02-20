@@ -1,0 +1,31 @@
+{
+  "generatedAt": "2026-02-20T00:40:34.114Z",
+  "operator": "security-response",
+  "warnOnly": false,
+  "inputPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/compromise-detection-simulation.json",
+  "outputJsonPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-compromise-triage.json",
+  "outputMdPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-compromise-triage.md",
+  "auditPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-compromise-triage.ndjson",
+  "environment": "staging",
+  "ticketId": "PQC-COMPROMISE-001",
+  "executedAt": "2026-02-20T01:00:00.000Z",
+  "scenario": "Simulated compromise indicators for one PQ key with relay anomaly correlation.",
+  "indicatorCount": 2,
+  "affectedKeyIds": [
+    "pqc-key-ops-001"
+  ],
+  "incidentClass": "IC-1",
+  "severity": "P1",
+  "containmentControls": {
+    "killSwitchApplied": true,
+    "compatibilityForced": true,
+    "groupSecureModeTemporarilyDisabled": true,
+    "relayIsolationApplied": true
+  },
+  "complete": true,
+  "issues": [],
+  "guidance": [
+    "Compromise detection and triage simulation passed.",
+    "Proceed to revocation/rekey timing validation."
+  ]
+}

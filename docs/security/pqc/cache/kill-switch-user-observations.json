@@ -1,0 +1,15 @@
+{
+  "generatedAt": "2026-02-20T00:05:00.000Z",
+  "ticketId": "PQC-KILLSWITCH-001",
+  "observer": "qa",
+  "observedAt": "2026-02-20T00:05:00.000Z",
+  "checks": {
+    "dmSendAvailable": true,
+    "groupSendAvailable": true,
+    "fallbackIndicatorVisible": true,
+    "trustIndicatorUpdated": true,
+    "unexpectedCrash": false
+  },
+  "errorCount": 0,
+  "notes": "Fallback messaging visible and send path remained available during strict-default disable."
+}

@@ -1,0 +1,62 @@
+{
+  "generatedAt": "2026-02-20T00:04:43.857Z",
+  "operator": "release-operations",
+  "warnOnly": false,
+  "cohortsPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/internal-dogfood-cohorts.json",
+  "readinessPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-readiness.json",
+  "outputJsonPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-internal-cohort-enablement.json",
+  "outputMdPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-internal-cohort-enablement.md",
+  "auditPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-internal-cohort-enablement.ndjson",
+  "rolloutWindow": "internal-dogfood-week-1",
+  "requestedBy": "release-operations",
+  "approvedBy": "security-architecture",
+  "readinessReady": false,
+  "flags": [
+    "pqc_enabled",
+    "pqc_dm_enabled",
+    "pqc_groups_enabled",
+    "pqc_chunking_enabled"
+  ],
+  "cohortCount": 1,
+  "enableableCohortCount": 1,
+  "userCount": 2,
+  "invalidUserCount": 0,
+  "complete": true,
+  "issues": [],
+  "rows": [
+    {
+      "cohortId": "internal-core",
+      "ticketId": "PQC-DOGFOOD-001",
+      "owner": "client-engineering",
+      "stage": 1,
+      "flags": [
+        "pqc_enabled",
+        "pqc_dm_enabled",
+        "pqc_groups_enabled",
+        "pqc_chunking_enabled"
+      ],
+      "userCount": 2,
+      "invalidUserCount": 0,
+      "status": "ready-to-enable",
+      "users": [
+        {
+          "pubkey": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "alias": "internal-user-001",
+          "role": "engineer",
+          "valid": true
+        },
+        {
+          "pubkey": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "alias": "internal-user-002",
+          "role": "qa",
+          "valid": true
+        }
+      ]
+    }
+  ],
+  "guidance": [
+    "Apply listed flags for enableable internal cohorts in cohort-stage order.",
+    "Run baseline expansion confirmation before adding additional internal cohorts.",
+    "Keep readiness telemetry refreshed daily during dogfood expansion."
+  ]
+}

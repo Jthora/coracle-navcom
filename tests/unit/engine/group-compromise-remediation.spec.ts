@@ -9,6 +9,7 @@ import {
   getSecureGroupKeyRotationJob,
   resetSecureGroupKeyRotationService,
 } from "../../../src/engine/group-key-rotation-service"
+import {clearSecureGroupEpochState} from "../../../src/engine/group-epoch-state"
 
 describe("engine/group-compromise-remediation", () => {
   it("revokes secure group keys and emits revocation audit event", () => {
@@ -33,6 +34,7 @@ describe("engine/group-compromise-remediation", () => {
   it("runs compromised-device remediation with membership path and schedules rotation", async () => {
     resetSecureGroupKeyLifecycle()
     resetSecureGroupKeyRotationService()
+    clearSecureGroupEpochState("ops")
 
     prepareSecureGroupKeyUse({groupId: "ops", action: "send", now: 200, ttlSeconds: 60})
 
@@ -55,5 +57,10 @@ describe("engine/group-compromise-remediation", () => {
     expect(result.rotationScheduled).toBe(true)
     expect(membershipCalls).toBe(1)
     expect(getSecureGroupKeyRotationJob("ops")?.trigger).toBe("compromise-suspected")
+    expect(result.epochTransition.supersededEpoch.sequence).toBe(1)
+    expect(result.epochTransition.activeEpoch.sequence).toBe(2)
+    expect(result.epochTransition.activeEpoch.epochId).not.toBe(
+      result.epochTransition.supersededEpoch.epochId,
+    )
   })
 })

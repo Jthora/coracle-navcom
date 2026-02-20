@@ -1,0 +1,11 @@
+# Paste full output of: adb shell dumpsys battery
+# Keep the original field formatting.
+Current Battery Service state:
+  AC powered: false
+  USB powered: false
+  Wireless powered: false
+  status: 3
+  level: 0
+  scale: 100
+  voltage: 0
+  temperature: 0

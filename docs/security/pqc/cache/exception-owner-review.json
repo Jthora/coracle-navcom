@@ -1,0 +1,21 @@
+{
+  "releaseId": "pqc-g3-production-2026-02-19",
+  "reviewedAt": "2026-02-19T17:05:00Z",
+  "reviewOwner": "security-owner",
+  "exceptions": [
+    {
+      "exceptionId": "EXC-SR052-001",
+      "requirementId": "SR-052",
+      "severity": "high",
+      "status": "open",
+      "owner": "performance-lead",
+      "riskStatement": "Legacy low-power device profile can exceed bounded operation loop budget under rare background contention.",
+      "mitigation": "Apply adaptive chunk scheduling and cap operation retries per minute for constrained devices.",
+      "expiryDate": "2026-05-01",
+      "renewalRequested": false,
+      "ownerReviewedAt": "2026-02-19T17:00:00Z",
+      "ownerDecision": "proceed-to-approval",
+      "notes": "Fix tracked for next maintenance release train."
+    }
+  ]
+}

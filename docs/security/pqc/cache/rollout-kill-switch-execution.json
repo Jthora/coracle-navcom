@@ -1,0 +1,34 @@
+{
+  "generatedAt": "2026-02-20T00:25:12.191Z",
+  "operator": "release-operations",
+  "warnOnly": false,
+  "inputPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/kill-switch-staging-checklist.json",
+  "outputJsonPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-kill-switch-execution.json",
+  "outputMdPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-kill-switch-execution.md",
+  "auditPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-kill-switch-execution.ndjson",
+  "environment": "staging",
+  "ticketId": "PQC-KILLSWITCH-001",
+  "triggerReason": "Incident drill: validate kill-switch and rollback readiness.",
+  "executedAt": "2026-02-20T00:00:00.000Z",
+  "killSwitchApplied": true,
+  "complete": true,
+  "issues": [],
+  "preFlags": {
+    "pqc_enabled": true,
+    "pqc_dm_enabled": true,
+    "pqc_groups_enabled": true,
+    "pqc_strict_default": true,
+    "pqc_chunking_enabled": true
+  },
+  "postFlags": {
+    "pqc_enabled": true,
+    "pqc_dm_enabled": true,
+    "pqc_groups_enabled": true,
+    "pqc_strict_default": false,
+    "pqc_chunking_enabled": true
+  },
+  "guidance": [
+    "Kill-switch execution validated in staging.",
+    "Proceed to user-facing behavior verification while disable state is active."
+  ]
+}

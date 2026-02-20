@@ -1,0 +1,98 @@
+{
+  "generatedAt": "2026-02-19T18:33:26.814Z",
+  "profiles": [
+    "desktop-baseline",
+    "android-low-end",
+    "android-mid"
+  ],
+  "requiredProfiles": [
+    "android-low-end",
+    "android-mid"
+  ],
+  "complete": false,
+  "requiredComplete": false,
+  "rows": [
+    {
+      "profile": "desktop-baseline",
+      "sourcePath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/power-metrics-summary-desktop-baseline.json",
+      "present": true,
+      "complete": true,
+      "reason": null,
+      "sampleCount": 2,
+      "pairingStrategy": "phase-matched",
+      "generatedAt": "2026-02-19T10:21:39.331Z",
+      "deltas": {
+        "batteryCapacityPoints": null,
+        "batteryLevelPoints": null,
+        "temperatureTenthsC": null,
+        "voltageMv": null,
+        "linuxPowerUw": null,
+        "linuxCurrentUa": null,
+        "load1": -0.06999999999999984,
+        "memAvailableKb": 2880
+      }
+    },
+    {
+      "profile": "android-low-end",
+      "sourcePath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/power-metrics-summary-android-low-end.json",
+      "present": true,
+      "complete": false,
+      "reason": "insufficient-phase-matched-samples",
+      "sampleCount": 0,
+      "pairingStrategy": "time-range-fallback",
+      "generatedAt": "2026-02-19T10:21:40.057Z",
+      "deltas": {
+        "batteryCapacityPoints": null,
+        "batteryLevelPoints": null,
+        "temperatureTenthsC": null,
+        "voltageMv": null,
+        "linuxPowerUw": null,
+        "linuxCurrentUa": null,
+        "load1": null,
+        "memAvailableKb": null
+      }
+    },
+    {
+      "profile": "android-mid",
+      "sourcePath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/power-metrics-summary-android-mid.json",
+      "present": false,
+      "complete": false,
+      "reason": "missing-summary-file",
+      "sampleCount": 0,
+      "pairingStrategy": null,
+      "deltas": null
+    }
+  ],
+  "missing": [
+    {
+      "profile": "android-low-end",
+      "reason": "insufficient-phase-matched-samples",
+      "sampleCount": 0,
+      "pairingStrategy": "time-range-fallback"
+    },
+    {
+      "profile": "android-mid",
+      "reason": "missing-summary-file",
+      "sampleCount": 0,
+      "pairingStrategy": null
+    }
+  ],
+  "requiredMissing": [
+    {
+      "profile": "android-low-end",
+      "reason": "insufficient-phase-matched-samples",
+      "sampleCount": 0,
+      "pairingStrategy": "time-range-fallback"
+    },
+    {
+      "profile": "android-mid",
+      "reason": "missing-summary-file",
+      "sampleCount": 0,
+      "pairingStrategy": null
+    }
+  ],
+  "notes": [
+    "A profile is complete when sampleCount >= 2 and pairingStrategy is phase-matched.",
+    "Android low-end and mid profiles must be complete to close Stage 4.2.2.1.3."
+  ]
+}

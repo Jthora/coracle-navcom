@@ -1,0 +1,23 @@
+{
+  "generatedAt": "2026-02-20T00:50:34.333Z",
+  "operator": "release-operations",
+  "warnOnly": false,
+  "inputPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/relay-rejection-surge-simulation.json",
+  "outputJsonPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-relay-rejection-surge.json",
+  "outputMdPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-relay-rejection-surge.md",
+  "auditPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-relay-rejection-surge.ndjson",
+  "environment": "staging",
+  "ticketId": "PQC-RELAY-SURGE-001",
+  "executedAt": "2026-02-20T01:30:00.000Z",
+  "scenario": "Quarterly relay rejection surge simulation for secure payload publish path.",
+  "baselineRejectionRate": 0.02,
+  "surgeRejectionRate": 0.19,
+  "concentrationThreshold": 0.15,
+  "exceededRelayCount": 2,
+  "complete": true,
+  "issues": [],
+  "guidance": [
+    "High rejection conditions simulation passed.",
+    "Proceed to fallback and alerting validation."
+  ]
+}

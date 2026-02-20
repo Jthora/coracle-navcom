@@ -1,0 +1,15 @@
+{
+  "generatedAt": "2026-02-19T00:00:00.000Z",
+  "cohortId": "external-opt-in-beta",
+  "ticketId": "RFC-EXTERNAL-BETA-000",
+  "requestedBy": "release-operations@navcom.local",
+  "approvedBy": "security-architecture@navcom.local",
+  "users": [
+    {
+      "pubkey": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "externalId": "beta-user-001",
+      "cohort": "external-opt-in-beta",
+      "notes": "Replace with approved participant pubkey before enablement."
+    }
+  ]
+}

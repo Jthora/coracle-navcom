@@ -1,16 +1,10 @@
 <script lang="ts">
   import {onMount} from "svelte"
-  import {last, dateToSeconds, now} from "@welshman/lib"
+  import {dateToSeconds, now} from "@welshman/lib"
   import {own, hash} from "@welshman/util"
   import type {TrustedEvent} from "@welshman/util"
   import {Router, addMinimalFallbacks} from "@welshman/router"
-  import {
-    makeEvent,
-    toNostrURI,
-    DVM_REQUEST_PUBLISH_SCHEDULE,
-    Address,
-    isReplaceable,
-  } from "@welshman/util"
+  import {makeEvent, DVM_REQUEST_PUBLISH_SCHEDULE} from "@welshman/util"
   import type {Thunk} from "@welshman/app"
   import {request} from "@welshman/net"
   import {
@@ -22,37 +16,33 @@
     abortThunk,
   } from "@welshman/app"
   import {writable} from "svelte/store"
-  import * as nip19 from "nostr-tools/nip19"
   import {makePow} from "src/util/pow"
   import type {ProofOfWork} from "src/util/pow"
   import {warn} from "src/util/logger"
-  import {commaFormat} from "src/util/misc"
-  import Button from "src/partials/Button.svelte"
-  import Content from "src/partials/Content.svelte"
-  import Field from "src/partials/Field.svelte"
-  import FlexColumn from "src/partials/FlexColumn.svelte"
   import {showInfo, showPublishInfo, showToast, showWarning} from "src/partials/Toast.svelte"
-  import EditorContent from "src/app/editor/EditorContent.svelte"
   import NsecWarning from "src/app/shared/NsecWarning.svelte"
-  import NoteContent from "src/app/shared/NoteContent.svelte"
   import type {Values} from "src/app/shared/NoteOptions.svelte"
   import NoteOptions from "src/app/shared/NoteOptions.svelte"
-  import PostTypeSelector from "src/app/shared/PostTypeSelector.svelte"
   import GeoModal from "src/app/shared/GeoModal.svelte"
-  import GeoSummary from "src/app/shared/GeoSummary.svelte"
+  import NoteCreateComposer from "src/app/views/note-create/NoteCreateComposer.svelte"
   import {makeEditor} from "src/app/editor"
   import {drafts} from "src/app/state"
   import {normalizeEditorTags} from "src/app/util/tags"
   import {trackFirstPostAfterOnboarding} from "src/app/util/onboarding-first-post"
   import {router} from "src/app/util/router"
-  import {
-    GEOJSON_DELIMITER,
-    buildGeoJsonPayload,
-    defaultGeointState,
-    ensureHashtag,
-  } from "src/app/util/geoint"
+  import {defaultGeointState} from "src/app/util/geoint"
   import type {GeointState} from "src/app/util/geoint"
   import {shapePostForSubmit} from "src/app/util/post-assembly"
+  import {
+    assemblePreviewData,
+    ensureDefaultTypedDraft,
+    getDraftForType,
+    getNoteCreateDraftKeys,
+    isValidGeoState,
+    normalizeGeoState,
+  } from "src/app/views/note-create/state"
+  import {createPubkeyEncoder, prefillNoteCreateContent} from "src/app/views/note-create/prefill"
+  import type {NoteCreatePreviewData, NoteCreateType} from "src/app/views/note-create/state"
   import {env, getClientTags, sign, userSettings, broadcastUserRelays} from "src/engine"
 
   export let quote = null
@@ -63,14 +53,14 @@
   const charCount = writable(0)
   const SHIPYARD_PUBKEY = "5f13f66425c39afa13afd82870952e10d584cebd87f9d02f00ccd871aaaae9eb"
   const nsecWarning = writable(null)
-  let selectedType: "default" | "ops" | "geoint" = "default"
+  let selectedType: NoteCreateType = "default"
   let geointState: GeointState = defaultGeointState()
   let showGeoModal = false
   let geoError: string | null = null
   let sizeWarning: string | null = null
   let sizeBlocked: string | null = null
   let showGeoJsonPreview = true
-  let previewData: {human: string; payload: any | null} = {human: "", payload: null}
+  let previewData: NoteCreatePreviewData = {human: "", payload: null}
   let extraJsonWarning: string | null = null
   let geohashWarning: string | null = null
 
@@ -87,6 +77,8 @@
     showOptions = false
   }
 
+  const {baseDraftKey, typedDraftKey, geoDraftKey} = getNoteCreateDraftKeys(pubkey, quote?.id)
+
   const bypassNsecWarning = () => {
     nsecWarning.set(null)
     onSubmit({skipNsecWarning: true})
@@ -94,22 +86,13 @@
 
   const assemblePreview = () => {
     const baseText = editor.getText({blockSeparator: "\n"}).trim()
-    let humanText = baseText
-    let payload: any | null = null
 
-    if (selectedType === "ops") {
-      humanText = ensureHashtag(baseText, "#starcom_ops")
-    } else if (selectedType === "geoint" && hasValidGeo()) {
-      humanText = ensureHashtag(baseText, "#starcom_intel")
-
-      try {
-        payload = buildGeoJsonPayload(geointState, baseText)
-      } catch (e) {
-        payload = null
-      }
-    }
-
-    return {human: humanText, payload}
+    return assemblePreviewData({
+      baseText,
+      selectedType,
+      geointState,
+      hasValidGeo: hasValidGeo(),
+    })
   }
 
   const onSubmit = async ({skipNsecWarning = false} = {}) => {
@@ -306,40 +289,22 @@
     showPreview = !showPreview
   }
 
-  const pubkeyEncoder = {
-    encode: pubkey => {
-      const relays = Router.get().FromPubkeys([pubkey]).limit(3).getUrls()
-      const nprofile = nip19.nprofileEncode({pubkey, relays})
-
-      return toNostrURI(nprofile)
-    },
-    decode: link => {
-      // @ts-ignore
-      return nip19.decode(last(link.split(":"))).data.pubkey
-    },
-  }
-  const baseDraftKey = ["notecreate", pubkey, quote?.id].filter(Boolean).join(":")
-  const typedDraftKey = (type: "default" | "ops" | "geoint") =>
-    [baseDraftKey, type].filter(Boolean).join(":")
-  const geoDraftKey = (type: "default" | "ops" | "geoint") => `${typedDraftKey(type)}:geo`
-
-  const ensureTypedDraftKey = () => {
-    if (!drafts.has(typedDraftKey("default")) && drafts.has(baseDraftKey)) {
-      drafts.set(typedDraftKey("default"), drafts.get(baseDraftKey))
-    }
+  const toggleGeoJsonPreview = () => {
+    showGeoJsonPreview = !showGeoJsonPreview
   }
 
-  const getDraft = (type: "default" | "ops" | "geoint") => {
-    if (type === "default") {
-      return drafts.get(typedDraftKey(type)) ?? drafts.get(baseDraftKey) ?? ""
-    }
-
-    return drafts.get(typedDraftKey(type)) ?? ""
+  const onOpenGeoModal = () => {
+    showGeoModal = true
   }
 
-  ensureTypedDraftKey()
+  const onUploadClick = () => {
+    editor.chain().selectFiles().run()
+  }
 
-  const draft = getDraft(selectedType)
+  const pubkeyEncoder = createPubkeyEncoder()
+  ensureDefaultTypedDraft(drafts, typedDraftKey, baseDraftKey)
+
+  const draft = getDraftForType(drafts, selectedType, typedDraftKey, baseDraftKey)
   geointState = (drafts.get(geoDraftKey("geoint")) as GeointState) ?? defaultGeointState()
 
   const editor = makeEditor({
@@ -376,7 +341,7 @@
     wordCount.set(trimmed ? trimmed.split(/\s+/).length : 0)
   }
 
-  const switchType = (type: "default" | "ops" | "geoint") => {
+  const switchType = (type: NoteCreateType) => {
     if (type === selectedType) return
 
     persistContentDraft()
@@ -384,7 +349,7 @@
 
     selectedType = type
 
-    const nextDraft = getDraft(type) || ""
+    const nextDraft = getDraftForType(drafts, type, typedDraftKey, baseDraftKey) || ""
 
     editor.commands.setContent(nextDraft)
     refreshCounts()
@@ -403,16 +368,7 @@
   }
 
   const handleGeoSave = (state: GeointState) => {
-    const normalizedState: GeointState = {
-      ...state,
-      lat: state.lat === null || state.lat === undefined ? null : Number(state.lat),
-      lon: state.lon === null || state.lon === undefined ? null : Number(state.lon),
-      alt: state.alt === null || state.alt === undefined ? null : Number(state.alt),
-      confidence:
-        state.confidence === null || state.confidence === undefined
-          ? null
-          : Number(state.confidence),
-    }
+    const normalizedState = normalizeGeoState(state)
 
     geointState = normalizedState
     drafts.set(geoDraftKey("geoint"), normalizedState)
@@ -436,22 +392,6 @@
     geohashWarning = null
   }
 
-  const isValidGeoState = (state?: GeointState | null) => {
-    if (!state) return false
-
-    const lat = Number(state.lat)
-    const lon = Number(state.lon)
-
-    return (
-      Number.isFinite(lat) &&
-      Number.isFinite(lon) &&
-      lat >= -90 &&
-      lat <= 90 &&
-      lon >= -180 &&
-      lon <= 180
-    )
-  }
-
   const hasValidGeo = () => {
     if (isValidGeoState(geointState)) {
       return true
@@ -464,7 +404,7 @@
 
   let showPreview = false
   let showOptions = false
-  let publishing: "signing" | "pow"
+  let publishing: "signing" | "pow" | null = null
   let pow: ProofOfWork
   let options: Values = {
     warning: "",
@@ -474,29 +414,13 @@
   }
 
   onMount(() => {
-    if (quote && isReplaceable(quote)) {
-      const relays = Router.get().Event(quote).limit(3).getUrls()
-      const naddr = Address.fromEvent(quote, relays).toNaddr()
-
-      editor.commands.insertContent("\n")
-      editor.commands.insertNAddr({bech32: toNostrURI(naddr)})
-    } else if (quote) {
-      const nevent = nip19.neventEncode({
-        id: quote.id,
-        kind: quote.kind,
-        author: quote.pubkey,
-        relays: Router.get().Event(quote).limit(3).getUrls(),
-      })
-
-      editor.commands.insertContent("\n")
-      editor.commands.insertNEvent({bech32: toNostrURI(nevent)})
-    } else if (
-      pubkey &&
-      pubkey !== $session.pubkey &&
-      !editor.getText({blockSeparator: "\n"}).trim()
-    ) {
-      editor.commands.insertNProfile({bech32: pubkeyEncoder.encode(pubkey)})
-    }
+    prefillNoteCreateContent({
+      editor,
+      quote,
+      pubkey,
+      sessionPubkey: $session.pubkey,
+      pubkeyEncoder,
+    })
 
     setTimeout(() => editor.commands.focus("end"))
 
@@ -507,142 +431,32 @@
   })
 </script>
 
-<form on:submit|preventDefault={() => onSubmit()}>
-  <Content size="lg">
-    <div class="flex flex-col gap-3">
-      <div class="flex flex-wrap items-center justify-between gap-2">
-        <span class="text-2xl font-bold">Create a Note</span>
-        <PostTypeSelector selected={selectedType} onSelect={switchType} />
-      </div>
-
-      {#if selectedType === "geoint"}
-        <div
-          class="border-amber-500/40 bg-amber-500/10 text-amber-100 rounded-xl border p-3 text-sm">
-          <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <span>GEOINT posts are public. Share coordinates responsibly.</span>
-            <div class="flex flex-wrap gap-2">
-              <button
-                class="rounded bg-white px-3 py-1 text-xs font-semibold text-black"
-                type="button"
-                on:click={() => (showGeoModal = true)}>
-                {hasValidGeo() ? "Edit location" : "Add location"}
-              </button>
-              <button
-                class="rounded border border-neutral-600 px-3 py-1 text-xs text-white"
-                type="button"
-                on:click={handleGeoClear}>
-                Clear
-              </button>
-            </div>
-          </div>
-          {#if geoError}
-            <p class="text-red-300 mt-2">{geoError}</p>
-          {/if}
-          {#if extraJsonWarning}
-            <p class="text-amber-200 mt-2">{extraJsonWarning}</p>
-          {/if}
-          {#if geohashWarning}
-            <p class="text-amber-200 mt-2">{geohashWarning}</p>
-          {/if}
-          {#if sizeWarning}
-            <p class="text-amber-200 mt-2">{sizeWarning}</p>
-          {/if}
-        </div>
-        <GeoSummary
-          value={geointState}
-          onEdit={() => (showGeoModal = true)}
-          onClear={handleGeoClear} />
-      {/if}
-    </div>
-    <FlexColumn>
-      <Field label="What do you want to say?">
-        <div
-          class="rounded-xl border border-solid border-neutral-600 p-3"
-          class:bg-white={!showPreview}
-          class:text-black={!showPreview}
-          class:bg-tinted-700={showPreview}>
-          {#if showPreview}
-            <div class="flex flex-col gap-3">
-              <NoteContent note={{content: previewData.human, tags: []}} />
-
-              {#if selectedType === "geoint" && hasValidGeo() && previewData.payload}
-                <div
-                  class="rounded border border-neutral-600 bg-neutral-900 p-3 text-sm text-white">
-                  <div class="flex items-center justify-between">
-                    <span class="font-semibold">GEOJSON payload (sent compacted)</span>
-                    <button
-                      class="text-xs text-neutral-300 underline"
-                      type="button"
-                      on:click={() => (showGeoJsonPreview = !showGeoJsonPreview)}>
-                      {showGeoJsonPreview ? "Hide" : "Show"}
-                    </button>
-                  </div>
-                  {#if showGeoJsonPreview}
-                    <pre
-                      class="mt-2 overflow-x-auto whitespace-pre-wrap text-xs leading-tight">{JSON.stringify(
-                        previewData.payload,
-                        null,
-                        2,
-                      )}</pre>
-                    <p class="mt-2 text-xs text-neutral-300">Delimiter: {GEOJSON_DELIMITER}</p>
-                  {/if}
-                </div>
-              {/if}
-            </div>
-          {/if}
-          <div class:hidden={showPreview}>
-            <EditorContent {editor} class="min-h-24" />
-          </div>
-        </div>
-        <div class="flex items-center justify-end gap-2 text-neutral-200">
-          <small>
-            {commaFormat($charCount)} characters
-          </small>
-          <span>•</span>
-          <small>
-            {commaFormat($wordCount)} words
-          </small>
-          <span>•</span>
-          <button type="button" on:click={togglePreview} class="cursor-pointer text-sm underline">
-            {showPreview ? "Hide" : "Show"} Preview
-          </button>
-          <button type="button" on:click={openOptions} class="cursor-pointer text-sm">
-            <i class="fa fa-cog" />
-          </button>
-        </div>
-      </Field>
-      <div class="flex gap-2">
-        <Button
-          type="submit"
-          class="btn btn-accent flex-grow"
-          disabled={selectedType === "geoint" && !hasValidGeo()}
-          loading={$uploading || Boolean(publishing)}>
-          {#if $uploading || !!publishing}
-            {#if publishing === "signing"}
-              Signing your note...
-            {:else if publishing === "pow"}
-              Generating Work...
-            {:else}
-              Uploading media...
-            {/if}
-          {:else if options?.publish_at && dateToSeconds(options.publish_at) > now()}
-            Schedule
-          {:else}
-            Send
-          {/if}
-        </Button>
-        <button
-          class="hover:bg-white-l staatliches flex h-7 w-7 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded bg-white px-6 text-xl text-black transition-all"
-          on:click|preventDefault={() => editor.chain().selectFiles().run()}>
-          <i class="fa fa-upload" />
-        </button>
-      </div>
-      {#if sizeBlocked}
-        <p class="text-red-400 text-sm">{sizeBlocked}</p>
-      {/if}
-    </FlexColumn>
-  </Content>
-</form>
+<NoteCreateComposer
+  {selectedType}
+  {geointState}
+  {geoError}
+  {extraJsonWarning}
+  {geohashWarning}
+  {sizeWarning}
+  {sizeBlocked}
+  {showPreview}
+  {showGeoJsonPreview}
+  {previewData}
+  {editor}
+  uploading={$uploading}
+  {publishing}
+  {options}
+  charCount={$charCount}
+  wordCount={$wordCount}
+  {hasValidGeo}
+  onSubmit={() => onSubmit()}
+  onSwitchType={switchType}
+  {onOpenGeoModal}
+  onClearGeo={handleGeoClear}
+  onToggleGeoJsonPreview={toggleGeoJsonPreview}
+  onTogglePreview={togglePreview}
+  onOpenOptions={openOptions}
+  {onUploadClick} />
 
 {#if showOptions}
   <NoteOptions onClose={closeOptions} onSubmit={setOptions} initialValues={options} publishAt />

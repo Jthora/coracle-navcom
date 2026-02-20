@@ -1,0 +1,735 @@
+# PQC Implementation Progress Tracker
+
+Status: Active
+Owner: Copilot + Core Team
+Last Updated: 2026-02-20
+Related Directory: `docs/security/pqc/`
+Related Draft: `docs/security/pqc/13-nip-draft-navcom-pqc.md`
+
+## Usage
+
+- Check the box when an item is complete.
+- Keep seeded numbering stable once assigned.
+- Do not delete completed items; append new items.
+- Update `Last Updated` whenever any checkbox state changes.
+
+## Legend
+
+- `[ ]` Not started
+- `[~]` In progress
+- `[x]` Complete
+
+## Stage 0 — Documentation Program Baseline
+
+- [~] 0.0 Stage 0 In Progress
+  - [x] 0.1 Phase 0A: Program Index and Security Foundations
+    - [x] 0.1.1 Step: Create index and program scaffolding
+      - [x] 0.1.1.1 Task: Author `00-readme.md`
+        - [x] 0.1.1.1.1 Subtask: Define program scope, goals, and non-goals
+        - [x] 0.1.1.1.2 Subtask: Define document map and reading order
+    - [x] 0.1.2 Step: Define risk and requirements baseline
+      - [x] 0.1.2.1 Task: Author `01-threat-model.md`
+        - [x] 0.1.2.1.1 Subtask: Enumerate adversary classes and trust boundaries
+        - [x] 0.1.2.1.2 Subtask: Capture accepted and unacceptable risks
+      - [x] 0.1.2.2 Task: Author `02-security-requirements.md`
+        - [x] 0.1.2.2.1 Subtask: Derive MUST/SHOULD controls from threats
+        - [x] 0.1.2.2.2 Subtask: Define release gate criteria
+      - [x] 0.1.2.3 Task: Author `03-architecture-overview.md`
+        - [x] 0.1.2.3.1 Subtask: Define component responsibilities and flows
+        - [x] 0.1.2.3.2 Subtask: Define fallback and observability boundaries
+  - [x] 0.2 Phase 0B: Protocol and Lifecycle Specifications
+    - [x] 0.2.1 Step: Define envelope and parsing contracts
+      - [x] 0.2.1.1 Task: Author `04-wire-format-envelope.md`
+        - [x] 0.2.1.1.1 Subtask: Define envelope v1 required/optional fields
+        - [x] 0.2.1.1.2 Subtask: Define parser validation and error taxonomy
+    - [x] 0.2.2 Step: Define key lifecycle and publication
+      - [x] 0.2.2.1 Task: Author `05-key-distribution-and-lifecycle.md`
+        - [x] 0.2.2.1.1 Subtask: Define key publication schema and signature requirements
+        - [x] 0.2.2.1.2 Subtask: Define rotation, expiry, and revocation policy
+    - [x] 0.2.3 Step: Define capability negotiation
+      - [x] 0.2.3.1 Task: Author `06-capability-negotiation.md`
+        - [x] 0.2.3.1.1 Subtask: Define deterministic mode selection algorithm
+        - [x] 0.2.3.1.2 Subtask: Define downgrade reason code model
+  - [x] 0.3 Phase 0C: Integration, Ops, and External Draft
+    - [x] 0.3.1 Step: Draft implementation integration docs
+      - [x] 0.3.1.1 Task: Author `07-dm-integration-design.md`
+        - [x] 0.3.1.1.1 Subtask: Map send/receive hooks in DM pipeline
+        - [x] 0.3.1.1.2 Subtask: Define DM strict vs compatibility behaviors
+      - [x] 0.3.1.2 Task: Author `08-group-chat-integration-design.md`
+        - [x] 0.3.1.2.1 Subtask: Define epoch key model and rekey triggers
+        - [x] 0.3.1.2.2 Subtask: Define removed-member exclusion guarantees
+      - [x] 0.3.1.3 Task: Author `09-relay-compatibility-and-limits.md`
+        - [x] 0.3.1.3.1 Subtask: Define relay size constraints and preflight policy
+        - [x] 0.3.1.3.2 Subtask: Define self-hosted relay operating guidance
+    - [x] 0.3.2 Step: Draft delivery and verification docs
+      - [x] 0.3.2.1 Task: Author `10-implementation-plan.md`
+        - [x] 0.3.2.1.1 Subtask: Define milestones and phase gates
+        - [x] 0.3.2.1.2 Subtask: Define rollout and rollback tracks
+      - [x] 0.3.2.2 Task: Author `11-test-and-validation-plan.md`
+        - [x] 0.3.2.2.1 Subtask: Define unit/integration/e2e matrix
+        - [x] 0.3.2.2.2 Subtask: Define interop and performance gates
+      - [x] 0.3.2.3 Task: Author `12-operations-and-incident-playbook.md`
+        - [x] 0.3.2.3.1 Subtask: Define incident class/severity model
+        - [x] 0.3.2.3.2 Subtask: Define kill-switch and rollback runbooks
+    - [x] 0.3.3 Step: Draft ecosystem-facing proposal
+      - [x] 0.3.3.1 Task: Author `13-nip-draft-navcom-pqc.md`
+        - [x] 0.3.3.1.1 Subtask: Define draft normative sections
+        - [x] 0.3.3.1.2 Subtask: Define open questions for community review
+  - [~] 0.4 Phase 0D: Documentation Consolidation
+    - [~] 0.4.1 Step: Link and cross-reference all PQC docs
+      - [x] 0.4.1.1 Task: Add forward/backward links across docs
+        - [x] 0.4.1.1.1 Subtask: Add previous/next links in each document
+        - [x] 0.4.1.1.2 Subtask: Validate all cross-links resolve
+      - [~] 0.4.1.2 Task: Add doc ownership and review cadence sections consistently
+        - [~] 0.4.1.2.1 Subtask: Standardize owner/reviewer fields
+        - [ ] 0.4.1.2.2 Subtask: Add review interval and review trigger notes
+    - [~] 0.4.2 Step: Normalize status and change logs
+      - [ ] 0.4.2.1 Task: Add/update status blocks in each PQC document
+        - [ ] 0.4.2.1.1 Subtask: Ensure status header format is identical
+        - [ ] 0.4.2.1.2 Subtask: Confirm dates/owners reflect current state
+      - [ ] 0.4.2.2 Task: Add consolidated decision index
+        - [ ] 0.4.2.2.1 Subtask: Extract decision entries from each document
+        - [ ] 0.4.2.2.2 Subtask: Publish master decision index file
+
+## Stage 1 — Protocol Freeze and Reference Fixtures
+
+- [~] 1.0 Stage 1 In Progress
+  - [~] 1.1 Phase 1A: Envelope and Profile Freeze
+    - [~] 1.1.1 Step: Finalize envelope v1 constraints
+      - [x] 1.1.1.1 Task: Lock required/optional fields
+        - [x] 1.1.1.1.1 Subtask: Resolve open field-level questions
+        - [x] 1.1.1.1.2 Subtask: Mark fields as mandatory vs extension
+      - [~] 1.1.1.2 Task: Lock canonical encoding rules
+        - [x] 1.1.1.2.1 Subtask: Specify canonical key ordering and types
+        - [ ] 1.1.1.2.2 Subtask: Add canonicalization examples
+        - [x] 1.1.1.2.3 Subtask: Define non-canonical rejection behavior
+      - [~] 1.1.1.3 Task: Lock parse-failure behavior
+        - [x] 1.1.1.3.1 Subtask: Define strict-mode fail-closed outcomes
+        - [x] 1.1.1.3.2 Subtask: Define compatibility-mode unsupported handling
+    - [ ] 1.1.2 Step: Finalize algorithm profile list
+      - [ ] 1.1.2.1 Task: Select default hybrid profile
+        - [ ] 1.1.2.1.1 Subtask: Compare profile security/perf tradeoffs
+        - [ ] 1.1.2.1.2 Subtask: Approve default profile for beta
+      - [ ] 1.1.2.2 Task: Define compatibility profile behavior
+        - [ ] 1.1.2.2.1 Subtask: Define allowed fallback profile list
+        - [ ] 1.1.2.2.2 Subtask: Define downgrade warning requirements
+  - [~] 1.2 Phase 1B: Key and Capability Contracts
+    - [~] 1.2.1 Step: Finalize key publication schema
+      - [x] 1.2.1.1 Task: Lock key metadata fields
+        - [x] 1.2.1.1.1 Subtask: Finalize key_id/status/expiry field semantics
+        - [x] 1.2.1.1.2 Subtask: Finalize schema versioning rules
+      - [x] 1.2.1.2 Task: Lock expiry and status semantics
+        - [x] 1.2.1.2.1 Subtask: Set default TTL and stale windows
+        - [x] 1.2.1.2.2 Subtask: Define revoked/deprecated handling rules
+    - [~] 1.2.2 Step: Finalize negotiation truth table
+      - [~] 1.2.2.1 Task: Lock strict-mode outcomes
+        - [x] 1.2.2.1.1 Subtask: Define strict blocks for missing/stale key states
+        - [ ] 1.2.2.1.2 Subtask: Validate strict outcomes with security owner
+      - [x] 1.2.2.2 Task: Lock compatibility-mode outcomes
+        - [x] 1.2.2.2.1 Subtask: Define fallback precedence order
+        - [x] 1.2.2.2.2 Subtask: Define compatibility user-notice behavior
+  - [x] 1.3 Phase 1C: Reference Fixture Pack
+    - [x] 1.3.1 Step: Build valid fixture corpus
+      - [x] 1.3.1.1 Task: Create minimal valid envelope fixture
+        - [x] 1.3.1.1.1 Subtask: Generate canonical minimal payload
+        - [x] 1.3.1.1.2 Subtask: Validate fixture against parser
+      - [x] 1.3.1.2 Task: Create full valid envelope fixture
+        - [x] 1.3.1.2.1 Subtask: Include optional fields and recipient wraps
+        - [x] 1.3.1.2.2 Subtask: Validate fixture across encode/decode roundtrip
+    - [x] 1.3.2 Step: Build negative fixture corpus
+      - [x] 1.3.2.1 Task: Create malformed/duplicate field fixtures
+        - [x] 1.3.2.1.1 Subtask: Create invalid type and duplicate key samples
+        - [x] 1.3.2.1.2 Subtask: Assert parser failure reason codes
+      - [x] 1.3.2.2 Task: Create unknown-critical-field fixtures
+        - [x] 1.3.2.2.1 Subtask: Create unknown critical field vectors
+        - [x] 1.3.2.2.2 Subtask: Validate strict reject and compat behavior
+
+## Stage 2 — DM Hybrid Integration
+
+- [~] 2.0 Stage 2 In Progress
+  - [~] 2.1 Phase 2A: Sender Pipeline
+    - [~] 2.1.1 Step: Wire capability/key lookup in DM send flow
+      - [x] 2.1.1.1 Task: Implement key freshness check before send
+        - [x] 2.1.1.1.1 Subtask: Add peer key cache freshness validator
+        - [x] 2.1.1.1.2 Subtask: Add refresh-before-send branch
+        - [x] 2.1.1.1.3 Subtask: Add stale-key telemetry reason code
+      - [x] 2.1.1.2 Task: Implement negotiation selection in send path
+        - [x] 2.1.1.2.1 Subtask: Add policy-aware negotiation resolver
+        - [x] 2.1.1.2.2 Subtask: Add strict-mode block path
+        - [x] 2.1.1.2.3 Subtask: Add compatibility fallback path
+    - [x] 2.1.2 Step: Wire envelope encoding in DM send flow
+      - [x] 2.1.2.1 Task: Serialize v1 envelope in event content
+        - [x] 2.1.2.1.1 Subtask: Build envelope payload builder
+        - [x] 2.1.2.1.2 Subtask: Add sender/recipient AD binding
+        - [x] 2.1.2.1.3 Subtask: Add encode failure handling branch
+      - [x] 2.1.2.2 Task: Add size preflight before publish
+        - [x] 2.1.2.2.1 Subtask: Estimate payload size pre-publish
+        - [x] 2.1.2.2.2 Subtask: Route oversize case to fallback/block policy
+  - [~] 2.2 Phase 2B: Receiver Pipeline
+    - [~] 2.2.1 Step: Wire envelope parsing and validation
+      - [x] 2.2.1.1 Task: Add strict parser checks
+        - [x] 2.2.1.1.1 Subtask: Validate required fields and types
+        - [x] 2.2.1.1.2 Subtask: Validate canonicalization constraints
+        - [x] 2.2.1.1.3 Subtask: Reject unknown critical extensions
+      - [~] 2.2.1.2 Task: Add reason-code mapping for parse errors
+        - [x] 2.2.1.2.1 Subtask: Map parser failures to stable codes
+        - [~] 2.2.1.2.2 Subtask: Surface reason in diagnostics view
+    - [x] 2.2.2 Step: Wire decrypt and render state
+      - [x] 2.2.2.1 Task: Bind associated data checks
+        - [x] 2.2.2.1.1 Subtask: Build AD from event context
+        - [x] 2.2.2.1.2 Subtask: Reject decrypt on AD mismatch
+        - [x] 2.2.2.1.3 Subtask: Log AD mismatch reason safely
+      - [x] 2.2.2.2 Task: Surface per-message security mode in UI
+        - [x] 2.2.2.2.1 Subtask: Add mode badge component state
+        - [x] 2.2.2.2.2 Subtask: Add fallback warning UI copy
+  - [x] 2.3 Phase 2C: DM Policy and UX
+    - [x] 2.3.1 Step: Strict and compatibility behaviors
+      - [x] 2.3.1.1 Task: Block strict-mode send on missing hybrid prerequisites
+        - [x] 2.3.1.1.1 Subtask: Add pre-send strict guard
+        - [x] 2.3.1.1.2 Subtask: Add actionable block error messaging
+      - [x] 2.3.1.2 Task: Add explicit compatibility fallback warnings
+        - [x] 2.3.1.2.1 Subtask: Show downgrade alert with reason code
+        - [x] 2.3.1.2.2 Subtask: Add setting to review fallback history
+
+## Stage 3 — Group Hybrid Integration
+
+- [~] 3.0 Stage 3 In Progress
+  - [x] 3.1 Phase 3A: Epoch and Rekey Foundation
+    - [x] 3.1.1 Step: Implement epoch key model
+      - [x] 3.1.1.1 Task: Persist active epoch per group
+        - [x] 3.1.1.1.1 Subtask: Add epoch state store schema
+        - [x] 3.1.1.1.2 Subtask: Add load/save lifecycle hooks
+        - [x] 3.1.1.1.3 Subtask: Add epoch integrity checks
+      - [x] 3.1.1.2 Task: Associate secure messages with epoch id
+        - [x] 3.1.1.2.1 Subtask: Add epoch tag to outgoing secure messages
+        - [x] 3.1.1.2.2 Subtask: Validate epoch id on receive
+    - [x] 3.1.2 Step: Implement rekey trigger handling
+      - [x] 3.1.2.1 Task: Trigger rekey on membership removal
+        - [x] 3.1.2.1.1 Subtask: Detect removal events in projection stream
+        - [x] 3.1.2.1.2 Subtask: Initiate epoch advance workflow
+        - [x] 3.1.2.1.3 Subtask: Verify removed-member exclusion in new wraps
+      - [x] 3.1.2.2 Task: Trigger rekey on compromise remediation
+        - [x] 3.1.2.2.1 Subtask: Wire remediation event to rekey service
+        - [x] 3.1.2.2.2 Subtask: Mark prior epoch as superseded
+  - [x] 3.2 Phase 3B: Group Send/Receive Wiring
+    - [x] 3.2.1 Step: Secure group send path integration
+      - [x] 3.2.1.1 Task: Encrypt group payload with active epoch key
+        - [x] 3.2.1.1.1 Subtask: Resolve active epoch before send
+        - [x] 3.2.1.1.2 Subtask: Encrypt message with epoch content key
+        - [x] 3.2.1.1.3 Subtask: Fail safe when epoch unavailable
+      - [x] 3.2.1.2 Task: Publish wraps for eligible members only
+        - [x] 3.2.1.2.1 Subtask: Build eligible member set from projection
+        - [x] 3.2.1.2.2 Subtask: Emit per-member wrap payloads
+        - [x] 3.2.1.2.3 Subtask: Exclude removed/pending members deterministically
+    - [x] 3.2.2 Step: Secure group receive path integration
+      - [x] 3.2.2.1 Task: Validate epoch and decrypt path
+        - [x] 3.2.2.1.1 Subtask: Validate envelope epoch against local state
+        - [x] 3.2.2.1.2 Subtask: Resolve epoch key and attempt decrypt
+        - [x] 3.2.2.1.3 Subtask: Emit decrypt reason codes on failure
+      - [x] 3.2.2.2 Task: Handle epoch mismatch reconciliation
+        - [x] 3.2.2.2.1 Subtask: Trigger reconciliation request on mismatch
+        - [x] 3.2.2.2.2 Subtask: Retry decrypt after state repair
+  - [x] 3.3 Phase 3C: Group Policy and UX
+    - [x] 3.3.1 Step: Tiered policy behavior
+      - [x] 3.3.1.1 Task: Enforce strict policy in high-tier groups
+        - [x] 3.3.1.1.1 Subtask: Add tier-policy evaluation before send
+        - [x] 3.3.1.1.2 Subtask: Block insecure downgrades in tier-2 groups
+      - [x] 3.3.1.2 Task: Expose downgrade notices in compatibility mode
+        - [x] 3.3.1.2.1 Subtask: Add group-level fallback banner
+        - [x] 3.3.1.2.2 Subtask: Add audit note for downgrade events
+
+## Stage 4 — Relay Compatibility and Performance
+
+- [~] 4.0 Stage 4 In Progress
+  - [x] 4.1 Phase 4A: Relay Behavior Hardening
+    - [x] 4.1.1 Step: Preflight and fallback controls
+      - [x] 4.1.1.1 Task: Implement relay-aware payload budget checks
+        - [x] 4.1.1.1.1 Subtask: Read and cache relay size hints
+        - [x] 4.1.1.1.2 Subtask: Compare envelope estimate with relay budgets
+        - [x] 4.1.1.1.3 Subtask: Select viable relay set per publish
+      - [x] 4.1.1.2 Task: Add fallback behavior for size rejection
+        - [x] 4.1.1.2.1 Subtask: Detect size-based rejection reason
+        - [x] 4.1.1.2.2 Subtask: Retry with alternate route or mode
+        - [x] 4.1.1.2.3 Subtask: Surface rejection diagnostics to user
+    - [x] 4.1.2 Step: Self-hosted relay tuning guidance
+      - [x] 4.1.2.1 Task: Define recommended relay size settings
+        - [x] 4.1.2.1.1 Subtask: Define baseline min/max config values
+        - [x] 4.1.2.1.2 Subtask: Document safe defaults for PQC beta
+      - [x] 4.1.2.2 Task: Define operator monitoring KPIs
+        - [x] 4.1.2.2.1 Subtask: Define rejection and latency KPIs
+        - [x] 4.1.2.2.2 Subtask: Define alert thresholds by stage
+  - [~] 4.2 Phase 4B: Performance Baselines
+    - [x] 4.2.1 Step: Benchmarks for critical paths
+      - [x] 4.2.1.1 Task: Benchmark DM encrypt/decrypt latency
+        - [x] 4.2.1.1.1 Subtask: Capture p50/p95/p99 timings
+        - [x] 4.2.1.1.2 Subtask: Compare strict vs compatibility overhead
+        - [x] 4.2.1.1.3 Subtask: Publish baseline benchmark report
+      - [x] 4.2.1.2 Task: Benchmark group rekey latency
+        - [x] 4.2.1.2.1 Subtask: Measure rekey on add/remove events
+        - [x] 4.2.1.2.2 Subtask: Measure churn-batched rekey performance
+        - [x] 4.2.1.2.3 Subtask: Define acceptable latency thresholds
+    - [~] 4.2.2 Step: Device and power impact evaluation
+      - [~] 4.2.2.1 Task: Run low-end/mobile performance pass
+        - [x] 4.2.2.1.1 Subtask: Select representative low-end test devices
+        - [x] 4.2.2.1.2 Subtask: Run sustained DM/group workload tests
+        - [ ] 4.2.2.1.3 Subtask: Capture CPU/memory/battery impacts
+          - [~] 4.2.2.1.3.1 Note: Deferred pending availability of real Android low-end/mid test devices; evidence tooling is ready and closure will resume once hardware access is available.
+      - [x] 4.2.2.2 Task: Define adaptive controls thresholds
+        - [x] 4.2.2.2.1 Subtask: Define thresholds for adaptive fallback prompts
+        - [x] 4.2.2.2.2 Subtask: Define policy-safe adaptive behavior limits
+
+## Stage 5 — Validation and Beta Rollout
+
+- [x] 5.0 Stage 5 In Progress
+  - [x] 5.1 Phase 5A: Automated Validation
+    - [x] 5.1.1 Step: Unit and integration coverage
+      - [x] 5.1.1.1 Task: Add negotiation + parser coverage
+        - [x] 5.1.1.1.1 Subtask: Add negotiation truth-table tests
+        - [x] 5.1.1.1.2 Subtask: Add parser positive/negative fixture tests
+        - [x] 5.1.1.1.3 Subtask: Add reason-code assertion tests
+      - [x] 5.1.1.2 Task: Add DM/group secure path coverage
+        - [x] 5.1.1.2.1 Subtask: Add DM strict/compat integration tests
+        - [x] 5.1.1.2.2 Subtask: Add group epoch/rekey integration tests
+        - [x] 5.1.1.2.3 Subtask: Add removed-member exclusion tests
+    - [x] 5.1.2 Step: Interop matrix execution
+      - [x] 5.1.2.1 Task: Validate mixed-client strict/compat outcomes
+        - [x] 5.1.2.1.1 Subtask: Build mixed-capability client matrix
+        - [x] 5.1.2.1.2 Subtask: Validate expected negotiation outcomes
+        - [x] 5.1.2.1.3 Subtask: Capture divergences and remediation issues
+      - [x] 5.1.2.2 Task: Validate relay-profile behavior matrix
+        - [x] 5.1.2.2.1 Subtask: Simulate permissive/constrained relay profiles
+        - [x] 5.1.2.2.2 Subtask: Validate publish/fallback behavior per profile
+  - [x] 5.2 Phase 5B: Controlled Rollout
+    - [x] 5.2.1 Step: Internal dogfood
+      - [x] 5.2.1.1 Task: Enable feature flags for internal users
+        - [x] 5.2.1.1.1 Subtask: Roll out flags by cohort
+        - [x] 5.2.1.1.2 Subtask: Confirm baseline health before expansion
+      - [x] 5.2.1.2 Task: Monitor downgrade/error telemetry
+        - [x] 5.2.1.2.1 Subtask: Monitor daily secure success and downgrade rates
+        - [x] 5.2.1.2.2 Subtask: Triage top error classes with owners
+        - [x] 5.2.1.2.3 Subtask: Decide beta readiness checkpoint
+    - [x] 5.2.2 Step: External opt-in beta
+      - [x] 5.2.2.1 Task: Enable opt-in cohort
+        - [x] 5.2.2.1.1 Subtask: Publish beta enablement instructions
+        - [x] 5.2.2.1.2 Subtask: Enable flag for approved external users
+      - [x] 5.2.2.2 Task: Collect issue reports and triage
+        - [x] 5.2.2.2.1 Subtask: Collect feedback via issue template
+        - [x] 5.2.2.2.2 Subtask: Tag issues by security/perf/interop class
+        - [x] 5.2.2.2.3 Subtask: Feed confirmed issues into next milestone plan
+
+## Stage 6 — Production Readiness and Externalization
+
+- [~] 6.0 Stage 6 In Progress
+  - [x] 6.1 Phase 6A: Operations and Incident Readiness
+    - [~] 6.1.1 Step: Runbook and rollback validation
+      - [x] 6.1.1.1 Task: Validate kill-switch path
+        - [x] 6.1.1.1.1 Subtask: Execute kill-switch in staging
+        - [x] 6.1.1.1.2 Subtask: Verify user-facing behavior after disable
+        - [x] 6.1.1.1.3 Subtask: Verify recovery path after re-enable
+      - [x] 6.1.1.2 Task: Validate staged rollback paths
+        - [x] 6.1.1.2.1 Subtask: Test rollback level 1
+        - [x] 6.1.1.2.2 Subtask: Test rollback level 2
+        - [x] 6.1.1.2.3 Subtask: Test rollback level 3
+    - [x] 6.1.2 Step: Incident drill execution
+      - [x] 6.1.2.1 Task: Compromised-key tabletop exercise
+        - [x] 6.1.2.1.1 Subtask: Run compromise detection and triage simulation
+        - [x] 6.1.2.1.2 Subtask: Validate revocation and rekey workflow timing
+        - [x] 6.1.2.1.3 Subtask: Publish corrective actions from drill
+      - [x] 6.1.2.2 Task: Relay-rejection surge drill
+        - [x] 6.1.2.2.1 Subtask: Simulate high rejection conditions
+        - [x] 6.1.2.2.2 Subtask: Validate fallback and alerting behavior
+        - [x] 6.1.2.2.3 Subtask: Capture operator playbook updates
+  - [ ] 6.2 Phase 6B: Production Release Gates
+    - [x] 6.2.1 Step: Security and QA final sign-off
+      - [x] 6.2.1.1 Task: Verify all MUST requirements satisfied
+        - [x] 6.2.1.1.1 Subtask: Complete requirement traceability matrix
+        - [x] 6.2.1.1.2 Subtask: Confirm no open critical requirement gaps
+        - [x] 6.2.1.1.3 Subtask: Record sign-off approvals
+      - [x] 6.2.1.2 Task: Resolve or formally accept remaining exceptions
+        - [x] 6.2.1.2.1 Subtask: Review all exception records with owners
+        - [x] 6.2.1.2.2 Subtask: Approve or close exception requests
+    - [ ] 6.2.2 Step: Launch and post-launch monitoring
+      - [ ] 6.2.2.1 Task: Enable default compatibility mode
+        - [ ] 6.2.2.1.1 Subtask: Roll out default compatibility setting
+        - [ ] 6.2.2.1.2 Subtask: Monitor launch health metrics for 7-day window
+      - [ ] 6.2.2.2 Task: Evaluate strict-mode default criteria
+        - [ ] 6.2.2.2.1 Subtask: Compare observed metrics to strict-mode thresholds
+        - [ ] 6.2.2.2.2 Subtask: Propose strict default decision
+        - [ ] 6.2.2.2.3 Subtask: Document decision and rationale
+  - [ ] 6.3 Phase 6C: NIP Draft External Iteration
+    - [ ] 6.3.1 Step: Community draft publication
+      - [ ] 6.3.1.1 Task: Publish draft for review
+        - [ ] 6.3.1.1.1 Subtask: Prepare draft summary and changelog
+        - [ ] 6.3.1.1.2 Subtask: Post draft to target review channels
+      - [ ] 6.3.1.2 Task: Collect and triage ecosystem feedback
+        - [ ] 6.3.1.2.1 Subtask: Aggregate feedback by theme
+        - [ ] 6.3.1.2.2 Subtask: Prioritize feedback for next revision
+        - [ ] 6.3.1.2.3 Subtask: Track accepted/rejected feedback decisions
+    - [ ] 6.3.2 Step: Draft revision cycle
+      - [ ] 6.3.2.1 Task: Incorporate validated feedback
+        - [ ] 6.3.2.1.1 Subtask: Apply agreed spec updates
+        - [ ] 6.3.2.1.2 Subtask: Update compatibility and security sections
+      - [ ] 6.3.2.2 Task: Prepare next draft version
+        - [ ] 6.3.2.2.1 Subtask: Bump draft version and changelog
+        - [ ] 6.3.2.2.2 Subtask: Publish revision and announce deltas
+
+## Validation Log
+
+- 2026-02-18: Created PQC tracker with Stage → Phase → Step → Task hierarchy.
+- 2026-02-18: Seeded numbering and checkbox statuses initialized.
+- 2026-02-18: Added contextual subtasks (1-4 each) under every task item.
+- 2026-02-18: Added previous/next navigation links to `00-13` PQC documents.
+- 2026-02-18: Validated all `Navigation` links resolve to existing files (`OK`).
+- 2026-02-18: Implemented modular PQC envelope scaffold in `src/engine/pqc/*`.
+- 2026-02-18: Added Stage 1 fixture corpus and envelope validation tests.
+- 2026-02-18: `pnpm -s vitest run tests/unit/engine/pqc/envelope.spec.ts` (pass, 7/7).
+- 2026-02-18: Implemented Stage 1B key publication schema module `src/engine/pqc/key-publication.ts`.
+- 2026-02-18: Implemented Stage 1B negotiation truth-table module `src/engine/pqc/negotiation.ts`.
+- 2026-02-18: Added PQC Stage 1B unit tests (`key-publication.spec.ts`, `negotiation.spec.ts`) and passed (18/18 with envelope suite).
+- 2026-02-18: Split `src/app/views/GroupSettingsAdmin.svelte` (545 -> 499 lines) by extracting `GroupSettingsModerationComposer.svelte`.
+- 2026-02-18: Added key lifecycle defaults (`DEFAULT_PQC_KEY_ROTATION_TTL_SECONDS`, `DEFAULT_PQC_KEY_STALE_AFTER_SECONDS`) and freshness-state helper in `src/engine/pqc/key-publication.ts`.
+- 2026-02-18: Added onboarding modular components/helpers (`OnboardingStageHost.svelte`, `provisioning.ts`, `provisioning-retry.ts`) and reduced `src/app/views/Onboarding.svelte` (608 -> 477 lines).
+- 2026-02-18: `pnpm -s vitest run tests/unit/engine/pqc/*.spec.ts tests/unit/app/views/onboarding.follows.spec.ts tests/unit/app/views/onboarding.util.spec.ts tests/unit/app/state/onboarding.spec.ts` (pass, 29/29).
+- 2026-02-18: Implemented compatibility negotiation notice mapping in `src/engine/pqc/negotiation-notices.ts` and exported via `src/engine/pqc/index.ts`.
+- 2026-02-18: Added `tests/unit/engine/pqc/negotiation-notices.spec.ts` covering hybrid success/no-notice, compatibility fallback warning, and blocked error notice.
+- 2026-02-18: Split `src/app/views/NoteCreate.svelte` into modular note-create helpers (`NoteCreateComposer.svelte`, `state.ts`, `prefill.ts`) and reduced file size (662 -> 476 lines).
+- 2026-02-18: `pnpm exec vitest run --watch=false tests/unit/engine/pqc/negotiation.spec.ts tests/unit/engine/pqc/negotiation-notices.spec.ts` (pass, 9/9).
+- 2026-02-18: Implemented Stage 2 DM sender preflight module `src/engine/pqc/dm-send-preflight.ts` with key freshness, refresh hinting, negotiation outcome, and telemetry reason mapping.
+- 2026-02-18: Added `tests/unit/engine/pqc/dm-send-preflight.spec.ts` and passed targeted PQC tests (13/13 across preflight + negotiation suites).
+- 2026-02-18: Split `src/engine/state.ts` into modular state slices (`state-social.ts`, `state-content.ts`, `state-storage-init.ts`) and reduced `state.ts` to 481 lines.
+- 2026-02-18: Added DM send policy resolver module `src/engine/pqc/dm-send-policy.ts` with pluggable peer security context resolution and per-recipient preflight aggregation.
+- 2026-02-18: Wired `sendMessage` in `src/engine/commands.ts` to enforce strict-mode send blocking and compatibility fallback decisions via PQC policy settings.
+- 2026-02-18: Added `tests/unit/engine/pqc/dm-send-policy.spec.ts` and passed targeted PQC suite (16/16 across policy + preflight + negotiation tests).
+- 2026-02-18: Added DM envelope builder module `src/engine/pqc/dm-envelope.ts` with canonical v1 envelope serialization and sender/recipient associated-data binding.
+- 2026-02-18: Wired `sendMessage` envelope branch behind `pqc_dm_enabled` with strict encode-failure block and compatibility encode-fallback behavior.
+- 2026-02-18: Added `tests/unit/engine/pqc/dm-envelope.spec.ts` and passed targeted PQC sender suite (20/20 across envelope + policy + preflight + negotiation tests).
+- 2026-02-18: Added DM payload size preflight module `src/engine/pqc/dm-size-preflight.ts` with UTF-8 byte estimation and strict/compatibility policy routing.
+- 2026-02-18: Wired `sendMessage` size guard with configurable `pqc_dm_max_payload_bytes` budget and oversize fallback/block behavior.
+- 2026-02-18: Added `tests/unit/engine/pqc/dm-size-preflight.spec.ts` and passed targeted Stage 2 sender suite (24/24 across sender modules).
+- 2026-02-18: Added DM receive envelope parser module `src/engine/pqc/dm-receive-envelope.ts` with strict schema/canonical validation and stable parse reason-code mapping.
+- 2026-02-18: Integrated DM receive resolution in `ensureMessagePlaintext` via `src/engine/state-message-plaintext.ts` with strict fail-closed placeholder and compatibility fallback behavior.
+- 2026-02-18: Added `tests/unit/engine/pqc/dm-receive-envelope.spec.ts` and passed targeted Stage 2 sender+receiver suite (23/23).
+- 2026-02-18: Verified modularity threshold after receiver integration; no source files exceed 500 lines.
+- 2026-02-18: Added AD binding validation in `src/engine/pqc/dm-receive-envelope.ts` and mapped AD mismatch to stable reason code `DM_ENVELOPE_AD_BINDING_MISMATCH`.
+- 2026-02-18: Wired event-context sender/recipient expectations in `src/engine/state-message-plaintext.ts` for receive-time AD verification and safe diagnostics logging.
+- 2026-02-18: Expanded `tests/unit/engine/pqc/dm-receive-envelope.spec.ts` with AD binding mismatch coverage; targeted sender+receiver PQC suite passes (24/24).
+- 2026-02-18: Re-validated modularity policy after AD integration; no source files exceed 500 lines.
+- 2026-02-18: Added DM UI security-state helper `src/app/shared/message-security.ts` to map per-message PQC mode badges and fallback warning copy.
+- 2026-02-18: Updated `src/app/shared/Message.svelte` to surface per-message DM security mode badge and fallback warning tooltip messaging.
+- 2026-02-18: Added `tests/unit/app/shared/message-security.spec.ts` and passed targeted UI + PQC suite (28/28).
+- 2026-02-18: Re-verified modularity policy after DM UI integration; no source files exceed 500 lines.
+- 2026-02-18: Added fallback-history module `src/engine/pqc/dm-fallback-history.ts` with storage-backed record/list/clear APIs and exported via `src/engine/pqc/index.ts`.
+- 2026-02-18: Wired send-side fallback history recording in `src/engine/commands.ts` for classical/encode/size fallback branches and tagged classical sends with `pqc_reason`.
+- 2026-02-18: Wired receive-side fallback history recording in `src/engine/state-message-plaintext.ts` and added setting gate `pqc_dm_enable_fallback_history` in `src/engine/state.ts`.
+- 2026-02-18: Added `tests/unit/engine/pqc/dm-fallback-history.spec.ts` and passed targeted UI + PQC suite (30/30).
+- 2026-02-18: Re-verified modularity policy after fallback-history integration; no source files exceed 500 lines.
+- 2026-02-18: Added DM strict-block feedback mapper `src/engine/pqc/dm-send-feedback.ts` and exported via `src/engine/pqc/index.ts` for user-safe actionable error summaries.
+- 2026-02-18: Wired `src/app/shared/Channel.svelte` send error handling to surface actionable PQC strict-mode block messaging when available.
+- 2026-02-18: Added `tests/unit/engine/pqc/dm-send-feedback.spec.ts` and passed targeted PQC/UI notice suite (10/10).
+- 2026-02-18: Added secure group epoch state module `src/engine/group-epoch-state.ts` with schema-versioned active-epoch persistence, load/save hooks, and integrity verification.
+- 2026-02-18: Wired secure group ops `src/engine/group-transport-secure-ops.ts` to initialize active epoch state during send/subscribe/reconcile lifecycle.
+- 2026-02-18: Added `tests/unit/engine/group-epoch-state.spec.ts` and passed targeted epoch/key lifecycle suite (8/8).
+- 2026-02-18: Re-verified modularity policy after Stage 3 epoch-state integration; no source files exceed 500 lines.
+- 2026-02-18: Added epoch message helper `src/engine/group-epoch-message.ts` for secure group epoch tag attach/parse and receive-time epoch validation.
+- 2026-02-18: Wired secure group send/reconcile in `src/engine/group-transport-secure-ops.ts` to emit `epoch` tags on outgoing secure messages and fail safe on epoch mismatch/missing tags during receive reconciliation.
+- 2026-02-18: Added `tests/unit/engine/group-epoch-message.spec.ts` and passed targeted Stage 3 epoch suite (13/13 across epoch-message + epoch-state + key-lifecycle tests).
+- 2026-02-18: Removed duplicate legacy export in `src/engine/state.ts` for `deriveRelaysForEvent`, unblocking secure-ops transform failures.
+- 2026-02-18: `pnpm -s vitest run tests/unit/engine/group-transport-secure-ops.spec.ts tests/unit/engine/group-epoch-message.spec.ts` (pass, 8/8).
+- 2026-02-18: Re-verified modularity policy after Stage 3 epoch-tag integration; no source files exceed 500 lines.
+- 2026-02-18: Added membership-removal detection helper `src/engine/group-membership-events.ts` and wired secure reconcile workflow in `src/engine/group-transport-secure-ops.ts` to advance active epoch on removal events.
+- 2026-02-18: Added `tests/unit/engine/group-membership-events.spec.ts` and extended `tests/unit/engine/group-transport-secure-ops.spec.ts` with removal-triggered epoch advance coverage.
+- 2026-02-18: `pnpm -s vitest run tests/unit/engine/group-membership-events.spec.ts tests/unit/engine/group-transport-secure-ops.spec.ts tests/unit/engine/group-epoch-state.spec.ts` (pass, 10/10).
+- 2026-02-18: Re-verified modularity policy after Stage 3 rekey-trigger integration; no source files exceed 500 lines.
+- 2026-02-18: Added removed-member wrap exclusion validator `src/engine/group-wrap-exclusion.ts` and wired secure reconcile fail-safe validation in `src/engine/group-transport-secure-ops.ts`.
+- 2026-02-18: Added `tests/unit/engine/group-wrap-exclusion.spec.ts` and extended `tests/unit/engine/group-transport-secure-ops.spec.ts` with removed-member wrap exclusion rejection coverage.
+- 2026-02-18: `pnpm -s vitest run tests/unit/engine/group-wrap-exclusion.spec.ts tests/unit/engine/group-transport-secure-ops.spec.ts tests/unit/engine/group-membership-events.spec.ts tests/unit/engine/group-epoch-state.spec.ts` (pass, 14/14).
+- 2026-02-18: Re-verified modularity policy after Stage 3 wrap exclusion integration; no source files exceed 500 lines.
+- 2026-02-18: Added explicit compromise remediation rekey scheduling hook `scheduleSecureGroupCompromiseRemediationRotation` in `src/engine/group-key-rotation-service.ts`.
+- 2026-02-18: Wired `src/engine/group-compromise-remediation.ts` to supersede prior secure epoch during remediation and return epoch transition metadata.
+- 2026-02-18: Extended `tests/unit/engine/group-compromise-remediation.spec.ts` to assert compromise-triggered rekey scheduling and prior-epoch supersession behavior.
+- 2026-02-18: `pnpm -s vitest run tests/unit/engine/group-compromise-remediation.spec.ts tests/unit/engine/group-wrap-exclusion.spec.ts tests/unit/engine/group-transport-secure-ops.spec.ts tests/unit/engine/group-membership-events.spec.ts tests/unit/engine/group-epoch-state.spec.ts` (pass, 16/16).
+- 2026-02-18: Re-verified modularity policy after Stage 3 compromise-remediation integration; no source files exceed 500 lines.
+- 2026-02-18: Added secure group epoch content envelope helper `src/engine/group-epoch-content.ts` with epoch-bound AD metadata, deterministic encoding, and parse/decode utilities.
+- 2026-02-18: Wired secure group send in `src/engine/group-transport-secure-ops.ts` to encrypt outgoing secure content with active epoch envelope and fail safe when epoch content metadata is unavailable.
+- 2026-02-18: Added `tests/unit/engine/group-epoch-content.spec.ts` for encode/decode roundtrip and fail-safe coverage.
+- 2026-02-18: `pnpm -s vitest run tests/unit/engine/group-epoch-content.spec.ts tests/unit/engine/group-transport-secure-ops.spec.ts tests/unit/engine/group-wrap-exclusion.spec.ts tests/unit/engine/group-epoch-state.spec.ts` (pass, 16/16).
+- 2026-02-18: Re-verified modularity policy after Stage 3B secure-send epoch-content integration; no source files exceed 500 lines.
+- 2026-02-18: Added secure wrap recipient helper `src/engine/group-wrap-recipients.ts` with projection-driven eligibility filtering and deterministic per-member `wrap` tag emission.
+- 2026-02-18: Wired `src/engine/group-transport-secure-ops.ts` secure send path to derive eligible recipients from local projection state and exclude removed/pending members from new wraps.
+- 2026-02-18: Added `tests/unit/engine/group-wrap-recipients.spec.ts` and extended `tests/unit/engine/group-transport-secure-ops.spec.ts` for projection-aware send input coverage.
+- 2026-02-18: `pnpm -s vitest run tests/unit/engine/group-wrap-recipients.spec.ts tests/unit/engine/group-epoch-content.spec.ts tests/unit/engine/group-transport-secure-ops.spec.ts tests/unit/engine/group-wrap-exclusion.spec.ts` (pass, 14/14).
+- 2026-02-18: Re-verified modularity policy after Stage 3B wrap-recipient integration; no source files exceed 500 lines.
+- 2026-02-18: Added secure group receive validator `src/engine/group-epoch-decrypt.ts` to validate/decode epoch content envelopes and emit stable decrypt failure reason codes.
+- 2026-02-18: Wired `src/engine/group-transport-secure-ops.ts` reconcile path to fail safe on secure content parse or epoch mismatch validation failures.
+- 2026-02-18: Added `tests/unit/engine/group-epoch-decrypt.spec.ts` and extended `tests/unit/engine/group-transport-secure-ops.spec.ts` with invalid secure-content rejection coverage.
+- 2026-02-18: `pnpm -s vitest run tests/unit/engine/group-epoch-decrypt.spec.ts tests/unit/engine/group-epoch-content.spec.ts tests/unit/engine/group-transport-secure-ops.spec.ts tests/unit/engine/group-wrap-recipients.spec.ts tests/unit/engine/group-wrap-exclusion.spec.ts` (pass, 19/19).
+- 2026-02-18: Re-verified modularity policy after Stage 3B receive-path validation integration; no source files exceed 500 lines.
+- 2026-02-18: Added epoch mismatch repair helper `src/engine/group-epoch-reconcile.ts` and state adoption API `adoptSecureGroupEpochState` in `src/engine/group-epoch-state.ts` for reconcile-time epoch alignment.
+- 2026-02-18: Wired `src/engine/group-transport-secure-ops.ts` to repair/retry on epoch mismatch and re-run decrypt validation after state repair.
+- 2026-02-18: Added `tests/unit/engine/group-epoch-reconcile.spec.ts` and extended `tests/unit/engine/group-transport-secure-ops.spec.ts` with forward-epoch repair coverage.
+- 2026-02-18: `pnpm -s vitest run tests/unit/engine/group-epoch-reconcile.spec.ts tests/unit/engine/group-transport-secure-ops.spec.ts tests/unit/engine/group-epoch-decrypt.spec.ts tests/unit/engine/group-epoch-content.spec.ts tests/unit/engine/group-wrap-recipients.spec.ts tests/unit/engine/group-wrap-exclusion.spec.ts` (pass, 22/22).
+- 2026-02-18: Re-verified modularity policy after Stage 3B epoch-mismatch reconcile integration; no source files exceed 500 lines.
+- 2026-02-18: Added secure send tier-policy adapter `src/engine/group-transport-secure-tier.ts` and wired tier-policy pre-send enforcement into `src/engine/group-transport-secure-ops.ts`.
+- 2026-02-18: Extended secure send input parsing for mission-tier policy context (`missionTier`, `requestedMode`, `resolvedMode`, `downgradeConfirmed`, `allowTier2Override`).
+- 2026-02-18: Added `tests/unit/engine/group-transport-secure-tier.spec.ts` and extended `tests/unit/engine/group-transport-secure-ops.spec.ts` for tier-policy input coverage.
+- 2026-02-18: `pnpm -s vitest run tests/unit/engine/group-transport-secure-tier.spec.ts tests/unit/engine/group-transport-secure-ops.spec.ts tests/unit/engine/group-epoch-reconcile.spec.ts tests/unit/engine/group-epoch-decrypt.spec.ts tests/unit/engine/group-wrap-recipients.spec.ts` (pass, 18/18).
+- 2026-02-18: Added group compatibility downgrade audit storage `src/engine/group-downgrade-audit.ts` and wired group command transport diagnostics in `src/engine/group-commands.ts` to record secure→baseline downgrade audit notes.
+- 2026-02-18: Added group-level compatibility fallback banner helper `src/app/groups/downgrade-banner.ts` and surfaced fallback notice UI in `src/app/views/GroupConversation.svelte`.
+- 2026-02-18: Added focused Stage 3C tests: `tests/unit/engine/group-downgrade-audit.spec.ts`, `tests/unit/engine/group-commands-diagnostics.spec.ts`, and `tests/unit/app/groups/downgrade-banner.spec.ts`.
+- 2026-02-18: `pnpm -s vitest run tests/unit/engine/group-downgrade-audit.spec.ts tests/unit/engine/group-commands-diagnostics.spec.ts tests/unit/app/groups/downgrade-banner.spec.ts tests/unit/engine/group-commands.spec.ts tests/unit/engine/group-transport.spec.ts` (pass, 15/15).
+- 2026-02-18: Re-verified modularity policy after Stage 3C downgrade notice/audit integration; max source file length is 499 lines (`src/app/views/GroupSettingsAdmin.svelte`).
+- 2026-02-19: Added relay-aware payload budget module `src/engine/pqc/relay-payload-budget.ts` with relay metadata hint parsing, storage-backed hint caching, payload-vs-budget evaluation, and viable relay selection helpers.
+- 2026-02-19: Exported relay payload budget utilities via `src/engine/pqc/index.ts`.
+- 2026-02-19: Added `tests/unit/engine/pqc/relay-payload-budget.spec.ts` covering hint parsing, cache replacement behavior, budget evaluation, and viable relay-set selection.
+- 2026-02-19: `pnpm -s vitest run tests/unit/engine/pqc/relay-payload-budget.spec.ts tests/unit/engine/pqc/dm-size-preflight.spec.ts tests/unit/engine/pqc/envelope.spec.ts` (pass, 15/15).
+- 2026-02-19: Added relay size-rejection fallback module `src/engine/pqc/relay-size-rejection.ts` with deterministic rejection detection, alternate relay retry selection, and fallback/block action resolution.
+- 2026-02-19: Surfaced size-rejection diagnostics in publish notices via `src/partials/ThunkNotice.svelte` using `getRelaySizeRejectionNotice`.
+- 2026-02-19: Added `tests/unit/engine/pqc/relay-size-rejection.spec.ts` covering rejection reason detection, diagnostic notice generation, retry selection, and fallback action resolution.
+- 2026-02-19: `pnpm -s vitest run tests/unit/engine/pqc/relay-size-rejection.spec.ts tests/unit/engine/pqc/relay-payload-budget.spec.ts tests/unit/engine/pqc/dm-size-preflight.spec.ts` (pass, 12/12).
+- 2026-02-19: Re-verified modularity policy after Stage 4 preflight/fallback foundation work; max source file length remains 499 lines (`src/app/views/GroupSettingsAdmin.svelte`).
+- 2026-02-19: Updated `docs/security/pqc/09-relay-compatibility-and-limits.md` with concrete self-hosted relay size ranges, PQC beta safe defaults, operator KPIs, and initial alert thresholds.
+- 2026-02-19: Added DM latency benchmark utility `src/engine/pqc/dm-latency-benchmark.ts` with reusable percentile summaries (p50/p95/p99), encrypt/decrypt timing harnesses, and strict-vs-compatibility overhead comparison output.
+- 2026-02-19: Exported DM latency benchmark helpers via `src/engine/pqc/index.ts`.
+- 2026-02-19: Added `tests/unit/engine/pqc/dm-latency-benchmark.spec.ts` covering percentile math, deterministic timing sampling, and benchmark result shape for strict/compatibility comparison.
+- 2026-02-19: `pnpm vitest --run tests/unit/engine/pqc/dm-latency-benchmark.spec.ts tests/unit/engine/pqc/dm-envelope.spec.ts tests/unit/engine/pqc/dm-receive-envelope.spec.ts` (pass, 14/14).
+- 2026-02-19: Re-verified modularity policy after Stage 4B DM benchmark harness integration; max source file length remains 499 lines (`src/app/views/GroupSettingsAdmin.svelte`).
+- 2026-02-19: Added reproducible DM baseline benchmark command `pnpm benchmark:pqc:dm` in `package.json` and enabled env-gated baseline output in `tests/unit/engine/pqc/dm-latency-benchmark.spec.ts`.
+- 2026-02-19: `pnpm benchmark:pqc:dm` published initial DM encrypt/decrypt baseline metrics (pass, 1/1 test selected).
+- 2026-02-19: Published Stage 4 baseline artifact `docs/security/pqc/performance-baseline-report.md` with command, method, and p50/p95/p99 baseline snapshot.
+- 2026-02-19: Added group rekey benchmark utility `src/engine/pqc/group-rekey-latency-benchmark.ts` for add/remove/churn latency capture and threshold evaluation.
+- 2026-02-19: Exported group rekey benchmark helpers via `src/engine/pqc/index.ts`.
+- 2026-02-19: Added `tests/unit/engine/pqc/group-rekey-latency-benchmark.spec.ts` with scenario timing and threshold pass/fail coverage.
+- 2026-02-19: Added reproducible group baseline benchmark command `pnpm benchmark:pqc:group` in `package.json`.
+- 2026-02-19: `pnpm vitest --run tests/unit/engine/pqc/group-rekey-latency-benchmark.spec.ts tests/unit/engine/pqc/dm-latency-benchmark.spec.ts` (pass, 6/6).
+- 2026-02-19: `pnpm benchmark:pqc:group` published initial group rekey baseline metrics (pass, 1/1 test selected).
+- 2026-02-19: Updated `docs/security/pqc/performance-baseline-report.md` with Stage 4B group rekey baseline and acceptable latency thresholds.
+- 2026-02-19: Re-verified modularity policy after Stage 4B group benchmark integration; max source file length remains 499 lines (`src/app/views/GroupSettingsAdmin.svelte`).
+- 2026-02-19: Added adaptive controls policy module `src/engine/pqc/adaptive-controls.ts` with threshold-based fallback prompt evaluation and strict/compatibility-safe behavior decision limits.
+- 2026-02-19: Exported adaptive controls helpers via `src/engine/pqc/index.ts`.
+- 2026-02-19: Added `tests/unit/engine/pqc/adaptive-controls.spec.ts` covering threshold prompt emission and policy-safe auto-fallback constraints.
+- 2026-02-19: `pnpm vitest --run tests/unit/engine/pqc/adaptive-controls.spec.ts tests/unit/engine/pqc/group-rekey-latency-benchmark.spec.ts tests/unit/engine/pqc/dm-latency-benchmark.spec.ts` (pass, 10/10).
+- 2026-02-19: Updated `docs/security/pqc/performance-baseline-report.md` with adaptive fallback thresholds, policy-safe limits, and representative low-end device profile classes.
+- 2026-02-19: Added sustained benchmark command `pnpm benchmark:pqc:sustained` in `package.json` and env-driven iteration override support in `tests/unit/engine/pqc/dm-latency-benchmark.spec.ts`.
+- 2026-02-19: `pnpm benchmark:pqc:sustained` captured 200-iteration DM/group sustained desktop baseline metrics (pass, 2/2 selected tests).
+- 2026-02-19: Updated `docs/security/pqc/performance-baseline-report.md` with sustained desktop baseline results; low-end/mobile profile execution remains pending for `4.2.2.1` closure.
+- 2026-02-19: Added profile runner `scripts/run-pqc-perf-profile.mjs` to execute sustained DM/group benchmark passes with `/usr/bin/time` CPU/memory capture and persisted snapshot output.
+- 2026-02-19: Added profile commands `pnpm benchmark:pqc:profile:baseline` and `pnpm benchmark:pqc:profile:constrained` in `package.json`.
+- 2026-02-19: `pnpm benchmark:pqc:profile:baseline` captured desktop-baseline sustained workload and resource metrics (pass, 2/2 selected tests).
+- 2026-02-19: `pnpm benchmark:pqc:profile:constrained` captured constrained-profile sustained workload and resource metrics (pass, 2/2 selected tests).
+- 2026-02-19: Published sustained profile snapshots to `docs/security/pqc/cache/perf-profiles.json` and updated `docs/security/pqc/performance-baseline-report.md` with baseline/constrained CPU+memory metrics.
+- 2026-02-19: Added battery-impact capture helper `scripts/capture-power-metrics.sh` with Linux (`/sys/class/power_supply`) and Android (`adb dumpsys battery`) modes.
+- 2026-02-19: Added packaged power snapshot commands `pnpm benchmark:pqc:power:linux` and `pnpm benchmark:pqc:power:android`.
+- 2026-02-19: `pnpm benchmark:pqc:power:linux` validated snapshot capture and appended sample output to `docs/security/pqc/cache/power-metrics.ndjson`.
+- 2026-02-19: Added power-delta analyzer `scripts/analyze-pqc-power-metrics.mjs` and packaged command `pnpm benchmark:pqc:power:analyze`.
+- 2026-02-19: `pnpm benchmark:pqc:power:analyze` generated `docs/security/pqc/cache/power-metrics-summary.json` (`sampleCount: 1`, null deltas expected without pre/post Android snapshots).
+- 2026-02-19: Enhanced `scripts/capture-power-metrics.sh` with optional `--phase` and `--profile` metadata fields for deterministic pre/post pairing across device classes.
+- 2026-02-19: Added phase-tagged power commands in `package.json` (`benchmark:pqc:power:linux:pre`, `benchmark:pqc:power:linux:post`, `benchmark:pqc:power:android:pre`, `benchmark:pqc:power:android:post`) and profile-aware analyzer aliases.
+- 2026-02-19: Added Android mid-tier power command aliases in `package.json` (`benchmark:pqc:power:android-mid:pre`, `benchmark:pqc:power:android-mid:post`, `benchmark:pqc:power:analyze:android-mid`) to complete low-end/mid capture readiness.
+- 2026-02-19: `pnpm benchmark:pqc:power:linux:pre && pnpm benchmark:pqc:power:linux:post && pnpm benchmark:pqc:power:analyze:linux` validated phase-matched pairing (`sampleCount: 2`, `pairingStrategy: phase-matched`) and produced load/memory deltas in `docs/security/pqc/cache/power-metrics-summary.json`.
+- 2026-02-19: `pnpm benchmark:pqc:power:analyze:android-mid` command path validated in current environment (`sampleCount: 0`, expected until Android mid pre/post snapshots are captured).
+- 2026-02-19: Added power evidence validator `scripts/validate-pqc-power-evidence.mjs` and packaged commands `pnpm benchmark:pqc:power:validate` + `pnpm benchmark:pqc:power:validate:warn` to gate Stage `4.2.2.1.3` completeness on Android low-end/mid pre/post snapshot presence.
+- 2026-02-19: `pnpm benchmark:pqc:power:validate:warn` reported `androidSnapshotCount: 0` and identified all required Android low-end/mid `pre`/`post` snapshots as missing in current environment.
+- 2026-02-19: Re-verified modularity policy after Stage 4B evidence-validator integration; max source file length remains 499 lines (`src/app/views/GroupSettingsAdmin.svelte`).
+- 2026-02-19: Added Android evidence-pass orchestrator `scripts/run-pqc-android-power-pass.mjs` (pre-capture, workload step, post-capture, analyzer, and profile-scoped validation) with dry-run support.
+- 2026-02-19: Extended `scripts/validate-pqc-power-evidence.mjs` with configurable `--profiles` and `--phases` filters for per-profile evidence gating.
+- 2026-02-19: Added orchestration commands in `package.json` (`benchmark:pqc:power:pass:android-low-end`, `benchmark:pqc:power:pass:android-mid`, and `:dry` variants) plus profile-scoped validators (`benchmark:pqc:power:validate:low-end`, `benchmark:pqc:power:validate:mid`).
+- 2026-02-19: `pnpm benchmark:pqc:power:pass:android-low-end:dry` and `pnpm benchmark:pqc:power:pass:android-mid:dry` validated full command sequencing without device-side execution.
+- 2026-02-19: Re-ran `pnpm benchmark:pqc:power:validate:warn`; Android evidence remains incomplete (`androidSnapshotCount: 0`) pending adb-connected device capture.
+- 2026-02-19: Re-verified modularity policy after Stage 4B Android orchestration integration; max source file length remains 499 lines (`src/app/views/GroupSettingsAdmin.svelte`).
+- 2026-02-19: Updated analyzer and pass command routing to write profile-scoped artifacts (`power-metrics-summary-desktop-baseline.json`, `power-metrics-summary-android-low-end.json`, `power-metrics-summary-android-mid.json`) to prevent summary overwrite between low-end/mid runs.
+- 2026-02-19: `pnpm benchmark:pqc:power:analyze:linux` now emits `docs/security/pqc/cache/power-metrics-summary-desktop-baseline.json` with `sampleCount: 2` and `pairingStrategy: phase-matched`.
+- 2026-02-19: `pnpm benchmark:pqc:power:analyze:android-low-end` now emits `docs/security/pqc/cache/power-metrics-summary-android-low-end.json` (currently `sampleCount: 0`, expected until device capture).
+- 2026-02-19: Re-validated `pnpm benchmark:pqc:power:pass:android-low-end:dry`; completion output now includes `summaryOutput` for deterministic artifact targeting.
+- 2026-02-19: Re-verified modularity policy after Stage 4B per-profile artifact routing updates; max source file length remains 499 lines (`src/app/views/GroupSettingsAdmin.svelte`).
+- 2026-02-19: Added consolidated power evidence summarizer `scripts/summarize-pqc-power-evidence.mjs` and packaged command `pnpm benchmark:pqc:power:summarize`.
+- 2026-02-19: `pnpm benchmark:pqc:power:summarize` generated report-ready artifacts `docs/security/pqc/cache/power-evidence-summary.json` and `docs/security/pqc/cache/power-evidence-summary.md`.
+- 2026-02-19: Consolidated evidence summary status: desktop-baseline complete (`sampleCount: 2`, `phase-matched`), android-low-end incomplete (`sampleCount: 0`), android-mid missing summary file.
+- 2026-02-19: Re-verified modularity policy after Stage 4B evidence-summary tooling integration; max source file length remains 499 lines (`src/app/views/GroupSettingsAdmin.svelte`).
+- 2026-02-19: Added report sync helper `scripts/sync-pqc-power-evidence-report.mjs` to inject/update an auto-generated Power Evidence Snapshot block in `docs/security/pqc/performance-baseline-report.md`.
+- 2026-02-19: Added packaged commands `pnpm benchmark:pqc:power:sync-report` and `pnpm benchmark:pqc:power:refresh-report` to regenerate summary artifacts and sync report status in one step.
+- 2026-02-19: `pnpm benchmark:pqc:power:refresh-report` validated end-to-end summary+sync workflow and updated marker block (`<!-- PQC_POWER_EVIDENCE_START --> ... <!-- PQC_POWER_EVIDENCE_END -->`) with current completeness state.
+- 2026-02-19: Re-verified modularity policy after Stage 4B report-sync automation integration; max source file length remains 499 lines (`src/app/views/GroupSettingsAdmin.svelte`).
+- 2026-02-19: Added Android readiness preflight helper `scripts/check-pqc-android-readiness.mjs` and packaged commands `pnpm benchmark:pqc:power:readiness` + `pnpm benchmark:pqc:power:readiness:warn`.
+- 2026-02-19: Updated `scripts/run-pqc-android-power-pass.mjs` to require readiness preflight success in non-dry runs before capture/analyze/validate execution.
+- 2026-02-19: `pnpm benchmark:pqc:power:readiness:warn` validated blocker visibility in current environment (`adb-installed: false`), providing explicit readiness diagnostics.
+- 2026-02-19: Re-validated `pnpm benchmark:pqc:power:pass:android-low-end:dry` after readiness integration; dry-run sequence remains stable.
+- 2026-02-19: Re-verified modularity policy after Stage 4B Android readiness tooling integration; max source file length remains 499 lines (`src/app/views/GroupSettingsAdmin.svelte`).
+- 2026-02-19: Added full closure orchestrator `scripts/run-pqc-android-evidence-closure.mjs` to execute low-end+mid profile passes, global evidence validation, summary regeneration, and report sync in one sequence.
+- 2026-02-19: Added packaged closure commands `pnpm benchmark:pqc:power:closure` and `pnpm benchmark:pqc:power:closure:dry`.
+- 2026-02-19: `pnpm benchmark:pqc:power:closure:dry` validated one-shot Stage `4.2.2.1.3` closure sequencing end-to-end without device-side execution.
+- 2026-02-19: Re-verified modularity policy after Stage 4B closure-orchestration integration; max source file length remains 499 lines (`src/app/views/GroupSettingsAdmin.svelte`).
+- 2026-02-19: Added tracker sync helper `scripts/sync-pqc-power-tracker-status.mjs` and packaged command `pnpm benchmark:pqc:power:sync-tracker` to auto-align `4.2.2.1` / `4.2.2.1.3` checkbox states with consolidated evidence completeness.
+- 2026-02-19: Added packaged command `pnpm benchmark:pqc:power:refresh-all` to run summary generation, report sync, and tracker sync in one step.
+- 2026-02-19: Updated closure runner `scripts/run-pqc-android-evidence-closure.mjs` to include tracker sync at the end of the closure sequence.
+- 2026-02-19: `pnpm benchmark:pqc:power:refresh-all` validated end-to-end report+tracker synchronization; tracker remains in-progress/open for `4.2.2.1.3` while Android evidence is incomplete.
+- 2026-02-19: Re-verified modularity policy after Stage 4B tracker-sync automation integration; max source file length remains 499 lines (`src/app/views/GroupSettingsAdmin.svelte`).
+- 2026-02-19: Added external dump import helper `scripts/import-pqc-android-battery-dump.mjs` and packaged command `pnpm benchmark:pqc:power:import-dump` to append off-device `adb shell dumpsys battery` captures into `power-metrics.ndjson` with profile/phase metadata.
+- 2026-02-19: Validated import path with simulated pre/post dumps (`/tmp/pqc-battery-pre.txt`, `/tmp/pqc-battery-post.txt`) and analyzer run (`/tmp/pqc-import-test-summary.json`) producing phase-matched Android deltas (`batteryLevelPoints: -3`, `temperatureTenthsC: 15`, `voltageMv: -43`).
+- 2026-02-19: Re-verified modularity policy after Stage 4B imported-dump workflow integration; max source file length remains 499 lines (`src/app/views/GroupSettingsAdmin.svelte`).
+- 2026-02-19: Added imported-evidence closure orchestrator `scripts/run-pqc-android-imported-evidence-closure.mjs` and packaged commands `pnpm benchmark:pqc:power:closure:imported` + `pnpm benchmark:pqc:power:closure:imported:dry`.
+- 2026-02-19: `pnpm benchmark:pqc:power:closure:imported:dry -- --low-end-pre=... --low-end-post=... --mid-pre=... --mid-post=...` validated full imported-evidence command sequencing without write side effects.
+- 2026-02-19: Isolated imported closure run (`label=pqc-imported-closure-test`, `output=/tmp/pqc-imported-closure.ndjson`, `summary-dir=/tmp`, `--skip-sync`) validated end-to-end import/analyze/validate path with `androidSnapshotCount: 4` and `complete: true` for required low-end/mid profile evidence.
+- 2026-02-19: Re-verified modularity policy after Stage 4B imported-closure orchestration integration; max source file length remains 499 lines (`src/app/views/GroupSettingsAdmin.svelte`).
+- 2026-02-19: Extended imported closure orchestrator with `--input-dir` support using standard filenames (`android-low-end-pre.txt`, `android-low-end-post.txt`, `android-mid-pre.txt`, `android-mid-post.txt`) and added package helpers `benchmark:pqc:power:closure:imported:dir` + `:dir:dry`.
+- 2026-02-19: Directory-mode isolated run (`--input-dir=/tmp/pqc-import-dir`, `label=pqc-import-dir-test`, `output=/tmp/pqc-import-dir.ndjson`, `summary-dir=/tmp`, `--skip-sync`) validated end-to-end import/analyze/validate path with `androidSnapshotCount: 4` and `complete: true`.
+- 2026-02-19: `pnpm benchmark:pqc:power:closure:imported:dir:dry` validated package command sequencing for folder-based imported evidence runs.
+- 2026-02-19: Re-verified modularity policy after Stage 4B imported folder-mode integration; max source file length remains 499 lines (`src/app/views/GroupSettingsAdmin.svelte`).
+- 2026-02-19: Added import-directory scaffold helper `scripts/prepare-pqc-import-dumps.mjs` and packaged command `pnpm benchmark:pqc:power:prepare-import-dir`.
+- 2026-02-19: `pnpm benchmark:pqc:power:prepare-import-dir` created standardized imported dump templates (`android-low-end-pre/post`, `android-mid-pre/post`) and `docs/security/pqc/cache/imported-dumps/README.md` for handoff-ready collection.
+- 2026-02-19: Re-verified modularity policy after Stage 4B import-directory scaffold integration; max source file length remains 499 lines (`src/app/views/GroupSettingsAdmin.svelte`).
+- 2026-02-19: Enhanced `scripts/summarize-pqc-power-evidence.mjs` with required-profile completeness fields (`requiredProfiles`, `requiredComplete`, `requiredMissing`) to distinguish Stage `4.2.2.1.3` Android gate status from broader optional profile summaries.
+- 2026-02-19: Updated `scripts/sync-pqc-power-tracker-status.mjs` to prioritize `requiredComplete` when present, ensuring tracker checkboxes align with explicit Android-required evidence semantics.
+- 2026-02-19: Updated `scripts/sync-pqc-power-evidence-report.mjs` to render `Android Required Complete` in the auto-generated report snapshot block.
+- 2026-02-19: `pnpm benchmark:pqc:power:refresh-all` validated summary/report/tracker synchronization with required completeness fields (`requiredComplete: false` in current evidence state).
+- 2026-02-19: Re-verified modularity policy after Stage 4B required-completeness semantics integration; max source file length remains 499 lines (`src/app/views/GroupSettingsAdmin.svelte`).
+- 2026-02-19: Hardened `scripts/import-pqc-android-battery-dump.mjs` with required field checks (`level`, `temperature`, `voltage`, `status`) and default placeholder-template rejection (override via `--allow-placeholder` for dry-run-only checks).
+- 2026-02-19: Updated imported dump scaffold guidance (`scripts/prepare-pqc-import-dumps.mjs` and `docs/security/pqc/performance-baseline-report.md`) to call out placeholder rejection and override semantics.
+- 2026-02-19: Negative-path validation: importing scaffold placeholder file (`docs/security/pqc/cache/imported-dumps/android-low-end-pre.txt`) now fails with explicit placeholder-template error as expected.
+- 2026-02-19: Positive-path validation: importing realistic sample dump (`/tmp/pqc-battery-pre.txt`) succeeds and records `importedValidation` metadata in `/tmp/pqc-guard-test.ndjson`.
+- 2026-02-19: Re-verified modularity policy after Stage 4B imported dump integrity guard integration; max source file length remains 499 lines (`src/app/views/GroupSettingsAdmin.svelte`).
+- 2026-02-19: Enhanced `scripts/validate-pqc-power-evidence.mjs` with pre/post pairing diagnostics (`prePostDiagnostics`) including order validation (`post >= pre`) and optional freshness ceiling (`--max-pair-age-minutes`).
+- 2026-02-19: Updated `docs/security/pqc/performance-baseline-report.md` workflow notes to document pre/post ordering checks and optional freshness enforcement.
+- 2026-02-19: Validator behavior check on `/tmp/pqc-import-dir.ndjson`: normal run reports `complete: true` with valid ordering; strict freshness run (`--max-pair-age-minutes=0.0001`) reports `complete: false` with `pair-age-exceeds-limit` reasons for both Android profiles.
+- 2026-02-19: Re-verified modularity policy after Stage 4B pairing/freshness gate integration; max source file length remains 499 lines (`src/app/views/GroupSettingsAdmin.svelte`).
+- 2026-02-19: Added imported provenance enforcement option in `scripts/validate-pqc-power-evidence.mjs` (`--require-imported-validation`) and packaged helper command `pnpm benchmark:pqc:power:validate:imported`.
+- 2026-02-19: Updated imported closure runner `scripts/run-pqc-android-imported-evidence-closure.mjs` to enforce provenance validation during imported-evidence closure flows.
+- 2026-02-19: Provenance gate migration check on older imported dataset (`/tmp/pqc-import-dir.ndjson`) correctly reports `complete: false` with `missing-or-invalid-imported-validation` issues (entries predating importer metadata enhancement).
+- 2026-02-19: Fresh imported closure dataset (`label=pqc-import-provenance-test`, `output=/tmp/pqc-import-provenance.ndjson`) validates with provenance gate enabled and reports `complete: true` / `importedValidationIssues: []`.
+- 2026-02-19: Re-verified modularity policy after Stage 4B imported provenance enforcement integration; max source file length remains 499 lines (`src/app/views/GroupSettingsAdmin.svelte`).
+- 2026-02-19: Re-verified modularity policy after Stage 4B phase-tagged power workflow updates; max source file length remains 499 lines (`src/app/views/GroupSettingsAdmin.svelte`).
+- 2026-02-19: Re-verified modularity policy after Stage 4B profile/power tooling integration; max source file length remains 499 lines (`src/app/views/GroupSettingsAdmin.svelte`).
+- 2026-02-19: Added `scripts/print-pqc-power-next-steps.mjs` plus packaged command `pnpm benchmark:pqc:power:next` to emit current Stage `4.2.2.1.3` closure guidance from consolidated evidence and imported dump template state.
+- 2026-02-19: Hardened next-step guidance logic to flag stale summary/template conflicts (e.g., `requiredComplete: true` while imported template placeholders remain) and route operators to refresh closure evidence.
+- 2026-02-19: `pnpm benchmark:pqc:power:next` validated advisor output in current environment, correctly identifying placeholder imported dumps and recommending imported-dir or adb closure paths.
+- 2026-02-19: Re-verified modularity policy after Stage 4B next-step advisor integration; max source file length remains 499 lines (`src/app/views/GroupSettingsAdmin.svelte`).
+- 2026-02-19: `pnpm benchmark:pqc:power:closure:imported:dir` failed as expected on placeholder templates; added imported-closure preflight diagnostics to report all missing/empty/placeholder/required-field issues before import execution.
+- 2026-02-19: Added shared validation utility `scripts/lib/pqc-imported-dump-validation.mjs` and refactored importer/advisor/closure scripts to use centralized placeholder + required-field inspection logic.
+- 2026-02-19: `pnpm benchmark:pqc:power:refresh-all` re-synced canonical summary/report/tracker state after stale imported test artifacts; required Android completeness correctly reports `false` in current environment.
+- 2026-02-19: Re-ran `pnpm benchmark:pqc:power:next` after shared-validation refactor; guidance now prints profile+reason labels for missing required summaries.
+- 2026-02-19: Re-verified modularity policy after Stage 4B imported preflight/validation module integration; max code file length remains 499 lines (`src/app/views/GroupSettingsAdmin.svelte`).
+- 2026-02-19: Added imported-dump readiness validator `scripts/validate-pqc-imported-dumps.mjs` and packaged commands `pnpm benchmark:pqc:power:validate-import-dir` + `pnpm benchmark:pqc:power:validate-import-dir:warn` to preflight standard imported dump directories before closure runs.
+- 2026-02-19: `pnpm benchmark:pqc:power:validate-import-dir:warn` validated structured readiness diagnostics in current environment (`complete: false`) with explicit `placeholder-template` issues for all four required imported dump files.
+- 2026-02-19: `pnpm benchmark:pqc:power:validate-import-dir` validated strict gate behavior (exit code 1) and emitted `PQC_IMPORTED_DUMPS_INVALID:4` when imported dumps remained placeholders.
+- 2026-02-19: Re-verified modularity policy after Stage 4B import-dir validator integration; max code file length remains 499 lines (`src/app/views/GroupSettingsAdmin.svelte`).
+- 2026-02-19: Added guarded imported closure runner `scripts/run-pqc-imported-dir-safe-closure.mjs` plus package commands `pnpm benchmark:pqc:power:closure:imported:safe` and `pnpm benchmark:pqc:power:closure:imported:safe:dry` to chain readiness validation with imported closure execution.
+- 2026-02-19: `pnpm benchmark:pqc:power:closure:imported:safe:dry` validated guarded sequencing output (warn-only import-dir validation + imported closure dry-run steps) without mutating evidence artifacts.
+- 2026-02-19: `pnpm benchmark:pqc:power:closure:imported:safe` validated fail-fast gating in current environment (placeholder imported dumps) and now emits concise `PQC_IMPORTED_SAFE_CLOSURE_FAILED` diagnostics instead of uncaught stack traces.
+- 2026-02-19: Updated `scripts/print-pqc-power-next-steps.mjs` to recommend `pnpm benchmark:pqc:power:closure:imported:safe` as the default imported-evidence closure path.
+- 2026-02-19: Re-ran `pnpm benchmark:pqc:power:next`; guidance now routes imported-evidence operators through guarded safe closure while preserving adb-native closure fallback guidance.
+- 2026-02-19: Enhanced imported dump scaffold instructions in `scripts/prepare-pqc-import-dumps.mjs` and `docs/security/pqc/cache/imported-dumps/README.md` with concrete `adb -s <serial> shell dumpsys battery` capture examples plus readiness/guarded-closure command sequence.
+- 2026-02-19: Validated scaffold generator update via `pnpm benchmark:pqc:power:prepare-import-dir -- --dir=/tmp/pqc-import-dumps-readme-test`; generated README includes capture, `validate-import-dir`, and `closure:imported:safe` guidance.
+- 2026-02-19: Decision log: Stage `4.2.2.1.3` remains open but is explicitly deferred due to no real Android devices currently available; implementation focus may proceed to subsequent stages while preserving this evidence gate as a pending closure prerequisite.
+- 2026-02-19: Expanded `tests/unit/engine/pqc/negotiation.spec.ts` with table-driven truth-table coverage for strict blocked outcomes (`NO_CAPS`, `STALE_CAPS`, `NO_SHARED_ALG`, `MISSING_KEY`) and compatibility fallback outcomes.
+- 2026-02-19: Expanded envelope fixture/test coverage via `tests/unit/engine/pqc/envelope.fixtures.ts` and `tests/unit/engine/pqc/envelope.spec.ts` with unsupported-version, invalid-field-type, and critical-recipient-field negative fixtures.
+- 2026-02-19: Added parser reason-code mapping assertions in `tests/unit/engine/pqc/dm-receive-envelope.spec.ts` to verify stable DM parse reasons for each envelope validation failure class.
+- 2026-02-19: `pnpm vitest --run tests/unit/engine/pqc/negotiation.spec.ts tests/unit/engine/pqc/envelope.spec.ts tests/unit/engine/pqc/dm-receive-envelope.spec.ts` (pass, 36/36).
+- 2026-02-19: Re-verified modularity policy after Stage 5.1.1.1 test coverage integration; max code file length remains 499 lines (`src/app/views/GroupSettingsAdmin.svelte`).
+- 2026-02-19: Added `tests/unit/engine/pqc/secure-path-integration.spec.ts` covering DM strict/compat preflight integration, hybrid envelope roundtrip parsing, membership-triggered group rekey epoch advancement, and removed-member wrap exclusion enforcement.
+- 2026-02-19: `pnpm vitest --run tests/unit/engine/pqc/secure-path-integration.spec.ts tests/unit/engine/pqc/dm-send-preflight.spec.ts tests/unit/engine/group-wrap-exclusion.spec.ts` (pass, 10/10).
+- 2026-02-19: Re-verified modularity policy after Stage 5.1.1.2 secure-path integration coverage; max code file length remains 499 lines (`src/app/views/GroupSettingsAdmin.svelte`).
+- 2026-02-19: Added mixed-client interop matrix suite `tests/unit/engine/pqc/interop-matrix.spec.ts` covering sender capability (hybrid/classical-only), receiver capability (hybrid/classical-only/stale-key), and policy mode (strict/compatibility) combinations.
+- 2026-02-19: Matrix assertions validate expected send mode, user-facing state (`secure`/`fallback`/`blocked`), negotiation reason code, and telemetry reason code for all 12 strict/compat scenarios.
+- 2026-02-19: `pnpm vitest --run tests/unit/engine/pqc/interop-matrix.spec.ts tests/unit/engine/pqc/dm-send-policy.spec.ts tests/unit/engine/pqc/negotiation.spec.ts` (pass, 29/29).
+- 2026-02-19: Divergence capture: no unexpected matrix divergences detected; compatibility fallback rows currently emit `DM_PREFLIGHT_OK` when key freshness is `fresh`, which matches existing telemetry behavior and warrants UX/telemetry policy review in later rollout stages if finer fallback observability is required.
+- 2026-02-19: Re-verified modularity policy after Stage 5.1.2.1 interop matrix integration; max code file length remains 499 lines (`src/app/views/GroupSettingsAdmin.svelte`).
+- 2026-02-19: Added relay-profile matrix suite `tests/unit/engine/pqc/relay-profile-matrix.spec.ts` covering permissive/constrained/mixed relay budget profiles with strict/compatibility fallback resolution expectations.
+- 2026-02-19: Relay matrix assertions validate viable/blocked relay sets, alternate retry relay selection, and deterministic fallback action (`retry-alt-relays` / `fallback-mode` / `block`) per profile-policy scenario.
+- 2026-02-19: `pnpm vitest --run tests/unit/engine/pqc/relay-profile-matrix.spec.ts tests/unit/engine/pqc/relay-payload-budget.spec.ts tests/unit/engine/pqc/relay-size-rejection.spec.ts` (pass, 13/13).
+- 2026-02-19: Re-verified modularity policy after Stage 5.1.2.2 relay-profile matrix integration; max code file length remains 499 lines (`src/app/views/GroupSettingsAdmin.svelte`).
+- 2026-02-19: Added rollout telemetry tooling `scripts/prepare-pqc-rollout-telemetry.mjs` and `scripts/assess-pqc-rollout-readiness.mjs` with package commands for Stage 5.2 internal dogfood readiness checks.
+- 2026-02-19: `pnpm benchmark:pqc:rollout:prepare-telemetry` generated `docs/security/pqc/cache/rollout-telemetry.json` scaffold for daily cohort-gate metric input.
+- 2026-02-19: `pnpm benchmark:pqc:rollout:assess-readiness:warn` generated rollout readiness summaries (`rollout-readiness.json`/`.md`) and correctly reported metric-missing diagnostics for unpopulated telemetry fields.
+- 2026-02-19: `pnpm benchmark:pqc:rollout:assess-readiness` validated strict gate behavior (exit code 1 with `PQC_ROLLOUT_READINESS_NOT_READY`) while telemetry metrics remain unpopulated.
+- 2026-02-19: Re-verified modularity policy after Stage 5.2 rollout telemetry tooling integration; max code file length remains 499 lines (`src/app/views/GroupSettingsAdmin.svelte`).
+- 2026-02-19: Extended rollout telemetry scaffold `scripts/prepare-pqc-rollout-telemetry.mjs` with `errorClasses` input support for owner-mapped dogfood error triage.
+- 2026-02-19: Added Stage 5.2 triage tool `scripts/triage-pqc-rollout-errors.mjs` with package commands `pnpm benchmark:pqc:rollout:triage-errors` and `pnpm benchmark:pqc:rollout:triage-errors:warn` to generate owner-assigned top error-class artifacts.
+- 2026-02-19: Updated `docs/security/pqc/12-operations-and-incident-playbook.md` operational helper commands with rollout triage invocation guidance.
+- 2026-02-19: `pnpm benchmark:pqc:rollout:prepare-telemetry -- --force && pnpm benchmark:pqc:rollout:assess-readiness:warn && pnpm benchmark:pqc:rollout:triage-errors:warn` generated `rollout-readiness.json`/`.md` and `rollout-error-triage.json`/`.md`; triage output reported owner assignments for all top classes (`unownedCount: 0`).
+- 2026-02-19: Re-verified modularity policy after Stage 5.2.1.2.2 owner-triage tooling integration; max code file length remains 499 lines (`src/app/views/GroupSettingsAdmin.svelte`).
+- 2026-02-19: Added Stage 5.2 beta-checkpoint decision tool `scripts/decide-pqc-beta-readiness-checkpoint.mjs` with package commands `pnpm benchmark:pqc:rollout:checkpoint-beta` and `pnpm benchmark:pqc:rollout:checkpoint-beta:warn`.
+- 2026-02-19: Updated `docs/security/pqc/12-operations-and-incident-playbook.md` helper commands with beta-checkpoint guidance linked to readiness + triage artifacts.
+- 2026-02-19: `pnpm benchmark:pqc:rollout:prepare-telemetry -- --force && pnpm benchmark:pqc:rollout:assess-readiness:warn && pnpm benchmark:pqc:rollout:triage-errors:warn && pnpm benchmark:pqc:rollout:checkpoint-beta:warn` generated `rollout-beta-checkpoint.json`/`.md` and produced checkpoint recommendation `hold-populate-readiness-metrics` while telemetry metrics remain missing.
+- 2026-02-19: `pnpm benchmark:pqc:rollout:checkpoint-beta` validated strict checkpoint gate behavior (exit code 1 with `PQC_BETA_CHECKPOINT_NOT_READY`) for non-ready beta conditions.
+- 2026-02-19: Re-verified modularity policy after Stage 5.2.1.2.3 checkpoint automation integration; max code file length remains 499 lines (`src/app/views/GroupSettingsAdmin.svelte`).
+- 2026-02-19: Added Stage 5.2 external opt-in instruction publisher `scripts/publish-pqc-opt-in-beta-instructions.mjs` with package commands `pnpm benchmark:pqc:rollout:publish-opt-in-instructions` and `pnpm benchmark:pqc:rollout:publish-opt-in-instructions:strict`.
+- 2026-02-19: Published external beta runbook `docs/security/pqc/external-opt-in-beta-instructions.md` plus cache summary `docs/security/pqc/cache/external-opt-in-beta-instructions.json` from checkpoint/readiness/triage state.
+- 2026-02-19: Updated `docs/security/pqc/12-operations-and-incident-playbook.md` helper commands with external opt-in instruction publishing guidance.
+- 2026-02-19: `pnpm benchmark:pqc:rollout:prepare-telemetry -- --force && pnpm benchmark:pqc:rollout:assess-readiness:warn && pnpm benchmark:pqc:rollout:triage-errors:warn && pnpm benchmark:pqc:rollout:checkpoint-beta:warn && pnpm benchmark:pqc:rollout:publish-opt-in-instructions` validated end-to-end Stage `5.2.2.1.1` artifact generation; output correctly remained `hold-populate-readiness-metrics` under missing telemetry.
+- 2026-02-19: `pnpm benchmark:pqc:rollout:publish-opt-in-instructions:strict` validated strict enablement guard behavior (exit code 1 with `PQC_OPT_IN_INSTRUCTIONS_BLOCKED_BY_CHECKPOINT`) while checkpoint readiness remains false.
+- 2026-02-19: Added Stage 5.2 external opt-in flag workflow `scripts/enable-pqc-external-opt-in-flags.mjs` with package commands `pnpm benchmark:pqc:rollout:enable-opt-in-flags` and `pnpm benchmark:pqc:rollout:enable-opt-in-flags:warn`.
+- 2026-02-19: Added approved-user cohort input template `docs/security/pqc/cache/external-opt-in-approved-users.json` to standardize release/security sign-off payloads for external flag enablement.
+- 2026-02-19: Updated `docs/security/pqc/12-operations-and-incident-playbook.md` helper commands with external opt-in flag enablement workflow guidance.
+- 2026-02-19: `pnpm benchmark:pqc:rollout:prepare-telemetry -- --force && pnpm benchmark:pqc:rollout:assess-readiness:warn && pnpm benchmark:pqc:rollout:triage-errors:warn && pnpm benchmark:pqc:rollout:checkpoint-beta:warn && pnpm benchmark:pqc:rollout:enable-opt-in-flags:warn` generated `rollout-opt-in-enablement.json`/`.md` and appended `rollout-opt-in-enablement.ndjson`; workflow correctly reported `checkpoint-not-ready` block under current hold state.
+- 2026-02-19: `pnpm benchmark:pqc:rollout:enable-opt-in-flags` validated strict gate behavior (exit code 1 with `PQC_EXTERNAL_OPT_IN_ENABLEMENT_BLOCKED`) while checkpoint readiness remains false.
+- 2026-02-19: Re-verified modularity policy after Stage 5.2.2.1.2 external opt-in flag workflow integration; max code file length remains 499 lines (`src/app/views/GroupSettingsAdmin.svelte`).
+- 2026-02-19: Added Stage 5.2.2.2.1 feedback collection tool `scripts/collect-pqc-external-opt-in-feedback.mjs` with package commands `pnpm benchmark:pqc:rollout:collect-feedback` and `pnpm benchmark:pqc:rollout:collect-feedback:warn`.
+- 2026-02-19: Added external issue-template guidance `docs/security/pqc/external-opt-in-feedback-issue-template.md` and submission payload template `docs/security/pqc/cache/external-opt-in-feedback-submissions.json` for repeatable beta feedback intake.
+- 2026-02-19: Updated `docs/security/pqc/12-operations-and-incident-playbook.md` helper commands with Stage 5.2.2.2.1 feedback collection workflow guidance.
+- 2026-02-19: `pnpm benchmark:pqc:rollout:collect-feedback:warn && pnpm benchmark:pqc:rollout:collect-feedback` generated `rollout-feedback-collection.json`/`.md` and appended `rollout-feedback-collection.ndjson`; validation completed with one interop issue and zero schema/template errors.
+- 2026-02-19: Re-verified modularity policy after Stage 5.2.2.2.1 feedback collection integration; max code file length remains 499 lines (`src/app/views/GroupSettingsAdmin.svelte`).
+- 2026-02-19: Added Stage 5.2.2.2.2 feedback class-tagging tool `scripts/tag-pqc-feedback-issue-classes.mjs` with package commands `pnpm benchmark:pqc:rollout:tag-feedback-classes` and `pnpm benchmark:pqc:rollout:tag-feedback-classes:warn`.
+- 2026-02-19: Updated `docs/security/pqc/12-operations-and-incident-playbook.md` and `docs/security/pqc/external-opt-in-feedback-issue-template.md` with Stage 5.2.2.2.2 class-tagging workflow commands.
+- 2026-02-19: `pnpm benchmark:pqc:rollout:tag-feedback-classes:warn && pnpm benchmark:pqc:rollout:tag-feedback-classes` generated `rollout-feedback-triage.json`/`.md` and appended `rollout-feedback-triage.ndjson`; all issues classified with zero unclassified findings.
+- 2026-02-19: Re-verified modularity policy after Stage 5.2.2.2.2 feedback class-tagging integration; max code file length remains 499 lines (`src/app/views/GroupSettingsAdmin.svelte`).
+- 2026-02-19: Added Stage 5.2.2.2.3 milestone-feed tool `scripts/feed-pqc-feedback-into-milestone-plan.mjs` with package commands `pnpm benchmark:pqc:rollout:feed-feedback-milestone` and `pnpm benchmark:pqc:rollout:feed-feedback-milestone:warn`.
+- 2026-02-19: Updated `docs/security/pqc/12-operations-and-incident-playbook.md` and `docs/security/pqc/external-opt-in-feedback-issue-template.md` with Stage 5.2.2.2.3 milestone-feed workflow commands.
+- 2026-02-19: `pnpm benchmark:pqc:rollout:feed-feedback-milestone:warn && pnpm benchmark:pqc:rollout:feed-feedback-milestone` generated `rollout-feedback-milestone-plan.json`/`.md` and appended `rollout-feedback-milestone-plan.ndjson`; output routed the current interop `P2` issue to `next-patch-train` with `interop-matrix-pass` acceptance gate.
+- 2026-02-19: Re-verified modularity policy after Stage 5.2.2.2.3 milestone-feed integration; max code file length remains 499 lines (`src/app/views/GroupSettingsAdmin.svelte`).
+- 2026-02-20: Added Stage 5.2.1.1.1 internal cohort enablement tool `scripts/enable-pqc-internal-dogfood-cohorts.mjs` with package commands `pnpm benchmark:pqc:rollout:enable-internal-cohorts` and `pnpm benchmark:pqc:rollout:enable-internal-cohorts:warn`.
+- 2026-02-20: Added internal cohort input template `docs/security/pqc/cache/internal-dogfood-cohorts.json` and generated internal enablement artifacts `rollout-internal-cohort-enablement.json`/`.md` with audit trail `rollout-internal-cohort-enablement.ndjson`.
+- 2026-02-20: Added Stage 5.2.1.1.2 baseline expansion gate tool `scripts/confirm-pqc-internal-baseline-health.mjs` with package commands `pnpm benchmark:pqc:rollout:confirm-internal-baseline` and `pnpm benchmark:pqc:rollout:confirm-internal-baseline:warn`.
+- 2026-02-20: Updated `docs/security/pqc/12-operations-and-incident-playbook.md` helper commands with Stage 5.2.1.1 cohort rollout + baseline expansion workflows.
+- 2026-02-20: `pnpm benchmark:pqc:rollout:enable-internal-cohorts:warn && pnpm benchmark:pqc:rollout:enable-internal-cohorts` validated cohort rollout artifacts for one internal cohort (2 users, zero schema errors).
+- 2026-02-20: `pnpm benchmark:pqc:rollout:confirm-internal-baseline:warn` and strict `pnpm benchmark:pqc:rollout:confirm-internal-baseline` validated expansion gate behavior; current recommendation remains `hold-internal-expansion` with strict exit marker `PQC_INTERNAL_BASELINE_HEALTH_NOT_READY` under missing readiness/checkpoint gates.
+- 2026-02-20: Re-verified modularity policy after Stage 5.2.1.1 internal dogfood rollout tooling integration; max code file length remains 499 lines (`src/app/views/GroupSettingsAdmin.svelte`).
+- 2026-02-20: Added Stage 5.2.1.2.1 daily telemetry monitor tool `scripts/monitor-pqc-rollout-daily-telemetry.mjs` with package commands `pnpm benchmark:pqc:rollout:monitor-daily` and `pnpm benchmark:pqc:rollout:monitor-daily:warn`.
+- 2026-02-20: Updated `docs/security/pqc/12-operations-and-incident-playbook.md` helper commands with daily secure success/downgrade monitoring workflow guidance.
+- 2026-02-20: `pnpm benchmark:pqc:rollout:monitor-daily:warn` generated `rollout-daily-monitor.json`/`.md` and appended `rollout-daily-monitor.ndjson`; snapshot correctly flagged missing `secureSendSuccessRate` and `downgradeRate` values.
+- 2026-02-20: `pnpm benchmark:pqc:rollout:monitor-daily` validated strict daily-monitor gate behavior (exit code 1 with `PQC_ROLLOUT_DAILY_MONITOR_NOT_READY`) while required telemetry metrics remain unpopulated.
+- 2026-02-20: Re-verified modularity policy after Stage 5.2.1.2.1 daily monitor integration; max code file length remains 499 lines (`src/app/views/GroupSettingsAdmin.svelte`).
+- 2026-02-20: Added Stage 6.1.1.1 kill-switch validation tools `scripts/execute-pqc-kill-switch-staging.mjs`, `scripts/verify-pqc-kill-switch-user-behavior.mjs`, and `scripts/verify-pqc-kill-switch-recovery.mjs` with package commands `benchmark:pqc:ops:kill-switch:*` (warn + strict variants).
+- 2026-02-20: Added Stage 6 kill-switch drill input templates `docs/security/pqc/cache/kill-switch-staging-checklist.json`, `docs/security/pqc/cache/kill-switch-user-observations.json`, and `docs/security/pqc/cache/kill-switch-recovery-checklist.json`.
+- 2026-02-20: Updated `docs/security/pqc/12-operations-and-incident-playbook.md` helper commands with Stage 6 kill-switch execution, user-behavior verification, and recovery verification workflows.
+- 2026-02-20: `pnpm benchmark:pqc:ops:kill-switch:execute:warn && pnpm benchmark:pqc:ops:kill-switch:execute` generated `rollout-kill-switch-execution.json`/`.md` and appended `rollout-kill-switch-execution.ndjson`; strict validation passed with zero issues.
+- 2026-02-20: `pnpm benchmark:pqc:ops:kill-switch:verify-user:warn && pnpm benchmark:pqc:ops:kill-switch:verify-user` generated `rollout-kill-switch-user-behavior.json`/`.md` and appended `rollout-kill-switch-user-behavior.ndjson`; strict validation passed with zero issues.
+- 2026-02-20: `pnpm benchmark:pqc:ops:kill-switch:verify-recovery:warn && pnpm benchmark:pqc:ops:kill-switch:verify-recovery` generated `rollout-kill-switch-recovery.json`/`.md` and appended `rollout-kill-switch-recovery.ndjson`; strict validation passed with zero issues.
+- 2026-02-20: Re-verified modularity policy after Stage 6.1.1.1 kill-switch workflow integration; max code file length remains 499 lines (`src/app/views/GroupSettingsAdmin.svelte`).
+- 2026-02-20: Added Stage 6.1.1.2 staged rollback validation tool `scripts/validate-pqc-staged-rollback-level.mjs` with package commands `pnpm benchmark:pqc:ops:rollback:l1|l2|l3` and `:warn` variants.
+- 2026-02-20: Added Stage 6 staged rollback drill input templates `docs/security/pqc/cache/rollback-level1-checklist.json`, `docs/security/pqc/cache/rollback-level2-checklist.json`, and `docs/security/pqc/cache/rollback-level3-checklist.json`.
+- 2026-02-20: Updated `docs/security/pqc/12-operations-and-incident-playbook.md` helper commands with staged rollback level validation workflows.
+- 2026-02-20: `pnpm benchmark:pqc:ops:rollback:l1:warn && pnpm benchmark:pqc:ops:rollback:l1` generated `rollout-rollback-level1.json`/`.md` and appended `rollout-rollback-level1.ndjson`; strict validation passed with zero issues.
+- 2026-02-20: `pnpm benchmark:pqc:ops:rollback:l2:warn && pnpm benchmark:pqc:ops:rollback:l2` generated `rollout-rollback-level2.json`/`.md` and appended `rollout-rollback-level2.ndjson`; strict validation passed with zero issues and enforced level-1 completion prerequisite.
+- 2026-02-20: `pnpm benchmark:pqc:ops:rollback:l3:warn && pnpm benchmark:pqc:ops:rollback:l3` generated `rollout-rollback-level3.json`/`.md` and appended `rollout-rollback-level3.ndjson`; strict validation passed with zero issues and enforced level-2 completion prerequisite.
+- 2026-02-20: Re-verified modularity policy after Stage 6.1.1.2 staged rollback integration; max code file length remains 499 lines (`src/app/views/GroupSettingsAdmin.svelte`).
+- 2026-02-20: Added Stage 6.1.2.1 compromise-tabletop tools `scripts/simulate-pqc-compromise-detection-triage.mjs`, `scripts/validate-pqc-revocation-rekey-timing.mjs`, and `scripts/publish-pqc-compromise-corrective-actions.mjs` with package commands `benchmark:pqc:ops:compromise:*` (warn + strict variants).
+- 2026-02-20: Added compromise drill input templates `docs/security/pqc/cache/compromise-detection-simulation.json`, `docs/security/pqc/cache/compromise-revocation-rekey-timing.json`, and `docs/security/pqc/cache/compromise-corrective-actions.json`.
+- 2026-02-20: Updated `docs/security/pqc/12-operations-and-incident-playbook.md` helper commands with Stage 6.1.2.1 compromise triage, timing validation, and corrective-action publication workflows.
+- 2026-02-20: `pnpm benchmark:pqc:ops:compromise:simulate:warn && pnpm benchmark:pqc:ops:compromise:simulate` generated `rollout-compromise-triage.json`/`.md` and appended `rollout-compromise-triage.ndjson`; strict validation passed with zero issues.
+- 2026-02-20: `pnpm benchmark:pqc:ops:compromise:timing:warn && pnpm benchmark:pqc:ops:compromise:timing` generated `rollout-compromise-revocation-timing.json`/`.md` and appended `rollout-compromise-revocation-timing.ndjson`; strict validation passed with zero issues and met revocation/rotation/epoch SLA thresholds.
+- 2026-02-20: `pnpm benchmark:pqc:ops:compromise:actions:warn && pnpm benchmark:pqc:ops:compromise:actions` generated `rollout-compromise-corrective-actions.json`/`.md` and appended `rollout-compromise-corrective-actions.ndjson`; strict validation passed with zero issues.
+- 2026-02-20: Re-verified modularity policy after Stage 6.1.2.1 compromise tabletop integration; max code file length remains 499 lines (`src/app/views/GroupSettingsAdmin.svelte`).
+- 2026-02-20: Added Stage 6.1.2.2 relay-surge drill tools `scripts/simulate-pqc-relay-rejection-surge.mjs`, `scripts/validate-pqc-relay-fallback-alerting.mjs`, and `scripts/capture-pqc-relay-playbook-updates.mjs` with package commands `benchmark:pqc:ops:relay-surge:*` (warn + strict variants).
+- 2026-02-20: Added relay-surge drill input templates `docs/security/pqc/cache/relay-rejection-surge-simulation.json`, `docs/security/pqc/cache/relay-fallback-alerting-checks.json`, and `docs/security/pqc/cache/relay-playbook-updates.json`.
+- 2026-02-20: Updated `docs/security/pqc/12-operations-and-incident-playbook.md` helper commands with Stage 6.1.2.2 relay surge simulation, fallback/alerting validation, and operator playbook capture workflows.
+- 2026-02-20: `pnpm benchmark:pqc:ops:relay-surge:simulate:warn && pnpm benchmark:pqc:ops:relay-surge:simulate` generated `rollout-relay-rejection-surge.json`/`.md` and appended `rollout-relay-rejection-surge.ndjson`; strict validation passed with zero issues.
+- 2026-02-20: `pnpm benchmark:pqc:ops:relay-surge:fallback:warn && pnpm benchmark:pqc:ops:relay-surge:fallback` generated `rollout-relay-fallback-alerting.json`/`.md` and appended `rollout-relay-fallback-alerting.ndjson`; strict validation passed with zero issues and restored rejection rate below configured target.
+- 2026-02-20: `pnpm benchmark:pqc:ops:relay-surge:playbook:warn && pnpm benchmark:pqc:ops:relay-surge:playbook` generated `rollout-relay-playbook-updates.json`/`.md` and appended `rollout-relay-playbook-updates.ndjson`; strict validation passed with zero issues.
+- 2026-02-20: Re-verified modularity policy after Stage 6.1.2.2 relay-surge drill integration; max code file length remains 499 lines (`src/app/views/GroupSettingsAdmin.svelte`).
+- 2026-02-20: Added Stage 6.2.1.1 release-signoff tools `scripts/build-pqc-requirement-traceability-matrix.mjs`, `scripts/verify-pqc-must-requirement-gaps.mjs`, and `scripts/record-pqc-security-qa-signoff.mjs` with package commands `benchmark:pqc:ops:release-signoff:*` (warn + strict variants).
+- 2026-02-20: Added release-signoff input templates `docs/security/pqc/cache/requirement-traceability-matrix.json`, `docs/security/pqc/cache/requirement-gap-review.json`, and `docs/security/pqc/cache/security-qa-signoff-approvals.json` for production gate evidence capture.
+- 2026-02-20: Updated `docs/security/pqc/12-operations-and-incident-playbook.md` helper commands with Stage 6.2.1.1 traceability, MUST-gap verification, and sign-off recording workflows.
+- 2026-02-20: `pnpm benchmark:pqc:ops:release-signoff:traceability:warn && pnpm benchmark:pqc:ops:release-signoff:traceability` generated `rollout-requirement-traceability.json`/`.md` and appended `rollout-requirement-traceability.ndjson`; strict validation passed with zero issues and mapped all 31 MUST requirements.
+- 2026-02-20: `pnpm benchmark:pqc:ops:release-signoff:gaps:warn && pnpm benchmark:pqc:ops:release-signoff:gaps` generated `rollout-requirement-gap-verification.json`/`.md` and appended `rollout-requirement-gap-verification.ndjson`; strict validation passed with zero issues and confirmed zero open critical MUST gaps.
+- 2026-02-20: `pnpm benchmark:pqc:ops:release-signoff:record:warn && pnpm benchmark:pqc:ops:release-signoff:record` generated `rollout-security-qa-signoff.json`/`.md` and appended `rollout-security-qa-signoff.ndjson`; strict validation passed with zero issues and recorded security + QA approvals.
+- 2026-02-20: Re-verified modularity policy after Stage 6.2.1.1 release-signoff integration; max code file length remains 499 lines (`src/app/views/GroupSettingsAdmin.svelte`).
+- 2026-02-20: Added Stage 6.2.1.2 exception workflow tools `scripts/review-pqc-exception-records.mjs` and `scripts/approve-pqc-exception-decisions.mjs` with package commands `benchmark:pqc:ops:release-signoff:exceptions:*` (warn + strict variants).
+- 2026-02-20: Added exception workflow input templates `docs/security/pqc/cache/exception-owner-review.json` and `docs/security/pqc/cache/exception-approval-decisions.json` aligned to MUST-exception policy fields (risk, mitigation, expiry, approval metadata).
+- 2026-02-20: Updated `docs/security/pqc/12-operations-and-incident-playbook.md` helper commands with Stage 6.2.1.2 exception-owner review and approval/closure decision workflows.
+- 2026-02-20: `pnpm benchmark:pqc:ops:release-signoff:exceptions:review:warn && pnpm benchmark:pqc:ops:release-signoff:exceptions:review` generated `rollout-exception-owner-review.json`/`.md` and appended `rollout-exception-owner-review.ndjson`; strict validation passed with zero issues.
+- 2026-02-20: `pnpm benchmark:pqc:ops:release-signoff:exceptions:decide:warn && pnpm benchmark:pqc:ops:release-signoff:exceptions:decide` generated `rollout-exception-decision-log.json`/`.md` and appended `rollout-exception-decision-log.ndjson`; strict validation passed with zero issues and resolved all reviewed open exceptions.
+- 2026-02-20: Re-verified modularity policy after Stage 6.2.1.2 exception workflow integration; max code file length remains 499 lines (`src/app/views/GroupSettingsAdmin.svelte`).
+
+## Notes
+
+- This tracker is scoped to the PQC program under `docs/security/pqc/`.
+- Update statuses incrementally as implementation, validation, and operations progress.

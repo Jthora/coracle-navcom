@@ -14,7 +14,7 @@
   import FlexColumn from "src/partials/FlexColumn.svelte"
   import Modal from "src/partials/Modal.svelte"
   import Subheading from "src/partials/Subheading.svelte"
-  import {hasNip44, sendMessage, userSettings} from "src/engine"
+  import {getPqcDmSendBlockFeedback, hasNip44, sendMessage, userSettings} from "src/engine"
   import {makeEditor} from "src/app/editor"
   import Message from "src/app/shared/Message.svelte"
   import EditorContent from "src/app/editor/EditorContent.svelte"
@@ -90,7 +90,13 @@
       try {
         await sendMessage(channelId, content, $userSettings.send_delay)
       } catch (e: any) {
-        showWarning(`Failed to send message: ${e.error || "unknown error"}`)
+        const feedback = getPqcDmSendBlockFeedback(e)
+
+        if (feedback) {
+          showWarning(feedback.summary)
+        } else {
+          showWarning(`Failed to send message: ${e.error || e.message || "unknown error"}`)
+        }
       }
 
       sending = false

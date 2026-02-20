@@ -1,0 +1,61 @@
+{
+  "generatedAt": "2026-02-19T10:21:39.331Z",
+  "inputPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/power-metrics.ndjson",
+  "outputPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/power-metrics-summary-desktop-baseline.json",
+  "label": "pqc-sustained",
+  "modeFilter": "linux",
+  "profileFilter": "desktop-baseline",
+  "expectedPhases": {
+    "before": "pre",
+    "after": "post"
+  },
+  "pairingStrategy": "phase-matched",
+  "sampleCount": 2,
+  "before": {
+    "timestamp": "2026-02-19T10:05:21Z",
+    "mode": "linux",
+    "phase": "pre",
+    "profile": "desktop-baseline",
+    "load_1": 1.93,
+    "mem_available_kb": 24298664,
+    "battery": {
+      "capacity": null,
+      "voltage_uv": null,
+      "current_ua": null,
+      "power_uw": null,
+      "energy_now_uj": null,
+      "status": "unknown"
+    }
+  },
+  "after": {
+    "timestamp": "2026-02-19T10:05:23Z",
+    "mode": "linux",
+    "phase": "post",
+    "profile": "desktop-baseline",
+    "load_1": 1.86,
+    "mem_available_kb": 24301544,
+    "battery": {
+      "capacity": null,
+      "voltage_uv": null,
+      "current_ua": null,
+      "power_uw": null,
+      "energy_now_uj": null,
+      "status": "unknown"
+    }
+  },
+  "deltas": {
+    "batteryCapacityPoints": null,
+    "batteryLevelPoints": null,
+    "temperatureTenthsC": null,
+    "voltageMv": null,
+    "linuxPowerUw": null,
+    "linuxCurrentUa": null,
+    "load1": -0.06999999999999984,
+    "memAvailableKb": 2880
+  },
+  "notes": [
+    "For accurate battery impact, provide pre and post snapshots on the same mode/profile.",
+    "Android deltas require adb dumpsys battery snapshots in power-metrics.ndjson.",
+    "Phase-tagged snapshots matched using before/after phase filters."
+  ]
+}

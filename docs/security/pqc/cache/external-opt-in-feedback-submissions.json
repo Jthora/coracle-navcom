@@ -1,0 +1,18 @@
+{
+  "generatedAt": "2026-02-19T00:00:00.000Z",
+  "cohortId": "external-opt-in-beta",
+  "issues": [
+    {
+      "issueId": "PQC-BETA-001",
+      "title": "Intermittent decrypt fallback in mixed-client relay set",
+      "reporter": "beta-user-001",
+      "category": "interop",
+      "severity": "P2",
+      "status": "open",
+      "summary": "Observed fallback to classical receive mode on constrained relay profile.",
+      "evidence": "See docs/security/pqc/cache/rollout-readiness.json and local reproduction notes.",
+      "createdAt": "2026-02-19T00:00:00.000Z",
+      "notes": "Pending triage owner assignment."
+    }
+  ]
+}

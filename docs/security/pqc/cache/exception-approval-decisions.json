@@ -1,0 +1,16 @@
+{
+  "releaseId": "pqc-g3-production-2026-02-19",
+  "decidedAt": "2026-02-19T17:15:00Z",
+  "securityApprover": "security-owner",
+  "decisions": [
+    {
+      "exceptionId": "EXC-SR052-001",
+      "requirementId": "SR-052",
+      "decision": "approved",
+      "decisionNotes": "Approved with expiry and mitigation plan; no additional open critical gaps.",
+      "approvedAt": "2026-02-19T17:14:00Z",
+      "expiresAt": "2026-05-01",
+      "closureTicket": "PQC-EXC-52-REM-01"
+    }
+  ]
+}

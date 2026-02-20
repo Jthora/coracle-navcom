@@ -1,0 +1,21 @@
+{
+  "generatedAt": "2026-02-20T00:10:00.000Z",
+  "ticketId": "PQC-KILLSWITCH-001",
+  "operator": "release-operations",
+  "approvedBy": "security-response",
+  "reEnabledAt": "2026-02-20T00:10:00.000Z",
+  "restoredFlags": {
+    "pqc_enabled": true,
+    "pqc_dm_enabled": true,
+    "pqc_groups_enabled": true,
+    "pqc_strict_default": true,
+    "pqc_chunking_enabled": true
+  },
+  "smokeChecks": {
+    "dmPathPass": true,
+    "groupPathPass": true,
+    "alertsBelowThreshold": true,
+    "keyLifecycleConsistent": true
+  },
+  "notes": "Staging kill-switch path recovered successfully with strict default restored."
+}

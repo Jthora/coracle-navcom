@@ -1,0 +1,22 @@
+{
+  "generatedAt": "2026-02-20T00:57:39.213Z",
+  "operator": "security-architecture",
+  "warnOnly": false,
+  "traceabilityPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-requirement-traceability.json",
+  "inputPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/requirement-gap-review.json",
+  "outputJsonPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-requirement-gap-verification.json",
+  "outputMdPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-requirement-gap-verification.md",
+  "auditPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-requirement-gap-verification.ndjson",
+  "releaseId": "pqc-g3-production-2026-02-19",
+  "reviewedAt": "2026-02-19T16:40:00Z",
+  "openCriticalRequirementGaps": 0,
+  "unresolvedMustIds": [],
+  "uncoveredMustIds": [],
+  "acceptedExceptionCount": 0,
+  "complete": true,
+  "issues": [],
+  "guidance": [
+    "No open critical MUST requirement gaps detected.",
+    "Proceed to security and QA sign-off recording."
+  ]
+}

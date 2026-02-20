@@ -1,0 +1,129 @@
+{
+  "generatedAt": "2026-02-19T23:38:58.586Z",
+  "inputPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-telemetry.json",
+  "outputJson": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-readiness.json",
+  "outputMd": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-readiness.md",
+  "warnOnly": true,
+  "window": {
+    "start": "2026-02-19T00:00:00.000Z",
+    "end": "2026-02-20T00:00:00.000Z",
+    "label": "daily-dogfood-window"
+  },
+  "thresholds": {
+    "secureSendSuccessRateMin": 0.97,
+    "downgradeRateMax": 0.2,
+    "decryptFailureRateMax": 0.05,
+    "relayRejectRateMax": 0.1,
+    "groupRekeyP95MsMax": 25
+  },
+  "ready": false,
+  "rows": [
+    {
+      "key": "secureSendSuccessRate",
+      "label": "Secure send success rate",
+      "comparator": "min",
+      "target": 0.97,
+      "value": null,
+      "status": "missing",
+      "pass": false,
+      "reason": "metric-missing"
+    },
+    {
+      "key": "downgradeRate",
+      "label": "Downgrade rate",
+      "comparator": "max",
+      "target": 0.2,
+      "value": null,
+      "status": "missing",
+      "pass": false,
+      "reason": "metric-missing"
+    },
+    {
+      "key": "decryptFailureRate",
+      "label": "Decrypt failure rate",
+      "comparator": "max",
+      "target": 0.05,
+      "value": null,
+      "status": "missing",
+      "pass": false,
+      "reason": "metric-missing"
+    },
+    {
+      "key": "relayRejectRate",
+      "label": "Relay reject rate",
+      "comparator": "max",
+      "target": 0.1,
+      "value": null,
+      "status": "missing",
+      "pass": false,
+      "reason": "metric-missing"
+    },
+    {
+      "key": "groupRekeyP95Ms",
+      "label": "Group rekey p95 (ms)",
+      "comparator": "max",
+      "target": 25,
+      "value": null,
+      "status": "missing",
+      "pass": false,
+      "reason": "metric-missing"
+    }
+  ],
+  "failed": [],
+  "missing": [
+    {
+      "key": "secureSendSuccessRate",
+      "label": "Secure send success rate",
+      "comparator": "min",
+      "target": 0.97,
+      "value": null,
+      "status": "missing",
+      "pass": false,
+      "reason": "metric-missing"
+    },
+    {
+      "key": "downgradeRate",
+      "label": "Downgrade rate",
+      "comparator": "max",
+      "target": 0.2,
+      "value": null,
+      "status": "missing",
+      "pass": false,
+      "reason": "metric-missing"
+    },
+    {
+      "key": "decryptFailureRate",
+      "label": "Decrypt failure rate",
+      "comparator": "max",
+      "target": 0.05,
+      "value": null,
+      "status": "missing",
+      "pass": false,
+      "reason": "metric-missing"
+    },
+    {
+      "key": "relayRejectRate",
+      "label": "Relay reject rate",
+      "comparator": "max",
+      "target": 0.1,
+      "value": null,
+      "status": "missing",
+      "pass": false,
+      "reason": "metric-missing"
+    },
+    {
+      "key": "groupRekeyP95Ms",
+      "label": "Group rekey p95 (ms)",
+      "comparator": "max",
+      "target": 25,
+      "value": null,
+      "status": "missing",
+      "pass": false,
+      "reason": "metric-missing"
+    }
+  ],
+  "guidance": [
+    "Rollout telemetry checks are not ready for gate expansion.",
+    "Populate missing metrics and remediate failed thresholds before enabling broader cohorts."
+  ]
+}

@@ -3,6 +3,7 @@
   import Input from "src/partials/Input.svelte"
   import Link from "src/partials/Link.svelte"
   import GroupAuditHistoryPanel from "src/app/views/GroupAuditHistoryPanel.svelte"
+  import GroupSettingsModerationComposer from "src/app/views/GroupSettingsModerationComposer.svelte"
   import {showInfo, showWarning} from "src/partials/Toast.svelte"
   import {groupProjections, groupsHydrated} from "src/app/groups/state"
   import {
@@ -418,66 +419,19 @@
     <div class="panel p-4">
       <h3 class="text-sm uppercase tracking-[0.08em] text-neutral-300">Admin Actions</h3>
 
-      {#if adminUi[GROUP_ADMIN_UI_CONTROL.MODERATION_COMPOSER].visible}
-        <div class="mt-3 rounded border border-neutral-700 p-3">
-          <h4 class="text-sm uppercase tracking-[0.08em] text-neutral-300">
-            Moderation Action Composer
-          </h4>
-          <div class="mt-2 grid gap-2 sm:grid-cols-3">
-            <label class="text-sm text-neutral-300">
-              Action type
-              <select
-                class="mt-1 h-9 w-full rounded border border-neutral-700 bg-neutral-900 px-3 text-neutral-100"
-                disabled={!adminUi[GROUP_ADMIN_UI_CONTROL.MODERATION_COMPOSER].enabled}
-                bind:value={moderationDraft.action}
-                on:change={onModerationActionChange}>
-                {#each moderationActions as option}
-                  <option value={option.value}>{option.label}</option>
-                {/each}
-              </select>
-            </label>
-
-            <label class="text-sm text-neutral-300">
-              Reason code
-              <select
-                class="mt-1 h-9 w-full rounded border border-neutral-700 bg-neutral-900 px-3 text-neutral-100"
-                disabled={!adminUi[GROUP_ADMIN_UI_CONTROL.MODERATION_COMPOSER].enabled}
-                bind:value={moderationDraft.reasonCode}
-                on:change={onModerationReasonCodeChange}>
-                {#each moderationReasonCodes as option}
-                  <option value={option.value}>{option.label}</option>
-                {/each}
-              </select>
-            </label>
-
-            <Input
-              placeholder="Optional moderation note"
-              disabled={!adminUi[GROUP_ADMIN_UI_CONTROL.MODERATION_COMPOSER].enabled}
-              bind:value={moderationDraft.note}
-              on:input={onModerationNoteInput} />
-          </div>
-
-          {#if moderationDraft.action === GROUP_MODERATION_ACTION.REMOVE_MEMBER}
-            <div class="mt-2">
-              <Input
-                placeholder="Target member pubkey (64-char hex)"
-                disabled={!adminUi[GROUP_ADMIN_UI_CONTROL.MODERATION_COMPOSER].enabled}
-                bind:value={moderationDraft.targetPubkey}
-                on:input={onModerationTargetPubkeyInput} />
-            </div>
-          {/if}
-
-          <div class="mt-3 flex justify-end">
-            <button
-              class="btn"
-              type="button"
-              on:click={onSubmitModerationAction}
-              disabled={!canModerate}>
-              Submit Moderation Action
-            </button>
-          </div>
-        </div>
-      {/if}
+      <GroupSettingsModerationComposer
+        {adminUi}
+        {GROUP_ADMIN_UI_CONTROL}
+        {GROUP_MODERATION_ACTION}
+        {moderationActions}
+        {moderationReasonCodes}
+        {moderationDraft}
+        {canModerate}
+        {onModerationActionChange}
+        {onModerationReasonCodeChange}
+        {onModerationNoteInput}
+        {onModerationTargetPubkeyInput}
+        {onSubmitModerationAction} />
 
       {#if adminUi[GROUP_ADMIN_UI_CONTROL.PUT_MEMBER].visible}
         <div class="mt-3 grid gap-2 sm:grid-cols-3">

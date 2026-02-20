@@ -1,0 +1,23 @@
+{
+  "generatedAt": "2026-02-20T00:00:00.000Z",
+  "environment": "staging",
+  "ticketId": "PQC-KILLSWITCH-001",
+  "operator": "release-operations",
+  "approvedBy": "security-response",
+  "triggerReason": "Incident drill: validate kill-switch and rollback readiness.",
+  "executedAt": "2026-02-20T00:00:00.000Z",
+  "preFlags": {
+    "pqc_enabled": true,
+    "pqc_dm_enabled": true,
+    "pqc_groups_enabled": true,
+    "pqc_strict_default": true,
+    "pqc_chunking_enabled": true
+  },
+  "postFlags": {
+    "pqc_enabled": true,
+    "pqc_dm_enabled": true,
+    "pqc_groups_enabled": true,
+    "pqc_strict_default": false,
+    "pqc_chunking_enabled": true
+  }
+}

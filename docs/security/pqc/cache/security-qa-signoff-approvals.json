@@ -1,0 +1,28 @@
+{
+  "releaseId": "pqc-g3-production-2026-02-19",
+  "approvedAt": "2026-02-19T16:50:00Z",
+  "approvals": {
+    "security": {
+      "approved": true,
+      "approver": "security-owner",
+      "role": "Security Architecture Lead",
+      "approvedAt": "2026-02-19T16:48:00Z",
+      "evidence": [
+        "docs/security/pqc/cache/rollout-requirement-gap-verification.json",
+        "docs/security/pqc/cache/rollout-requirement-traceability.json"
+      ],
+      "notes": "MUST controls and release-risk posture reviewed."
+    },
+    "qa": {
+      "approved": true,
+      "approver": "qa-owner",
+      "role": "QA Lead",
+      "approvedAt": "2026-02-19T16:49:00Z",
+      "evidence": [
+        "docs/security/pqc/11-test-and-validation-plan.md",
+        "docs/security/pqc/cache/rollout-requirement-gap-verification.json"
+      ],
+      "notes": "Coverage and gate evidence reviewed for production readiness."
+    }
+  }
+}

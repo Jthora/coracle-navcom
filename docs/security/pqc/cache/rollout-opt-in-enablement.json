@@ -1,0 +1,48 @@
+{
+  "generatedAt": "2026-02-19T23:39:16.150Z",
+  "checkpointPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-beta-checkpoint.json",
+  "approvedUsersPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/external-opt-in-approved-users.json",
+  "outputJsonPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-opt-in-enablement.json",
+  "outputMdPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-opt-in-enablement.md",
+  "auditPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-opt-in-enablement.ndjson",
+  "operator": "release-operations",
+  "warnOnly": false,
+  "checkpointReady": false,
+  "recommendation": "hold-populate-readiness-metrics",
+  "cohortId": "external-opt-in-beta",
+  "ticketId": "RFC-EXTERNAL-BETA-000",
+  "requestedBy": "release-operations@navcom.local",
+  "approvedBy": "security-architecture@navcom.local",
+  "flags": [
+    "pqc_enabled",
+    "pqc_dm_enabled",
+    "pqc_groups_enabled"
+  ],
+  "approvedUserCount": 1,
+  "invalidUsers": [],
+  "blockedReasons": [
+    {
+      "code": "checkpoint-not-ready",
+      "detail": "hold-populate-readiness-metrics"
+    }
+  ],
+  "executable": false,
+  "rows": [
+    {
+      "pubkey": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "externalId": "beta-user-001",
+      "cohort": "external-opt-in-beta",
+      "flags": [
+        "pqc_enabled",
+        "pqc_dm_enabled",
+        "pqc_groups_enabled"
+      ],
+      "status": "blocked"
+    }
+  ],
+  "guidance": [
+    "Do not enable external opt-in flags yet.",
+    "Resolve blocked reasons, then rerun enablement workflow.",
+    "Keep checkpoint and instruction artifacts up to date before cohort changes."
+  ]
+}

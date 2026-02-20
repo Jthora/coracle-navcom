@@ -1,0 +1,34 @@
+{
+  "generatedAt": "2026-02-20T01:01:44.972Z",
+  "operator": "security-architecture",
+  "warnOnly": false,
+  "inputPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/exception-owner-review.json",
+  "outputJsonPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-exception-owner-review.json",
+  "outputMdPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-exception-owner-review.md",
+  "auditPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-exception-owner-review.ndjson",
+  "releaseId": "pqc-g3-production-2026-02-19",
+  "reviewedAt": "2026-02-19T17:05:00Z",
+  "reviewOwner": "security-owner",
+  "reviewedExceptionCount": 1,
+  "openExceptionCount": 1,
+  "expiredExceptionCount": 0,
+  "exceptions": [
+    {
+      "exceptionId": "EXC-SR052-001",
+      "requirementId": "SR-052",
+      "severity": "high",
+      "status": "open",
+      "owner": "performance-lead",
+      "ownerDecision": "proceed-to-approval",
+      "expiryDate": "2026-05-01",
+      "expired": false,
+      "renewalRequested": false
+    }
+  ],
+  "complete": true,
+  "issues": [],
+  "guidance": [
+    "Exception owner review is complete.",
+    "Proceed to approval/closure decision recording."
+  ]
+}

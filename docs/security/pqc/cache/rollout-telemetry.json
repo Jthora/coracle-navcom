@@ -1,0 +1,40 @@
+{
+  "generatedAt": "2026-02-19T23:38:57.865Z",
+  "window": {
+    "start": "2026-02-19T00:00:00.000Z",
+    "end": "2026-02-20T00:00:00.000Z",
+    "label": "daily-dogfood-window"
+  },
+  "metrics": {
+    "secureSendSuccessRate": null,
+    "downgradeRate": null,
+    "decryptFailureRate": null,
+    "relayRejectRate": null,
+    "groupRekeyP95Ms": null
+  },
+  "errorClasses": [
+    {
+      "id": "downgrade-no-shared-alg",
+      "label": "Downgrade: no shared algorithm",
+      "count": null,
+      "rate": null,
+      "owner": "Messaging Foundations",
+      "severity": "medium",
+      "notes": "Populate when this class appears in top dogfood errors."
+    },
+    {
+      "id": "decrypt-failed-invalid-wrap",
+      "label": "Decrypt failed: invalid recipient wrap",
+      "count": null,
+      "rate": null,
+      "owner": "Crypto Runtime",
+      "severity": "high",
+      "notes": "Populate when parser/decrypt failures spike."
+    }
+  ],
+  "notes": [
+    "Populate metrics from telemetry dashboard exports before Stage 5.2 rollout decisions.",
+    "Rates should be decimal fractions (e.g., 0.983 for 98.3%).",
+    "Add telemetry-derived error class counts/rates and owners under errorClasses for daily triage."
+  ]
+}

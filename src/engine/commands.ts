@@ -36,7 +36,18 @@ import {
   removeFromList,
   getRelaysFromList,
 } from "@welshman/util"
-import {anonymous, getClientTags, sign, userFeedFavorites, withIndexers} from "src/engine/state"
+import {
+  anonymous,
+  getClientTags,
+  getSetting,
+  sign,
+  userFeedFavorites,
+  withIndexers,
+} from "src/engine/state"
+import {buildDmPqcEnvelope} from "src/engine/pqc/dm-envelope"
+import {recordPqcDmFallback} from "src/engine/pqc/dm-fallback-history"
+import {resolveDmSendPolicy} from "src/engine/pqc/dm-send-policy"
+import {runDmPayloadSizePreflight} from "src/engine/pqc/dm-size-preflight"
 import {stripExifData} from "src/util/html"
 import {appDataKeys} from "src/util/nostr"
 import {get} from "svelte/store"
@@ -240,14 +251,125 @@ export const joinRelay = async (url: string, claim?: string) => {
 // Messages
 
 export const sendMessage = (channelId: string, content: string, delay: number) => {
-  const recipients = uniq(channelId.split(",").concat(pubkey.get()))
+  const senderPubkey = pubkey.get()
+  const recipients = uniq(channelId.split(",").concat(senderPubkey))
+  const dmRecipients = remove(senderPubkey, recipients)
+
+  const policyMode = getSetting("pqc_dm_policy_mode") === "strict" ? "strict" : "compatibility"
+  const preferredHybridAlg = getSetting("pqc_dm_preferred_hybrid_alg")
+  const configuredLocalAlgs = getSetting("pqc_dm_local_supported_algs")
+  const localSupportedAlgs = Array.isArray(configuredLocalAlgs)
+    ? configuredLocalAlgs
+    : ["hybrid-mlkem768+x25519-aead-v1"]
+
+  const preflight = resolveDmSendPolicy({
+    recipients: dmRecipients,
+    policyMode,
+    preferredHybridAlg,
+    localSupportedAlgs,
+    allowClassicalFallback: getSetting("pqc_dm_allow_fallback") !== false,
+  })
+
+  if (!preflight.allowed) {
+    throw new Error(
+      `DM send blocked by PQC policy: ${preflight.blockReason || "DM_POLICY_BLOCKED"}`,
+    )
+  }
+
+  const fallbackReason = preflight.recipientDecisions.find(
+    decision => decision.negotiation.mode === "classical",
+  )?.telemetryReason
+
+  let nextContent = content
+  const extraTags: string[][] = []
+
+  if (getSetting("pqc_dm_enabled") === true) {
+    const envelope = buildDmPqcEnvelope({
+      plaintext: content,
+      senderPubkey,
+      recipients: dmRecipients,
+      mode: preflight.mode,
+      algorithm: preflight.mode === "hybrid" ? preferredHybridAlg : "classical-x25519-aead-v1",
+      fallbackReasonCode: fallbackReason,
+    })
+
+    if (!envelope.ok) {
+      if (policyMode === "strict") {
+        throw new Error(`DM send blocked by PQC envelope encode failure: ${envelope.reason}`)
+      }
+
+      extraTags.push(["pqc", "encode-fallback"])
+      extraTags.push(["pqc_reason", envelope.reason])
+
+      if (getSetting("pqc_dm_enable_fallback_history") !== false) {
+        recordPqcDmFallback({
+          direction: "send",
+          mode: "encode-fallback",
+          reason: envelope.reason,
+          timestamp: Math.floor(Date.now() / 1000),
+          peerPubkey: dmRecipients.length === 1 ? dmRecipients[0] : "multi-recipient",
+        })
+      }
+    } else {
+      const sizePreflight = runDmPayloadSizePreflight({
+        content: envelope.content,
+        maxBytes: Number(getSetting("pqc_dm_max_payload_bytes") || 4096),
+        policyMode,
+        allowClassicalFallback: getSetting("pqc_dm_allow_fallback") !== false,
+      })
+
+      if (!sizePreflight.allowed) {
+        throw new Error(`DM send blocked by PQC payload preflight: ${sizePreflight.reason}`)
+      }
+
+      if (sizePreflight.shouldFallback) {
+        nextContent = content
+        extraTags.push(["pqc", "size-fallback"])
+        extraTags.push(["pqc_reason", sizePreflight.reason])
+
+        if (getSetting("pqc_dm_enable_fallback_history") !== false) {
+          recordPqcDmFallback({
+            direction: "send",
+            mode: "size-fallback",
+            reason: sizePreflight.reason,
+            timestamp: Math.floor(Date.now() / 1000),
+            peerPubkey: dmRecipients.length === 1 ? dmRecipients[0] : "multi-recipient",
+          })
+        }
+      } else {
+        nextContent = envelope.content
+        extraTags.push(["pqc", preflight.mode])
+        extraTags.push([
+          "pqc_alg",
+          preflight.mode === "hybrid" ? preferredHybridAlg : "classical-x25519-aead-v1",
+        ])
+
+        if (preflight.mode === "classical" && fallbackReason) {
+          extraTags.push(["pqc_reason", fallbackReason])
+        }
+
+        if (
+          preflight.mode === "classical" &&
+          getSetting("pqc_dm_enable_fallback_history") !== false
+        ) {
+          recordPqcDmFallback({
+            direction: "send",
+            mode: "classical-fallback",
+            reason: fallbackReason || "DM_POLICY_FALLBACK",
+            timestamp: Math.floor(Date.now() / 1000),
+            peerPubkey: dmRecipients.length === 1 ? dmRecipients[0] : "multi-recipient",
+          })
+        }
+      }
+    }
+  }
 
   return sendWrapped({
     delay,
     recipients,
     event: makeEvent(DIRECT_MESSAGE, {
-      content,
-      tags: [...remove(pubkey.get(), recipients).map(tagPubkey), ...getClientTags()],
+      content: nextContent,
+      tags: [...remove(pubkey.get(), recipients).map(tagPubkey), ...extraTags, ...getClientTags()],
     }),
   })
 }

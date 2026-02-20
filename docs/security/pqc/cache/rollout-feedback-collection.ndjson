@@ -1,0 +1,2 @@
+{"generatedAt":"2026-02-19T23:44:06.994Z","operator":"release-operations","issueCount":1,"complete":true,"validationIssueCount":0,"byCategory":{"security":0,"performance":0,"interop":1,"ux":0,"other":0},"bySeverity":{"P1":0,"P2":1,"P3":0,"P4":0}}
+{"generatedAt":"2026-02-19T23:44:10.177Z","operator":"release-operations","issueCount":1,"complete":true,"validationIssueCount":0,"byCategory":{"security":0,"performance":0,"interop":1,"ux":0,"other":0},"bySeverity":{"P1":0,"P2":1,"P3":0,"P4":0}}

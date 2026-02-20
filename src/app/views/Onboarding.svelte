@@ -1,8 +1,7 @@
 <script lang="ts">
   import {onMount} from "svelte"
   import {get} from "svelte/store"
-  import {Router, addMaximalFallbacks} from "@welshman/router"
-  import {FOLLOWS, makeEvent, RelayMode, getRelaysFromList, makeSecret} from "@welshman/util"
+  import {RelayMode, getRelaysFromList, makeSecret} from "@welshman/util"
   import {
     userRelayList,
     loginWithNip01,
@@ -16,13 +15,8 @@
   import {Capacitor} from "@capacitor/core"
   import {getNip07, Nip07Signer, getNip55, Nip55Signer} from "@welshman/signer"
   import {nsecDecode} from "src/util/nostr"
-  import FlexColumn from "src/partials/FlexColumn.svelte"
-  import Button from "src/partials/Button.svelte"
   import {showWarning} from "src/partials/Toast.svelte"
-  import Start from "src/app/views/onboarding/Start.svelte"
-  import KeyChoice from "src/app/views/onboarding/KeyChoice.svelte"
-  import ProfileLite from "src/app/views/onboarding/ProfileLite.svelte"
-  import Complete from "src/app/views/onboarding/Complete.svelte"
+  import OnboardingStageHost from "src/app/views/onboarding/OnboardingStageHost.svelte"
   import {setChecked, loadPubkeys, listenForNotifications, env, setOutboxPolicies} from "src/engine"
   import {router} from "src/app/util/router"
   import {boot} from "src/app/state"
@@ -36,11 +30,9 @@
     ensureCompletionIfKeyed,
   } from "src/app/state/onboarding"
   import {trackOnboarding, trackOnboardingEdge, trackOnboardingError} from "src/util/telemetry"
-  import ImportPasswordPrompt from "src/app/views/onboarding/ImportPasswordPrompt.svelte"
   import {decrypt} from "nostr-tools/nip49"
   import {bytesToHex} from "@welshman/lib"
-  import {uniqueRelays, uniqueFollowTags} from "src/app/views/onboarding/util"
-  import Popover from "src/partials/Popover.svelte"
+  import {createOnboardingProvisioningRetry} from "src/app/views/onboarding/provisioning-retry"
 
   type Stage = "start" | "key" | "profile" | "done"
   type Path = "managed" | "import" | "external_signer"
@@ -186,6 +178,20 @@
     selectedPath = $onboardingState.path as Path
   }
 
+  const clearExternalTimeout = () => {
+    if (externalTimeout) {
+      clearTimeout(externalTimeout)
+      externalTimeout = null
+    }
+  }
+
+  const setPathState = (path: Path, needsBackup: boolean) => {
+    selectedPath = path
+    backupNeeded = needsBackup
+    setOnboardingPath(path)
+    setBackupNeeded(needsBackup)
+  }
+
   const handleManaged = async () => {
     keyError = null
     keyLoading = true
@@ -193,12 +199,9 @@
       const secret = makeSecret()
       loginWithNip01(secret)
       boot()
-      selectedPath = "managed"
-      backupNeeded = false
+      setPathState("managed", false)
       go("profile")
       trackOnboarding("onboarding_path_selected", {path: "managed"})
-      setOnboardingPath("managed")
-      setBackupNeeded(false)
 
       if (externalTimedOut) {
         trackOnboardingEdge("external_signer_timeout", true)
@@ -211,10 +214,7 @@
     } finally {
       keyLoading = false
       externalTimedOut = false
-      if (externalTimeout) {
-        clearTimeout(externalTimeout)
-        externalTimeout = null
-      }
+      clearExternalTimeout()
     }
   }
 
@@ -236,12 +236,9 @@
       const secret = nsecDecode(trimmed)
       loginWithNip01(secret)
       boot()
-      selectedPath = "import"
-      backupNeeded = true
+      setPathState("import", true)
       go("profile")
       trackOnboarding("onboarding_path_selected", {path: "import"})
-      setOnboardingPath("import")
-      setBackupNeeded(true)
     } catch (e) {
       console.error(e)
       keyError = "That key didn’t look valid. Check and try again."
@@ -260,14 +257,11 @@
       const hex = bytesToHex(bytes)
       loginWithNip01(hex)
       boot()
-      selectedPath = "import"
-      backupNeeded = true
+      setPathState("import", true)
       showImportPassword = false
       importEncrypted = null
       go("profile")
       trackOnboarding("onboarding_path_selected", {path: "import"})
-      setOnboardingPath("import")
-      setBackupNeeded(true)
     } catch (e) {
       console.error(e)
       importPasswordError = "Couldn’t decrypt that key. Check the password and try again."
@@ -279,16 +273,11 @@
   }
 
   const handleExternal = () => {
-    selectedPath = "external_signer"
-    backupNeeded = false
+    setPathState("external_signer", false)
     router.at("/login").open()
     trackOnboarding("onboarding_path_selected", {path: "external_signer"})
-    setOnboardingPath("external_signer")
-    setBackupNeeded(false)
 
-    if (externalTimeout) {
-      clearTimeout(externalTimeout)
-    }
+    clearExternalTimeout()
 
     externalTimeout = window.setTimeout(() => {
       if (!$pubkey) {
@@ -301,159 +290,86 @@
     }, 8000)
   }
 
-  const handleExtension = async () => {
+  const loginWithExternalSigner = async ({
+    via,
+    getPubkey,
+    applyLogin,
+    failureCode,
+    failureMessage,
+  }: {
+    via: "nip07" | "nip55"
+    getPubkey: () => Promise<string>
+    applyLogin: (signerPubkey: string) => void
+    failureCode: string
+    failureMessage: string
+  }) => {
     try {
       keyError = null
       keyLoading = true
-      const signer = new Nip07Signer()
-      const signerPubkey = await signer.getPubkey()
-      loginWithNip07(signerPubkey)
+      const signerPubkey = await getPubkey()
+
+      applyLogin(signerPubkey)
       boot()
-      selectedPath = "external_signer"
-      backupNeeded = false
-      setOnboardingPath("external_signer")
-      setBackupNeeded(false)
-      trackOnboarding("onboarding_path_selected", {path: "external_signer", via: "nip07"})
+      setPathState("external_signer", false)
+      trackOnboarding("onboarding_path_selected", {path: "external_signer", via})
       go("profile")
     } catch (e) {
       console.error(e)
-      keyError = "Extension did not respond. Try again or pick another option."
-      trackOnboardingError("external_extension_failed")
+      keyError = failureMessage
+      trackOnboardingError(failureCode)
     } finally {
       keyLoading = false
       externalTimedOut = false
-      if (externalTimeout) {
-        clearTimeout(externalTimeout)
-        externalTimeout = null
-      }
+      clearExternalTimeout()
     }
+  }
+
+  const handleExtension = async () => {
+    await loginWithExternalSigner({
+      via: "nip07",
+      getPubkey: () => new Nip07Signer().getPubkey(),
+      applyLogin: signerPubkey => loginWithNip07(signerPubkey),
+      failureCode: "external_extension_failed",
+      failureMessage: "Extension did not respond. Try again or pick another option.",
+    })
   }
 
   const handleSignerApp = async (app: SignerApp) => {
-    try {
-      keyError = null
-      keyLoading = true
-      const signer = new Nip55Signer(app.packageName)
-      const signerPubkey = await signer.getPubkey()
-      loginWithNip55(signerPubkey, app.packageName)
-      boot()
-      selectedPath = "external_signer"
-      backupNeeded = false
-      setOnboardingPath("external_signer")
-      setBackupNeeded(false)
-      trackOnboarding("onboarding_path_selected", {path: "external_signer", via: "nip55"})
-      go("profile")
-    } catch (e) {
-      console.error(e)
-      keyError = "Signer app did not respond. Try again or pick another option."
-      trackOnboardingError("external_signer_app_failed")
-    } finally {
-      keyLoading = false
-      externalTimedOut = false
-      if (externalTimeout) {
-        clearTimeout(externalTimeout)
-        externalTimeout = null
-      }
-    }
+    await loginWithExternalSigner({
+      via: "nip55",
+      getPubkey: () => new Nip55Signer(app.packageName).getPubkey(),
+      applyLogin: signerPubkey => loginWithNip55(signerPubkey, app.packageName),
+      failureCode: "external_signer_app_failed",
+      failureMessage: "Signer app did not respond. Try again or pick another option.",
+    })
   }
 
-  const applyRelaysIfNeeded = async (attempt = 0) => {
-    const urls = getRelaysFromList($userRelayList)
-    if (urls.length > 0) {
-      relaysApplied = true
-      queueRelays = false
-      if (relayEdgeLogged) {
-        trackOnboardingEdge("relay_offline", true)
-        relayEdgeLogged = false
-      }
-      return
-    }
-
-    if (typeof navigator !== "undefined" && navigator.onLine === false) {
-      queueRelays = true
-      relaysApplied = false
-      if (!relayEdgeLogged) {
-        trackOnboardingEdge("relay_offline", false)
-        relayEdgeLogged = true
-      }
-      return
-    }
-
-    try {
-      const relays = uniqueRelays(env.DEFAULT_RELAYS.map(url => ["r", url]))
-      await setOutboxPolicies(() => relays)
-      relaysApplied = true
-      queueRelays = false
-      if (relayEdgeLogged) {
-        trackOnboardingEdge("relay_publish_fail", true)
-        relayEdgeLogged = false
-      }
-    } catch (e) {
-      console.error(e)
-      relaysApplied = false
-      if (attempt === 0) {
-        showWarning("Relay defaults not applied. Retrying in the background.")
-        if (!relayEdgeLogged) {
-          trackOnboardingEdge("relay_publish_fail", false)
-          relayEdgeLogged = true
-        }
-      }
-      if (attempt < 2) {
-        const delay = 800 * Math.pow(2, attempt)
-        setTimeout(() => applyRelaysIfNeeded(attempt + 1), delay)
-      } else {
-        queueRelays = true
-      }
-    }
-  }
-
-  const applyStarterFollowsIfEnabled = async (attempt = 0) => {
-    if (!profile.starterFollows) {
-      starterApplied = false
-      return
-    }
-
-    if (typeof navigator !== "undefined" && navigator.onLine === false) {
-      queueFollows = true
-      starterApplied = false
-      if (!followsEdgeLogged) {
-        trackOnboardingEdge("starter_offline", false)
-        followsEdgeLogged = true
-      }
-      return
-    }
-
-    try {
-      const tags = uniqueFollowTags(env.DEFAULT_FOLLOWS, tagPubkey)
-      const event = makeEvent(FOLLOWS, {tags})
-      await publishThunk({
-        event,
-        relays: Router.get().FromUser().policy(addMaximalFallbacks).getUrls(),
-      })
-      starterApplied = true
-      queueFollows = false
-      if (followsEdgeLogged) {
-        trackOnboardingEdge("starter_fail", true)
-        followsEdgeLogged = false
-      }
-    } catch (e) {
-      console.error(e)
-      starterApplied = false
-      if (attempt === 0) {
-        showWarning("Starter follows not applied. Retrying in the background.")
-        if (!followsEdgeLogged) {
-          trackOnboardingEdge("starter_fail", false)
-          followsEdgeLogged = true
-        }
-      }
-      if (attempt < 2) {
-        const delay = 800 * Math.pow(2, attempt)
-        setTimeout(() => applyStarterFollowsIfEnabled(attempt + 1), delay)
-      } else {
-        queueFollows = true
-      }
-    }
-  }
+  const {applyRelaysIfNeeded, applyStarterFollowsIfEnabled} = createOnboardingProvisioningRetry({
+    relays: {
+      getUserRelayList: () => $userRelayList,
+      defaultRelays: env.DEFAULT_RELAYS,
+      setOutboxPolicies,
+      isOnline: () => (typeof navigator === "undefined" ? true : navigator.onLine),
+      showWarning,
+      trackOnboardingEdge,
+      getRelayEdgeLogged: () => relayEdgeLogged,
+      setRelayEdgeLogged: value => (relayEdgeLogged = value),
+      setQueueRelays: value => (queueRelays = value),
+      setRelaysApplied: value => (relaysApplied = value),
+    },
+    follows: {
+      getStarterFollowsEnabled: () => profile.starterFollows,
+      defaultFollows: env.DEFAULT_FOLLOWS,
+      tagPubkey,
+      isOnline: () => (typeof navigator === "undefined" ? true : navigator.onLine),
+      showWarning,
+      trackOnboardingEdge,
+      getFollowsEdgeLogged: () => followsEdgeLogged,
+      setFollowsEdgeLogged: value => (followsEdgeLogged = value),
+      setQueueFollows: value => (queueFollows = value),
+      setStarterApplied: value => (starterApplied = value),
+    },
+  })
 
   const applyProfileIfProvided = async () => {
     if (!profile.handle && !profile.displayName) return
@@ -521,88 +437,41 @@
   }
 </script>
 
-<FlexColumn class="mt-8">
-  {#key currentStage}
-    {#if currentStage === "start"}
-      <Start {hasKey} onContinue={() => go("key")} onSkipExisting={exit} />
-    {:else if currentStage === "key"}
-      <KeyChoice
-        {selectedPath}
-        {hasNip07}
-        {signerApps}
-        loading={keyLoading}
-        error={keyError}
-        on:select={e => (selectedPath = e.detail.path)}
-        on:managed={handleManaged}
-        on:import={e => handleImport(e.detail.secret)}
-        on:external={handleExternal}
-        on:extension={handleExtension}
-        on:signerApp={e => handleSignerApp(e.detail.app)} />
-      <div class="mt-4 flex justify-between text-sm text-neutral-400">
-        <div>Managed is fastest. Advanced options remain available.</div>
-        <div class="flex gap-2">
-          <Button class="btn btn-low whitespace-normal text-center" on:click={() => go("start")}>
-            Back
-          </Button>
-          <Button
-            class="btn btn-accent whitespace-normal text-center"
-            on:click={() => go("profile")}>
-            Skip for now
-          </Button>
-          <Popover triggerType="mouseenter">
-            <span slot="trigger" class="text-neutral-300"><i class="fa fa-info-circle" /></span>
-            <div slot="tooltip" class="max-w-xs text-sm text-neutral-100">
-              Skips picking a key right now and moves to profile. You’ll still need a key before
-              finishing, so choose one of the options when you’re ready.
-            </div>
-          </Popover>
-        </div>
-      </div>
-    {:else if currentStage === "profile"}
-      <ProfileLite
-        handle={profile.handle}
-        displayName={profile.displayName}
-        starterFollows={profile.starterFollows}
-        loading={finishing}
-        onChange={values => (profile = values)}
-        onBack={() => go("key")}
-        onContinue={finish} />
-    {:else if currentStage === "done"}
-      <Complete
-        {relaysApplied}
-        {starterApplied}
-        {backupNeeded}
-        onBack={() => go("profile")}
-        onFinish={exit} />
-    {/if}
-  {/key}
-  <div class="m-auto flex items-center gap-2">
-    <div class="flex gap-2">
-      {#each ["start", "key", "profile", "done"] as s}
-        <div
-          class="h-2 w-2 rounded-full"
-          class:bg-neutral-300={s === currentStage}
-          class:bg-neutral-500={s !== currentStage} />
-      {/each}
-    </div>
-    <Popover triggerType="mouseenter">
-      <span slot="trigger" class="text-neutral-300"><i class="fa fa-info-circle" /></span>
-      <div slot="tooltip" class="max-w-xs text-sm text-neutral-100">
-        These dots show your progress through the four steps. You can go back, but some steps (like
-        choosing a key) must be completed before finishing.
-      </div>
-    </Popover>
-  </div>
-
-  <ImportPasswordPrompt
-    open={showImportPassword}
-    loading={importPasswordLoading}
-    error={importPasswordError}
-    on:submit={e => handleImportEncrypted(e.detail.password)}
-    on:cancel={() => {
-      showImportPassword = false
-      importEncrypted = null
-      importPasswordError = null
-      keyLoading = false
-    }} />
-</FlexColumn>
+<OnboardingStageHost
+  {currentStage}
+  {hasKey}
+  {selectedPath}
+  {hasNip07}
+  {signerApps}
+  {keyLoading}
+  {keyError}
+  {finishing}
+  {relaysApplied}
+  {starterApplied}
+  {backupNeeded}
+  {profile}
+  {showImportPassword}
+  {importPasswordLoading}
+  {importPasswordError}
+  onContinueStart={() => go("key")}
+  onSkipExisting={exit}
+  onBackToStart={() => go("start")}
+  onSkipKey={() => go("profile")}
+  onSelectPath={path => (selectedPath = path)}
+  onManaged={handleManaged}
+  onImport={handleImport}
+  onExternal={handleExternal}
+  onExtension={handleExtension}
+  onSignerApp={handleSignerApp}
+  onProfileChange={values => (profile = values)}
+  onBackProfile={() => go("key")}
+  onContinueProfile={finish}
+  onBackDone={() => go("profile")}
+  onFinish={exit}
+  onImportPasswordSubmit={handleImportEncrypted}
+  onImportPasswordCancel={() => {
+    showImportPassword = false
+    importEncrypted = null
+    importPasswordError = null
+    keyLoading = false
+  }} />

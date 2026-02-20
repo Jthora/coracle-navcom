@@ -1,0 +1,43 @@
+{
+  "generatedAt": "2026-02-19T23:35:58.846Z",
+  "checkpointPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-beta-checkpoint.json",
+  "readinessPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-readiness.json",
+  "triagePath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-error-triage.json",
+  "outputPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/external-opt-in-beta-instructions.md",
+  "outputJsonPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/external-opt-in-beta-instructions.json",
+  "requireReady": true,
+  "readyForExternalBeta": false,
+  "recommendation": "hold-populate-readiness-metrics",
+  "failedGates": [
+    {
+      "name": "readiness",
+      "detail": "Readiness thresholds are not satisfied for this checkpoint."
+    },
+    {
+      "name": "highBudget",
+      "detail": "2 high open classes (max 0)."
+    },
+    {
+      "name": "mediumBudget",
+      "detail": "3 medium open classes (max 1)."
+    }
+  ],
+  "openIssueCounts": {
+    "total": 5,
+    "critical": 0,
+    "high": 2,
+    "medium": 3,
+    "low": 0
+  },
+  "readinessWindow": {
+    "start": "2026-02-19T00:00:00.000Z",
+    "end": "2026-02-20T00:00:00.000Z",
+    "label": "daily-dogfood-window"
+  },
+  "triageRows": 5,
+  "guidance": [
+    "Do not enable external opt-in beta flags yet.",
+    "Resolve all failed checkpoint gates and regenerate artifacts.",
+    "Re-run this publisher after checkpoint moves to proceed state."
+  ]
+}

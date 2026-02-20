@@ -1,0 +1,108 @@
+{
+  "generatedAt": "2026-02-19T23:39:00.076Z",
+  "readinessPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-readiness.json",
+  "triagePath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-error-triage.json",
+  "outputJsonPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-beta-checkpoint.json",
+  "outputMdPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-beta-checkpoint.md",
+  "warnOnly": true,
+  "thresholds": {
+    "maxCriticalOpen": 0,
+    "maxHighOpen": 0,
+    "maxMediumOpen": 1
+  },
+  "readyForExternalBeta": false,
+  "recommendation": "hold-populate-readiness-metrics",
+  "gates": {
+    "readiness": {
+      "pass": false,
+      "detail": "Readiness thresholds are not satisfied for this checkpoint."
+    },
+    "triageCoverage": {
+      "pass": true,
+      "detail": "Triage artifact includes ranked error classes."
+    },
+    "triageOwners": {
+      "pass": true,
+      "detail": "All top triage rows have explicit owners."
+    },
+    "criticalBudget": {
+      "pass": true,
+      "detail": "0 critical open classes (max 0)."
+    },
+    "highBudget": {
+      "pass": false,
+      "detail": "2 high open classes (max 0)."
+    },
+    "mediumBudget": {
+      "pass": false,
+      "detail": "3 medium open classes (max 1)."
+    }
+  },
+  "failedGates": [
+    {
+      "name": "readiness",
+      "detail": "Readiness thresholds are not satisfied for this checkpoint."
+    },
+    {
+      "name": "highBudget",
+      "detail": "2 high open classes (max 0)."
+    },
+    {
+      "name": "mediumBudget",
+      "detail": "3 medium open classes (max 1)."
+    }
+  ],
+  "openIssueCounts": {
+    "total": 5,
+    "critical": 0,
+    "high": 2,
+    "medium": 3,
+    "low": 0
+  },
+  "topOpenRows": [
+    {
+      "id": "decrypt-failure-rate-elevated",
+      "label": "Decrypt failure rate elevated",
+      "severity": "high",
+      "owner": "Crypto Runtime",
+      "count": 0,
+      "rate": null
+    },
+    {
+      "id": "secure-send-success-rate-degraded",
+      "label": "Secure send success rate degraded",
+      "severity": "high",
+      "owner": "Messaging Foundations",
+      "count": 0,
+      "rate": null
+    },
+    {
+      "id": "downgrade-rate-elevated",
+      "label": "Downgrade rate elevated",
+      "severity": "medium",
+      "owner": "Messaging Foundations",
+      "count": 0,
+      "rate": null
+    },
+    {
+      "id": "group-rekey-latency-elevated",
+      "label": "Group rekey latency elevated",
+      "severity": "medium",
+      "owner": "Group Systems",
+      "count": 0,
+      "rate": null
+    },
+    {
+      "id": "relay-reject-rate-elevated",
+      "label": "Relay reject rate elevated",
+      "severity": "medium",
+      "owner": "Relay Integrations",
+      "count": 0,
+      "rate": null
+    }
+  ],
+  "guidance": [
+    "Checkpoint is hold: do not enable external opt-in beta yet.",
+    "Resolve failed gates and regenerate readiness/triage/checkpoint artifacts."
+  ]
+}

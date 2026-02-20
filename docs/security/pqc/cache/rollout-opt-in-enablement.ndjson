@@ -1,0 +1,2 @@
+{"generatedAt":"2026-02-19T23:39:00.902Z","operator":"release-operations","executable":false,"checkpointReady":false,"recommendation":"hold-populate-readiness-metrics","approvedUserCount":1,"invalidUserCount":0,"blockedReasonCount":1,"ticketId":"RFC-EXTERNAL-BETA-000"}
+{"generatedAt":"2026-02-19T23:39:16.150Z","operator":"release-operations","executable":false,"checkpointReady":false,"recommendation":"hold-populate-readiness-metrics","approvedUserCount":1,"invalidUserCount":0,"blockedReasonCount":1,"ticketId":"RFC-EXTERNAL-BETA-000"}

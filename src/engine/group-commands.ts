@@ -13,6 +13,7 @@ import {
 } from "src/domain/group-command-feedback"
 import type {GroupMemberRole} from "src/domain/group"
 import {dispatchGroupTransportAction} from "src/engine/group-transport"
+import {recordGroupDowngradeAudit} from "src/engine/group-downgrade-audit"
 import {
   remediateCompromisedDevice,
   type CompromisedDeviceRemediationResult,
@@ -22,9 +23,28 @@ import {
   type RevokeCompromisedDeviceResult,
 } from "src/engine/group-key-revocation"
 
-const createDiagnostics = () => ({
+export const createGroupCommandTransportDiagnostics = () => ({
   onResolved: () => {},
-  onFallback: () => {},
+  onFallback: (input: {
+    intent: {payload: {groupId: string}; actorRole: string; createdAt: number}
+    requestedMode: string
+    adapterId: string
+    reason?: string
+  }) => {
+    if (input.requestedMode !== "secure-nip-ee" || input.adapterId === "secure-nip-ee") {
+      return
+    }
+
+    recordGroupDowngradeAudit({
+      groupId: input.intent.payload.groupId,
+      action: "transport-downgrade",
+      actor: input.intent.actorRole,
+      createdAt: input.intent.createdAt,
+      requestedMode: input.requestedMode,
+      resolvedMode: input.adapterId,
+      reason: input.reason,
+    })
+  },
 })
 
 const ensureAllowed = (
@@ -50,7 +70,7 @@ export const publishGroupCreate = async (
   return dispatchGroupTransportAction(
     "create",
     {groupId, title, description, picture},
-    {actorRole, diagnostics: createDiagnostics()},
+    {actorRole, diagnostics: createGroupCommandTransportDiagnostics()},
   )
 }
 
@@ -105,7 +125,7 @@ export const publishGroupJoin = async (
   return dispatchGroupTransportAction(
     "join",
     {groupId, memberPubkey, reason},
-    {actorRole, diagnostics: createDiagnostics()},
+    {actorRole, diagnostics: createGroupCommandTransportDiagnostics()},
   )
 }
 
@@ -122,7 +142,7 @@ export const publishGroupLeave = async (
   return dispatchGroupTransportAction(
     "leave",
     {groupId, memberPubkey, reason},
-    {actorRole, diagnostics: createDiagnostics()},
+    {actorRole, diagnostics: createGroupCommandTransportDiagnostics()},
   )
 }
 
@@ -140,7 +160,7 @@ export const publishGroupPutMember = async (
   return dispatchGroupTransportAction(
     "put-member",
     {groupId, memberPubkey, role, reason},
-    {actorRole, diagnostics: createDiagnostics()},
+    {actorRole, diagnostics: createGroupCommandTransportDiagnostics()},
   )
 }
 
@@ -153,7 +173,7 @@ export const publishGroupRemoveMember = async (
   return dispatchGroupTransportAction(
     "remove-member",
     {groupId, memberPubkey, reason},
-    {actorRole, diagnostics: createDiagnostics()},
+    {actorRole, diagnostics: createGroupCommandTransportDiagnostics()},
   )
 }
 
@@ -178,7 +198,7 @@ export const publishGroupMetadataEdit = async (
   return dispatchGroupTransportAction(
     "edit-metadata",
     {groupId, title, description, picture, reason},
-    {actorRole, diagnostics: createDiagnostics()},
+    {actorRole, diagnostics: createGroupCommandTransportDiagnostics()},
   )
 }
 

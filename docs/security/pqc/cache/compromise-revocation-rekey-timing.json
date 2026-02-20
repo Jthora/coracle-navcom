@@ -1,0 +1,18 @@
+{
+  "ticketId": "PQC-COMPROMISE-001",
+  "targets": {
+    "maxRevocationSeconds": 300,
+    "maxForcedRotationSeconds": 900,
+    "maxEpochAdvanceSeconds": 900
+  },
+  "events": {
+    "detectedAt": "2026-02-20T00:56:00.000Z",
+    "revokedAt": "2026-02-20T00:59:00.000Z",
+    "forcedRotationGuidanceAt": "2026-02-20T01:03:00.000Z",
+    "groupEpochAdvancedAt": "2026-02-20T01:06:00.000Z"
+  },
+  "validation": {
+    "excludedCompromisedKeysFromSendPath": true,
+    "userRemediationCommunicationSent": true
+  }
+}

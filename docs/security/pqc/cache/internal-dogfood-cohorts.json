@@ -1,0 +1,26 @@
+{
+  "generatedAt": "2026-02-19T00:00:00.000Z",
+  "rolloutWindow": "internal-dogfood-week-1",
+  "requestedBy": "release-operations",
+  "approvedBy": "security-architecture",
+  "cohorts": [
+    {
+      "cohortId": "internal-core",
+      "ticketId": "PQC-DOGFOOD-001",
+      "owner": "client-engineering",
+      "stage": 1,
+      "users": [
+        {
+          "pubkey": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "alias": "internal-user-001",
+          "role": "engineer"
+        },
+        {
+          "pubkey": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "alias": "internal-user-002",
+          "role": "qa"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "ticketId": "PQC-COMPROMISE-001",
+  "publishedAt": "2026-02-20T01:15:00.000Z",
+  "summary": "Compromise tabletop completed with contained blast radius and validated revocation/rekey path timing.",
+  "actions": [
+    {
+      "id": "ca-1",
+      "title": "Add alert correlation for key-signature anomalies + downgrade spikes",
+      "owner": "security-response",
+      "priority": "high",
+      "dueAt": "2026-02-27T17:00:00.000Z"
+    },
+    {
+      "id": "ca-2",
+      "title": "Automate operator checklist prefill for IC-1 drills",
+      "owner": "release-operations",
+      "priority": "medium",
+      "dueAt": "2026-03-06T17:00:00.000Z"
+    }
+  ]
+}

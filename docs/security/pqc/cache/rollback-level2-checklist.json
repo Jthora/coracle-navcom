@@ -1,0 +1,35 @@
+{
+  "environment": "staging",
+  "ticketId": "PQC-ROLLBACK-001",
+  "triggerReason": "Incident drill: validate staged rollback level 2 (disable hybrid send, preserve receive).",
+  "executedAt": "2026-02-20T00:30:00.000Z",
+  "impact": "Hybrid sends disabled to contain sender risk; hybrid receive remains available for continuity.",
+  "restorationPrerequisites": [
+    "Sender-path issue remediation confirmed with owner sign-off.",
+    "Receive-path compatibility metrics remain below alert thresholds."
+  ],
+  "preFlags": {
+    "pqc_enabled": true,
+    "pqc_dm_enabled": true,
+    "pqc_groups_enabled": true,
+    "pqc_strict_default": false,
+    "pqc_chunking_enabled": true
+  },
+  "postFlags": {
+    "pqc_enabled": true,
+    "pqc_dm_enabled": true,
+    "pqc_groups_enabled": true,
+    "pqc_strict_default": false,
+    "pqc_chunking_enabled": true
+  },
+  "transportPolicy": {
+    "hybridSendEnabled": false,
+    "hybridReceiveEnabled": true,
+    "classicalDefault": false
+  },
+  "smokeChecks": {
+    "receivePathPass": true,
+    "fallbackSendPathPass": true,
+    "noHybridSendAttempt": true
+  }
+}

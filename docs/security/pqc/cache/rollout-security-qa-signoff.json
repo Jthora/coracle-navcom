@@ -1,0 +1,36 @@
+{
+  "generatedAt": "2026-02-20T00:57:46.478Z",
+  "operator": "release-management",
+  "warnOnly": false,
+  "gapsPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-requirement-gap-verification.json",
+  "inputPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/security-qa-signoff-approvals.json",
+  "outputJsonPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-security-qa-signoff.json",
+  "outputMdPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-security-qa-signoff.md",
+  "auditPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-security-qa-signoff.ndjson",
+  "releaseId": "pqc-g3-production-2026-02-19",
+  "approvedAt": "2026-02-19T16:50:00Z",
+  "approvals": {
+    "security": {
+      "approved": true,
+      "approver": "security-owner",
+      "role": "Security Architecture Lead",
+      "approvedAt": "2026-02-19T16:48:00Z",
+      "evidenceCount": 2,
+      "notes": "MUST controls and release-risk posture reviewed."
+    },
+    "qa": {
+      "approved": true,
+      "approver": "qa-owner",
+      "role": "QA Lead",
+      "approvedAt": "2026-02-19T16:49:00Z",
+      "evidenceCount": 2,
+      "notes": "Coverage and gate evidence reviewed for production readiness."
+    }
+  },
+  "complete": true,
+  "issues": [],
+  "guidance": [
+    "Security and QA sign-offs are recorded for production gate.",
+    "Requirement gate task is complete."
+  ]
+}

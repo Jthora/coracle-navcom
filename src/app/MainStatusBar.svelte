@@ -1,9 +1,10 @@
 <script lang="ts">
   import {onMount} from "svelte"
   import {Pool} from "@welshman/net"
-  import {derivePubkeyRelays, pubkey} from "@welshman/app"
+  import {derivePubkeyRelays, pubkey, repository} from "@welshman/app"
+  import {deriveEvents} from "@welshman/store"
   import {RelayMode} from "@welshman/util"
-  import {messages} from "src/engine"
+  import {env, messages} from "src/engine"
   import {ConnectionType, getSocketStatus} from "src/domain/connection"
   import UplinkStatusDivider from "src/app/uplink-status/UplinkStatusDivider.svelte"
   import UplinkStatusConnection from "src/app/uplink-status/UplinkStatusConnection.svelte"
@@ -12,10 +13,12 @@
   let innerWidth = 0
   let elapsedMs = 0
   const startedAt = Date.now()
+  const intelTag = env.INTEL_TAG || "starcom_intel"
 
   const readRelayUrls = derivePubkeyRelays($pubkey, RelayMode.Read)
   const writeRelayUrls = derivePubkeyRelays($pubkey, RelayMode.Write)
   const messagingRelayUrls = derivePubkeyRelays($pubkey, RelayMode.Messaging)
+  const intelReportEvents = deriveEvents({repository, filters: [{"#t": [intelTag]}]})
 
   $: relayUrls = Array.from(
     new Set([...$readRelayUrls, ...$writeRelayUrls, ...$messagingRelayUrls]),
@@ -70,6 +73,11 @@
         <UplinkStatusItem
           label="Messages"
           value={String($messages.length)}
+          valueClass="text-accent" />
+        <UplinkStatusDivider />
+        <UplinkStatusItem
+          label="Intel Reports"
+          value={String($intelReportEvents.length)}
           valueClass="text-accent" />
         <UplinkStatusDivider />
         <UplinkStatusItem label="Uptime" value={uptime} valueClass="font-mono text-accent" />

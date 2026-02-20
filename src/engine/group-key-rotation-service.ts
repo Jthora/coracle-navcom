@@ -276,6 +276,22 @@ export const scheduleSecureGroupMembershipTriggeredRotation = (input: {
   at?: number
 }) => secureGroupKeyRotationService.scheduleMembershipTriggeredRotation(input)
 
+export const scheduleSecureGroupCompromiseRemediationRotation = ({
+  groupId,
+  keyState,
+  at,
+}: {
+  groupId: string
+  keyState?: GroupKeyLifecycleState | null
+  at?: number
+}) =>
+  secureGroupKeyRotationService.scheduleRotationIfNeeded({
+    groupId,
+    keyState,
+    trigger: "compromise-suspected",
+    at,
+  })
+
 export const recordSecureGroupKeyRotationFailure = (groupId: string, error: unknown, at?: number) =>
   secureGroupKeyRotationService.recordFailure(groupId, error, at)
 

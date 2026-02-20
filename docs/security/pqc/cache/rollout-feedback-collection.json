@@ -1,0 +1,43 @@
+{
+  "generatedAt": "2026-02-19T23:44:10.177Z",
+  "inputPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/external-opt-in-feedback-submissions.json",
+  "outputJsonPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-feedback-collection.json",
+  "outputMdPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-feedback-collection.md",
+  "auditPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-feedback-collection.ndjson",
+  "operator": "release-operations",
+  "warnOnly": false,
+  "issueCount": 1,
+  "byCategory": {
+    "security": 0,
+    "performance": 0,
+    "interop": 1,
+    "ux": 0,
+    "other": 0
+  },
+  "bySeverity": {
+    "P1": 0,
+    "P2": 1,
+    "P3": 0,
+    "P4": 0
+  },
+  "issues": [],
+  "complete": true,
+  "rows": [
+    {
+      "issueId": "PQC-BETA-001",
+      "title": "Intermittent decrypt fallback in mixed-client relay set",
+      "reporter": "beta-user-001",
+      "category": "interop",
+      "severity": "P2",
+      "status": "open",
+      "summary": "Observed fallback to classical receive mode on constrained relay profile.",
+      "evidence": "See docs/security/pqc/cache/rollout-readiness.json and local reproduction notes.",
+      "createdAt": "2026-02-19T00:00:00.000Z",
+      "notes": "Pending triage owner assignment."
+    }
+  ],
+  "guidance": [
+    "Feedback submissions are valid and ready for triage tagging.",
+    "Proceed to Stage 5.2.2.2.2 classification and routing."
+  ]
+}

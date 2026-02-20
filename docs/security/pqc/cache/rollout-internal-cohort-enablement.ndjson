@@ -1,0 +1,2 @@
+{"generatedAt":"2026-02-20T00:04:42.811Z","operator":"release-operations","rolloutWindow":"internal-dogfood-week-1","cohortCount":1,"enableableCohortCount":1,"userCount":2,"invalidUserCount":0,"readinessReady":false,"complete":true,"issueCount":0}
+{"generatedAt":"2026-02-20T00:04:43.857Z","operator":"release-operations","rolloutWindow":"internal-dogfood-week-1","cohortCount":1,"enableableCohortCount":1,"userCount":2,"invalidUserCount":0,"readinessReady":false,"complete":true,"issueCount":0}

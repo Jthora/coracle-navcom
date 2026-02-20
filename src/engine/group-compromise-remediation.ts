@@ -1,8 +1,13 @@
 import type {GroupMemberRole} from "src/domain/group"
 import {
-  scheduleSecureGroupKeyRotationIfNeeded,
+  scheduleSecureGroupCompromiseRemediationRotation,
   type GroupKeyRotationJob,
 } from "src/engine/group-key-rotation-service"
+import {
+  advanceSecureGroupEpochState,
+  ensureSecureGroupEpochState,
+  type SecureGroupEpochState,
+} from "src/engine/group-epoch-state"
 import {
   revokeCompromisedDeviceForGroup,
   type RevokeCompromisedDeviceResult,
@@ -26,6 +31,10 @@ export type CompromisedDeviceRemediationResult = {
   revocation: RevokeCompromisedDeviceResult
   rotationScheduled: boolean
   rotationJob: GroupKeyRotationJob | null
+  epochTransition: {
+    supersededEpoch: SecureGroupEpochState
+    activeEpoch: SecureGroupEpochState
+  }
 }
 
 export const remediateCompromisedDevice = async ({
@@ -46,9 +55,11 @@ export const remediateCompromisedDevice = async ({
     now,
   })
 
-  const rotationJob = scheduleSecureGroupKeyRotationIfNeeded({
+  const supersededEpoch = ensureSecureGroupEpochState(groupId, {at: now})
+  const activeEpoch = advanceSecureGroupEpochState(groupId, {at: now})
+
+  const rotationJob = scheduleSecureGroupCompromiseRemediationRotation({
     groupId,
-    trigger: "compromise-suspected",
     at: now,
   })
 
@@ -58,5 +69,9 @@ export const remediateCompromisedDevice = async ({
     revocation,
     rotationScheduled: Boolean(rotationJob),
     rotationJob,
+    epochTransition: {
+      supersededEpoch,
+      activeEpoch,
+    },
   }
 }

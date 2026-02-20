@@ -1,0 +1,125 @@
+{
+  "generatedAt": "2026-02-19T23:38:59.324Z",
+  "readinessPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-readiness.json",
+  "telemetryPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-telemetry.json",
+  "outputJsonPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-error-triage.json",
+  "outputMdPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-error-triage.md",
+  "topN": 5,
+  "warnOnly": true,
+  "readyForOwnerReview": true,
+  "rows": [
+    {
+      "source": "readiness",
+      "id": "decrypt-failure-rate-elevated",
+      "label": "Decrypt failure rate elevated",
+      "owner": "Crypto Runtime",
+      "ownerContact": "crypto-runtime@navcom.local",
+      "severity": "high",
+      "count": 0,
+      "rate": null,
+      "notes": "metric-missing",
+      "reasons": [
+        {
+          "metric": "decryptFailureRate",
+          "status": "missing",
+          "reason": "metric-missing",
+          "target": 0.05,
+          "value": null
+        }
+      ]
+    },
+    {
+      "source": "readiness",
+      "id": "secure-send-success-rate-degraded",
+      "label": "Secure send success rate degraded",
+      "owner": "Messaging Foundations",
+      "ownerContact": "messaging-foundations@navcom.local",
+      "severity": "high",
+      "count": 0,
+      "rate": null,
+      "notes": "metric-missing",
+      "reasons": [
+        {
+          "metric": "secureSendSuccessRate",
+          "status": "missing",
+          "reason": "metric-missing",
+          "target": 0.97,
+          "value": null
+        }
+      ]
+    },
+    {
+      "source": "readiness",
+      "id": "downgrade-rate-elevated",
+      "label": "Downgrade rate elevated",
+      "owner": "Messaging Foundations",
+      "ownerContact": "messaging-foundations@navcom.local",
+      "severity": "medium",
+      "count": 0,
+      "rate": null,
+      "notes": "metric-missing",
+      "reasons": [
+        {
+          "metric": "downgradeRate",
+          "status": "missing",
+          "reason": "metric-missing",
+          "target": 0.2,
+          "value": null
+        }
+      ]
+    },
+    {
+      "source": "readiness",
+      "id": "group-rekey-latency-elevated",
+      "label": "Group rekey latency elevated",
+      "owner": "Group Systems",
+      "ownerContact": "group-systems@navcom.local",
+      "severity": "medium",
+      "count": 0,
+      "rate": null,
+      "notes": "metric-missing",
+      "reasons": [
+        {
+          "metric": "groupRekeyP95Ms",
+          "status": "missing",
+          "reason": "metric-missing",
+          "target": 25,
+          "value": null
+        }
+      ]
+    },
+    {
+      "source": "readiness",
+      "id": "relay-reject-rate-elevated",
+      "label": "Relay reject rate elevated",
+      "owner": "Relay Integrations",
+      "ownerContact": "relay-integrations@navcom.local",
+      "severity": "medium",
+      "count": 0,
+      "rate": null,
+      "notes": "metric-missing",
+      "reasons": [
+        {
+          "metric": "relayRejectRate",
+          "status": "missing",
+          "reason": "metric-missing",
+          "target": 0.1,
+          "value": null
+        }
+      ]
+    }
+  ],
+  "unownedCount": 0,
+  "ownerDirectory": {
+    "Messaging Foundations": "messaging-foundations@navcom.local",
+    "Crypto Runtime": "crypto-runtime@navcom.local",
+    "Relay Integrations": "relay-integrations@navcom.local",
+    "Group Systems": "group-systems@navcom.local",
+    "Release Operations": "release-operations@navcom.local"
+  },
+  "guidance": [
+    "Review top error classes with listed owners during daily dogfood standup.",
+    "Open owner-tracked remediation items for high-severity classes.",
+    "Re-run readiness and triage after remediation to confirm error reduction."
+  ]
+}

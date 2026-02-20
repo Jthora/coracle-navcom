@@ -1,0 +1,50 @@
+{
+  "generatedAt": "2026-02-20T00:35:48.751Z",
+  "operator": "release-operations",
+  "warnOnly": false,
+  "level": 1,
+  "inputPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollback-level1-checklist.json",
+  "outputJsonPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-rollback-level1.json",
+  "outputMdPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-rollback-level1.md",
+  "auditPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-rollback-level1.ndjson",
+  "previousLevelPath": null,
+  "environment": "staging",
+  "ticketId": "PQC-ROLLBACK-001",
+  "triggerReason": "Incident drill: validate staged rollback level 1 (disable strict defaults).",
+  "executedAt": "2026-02-20T00:20:00.000Z",
+  "impact": "Strict defaults disabled; PQC send/receive remains enabled while reducing policy risk.",
+  "restorationPrerequisites": [
+    "Daily telemetry monitor returns stable secure success and downgrade rates.",
+    "Kill-switch and rollback audit logs recorded for this drill window."
+  ],
+  "preFlags": {
+    "pqc_enabled": true,
+    "pqc_dm_enabled": true,
+    "pqc_groups_enabled": true,
+    "pqc_strict_default": true,
+    "pqc_chunking_enabled": true
+  },
+  "postFlags": {
+    "pqc_enabled": true,
+    "pqc_dm_enabled": true,
+    "pqc_groups_enabled": true,
+    "pqc_strict_default": false,
+    "pqc_chunking_enabled": true
+  },
+  "transportPolicy": {
+    "hybridSendEnabled": true,
+    "hybridReceiveEnabled": true,
+    "classicalDefault": false
+  },
+  "smokeChecks": {
+    "dmPathPass": true,
+    "groupPathPass": true,
+    "noPolicyCrash": true
+  },
+  "complete": true,
+  "issues": [],
+  "guidance": [
+    "Rollback level 1 validated: strict defaults disabled while PQC paths remain active.",
+    "Proceed to rollback level 2 validation when operationally required."
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "generatedAt": "2026-02-20T00:35:50.830Z",
+  "operator": "release-operations",
+  "warnOnly": false,
+  "level": 2,
+  "inputPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollback-level2-checklist.json",
+  "outputJsonPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-rollback-level2.json",
+  "outputMdPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-rollback-level2.md",
+  "auditPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-rollback-level2.ndjson",
+  "previousLevelPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-rollback-level1.json",
+  "environment": "staging",
+  "ticketId": "PQC-ROLLBACK-001",
+  "triggerReason": "Incident drill: validate staged rollback level 2 (disable hybrid send, preserve receive).",
+  "executedAt": "2026-02-20T00:30:00.000Z",
+  "impact": "Hybrid sends disabled to contain sender risk; hybrid receive remains available for continuity.",
+  "restorationPrerequisites": [
+    "Sender-path issue remediation confirmed with owner sign-off.",
+    "Receive-path compatibility metrics remain below alert thresholds."
+  ],
+  "preFlags": {
+    "pqc_enabled": true,
+    "pqc_dm_enabled": true,
+    "pqc_groups_enabled": true,
+    "pqc_strict_default": false,
+    "pqc_chunking_enabled": true
+  },
+  "postFlags": {
+    "pqc_enabled": true,
+    "pqc_dm_enabled": true,
+    "pqc_groups_enabled": true,
+    "pqc_strict_default": false,
+    "pqc_chunking_enabled": true
+  },
+  "transportPolicy": {
+    "hybridSendEnabled": false,
+    "hybridReceiveEnabled": true,
+    "classicalDefault": false
+  },
+  "smokeChecks": {
+    "receivePathPass": true,
+    "fallbackSendPathPass": true,
+    "noHybridSendAttempt": true
+  },
+  "complete": true,
+  "issues": [],
+  "guidance": [
+    "Rollback level 2 validated: hybrid send disabled while receive support remains active.",
+    "Proceed to rollback level 3 validation only when full PQ disable is required."
+  ]
+}

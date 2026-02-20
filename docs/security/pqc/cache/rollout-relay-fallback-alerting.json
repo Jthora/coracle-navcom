@@ -1,0 +1,39 @@
+{
+  "generatedAt": "2026-02-20T00:50:36.487Z",
+  "operator": "release-operations",
+  "warnOnly": false,
+  "surgePath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-relay-rejection-surge.json",
+  "inputPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/relay-fallback-alerting-checks.json",
+  "outputJsonPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-relay-fallback-alerting.json",
+  "outputMdPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-relay-fallback-alerting.md",
+  "auditPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-relay-fallback-alerting.ndjson",
+  "ticketId": "PQC-RELAY-SURGE-001",
+  "executedAt": "2026-02-20T01:40:00.000Z",
+  "postFallbackRejectionRate": 0.07,
+  "targetMaxRejectionRate": 0.1,
+  "fallback": {
+    "adaptiveRelaySelectionApplied": true,
+    "alternateRelayRetryEnabled": true,
+    "compatibilityFallbackEnabled": true,
+    "payloadLimitsAdjusted": true,
+    "chunkingPolicyAdjusted": true
+  },
+  "alerts": {
+    "relayRejectionSpikeAlertFired": true,
+    "fallbackActivationAlertFired": true,
+    "onCallAcknowledged": true,
+    "acknowledgedAt": "2026-02-20T01:42:00.000Z"
+  },
+  "results": {
+    "postFallbackRejectionRate": 0.07,
+    "targetMaxRejectionRate": 0.1,
+    "dmPathPass": true,
+    "groupPathPass": true
+  },
+  "complete": true,
+  "issues": [],
+  "guidance": [
+    "Fallback and alerting behavior validation passed.",
+    "Proceed to operator playbook update capture."
+  ]
+}

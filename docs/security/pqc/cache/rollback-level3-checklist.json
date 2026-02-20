@@ -1,0 +1,35 @@
+{
+  "environment": "staging",
+  "ticketId": "PQC-ROLLBACK-001",
+  "triggerReason": "Incident drill: validate staged rollback level 3 (disable PQ features and return to classical).",
+  "executedAt": "2026-02-20T00:40:00.000Z",
+  "impact": "PQC paths disabled; DM/group messaging return to classical behavior for containment.",
+  "restorationPrerequisites": [
+    "Security owner approval for controlled PQ re-enable plan.",
+    "Post-incident remediation and regression validation completed."
+  ],
+  "preFlags": {
+    "pqc_enabled": true,
+    "pqc_dm_enabled": true,
+    "pqc_groups_enabled": true,
+    "pqc_strict_default": false,
+    "pqc_chunking_enabled": true
+  },
+  "postFlags": {
+    "pqc_enabled": false,
+    "pqc_dm_enabled": false,
+    "pqc_groups_enabled": false,
+    "pqc_strict_default": false,
+    "pqc_chunking_enabled": false
+  },
+  "transportPolicy": {
+    "hybridSendEnabled": false,
+    "hybridReceiveEnabled": false,
+    "classicalDefault": true
+  },
+  "smokeChecks": {
+    "classicalDmPass": true,
+    "classicalGroupPass": true,
+    "pqDisabledIndicatorsVisible": true
+  }
+}

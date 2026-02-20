@@ -1,0 +1,27 @@
+{
+  "environment": "staging",
+  "ticketId": "PQC-RELAY-SURGE-001",
+  "executedAt": "2026-02-20T01:30:00.000Z",
+  "scenario": "Quarterly relay rejection surge simulation for secure payload publish path.",
+  "windowMinutes": 30,
+  "baseline": {
+    "rejectionRate": 0.02,
+    "sampleSize": 1200
+  },
+  "surge": {
+    "rejectionRate": 0.19,
+    "sampleSize": 950,
+    "dominantReasons": [
+      "RELAY_EVENT_TOO_LARGE",
+      "RELAY_MAX_EVENT_BYTES_EXCEEDED"
+    ]
+  },
+  "concentration": {
+    "byRelay": [
+      {"relay": "wss://relay-a", "rejectionRate": 0.34},
+      {"relay": "wss://relay-b", "rejectionRate": 0.28}
+    ],
+    "threshold": 0.15,
+    "detected": true
+  }
+}

@@ -6,6 +6,7 @@
   import Input from "src/partials/Input.svelte"
   import {showWarning} from "src/partials/Toast.svelte"
   import {ensureGroupsHydrated, groupProjections, groupsHydrated} from "src/app/groups/state"
+  import {getGroupDowngradeBannerMessage} from "src/app/groups/downgrade-banner"
   import {trackGroupTelemetry} from "src/app/groups/telemetry"
   import {classifyGroupEventKind} from "src/domain/group-kinds"
   import {publishGroupMessage, setChecked} from "src/engine"
@@ -14,6 +15,7 @@
 
   let draft = ""
   let pendingSend = false
+  let downgradeBanner: string | null = null
 
   $: projection = $groupProjections.get(groupId)
   $: groupTitle = projection?.group.title || groupId
@@ -38,6 +40,7 @@
 
   onMount(() => {
     ensureGroupsHydrated()
+    downgradeBanner = getGroupDowngradeBannerMessage(groupId)
     markGroupRead()
     trackGroupTelemetry("group_chat_opened", {
       route: "group-chat",
@@ -89,6 +92,7 @@
       })
       showWarning(error instanceof Error ? error.message : "Unable to send group message.")
     } finally {
+      downgradeBanner = getGroupDowngradeBannerMessage(groupId)
       pendingSend = false
     }
   }
@@ -110,6 +114,12 @@
       <div>
         <h2 class="text-xl font-semibold text-neutral-50">{groupTitle}</h2>
         <p class="mt-1 text-sm text-neutral-300">Group Chat</p>
+        {#if downgradeBanner}
+          <p
+            class="border-warning/50 bg-warning/10 mt-2 rounded border px-2 py-1 text-xs text-warning">
+            {downgradeBanner}
+          </p>
+        {/if}
       </div>
       <div class="flex gap-2 text-sm">
         <Link class="btn" href={baseRoute()}>Overview</Link>

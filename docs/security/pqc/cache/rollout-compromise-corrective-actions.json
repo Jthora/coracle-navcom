@@ -1,0 +1,36 @@
+{
+  "generatedAt": "2026-02-20T00:40:38.403Z",
+  "operator": "security-response",
+  "warnOnly": false,
+  "timingPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-compromise-revocation-timing.json",
+  "inputPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/compromise-corrective-actions.json",
+  "outputJsonPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-compromise-corrective-actions.json",
+  "outputMdPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-compromise-corrective-actions.md",
+  "auditPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/rollout-compromise-corrective-actions.ndjson",
+  "ticketId": "PQC-COMPROMISE-001",
+  "publishedAt": "2026-02-20T01:15:00.000Z",
+  "summary": "Compromise tabletop completed with contained blast radius and validated revocation/rekey path timing.",
+  "actionCount": 2,
+  "actions": [
+    {
+      "id": "ca-1",
+      "title": "Add alert correlation for key-signature anomalies + downgrade spikes",
+      "owner": "security-response",
+      "priority": "high",
+      "dueAt": "2026-02-27T17:00:00.000Z"
+    },
+    {
+      "id": "ca-2",
+      "title": "Automate operator checklist prefill for IC-1 drills",
+      "owner": "release-operations",
+      "priority": "medium",
+      "dueAt": "2026-03-06T17:00:00.000Z"
+    }
+  ],
+  "complete": true,
+  "issues": [],
+  "guidance": [
+    "Corrective actions published from compromise drill.",
+    "Use these actions as postmortem prevention backlog inputs."
+  ]
+}

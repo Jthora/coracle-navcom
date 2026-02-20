@@ -1,0 +1,31 @@
+{
+  "generatedAt": "2026-02-19T10:06:41.849Z",
+  "inputPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/power-metrics.ndjson",
+  "outputPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/security/pqc/cache/power-metrics-summary.json",
+  "label": "pqc-sustained",
+  "modeFilter": "android",
+  "profileFilter": "android-mid",
+  "expectedPhases": {
+    "before": "pre",
+    "after": "post"
+  },
+  "pairingStrategy": "time-range-fallback",
+  "sampleCount": 0,
+  "before": null,
+  "after": null,
+  "deltas": {
+    "batteryCapacityPoints": null,
+    "batteryLevelPoints": null,
+    "temperatureTenthsC": null,
+    "voltageMv": null,
+    "linuxPowerUw": null,
+    "linuxCurrentUa": null,
+    "load1": null,
+    "memAvailableKb": null
+  },
+  "notes": [
+    "For accurate battery impact, provide pre and post snapshots on the same mode/profile.",
+    "Android deltas require adb dumpsys battery snapshots in power-metrics.ndjson.",
+    "Expected phase-tagged snapshots were not both found; analyzer used earliest/latest samples."
+  ]
+}
