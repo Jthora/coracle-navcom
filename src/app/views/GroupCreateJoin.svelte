@@ -2,6 +2,8 @@
   import {signer} from "@welshman/app"
   import {onDestroy, onMount} from "svelte"
   import Input from "src/partials/Input.svelte"
+  import GroupBreadcrumbs from "src/app/groups/GroupBreadcrumbs.svelte"
+  import {buildGroupBreadcrumbItems, type GroupBreadcrumbSection} from "src/app/groups/breadcrumbs"
   import {showInfo, showWarning} from "src/partials/Toast.svelte"
   import {router} from "src/app/util/router"
   import {
@@ -945,9 +947,17 @@
 
   $: document.title =
     flow === "join" ? "Join Group" : flow === "create" ? "Create Group" : "Groups Setup"
+  $: breadcrumbSection =
+    flow === "create"
+      ? ("create-room" as GroupBreadcrumbSection)
+      : flow === "join"
+        ? ("join-room" as GroupBreadcrumbSection)
+        : ("create" as GroupBreadcrumbSection)
+  $: breadcrumbs = buildGroupBreadcrumbItems({section: breadcrumbSection})
 </script>
 
 <div class="panel p-4">
+  <GroupBreadcrumbs items={breadcrumbs} />
   <div class="flex items-center gap-2">
     <i class="fa fa-route text-accent" />
     <h2 class="text-lg uppercase tracking-[0.08em]">Group Setup</h2>

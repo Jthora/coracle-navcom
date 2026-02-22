@@ -7,6 +7,8 @@
     groupsHydrated,
     unreadGroupMessageCounts,
   } from "src/app/groups/state"
+  import GroupBreadcrumbs from "src/app/groups/GroupBreadcrumbs.svelte"
+  import {buildGroupBreadcrumbItems} from "src/app/groups/breadcrumbs"
   import {resolveGroupSecurityState} from "src/app/groups/security-state"
 
   export let guardMessage = ""
@@ -21,6 +23,7 @@
       : group.title
   const showFullGroupId = (group: (typeof $groupSummaries)[number]) =>
     group.title === group.id && isOpaqueGroupId(group.id)
+  const breadcrumbs = buildGroupBreadcrumbItems({section: "list"})
   const getSecurityState = (transportMode: "baseline-nip29" | "secure-nip-ee") =>
     resolveGroupSecurityState({transportMode})
 
@@ -31,6 +34,7 @@
 </script>
 
 <div class="panel p-4">
+  <GroupBreadcrumbs items={breadcrumbs} />
   <div class="flex items-center justify-between gap-3">
     <div class="flex items-center gap-2">
       <i class="fa fa-users text-accent" />

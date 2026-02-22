@@ -2,6 +2,8 @@
   import {pubkey} from "@welshman/app"
   import Input from "src/partials/Input.svelte"
   import Link from "src/partials/Link.svelte"
+  import GroupBreadcrumbs from "src/app/groups/GroupBreadcrumbs.svelte"
+  import {buildGroupBreadcrumbItems, type GroupBreadcrumbSection} from "src/app/groups/breadcrumbs"
   import GroupAuditHistoryPanel from "src/app/views/GroupAuditHistoryPanel.svelte"
   import GroupSettingsModeSwitch from "src/app/views/GroupSettingsModeSwitch.svelte"
   import GroupSettingsExpertDiagnostics from "src/app/views/GroupSettingsExpertDiagnostics.svelte"
@@ -75,6 +77,15 @@
   $: secureCapabilityWarning = getSecureCapabilityGateMessage({preferredMode: policy.preferredMode})
   $: policySummary = asGroupPolicySummary(policy)
   $: securityState = getProjectionSecurityState(projection, Boolean(secureCapabilityWarning))
+  $: adminSection =
+    typeof window !== "undefined" && window.location.pathname.endsWith("/moderation")
+      ? ("moderation" as GroupBreadcrumbSection)
+      : ("settings" as GroupBreadcrumbSection)
+  $: breadcrumbs = buildGroupBreadcrumbItems({
+    section: adminSection,
+    groupId,
+    groupTitle: projection?.group.title || groupId,
+  })
 
   let uiMode: GroupAdminMode = "guided"
   $: isExpertMode = uiMode === "expert"
@@ -372,6 +383,7 @@
   </div>
 {:else}
   <div class="panel p-4">
+    <GroupBreadcrumbs items={breadcrumbs} />
     <div class="flex items-center justify-between gap-3">
       <h2 class="text-lg uppercase tracking-[0.08em]">Group Settings & Admin</h2>
       <div class="flex flex-wrap items-center justify-end gap-2">

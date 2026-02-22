@@ -2,6 +2,8 @@
   import {onMount} from "svelte"
   import {formatTimestamp} from "@welshman/lib"
   import Link from "src/partials/Link.svelte"
+  import GroupBreadcrumbs from "src/app/groups/GroupBreadcrumbs.svelte"
+  import {buildGroupBreadcrumbItems} from "src/app/groups/breadcrumbs"
   import {ensureGroupsHydrated, groupProjections, groupsHydrated} from "src/app/groups/state"
   import {buildGroupDetailViewModel, getGroupRouteSection} from "src/app/groups/selectors"
   import {getProjectionSecurityState} from "src/app/groups/security-state"
@@ -17,6 +19,11 @@
   $: sectionTitle =
     section === "overview" ? "Overview" : section[0].toUpperCase() + section.slice(1)
   $: document.title = detail ? `${detail.title} · Groups` : "Group · Groups"
+  $: breadcrumbs = buildGroupBreadcrumbItems({
+    section,
+    groupId,
+    groupTitle: detail?.title || projection?.group.title || groupId,
+  })
 
   const toRoute = (nextSection: "overview" | "chat" | "members" | "moderation" | "settings") => {
     const base = `/groups/${encodeURIComponent(groupId)}`
@@ -57,6 +64,7 @@
   </div>
 {:else}
   <div class="panel p-4">
+    <GroupBreadcrumbs items={breadcrumbs} />
     <div class="flex items-start justify-between gap-4">
       <div>
         <h2 class="text-xl font-semibold text-neutral-50">{detail.title}</h2>

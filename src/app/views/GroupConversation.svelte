@@ -3,6 +3,8 @@
   import {signer} from "@welshman/app"
   import {onMount, onDestroy} from "svelte"
   import Link from "src/partials/Link.svelte"
+  import GroupBreadcrumbs from "src/app/groups/GroupBreadcrumbs.svelte"
+  import {buildGroupBreadcrumbItems} from "src/app/groups/breadcrumbs"
   import Input from "src/partials/Input.svelte"
   import {showInfo, showWarning} from "src/partials/Toast.svelte"
   import {ensureGroupsHydrated, groupProjections, groupsHydrated} from "src/app/groups/state"
@@ -47,6 +49,11 @@
         .filter(member => member?.status === "active" && typeof member?.pubkey === "string")
         .map(member => member.pubkey)
     : []
+  $: breadcrumbs = buildGroupBreadcrumbItems({
+    section: "chat",
+    groupId,
+    groupTitle: projection?.group.title || groupId,
+  })
 
   $: document.title = projection ? `${groupTitle} · Group Chat` : "Group Chat"
 
@@ -258,6 +265,7 @@
   </div>
 {:else}
   <div class="panel p-4">
+    <GroupBreadcrumbs items={breadcrumbs} />
     <div class="flex items-start justify-between gap-3">
       <div>
         <h2 class="text-xl font-semibold text-neutral-50">{groupTitle}</h2>
