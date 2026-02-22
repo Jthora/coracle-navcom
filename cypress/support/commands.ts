@@ -1,29 +1,20 @@
-const nsec = "nsec1er8narhat3xjypf46pksxlr6k4jrmv2e9psazjk0adynly0l4ltsepvmy5"
+const testPubkey = "c853d879b7376dab1cdcd4faf235a05f680aae42ba620abdd95d619542a5a379"
 
 Cypress.Commands.add("login", () => {
-  cy.session(
-    nsec,
-    () => {
-      cy.visit("/login/privkey")
-      cy.get("input[type=password]").type(nsec, {log: false})
-      cy.get(".cy-login-submit").click()
-      cy.get(".modal", {timeout: 10_000}).should("not.exist")
-      cy.contains("Don't have an account?").should("not.exist")
+  cy.visit("/", {
+    onBeforeLoad: win => {
+      win.localStorage.setItem("pubkey", JSON.stringify(testPubkey))
+      win.localStorage.setItem(
+        "sessions",
+        JSON.stringify({
+          [testPubkey]: {
+            method: "nip07",
+            pubkey: testPubkey,
+          },
+        }),
+      )
     },
-    {
-      validate: () => {
-        let pubkey
+  })
 
-        cy.window()
-          .then(w => {
-            pubkey = w.pubkey.get()
-          })
-          .then(() => {
-            expect(pubkey).to.equal(
-              "c853d879b7376dab1cdcd4faf235a05f680aae42ba620abdd95d619542a5a379"
-            )
-          })
-      },
-    }
-  )
+  cy.reload()
 })

@@ -1,0 +1,116 @@
+{
+  "generatedAt": "2026-02-22T01:21:52.181Z",
+  "logPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/groups/upgrade/18-stage4-controlled-rollout-execution-log.md",
+  "totalTaskCount": 13,
+  "completeTaskCount": 0,
+  "pendingTaskCount": 13,
+  "allComplete": false,
+  "rows": [
+    {
+      "taskKey": "S4-P1-ST1-T1-SU1",
+      "description": "Enable pilot cohort flags",
+      "status": "NO_ENTRY",
+      "complete": false,
+      "latestTimestamp": null
+    },
+    {
+      "taskKey": "S4-P1-ST1-T1-SU2",
+      "description": "Validate pilot environment health checks",
+      "status": "NO_ENTRY",
+      "complete": false,
+      "latestTimestamp": null
+    },
+    {
+      "taskKey": "S4-P1-ST1-T2-SU1",
+      "description": "Review 24h conversion and drop-off metrics",
+      "status": "NO_ENTRY",
+      "complete": false,
+      "latestTimestamp": null
+    },
+    {
+      "taskKey": "S4-P1-ST1-T2-SU2",
+      "description": "Review error and fallback trends",
+      "status": "NO_ENTRY",
+      "complete": false,
+      "latestTimestamp": null
+    },
+    {
+      "taskKey": "S4-P1-ST1-T3-SU1",
+      "description": "Triage blocker regressions by severity",
+      "status": "NO_ENTRY",
+      "complete": false,
+      "latestTimestamp": null
+    },
+    {
+      "taskKey": "S4-P1-ST1-T3-SU2",
+      "description": "Patch and verify fixes in pilot",
+      "status": "NO_ENTRY",
+      "complete": false,
+      "latestTimestamp": null
+    },
+    {
+      "taskKey": "S4-P1-ST1-T3-SU3",
+      "description": "Reconfirm go criteria after fixes",
+      "status": "NO_ENTRY",
+      "complete": false,
+      "latestTimestamp": null
+    },
+    {
+      "taskKey": "S4-P1-ST2-T1-SU1",
+      "description": "Increase cohort percentage by phase plan",
+      "status": "NO_ENTRY",
+      "complete": false,
+      "latestTimestamp": null
+    },
+    {
+      "taskKey": "S4-P1-ST2-T1-SU2",
+      "description": "Monitor impact windows after each increase",
+      "status": "NO_ENTRY",
+      "complete": false,
+      "latestTimestamp": null
+    },
+    {
+      "taskKey": "S4-P1-ST2-T2-SU1",
+      "description": "Validate P0 funnel stability window",
+      "status": "NO_ENTRY",
+      "complete": false,
+      "latestTimestamp": null
+    },
+    {
+      "taskKey": "S4-P1-ST2-T2-SU2",
+      "description": "Validate incident rate remains within threshold",
+      "status": "NO_ENTRY",
+      "complete": false,
+      "latestTimestamp": null
+    },
+    {
+      "taskKey": "S4-P1-ST2-T3-SU1",
+      "description": "Complete final release review meeting",
+      "status": "NO_ENTRY",
+      "complete": false,
+      "latestTimestamp": null
+    },
+    {
+      "taskKey": "S4-P1-ST2-T3-SU2",
+      "description": "Document decision and post-release checks",
+      "status": "NO_ENTRY",
+      "complete": false,
+      "latestTimestamp": null
+    }
+  ],
+  "pendingTaskKeys": [
+    "S4-P1-ST1-T1-SU1",
+    "S4-P1-ST1-T1-SU2",
+    "S4-P1-ST1-T2-SU1",
+    "S4-P1-ST1-T2-SU2",
+    "S4-P1-ST1-T3-SU1",
+    "S4-P1-ST1-T3-SU2",
+    "S4-P1-ST1-T3-SU3",
+    "S4-P1-ST2-T1-SU1",
+    "S4-P1-ST2-T1-SU2",
+    "S4-P1-ST2-T2-SU1",
+    "S4-P1-ST2-T2-SU2",
+    "S4-P1-ST2-T3-SU1",
+    "S4-P1-ST2-T3-SU2"
+  ]
+}

@@ -11,6 +11,7 @@
     resolveAutoJoinGroupInvite,
     resolveGroupInviteAcceptPayloads,
   } from "src/app/invite/accept"
+  import {trackGroupTelemetry} from "src/app/groups/telemetry"
   import Link from "src/partials/Link.svelte"
   import Card from "src/partials/Card.svelte"
   import FlexColumn from "src/partials/FlexColumn.svelte"
@@ -53,7 +54,31 @@
   const getDestinationLabel = (group: (typeof parsedGroups)[number]) =>
     hasActiveMembership(group.groupId) ? "Open Group Chat" : "Open Join Flow"
 
+  const onOpenDestination = (group: (typeof parsedGroups)[number], autoJoin = false) => {
+    const destination = hasActiveMembership(group.groupId) ? "group_chat" : "join_flow"
+
+    trackGroupTelemetry("group_invite_destination_opened", {
+      destination,
+      auto_join: autoJoin,
+      group_entries_count: parsedGroups.length,
+    })
+
+    if (destination === "group_chat") {
+      trackGroupTelemetry("group_invite_conversion", {
+        destination,
+        conversion_state: "active_member",
+      })
+    }
+  }
+
   onMount(() => {
+    trackGroupTelemetry("group_invite_viewed", {
+      group_entries_count: parsedGroups.length,
+      invalid_entries_count: invalidGroupInviteCount,
+      has_people_payload: people.length > 0,
+      has_relays_payload: parsedRelays.length > 0,
+    })
+
     const autoJoinTarget = resolveAutoJoinGroupInvite({
       hasSession: Boolean($session),
       groups: parsedGroups,
@@ -65,6 +90,7 @@
     if (!autoJoinTarget || autoJoinTriggered) return
 
     autoJoinTriggered = true
+    onOpenDestination(autoJoinTarget, true)
     window.location.assign(getDestinationPath(autoJoinTarget))
   })
 </script>
@@ -121,8 +147,10 @@
                     </div>
                   {/if}
                 </div>
-                <Link class="btn" href={getDestinationPath(group)}
-                  >{getDestinationLabel(group)}</Link>
+                <Link
+                  class="btn"
+                  href={getDestinationPath(group)}
+                  on:click={() => onOpenDestination(group)}>{getDestinationLabel(group)}</Link>
               </div>
             </div>
           {/each}

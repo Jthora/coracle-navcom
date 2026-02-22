@@ -4,11 +4,15 @@
   import Link from "src/partials/Link.svelte"
   import {ensureGroupsHydrated, groupProjections, groupsHydrated} from "src/app/groups/state"
   import {buildGroupDetailViewModel, getGroupRouteSection} from "src/app/groups/selectors"
+  import {getProjectionSecurityState} from "src/app/groups/security-state"
 
   export let groupId: string
+  export let guardMessage = ""
+  export let guardFrom = ""
 
   $: projection = $groupProjections.get(groupId)
   $: detail = projection ? buildGroupDetailViewModel(projection) : null
+  $: securityState = getProjectionSecurityState(projection)
   $: section = getGroupRouteSection(window.location.pathname)
   $: sectionTitle =
     section === "overview" ? "Overview" : section[0].toUpperCase() + section.slice(1)
@@ -31,6 +35,17 @@
   <div class="panel p-6 text-center text-neutral-300">Loading group details…</div>
 {:else if !detail}
   <div class="panel p-6 text-center text-neutral-200">
+    {#if guardMessage}
+      <div class="mb-4 rounded border border-warning px-3 py-2 text-sm text-warning">
+        <div>{guardMessage}</div>
+        {#if guardFrom}
+          <div class="mt-1 text-xs text-neutral-300">Redirected from {guardFrom}</div>
+        {/if}
+        <div class="mt-2">
+          <Link class="btn" href={toRoute("chat")}>Open Group Chat</Link>
+        </div>
+      </div>
+    {/if}
     <p>Group not found.</p>
     <p class="mt-2 text-sm text-neutral-400">Check the link or return to the groups list.</p>
     <div class="mt-4">
@@ -56,8 +71,27 @@
         <span class="rounded border border-neutral-700 px-2 py-1" class:text-warning={detail.stale}>
           {detail.stale ? "Stale" : "Live"}
         </span>
+        <span class="rounded border border-neutral-700 px-2 py-1 text-neutral-300">
+          {securityState.label}
+        </span>
       </div>
     </div>
+
+    <div class="mt-3 rounded border border-neutral-700 px-3 py-2 text-sm text-neutral-300">
+      {securityState.hint}
+    </div>
+
+    {#if guardMessage}
+      <div class="mt-3 rounded border border-warning px-3 py-2 text-sm text-warning">
+        <div>{guardMessage}</div>
+        {#if guardFrom}
+          <div class="mt-1 text-xs text-neutral-300">Redirected from {guardFrom}</div>
+        {/if}
+        <div class="mt-2">
+          <Link class="btn" href={toRoute("chat")}>Open Group Chat</Link>
+        </div>
+      </div>
+    {/if}
 
     <div class="mt-4 flex flex-wrap gap-2 text-sm">
       <Link class="btn" href={toRoute("chat")}>Chat</Link>

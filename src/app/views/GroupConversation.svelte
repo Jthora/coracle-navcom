@@ -4,10 +4,20 @@
   import {onMount, onDestroy} from "svelte"
   import Link from "src/partials/Link.svelte"
   import Input from "src/partials/Input.svelte"
-  import {showWarning} from "src/partials/Toast.svelte"
+  import {showInfo, showWarning} from "src/partials/Toast.svelte"
   import {ensureGroupsHydrated, groupProjections, groupsHydrated} from "src/app/groups/state"
   import {getGroupDowngradeBannerMessage} from "src/app/groups/downgrade-banner"
   import {trackGroupTelemetry} from "src/app/groups/telemetry"
+  import {
+    emitRelayFallbackUsageTelemetry,
+    emitSecurityStateTransitionTelemetry,
+  } from "src/app/groups/telemetry-stage3"
+  import {getRelayFallbackPlan, loadRoomRelayPolicy} from "src/app/groups/relay-policy"
+  import {getProjectionSecurityState} from "src/app/groups/security-state"
+  import {
+    getAbsoluteGroupJoinPrefillHref,
+    getGroupInviteCreateHref,
+  } from "src/app/groups/invite-share"
   import {classifyGroupEventKind} from "src/domain/group-kinds"
   import {publishGroupMessage, setChecked} from "src/engine"
 
@@ -16,8 +26,11 @@
   let draft = ""
   let pendingSend = false
   let downgradeBanner: string | null = null
+  let didTrackSecurityShown = false
+  let previousSecurityState: string | null = null
 
   $: projection = $groupProjections.get(groupId)
+  $: securityState = getProjectionSecurityState(projection, Boolean(downgradeBanner))
   $: groupTitle = projection?.group.title || groupId
   $: messages = projection
     ? projection.sourceEvents
@@ -31,11 +44,43 @@
   $: document.title = projection ? `${groupTitle} · Group Chat` : "Group Chat"
 
   const baseRoute = () => `/groups/${encodeURIComponent(groupId)}`
+  const inviteCreateHref = () => getGroupInviteCreateHref(groupId)
 
   const asShortKey = (pubkey: string) => `${pubkey.slice(0, 8)}…${pubkey.slice(-8)}`
 
   const markGroupRead = () => {
     setChecked(`groups/${groupId}`)
+  }
+
+  const onShareInvite = async () => {
+    const url = getAbsoluteGroupJoinPrefillHref(groupId)
+
+    try {
+      if (typeof navigator !== "undefined" && typeof navigator.share === "function") {
+        await navigator.share({
+          title: `${groupTitle} invite`,
+          text: `Join ${groupTitle} on NAVCOM`,
+          url,
+        })
+
+        trackGroupTelemetry("group_invite_share_success", {channel: "native-share"})
+        showInfo("Invite link shared.")
+
+        return
+      }
+
+      if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(url)
+        trackGroupTelemetry("group_invite_share_fallback", {channel: "clipboard"})
+        showInfo("Invite link copied to clipboard.")
+
+        return
+      }
+
+      showWarning("Sharing is unavailable on this device. Open Invite to generate a QR link.")
+    } catch (error) {
+      showWarning("Unable to share invite. Open Invite to continue.")
+    }
   }
 
   onMount(() => {
@@ -47,6 +92,39 @@
       groupIdShape: groupId.includes("'") ? "relay-address" : "opaque",
     })
   })
+
+  $: if (securityState?.state && !didTrackSecurityShown) {
+    didTrackSecurityShown = true
+    previousSecurityState = securityState.state
+
+    trackGroupTelemetry("group_security_state_shown", {
+      route: "group-chat",
+      state: securityState.state,
+      security_state: securityState.state,
+    })
+
+    emitSecurityStateTransitionTelemetry({
+      emit: (event, props) => trackGroupTelemetry(event, props || {}),
+      route: "group-chat",
+      previousState: "unknown",
+      nextState: securityState.state,
+    })
+  }
+
+  $: if (
+    securityState?.state &&
+    previousSecurityState &&
+    previousSecurityState !== securityState.state
+  ) {
+    emitSecurityStateTransitionTelemetry({
+      emit: (event, props) => trackGroupTelemetry(event, props || {}),
+      route: "group-chat",
+      previousState: previousSecurityState,
+      nextState: securityState.state,
+    })
+
+    previousSecurityState = securityState.state
+  }
 
   onDestroy(() => {
     markGroupRead()
@@ -77,20 +155,61 @@
       return
     }
 
+    const isFirstMessageAttempt = messages.length === 0
+
+    trackGroupTelemetry("group_first_message_attempted", {
+      route: "group-chat",
+      entry_point: "chat_compose",
+      is_first_message: isFirstMessageAttempt,
+      security_state: securityState.state,
+    })
+
     pendingSend = true
 
     try {
       await publishGroupMessage({groupId, content})
+
+      if (isFirstMessageAttempt) {
+        trackGroupTelemetry("group_first_message_succeeded", {
+          entry_point: "chat_compose",
+          security_runtime_state: securityState.state,
+        })
+      }
+
       trackGroupTelemetry("group_send_success", {
         messageLengthBucket:
           content.length < 80 ? "short" : content.length < 240 ? "medium" : "long",
       })
       draft = ""
     } catch (error) {
+      const fallbackPlan = getRelayFallbackPlan(loadRoomRelayPolicy(groupId))
+
+      if (fallbackPlan.primary) {
+        emitRelayFallbackUsageTelemetry({
+          emit: (event, props) => trackGroupTelemetry(event, props || {}),
+          groupId,
+          fallbackCount: fallbackPlan.fallbacks.length,
+        })
+      }
+
       trackGroupTelemetry("group_send_error", {
         errorType: error instanceof Error ? error.name || "Error" : "unknown",
       })
-      showWarning(error instanceof Error ? error.message : "Unable to send group message.")
+
+      if (isFirstMessageAttempt) {
+        trackGroupTelemetry("group_first_message_failed", {
+          entry_point: "chat_compose",
+          error_type: error instanceof Error ? error.name || "Error" : "unknown",
+        })
+      }
+
+      if (fallbackPlan.fallbacks.length > 0) {
+        showWarning(
+          `${error instanceof Error ? error.message : "Unable to send group message."} Retry will use backup relays in order: ${fallbackPlan.fallbacks.join(" → ")}.`,
+        )
+      } else {
+        showWarning(error instanceof Error ? error.message : "Unable to send group message.")
+      }
     } finally {
       downgradeBanner = getGroupDowngradeBannerMessage(groupId)
       pendingSend = false
@@ -114,6 +233,7 @@
       <div>
         <h2 class="text-xl font-semibold text-neutral-50">{groupTitle}</h2>
         <p class="mt-1 text-sm text-neutral-300">Group Chat</p>
+        <p class="mt-1 text-xs text-neutral-400">{securityState.label}: {securityState.hint}</p>
         {#if downgradeBanner}
           <p
             class="border-warning/50 bg-warning/10 mt-2 rounded border px-2 py-1 text-xs text-warning">
@@ -125,6 +245,13 @@
         <Link class="btn" href={baseRoute()}>Overview</Link>
         <Link class="btn" href={`${baseRoute()}/members`}>Members</Link>
         <Link class="btn" href={`${baseRoute()}/settings`}>Settings</Link>
+        <Link
+          class="btn"
+          href={inviteCreateHref()}
+          on:click={() => trackGroupTelemetry("group_invite_create_opened", {route: "group-chat"})}>
+          Invite
+        </Link>
+        <button class="btn" type="button" on:click={onShareInvite}>Share</button>
       </div>
     </div>
   </div>

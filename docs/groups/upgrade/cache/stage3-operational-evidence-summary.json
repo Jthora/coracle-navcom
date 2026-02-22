@@ -1,0 +1,68 @@
+{
+  "generatedAt": "2026-02-22T01:21:53.715Z",
+  "logPath": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/groups/upgrade/17-stage3-staging-execution-log.md",
+  "totalTaskCount": 7,
+  "completeTaskCount": 0,
+  "pendingTaskCount": 7,
+  "allComplete": false,
+  "rows": [
+    {
+      "taskKey": "S3-P2-ST1-T1-SU1",
+      "description": "Confirm alert thresholds in staging",
+      "status": "NO_ENTRY",
+      "complete": false,
+      "latestTimestamp": null
+    },
+    {
+      "taskKey": "S3-P2-ST1-T1-SU2",
+      "description": "Validate alert routing to owners",
+      "status": "NO_ENTRY",
+      "complete": false,
+      "latestTimestamp": null
+    },
+    {
+      "taskKey": "S3-P2-ST1-T2-SU1",
+      "description": "Execute rollback in controlled env",
+      "status": "NO_ENTRY",
+      "complete": false,
+      "latestTimestamp": null
+    },
+    {
+      "taskKey": "S3-P2-ST1-T2-SU2",
+      "description": "Record timings and recovery outcomes",
+      "status": "NO_ENTRY",
+      "complete": false,
+      "latestTimestamp": null
+    },
+    {
+      "taskKey": "S3-P2-ST1-T2-SU3",
+      "description": "Update runbook with drill findings",
+      "status": "NO_ENTRY",
+      "complete": false,
+      "latestTimestamp": null
+    },
+    {
+      "taskKey": "S3-P2-ST1-T3-SU1",
+      "description": "Gather Product/Engineering/QA approvals",
+      "status": "NO_ENTRY",
+      "complete": false,
+      "latestTimestamp": null
+    },
+    {
+      "taskKey": "S3-P2-ST1-T3-SU2",
+      "description": "Capture final go/no-go decision log",
+      "status": "NO_ENTRY",
+      "complete": false,
+      "latestTimestamp": null
+    }
+  ],
+  "pendingTaskKeys": [
+    "S3-P2-ST1-T1-SU1",
+    "S3-P2-ST1-T1-SU2",
+    "S3-P2-ST1-T2-SU1",
+    "S3-P2-ST1-T2-SU2",
+    "S3-P2-ST1-T2-SU3",
+    "S3-P2-ST1-T3-SU1",
+    "S3-P2-ST1-T3-SU2"
+  ]
+}

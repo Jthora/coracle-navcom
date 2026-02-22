@@ -1,0 +1,491 @@
+# Groups Upgrade Progress Tracker
+
+Status: Active
+Owner: Copilot + Core Team
+Last Updated: 2026-02-21
+
+## Legend
+
+- [ ] Not started
+- [x] Complete
+
+## Numbering Seed Format
+
+- `S#` = Stage
+- `S#-P#` = Phase
+- `S#-P#-ST#` = Step
+- `S#-P#-ST#-T#` = Task
+- `S#-P#-ST#-T#-SU#` = Sub-task
+
+## Stage 1 Output
+
+- docs/groups/upgrade/14-stage1-requirements-finalization.md
+
+## Checklist
+
+- [x] S0 Stage 0 — Documentation Foundations
+  - [x] S0-P1 Phase 1 — Upgrade Doc Set Creation
+    - [x] S0-P1-ST1 Step 1 — Scaffold core docs
+      - [x] S0-P1-ST1-T1 Create upgrade directory and index
+        - [x] S0-P1-ST1-T1-SU1 Create `docs/groups/upgrade` directory
+        - [x] S0-P1-ST1-T1-SU2 Create index/readme entrypoint
+      - [x] S0-P1-ST1-T2 Create charter and success metrics doc
+        - [x] S0-P1-ST1-T2-SU1 Draft upgrade charter scope and goals
+        - [x] S0-P1-ST1-T2-SU2 Define measurable success metrics
+        - [x] S0-P1-ST1-T2-SU3 Validate metric definitions with audit findings
+      - [x] S0-P1-ST1-T3 Create personas/JTBD/tasks doc
+        - [x] S0-P1-ST1-T3-SU1 Define primary personas
+        - [x] S0-P1-ST1-T3-SU2 Define JTBD statements per persona
+        - [x] S0-P1-ST1-T3-SU3 Map top user tasks to personas
+      - [x] S0-P1-ST1-T4 Create current-state baseline/gap traceability doc
+        - [x] S0-P1-ST1-T4-SU1 Compile current-state behavior baseline
+        - [x] S0-P1-ST1-T4-SU2 Build requirement-to-gap traceability table
+        - [x] S0-P1-ST1-T4-SU3 Annotate severity and ownership columns
+    - [x] S0-P1-ST2 Step 2 — Author mode and policy specs
+      - [x] S0-P1-ST2-T1 Create guided mode experience spec
+        - [x] S0-P1-ST2-T1-SU1 Define guided flow sequence
+        - [x] S0-P1-ST2-T1-SU2 Define guided error/recovery constraints
+      - [x] S0-P1-ST2-T2 Create expert mode experience spec
+        - [x] S0-P1-ST2-T2-SU1 Define expert control surfaces
+        - [x] S0-P1-ST2-T2-SU2 Define safety guardrails for advanced actions
+        - [x] S0-P1-ST2-T2-SU3 Define mode-switch preservation contract
+      - [x] S0-P1-ST2-T3 Create room relay/private relay spec
+        - [x] S0-P1-ST2-T3-SU1 Define room relay role model
+        - [x] S0-P1-ST2-T3-SU2 Define private relay add/edit/remove behavior
+        - [x] S0-P1-ST2-T3-SU3 Define fallback and conflict rules
+      - [x] S0-P1-ST2-T4 Create PQC security model and state spec
+        - [x] S0-P1-ST2-T4-SU1 Define user-facing security states
+        - [x] S0-P1-ST2-T4-SU2 Define transition priority rules
+        - [x] S0-P1-ST2-T4-SU3 Define copy safety constraints
+    - [x] S0-P1-ST3 Step 3 — Author operations and quality docs
+      - [x] S0-P1-ST3-T1 Create IA and route plan
+        - [x] S0-P1-ST3-T1-SU1 Define route taxonomy
+        - [x] S0-P1-ST3-T1-SU2 Define guard redirect recovery contract
+      - [x] S0-P1-ST3-T2 Create copy/help/education plan
+        - [x] S0-P1-ST3-T2-SU1 Define guided and expert language system
+        - [x] S0-P1-ST3-T2-SU2 Define help topic set and entry points
+      - [x] S0-P1-ST3-T3 Create telemetry/funnel/observability spec
+        - [x] S0-P1-ST3-T3-SU1 Define event families and contracts
+        - [x] S0-P1-ST3-T3-SU2 Define funnel definitions and dashboard requirements
+        - [x] S0-P1-ST3-T3-SU3 Define alerting and data-quality checks
+      - [x] S0-P1-ST3-T4 Create test strategy and quality gates doc
+        - [x] S0-P1-ST3-T4-SU1 Define coverage layers and matrix
+        - [x] S0-P1-ST3-T4-SU2 Define milestone quality gates
+      - [x] S0-P1-ST3-T5 Create rollout/migration/risk controls doc
+        - [x] S0-P1-ST3-T5-SU1 Define phased rollout model
+        - [x] S0-P1-ST3-T5-SU2 Define rollback triggers and controls
+        - [x] S0-P1-ST3-T5-SU3 Define operational risk register template
+      - [x] S0-P1-ST3-T6 Create implementation workplan and milestones doc
+        - [x] S0-P1-ST3-T6-SU1 Define milestone chain and dependencies
+        - [x] S0-P1-ST3-T6-SU2 Define per-milestone artifact requirements
+        - [x] S0-P1-ST3-T6-SU3 Define completion criteria
+  - [x] S0-P2 Phase 2 — Documentation Hardening
+    - [x] S0-P2-ST1 Step 1 — Expand depth and verbosity
+      - [x] S0-P2-ST1-T1 Critique concise drafts in each doc
+        - [x] S0-P2-ST1-T1-SU1 Add critique section per document
+        - [x] S0-P2-ST1-T1-SU2 Record key omissions and remediation
+      - [x] S0-P2-ST1-T2 Add implementation-ready acceptance criteria
+        - [x] S0-P2-ST1-T2-SU1 Add explicit acceptance gates
+        - [x] S0-P2-ST1-T2-SU2 Add owner-verifiable completion checks
+      - [x] S0-P2-ST1-T3 Add telemetry and QA coverage details
+        - [x] S0-P2-ST1-T3-SU1 Add telemetry hooks and required properties
+        - [x] S0-P2-ST1-T3-SU2 Add scenario-level QA expectations
+      - [x] S0-P2-ST1-T4 Expand all upgrade docs above 100 lines
+        - [x] S0-P2-ST1-T4-SU1 Expand docs `02` through `13`
+        - [x] S0-P2-ST1-T4-SU2 Expand and restructure progress tracker
+        - [x] S0-P2-ST1-T4-SU3 Verify line counts for all upgrade docs
+
+- [x] S1 Stage 1 — Requirements Finalization
+  - [x] S1-P1 Phase 1 — Product and UX Decisions
+    - [x] S1-P1-ST1 Step 1 — Close decision backlog
+      - [x] S1-P1-ST1-T1 Finalize guided interaction budgets
+        - [x] S1-P1-ST1-T1-SU1 Propose per-screen interaction limits
+        - [x] S1-P1-ST1-T1-SU2 Validate limits against current IA
+      - [x] S1-P1-ST1-T2 Finalize expert control matrix boundaries
+        - [x] S1-P1-ST1-T2-SU1 Define required vs optional expert controls
+        - [x] S1-P1-ST1-T2-SU2 Confirm hidden/locked behavior in guided mode
+        - [x] S1-P1-ST1-T2-SU3 Confirm destructive action constraints
+      - [x] S1-P1-ST1-T3 Finalize relay policy constraints
+        - [x] S1-P1-ST1-T3-SU1 Approve minimum read/write relay constraints
+        - [x] S1-P1-ST1-T3-SU2 Approve hard/soft conflict classification
+        - [x] S1-P1-ST1-T3-SU3 Approve fallback precedence policy
+      - [x] S1-P1-ST1-T4 Finalize security-state transition priorities
+        - [x] S1-P1-ST1-T4-SU1 Approve state priority order
+        - [x] S1-P1-ST1-T4-SU2 Approve transition copy safety rules
+        - [x] S1-P1-ST1-T4-SU3 Approve recovery guidance contract
+    - [x] S1-P1-ST2 Step 2 — Validate copy and IA contracts
+      - [x] S1-P1-ST2-T1 Approve guided copy labels and helper text
+        - [x] S1-P1-ST2-T1-SU1 Review labels for jargon removal
+        - [x] S1-P1-ST2-T1-SU2 Validate recovery text clarity
+      - [x] S1-P1-ST2-T2 Approve expert copy terminology set
+        - [x] S1-P1-ST2-T2-SU1 Validate technical term consistency
+        - [x] S1-P1-ST2-T2-SU2 Validate precision of policy language
+      - [x] S1-P1-ST2-T3 Approve route and guard recovery contract
+        - [x] S1-P1-ST2-T3-SU1 Validate route map against P0 flows
+        - [x] S1-P1-ST2-T3-SU2 Validate guard reason + recovery persistence
+  - [x] S1-P2 Phase 2 — Planning and Ownership Sign-off
+    - [x] S1-P2-ST1 Step 1 — Finalize acceptance criteria and sequencing
+      - [x] S1-P2-ST1-T1 Confirm acceptance criteria per upgrade doc
+        - [x] S1-P2-ST1-T1-SU1 Run doc-by-doc acceptance review
+        - [x] S1-P2-ST1-T1-SU2 Resolve conflicting criteria
+      - [x] S1-P2-ST1-T2 Confirm milestone dependencies and blockers
+        - [x] S1-P2-ST1-T2-SU1 Build dependency graph
+        - [x] S1-P2-ST1-T2-SU2 Identify and tag critical blockers
+        - [x] S1-P2-ST1-T2-SU3 Define blocker escalation owner
+      - [x] S1-P2-ST1-T3 Confirm owner assignment for each milestone
+        - [x] S1-P2-ST1-T3-SU1 Assign primary owner per milestone
+        - [x] S1-P2-ST1-T3-SU2 Assign QA and telemetry co-owners
+
+- [x] S2 Stage 2 — Implementation
+  - [x] S2-P1 Phase 1 — Guided and Expert Mode Delivery
+    - [x] S2-P1-ST1 Step 1 — Guided flow implementation
+      - [x] S2-P1-ST1-T1 Implement guided create/join start path
+        - [x] S2-P1-ST1-T1-SU1 Build create/join start UI entry
+        - [x] S2-P1-ST1-T1-SU2 Wire route transitions and validation
+        - [x] S2-P1-ST1-T1-SU3 Add inline failure recovery behavior
+      - [x] S2-P1-ST1-T2 Implement guided privacy and relay selection
+        - [x] S2-P1-ST1-T2-SU1 Build privacy option selection UI
+        - [x] S2-P1-ST1-T2-SU2 Build recommended relay defaults path
+        - [x] S2-P1-ST1-T2-SU3 Add validation and non-blocking warnings
+        - [x] S2-P1-ST1-T2-SU4 Add telemetry events for step completion
+      - [x] S2-P1-ST1-T3 Implement guided invite/share from room context
+        - [x] S2-P1-ST1-T3-SU1 Add room-context invite/share CTA
+        - [x] S2-P1-ST1-T3-SU2 Implement share fallback behavior
+      - [x] S2-P1-ST1-T4 Implement guided security status at-a-glance
+        - [x] S2-P1-ST1-T4-SU1 Add compact state badge and summary copy
+        - [x] S2-P1-ST1-T4-SU2 Add degraded-state recovery hint
+    - [x] S2-P1-ST2 Step 2 — Expert flow implementation
+      - [x] S2-P1-ST2-T1 Implement expert policy controls surface
+        - [x] S2-P1-ST2-T1-SU1 Build expert controls panel layout
+        - [x] S2-P1-ST2-T1-SU2 Wire control state to policy model
+        - [x] S2-P1-ST2-T1-SU3 Add confirmation guardrails for risky actions
+      - [x] S2-P1-ST2-T2 Implement expert diagnostics visibility
+        - [x] S2-P1-ST2-T2-SU1 Add diagnostics section in expert context
+        - [x] S2-P1-ST2-T2-SU2 Surface capability and fallback signals
+      - [x] S2-P1-ST2-T3 Implement guided/expert mode switch contract
+        - [x] S2-P1-ST2-T3-SU1 Implement mode switch control
+        - [x] S2-P1-ST2-T3-SU2 Preserve compatible state on switch
+        - [x] S2-P1-ST2-T3-SU3 Show locked-summary view for unsupported settings
+  - [x] S2-P2 Phase 2 — Relay and Security State Delivery
+    - [x] S2-P2-ST1 Step 1 — Room relay policy UX
+      - [x] S2-P2-ST1-T1 Implement room-level relay configuration
+        - [x] S2-P2-ST1-T1-SU1 Build relay list editor per room
+        - [x] S2-P2-ST1-T1-SU2 Add role assignment (read/write)
+        - [x] S2-P2-ST1-T1-SU3 Enforce minimum policy constraints
+      - [x] S2-P2-ST1-T2 Implement private relay add/edit/remove flow
+        - [x] S2-P2-ST1-T2-SU1 Add private relay manual entry
+        - [x] S2-P2-ST1-T2-SU2 Add edit/remove affordances
+        - [x] S2-P2-ST1-T2-SU3 Preserve existing room policy on failures
+      - [x] S2-P2-ST1-T3 Implement relay validation and status labels
+        - [x] S2-P2-ST1-T3-SU1 Implement URL normalization and parse checks
+        - [x] S2-P2-ST1-T3-SU2 Implement reachability/capability probe status
+        - [x] S2-P2-ST1-T3-SU3 Render status labels and timestamps
+      - [x] S2-P2-ST1-T4 Implement deterministic fallback disclosure
+        - [x] S2-P2-ST1-T4-SU1 Record fallback path at runtime
+        - [x] S2-P2-ST1-T4-SU2 Display fallback reason and action guidance
+    - [x] S2-P2-ST2 Step 2 — Security state normalization UX
+      - [x] S2-P2-ST2-T1 Implement unified state resolver mapping
+        - [x] S2-P2-ST2-T1-SU1 Implement resolver precedence logic
+        - [x] S2-P2-ST2-T1-SU2 Map runtime signals to visible states
+        - [x] S2-P2-ST2-T1-SU3 Validate no over-claiming state labels
+      - [x] S2-P2-ST2-T2 Render state consistently across all surfaces
+        - [x] S2-P2-ST2-T2-SU1 Add state rendering in list/detail/chat/settings
+        - [x] S2-P2-ST2-T2-SU2 Ensure visual and copy parity across surfaces
+      - [x] S2-P2-ST2-T3 Implement recovery guidance for degraded states
+        - [x] S2-P2-ST2-T3-SU1 Provide cause category text
+        - [x] S2-P2-ST2-T3-SU2 Provide next-step CTA and diagnostics link
+
+- [ ] S3 Stage 3 — Validation and Release Readiness
+  - [x] S3-P1 Phase 1 — Test and Telemetry Validation
+    - [x] S3-P1-ST1 Step 1 — P0 scenario test completion
+      - [x] S3-P1-ST1-T1 Pass create-to-first-message e2e scenario
+        - [x] S3-P1-ST1-T1-SU1 Author scenario and fixtures
+        - [x] S3-P1-ST1-T1-SU2 Validate happy path and failure branch
+      - [x] S3-P1-ST1-T2 Pass invite-accept-to-first-message e2e scenario
+        - [x] S3-P1-ST1-T2-SU1 Author invite accept scenario
+        - [x] S3-P1-ST1-T2-SU2 Validate join and posting completion
+      - [x] S3-P1-ST1-T3 Pass guard-redirect recovery e2e scenario
+        - [x] S3-P1-ST1-T3-SU1 Force guard redirect condition
+        - [x] S3-P1-ST1-T3-SU2 Validate reason and persistent recovery CTA
+    - [x] S3-P1-ST2 Step 2 — Telemetry funnel verification
+      - [x] S3-P1-ST2-T1 Validate create and join funnel completeness
+        - [x] S3-P1-ST2-T1-SU1 Verify start/complete/abandon events
+        - [x] S3-P1-ST2-T1-SU2 Verify required funnel properties
+      - [x] S3-P1-ST2-T2 Validate security-state change telemetry
+        - [x] S3-P1-ST2-T2-SU1 Verify state-view and state-change events
+        - [x] S3-P1-ST2-T2-SU2 Verify fallback enter/exit events
+      - [x] S3-P1-ST2-T3 Validate fallback and relay-policy telemetry
+        - [x] S3-P1-ST2-T3-SU1 Verify relay policy save outcomes
+        - [x] S3-P1-ST2-T3-SU2 Verify relay fallback usage events
+  - [ ] S3-P2 Phase 2 — Operational Readiness
+    - [ ] S3-P2-ST1 Step 1 — Release controls
+      - [ ] S3-P2-ST1-T1 Validate dashboard alerts and thresholds
+        - [ ] S3-P2-ST1-T1-SU1 Confirm alert thresholds in staging
+        - [ ] S3-P2-ST1-T1-SU2 Validate alert routing to owners
+      - [ ] S3-P2-ST1-T2 Run rollback drill and confirm runbook
+        - [ ] S3-P2-ST1-T2-SU1 Execute rollback in controlled env
+        - [ ] S3-P2-ST1-T2-SU2 Record timings and recovery outcomes
+        - [ ] S3-P2-ST1-T2-SU3 Update runbook with drill findings
+      - [ ] S3-P2-ST1-T3 Complete release readiness sign-off
+        - [ ] S3-P2-ST1-T3-SU1 Gather Product/Engineering/QA approvals
+        - [ ] S3-P2-ST1-T3-SU2 Capture final go/no-go decision log
+
+- [ ] S4 Stage 4 — Controlled Rollout
+  - [ ] S4-P1 Phase 1 — Exposure Ramp
+    - [ ] S4-P1-ST1 Step 1 — Controlled cohort rollout
+      - [ ] S4-P1-ST1-T1 Deploy to pilot cohort
+        - [ ] S4-P1-ST1-T1-SU1 Enable feature flags for pilot cohort
+        - [ ] S4-P1-ST1-T1-SU2 Validate pilot environment health checks
+      - [ ] S4-P1-ST1-T2 Review conversion and error signals
+        - [ ] S4-P1-ST1-T2-SU1 Review 24h conversion and drop-off metrics
+        - [ ] S4-P1-ST1-T2-SU2 Review error and fallback trends
+      - [ ] S4-P1-ST1-T3 Resolve blocker regressions
+        - [ ] S4-P1-ST1-T3-SU1 Triage blocker regressions by severity
+        - [ ] S4-P1-ST1-T3-SU2 Patch and verify fixes in pilot
+        - [ ] S4-P1-ST1-T3-SU3 Reconfirm go criteria after fixes
+    - [ ] S4-P1-ST2 Step 2 — Broad release
+      - [ ] S4-P1-ST2-T1 Expand exposure to broader cohorts
+        - [ ] S4-P1-ST2-T1-SU1 Increase cohort percentage by phase plan
+        - [ ] S4-P1-ST2-T1-SU2 Monitor impact windows after each increase
+      - [ ] S4-P1-ST2-T2 Confirm no P0 regression trend
+        - [ ] S4-P1-ST2-T2-SU1 Validate P0 funnel stability window
+        - [ ] S4-P1-ST2-T2-SU2 Validate incident rate remains within threshold
+      - [ ] S4-P1-ST2-T3 Finalize full release decision
+        - [ ] S4-P1-ST2-T3-SU1 Complete final release review meeting
+        - [ ] S4-P1-ST2-T3-SU2 Document decision and post-release checks
+
+## Cross-Stage Watch Items
+
+- [ ] R1 Risk: Guided completion rate below target
+- [ ] R2 Risk: Expert discoverability regression
+- [ ] R3 Risk: Relay policy save failure spike
+- [ ] R4 Risk: Security-state comprehension issues
+
+## Stage 3 Execution Notes
+
+- Blocker resolved: `cypress/e2e/groups.cy.ts` now passes after fixing `GroupRelayPolicyEditor.svelte` parse failure and stabilizing scenario setup/timings.
+- Latest validation run: `pnpm cypress run --spec cypress/e2e/groups.cy.ts --browser electron` -> 9 passing, 0 failing (includes setup/join/invite telemetry assertions and security state shown/changed assertions).
+- Telemetry implementation advanced for `S3-P1-ST2`: added setup/join lifecycle, invite funnel, first-message, and security-state change/fallback events across `GroupCreateJoin.svelte`, `InviteAccept.svelte`, and `GroupConversation.svelte`.
+- Event vocabulary expanded in `src/app/groups/telemetry.ts` to align with `10-telemetry-funnel-and-observability-spec.md` event families.
+- Added modular helper `src/app/groups/telemetry-stage3.ts` with focused unit tests in `tests/unit/app/groups/telemetry-stage3.spec.ts` to verify fallback enter/resolve and relay policy/fallback event emission logic.
+- Validation status: `S3-P1-ST2` telemetry verification tasks completed via Cypress + unit assertions.
+- Added operational readiness control artifacts:
+  - `docs/groups/upgrade/15-stage3-operational-readiness-controls.md`
+  - `docs/groups/upgrade/16-stage3-rollback-drill-runbook.md`
+  - `docs/groups/upgrade/17-stage3-staging-execution-log.md`
+  - `scripts/validate-groups-operational-readiness.mjs`
+- Added operational evidence parser + commands:
+  - `scripts/check-groups-stage3-staging-evidence.mjs`
+  - `pnpm groups:stage3:ops:validate`
+  - `pnpm groups:stage3:ops:evidence`
+  - `pnpm groups:stage3:ops:evidence:strict`
+  - `pnpm groups:stage3:ops:log-entry`
+  - `pnpm groups:stage3:ops:summarize`
+  - `pnpm groups:stage3:ops:status`
+  - `pnpm groups:stage3:ops:sync-summary`
+  - `pnpm groups:stage3:ops:sync-summary:dry`
+  - `pnpm groups:stage3:ops:status:sync`
+- Added tracker auto-sync command for Stage 3 operational evidence:
+  - `scripts/sync-groups-stage3-tracker-status.mjs`
+  - `pnpm groups:stage3:ops:sync`
+  - `pnpm groups:stage3:ops:sync:dry`
+  - `scripts/summarize-groups-stage3-operational-evidence.mjs`
+  - `scripts/sync-groups-stage3-summary-into-tracker.mjs`
+  - `scripts/sync-groups-ops-runstamp-into-tracker.mjs`
+- Refactored shared Stage 3/4 ops evidence logic into `scripts/lib/groups-upgrade-evidence.mjs` and rewired `check-*`, `summarize-*`, and `sync-*` scripts to use shared parsing/task metadata/completion helpers.
+- Added Stage 3 closure pipeline aliases:
+  - `pnpm groups:stage3:ops:close` (strict evidence gate + sync + validate)
+  - `pnpm groups:stage3:ops:close:dry` (non-strict evidence summary + dry sync + validate)
+- Updated readiness validation semantics in `scripts/validate-groups-operational-readiness.mjs` to enforce evidence/tracker consistency (open before PASS evidence, closed after complete PASS evidence) for `S3-P2` and `S3-P2-ST1-T1/T2/T3`.
+- Local evidence:
+  - `pnpm groups:stage3:ops:validate` -> PASS
+  - `pnpm groups:stage3:ops:evidence` -> pending (`NO ENTRY` for staging subtask keys)
+  - `pnpm groups:stage3:ops:evidence:strict` -> expected fail until staging evidence is recorded
+  - `pnpm groups:stage3:ops:summarize` -> generated Stage 3 summary artifacts (`docs/groups/upgrade/cache/stage3-operational-evidence-summary.json` + `.md`) with `completeTaskCount: 0`, `pendingTaskCount: 7`
+  - `pnpm groups:stage3:ops:sync-summary:dry` -> pending tracker snapshot update detected (`changed: true`, `wroteFile: false`)
+  - `pnpm groups:stage3:ops:status:sync` -> regenerated Stage 3 summary and wrote tracker snapshot block (`wroteFile: true`)
+  - `pnpm groups:stage3:ops:sync:dry` -> no tracker mutations (`changed: []`) while all required `S3-P2-ST1-*` evidence entries remain incomplete
+  - `pnpm groups:stage3:ops:sync` -> write-mode safety check produced no mutations (`changed: []`, `wroteFile: false`)
+  - `pnpm groups:stage3:ops:close:dry` -> PASS end-to-end preflight with pending evidence and tracker/evidence alignment validated
+  - Source modularity audit (`src/**/*.{js,ts,svelte}`) -> max file length 489 lines (`src/util/router.ts`), no files exceed 500 lines
+- External staging-dependent checks (`S3-P2-ST1-T1-SU1/SU2`, `S3-P2-ST1-T2-SU1/SU2/SU3`, `S3-P2-ST1-T3-SU1/SU2`) remain open until environment execution evidence is attached.
+
+<!-- GROUPS_STAGE3_SUMMARY_START -->
+### Stage 3 Operational Snapshot (Auto-Generated)
+
+- Generated At: 2026-02-22T01:21:53.715Z
+- Completed Tasks: 0/7
+- Pending Tasks: 7
+- All Complete: no
+- Summary JSON: docs/groups/upgrade/cache/stage3-operational-evidence-summary.json
+- Summary MD: docs/groups/upgrade/cache/stage3-operational-evidence-summary.md
+- Pending Task Keys (up to 7):
+  - S3-P2-ST1-T1-SU1
+  - S3-P2-ST1-T1-SU2
+  - S3-P2-ST1-T2-SU1
+  - S3-P2-ST1-T2-SU2
+  - S3-P2-ST1-T2-SU3
+  - S3-P2-ST1-T3-SU1
+  - S3-P2-ST1-T3-SU2
+<!-- GROUPS_STAGE3_SUMMARY_END -->
+## Stage 4 Preparation Notes
+
+- Added Stage 4 rollout evidence log template:
+  - `docs/groups/upgrade/18-stage4-controlled-rollout-execution-log.md`
+- Added Stage 4 rollout evidence tooling:
+  - `scripts/check-groups-stage4-rollout-evidence.mjs`
+  - `scripts/sync-groups-stage4-tracker-status.mjs`
+  - `scripts/append-groups-execution-entry.mjs` (shared Stage 3/4 log entry writer)
+  - `scripts/validate-groups-stage4-rollout-readiness.mjs`
+  - `scripts/summarize-groups-stage4-rollout-evidence.mjs`
+  - `scripts/sync-groups-stage4-summary-into-tracker.mjs`
+  - `scripts/groups-ops-status-dashboard.mjs` (cross-stage Stage 3/4 evidence summary dashboard)
+- Added Stage 4 rollout command aliases:
+  - `pnpm groups:stage4:rollout:evidence`
+  - `pnpm groups:stage4:rollout:evidence:strict`
+  - `pnpm groups:stage4:rollout:log-entry`
+  - `pnpm groups:stage4:rollout:validate`
+  - `pnpm groups:stage4:rollout:summarize`
+  - `pnpm groups:stage4:rollout:status`
+  - `pnpm groups:stage4:rollout:sync-summary`
+  - `pnpm groups:stage4:rollout:sync-summary:dry`
+  - `pnpm groups:stage4:rollout:status:sync`
+  - `pnpm groups:stage4:rollout:sync`
+  - `pnpm groups:stage4:rollout:sync:dry`
+  - `pnpm groups:stage4:rollout:close`
+  - `pnpm groups:stage4:rollout:close:dry`
+  - `pnpm groups:ops:refresh`
+  - `pnpm groups:ops:refresh:dry`
+  - `pnpm groups:ops:status`
+  - `pnpm groups:ops:status:strict`
+  - `pnpm groups:ops:status:sync`
+  - `pnpm groups:ops:status:sync:dry`
+  - `pnpm groups:ops:status:sync:strict`
+  - `pnpm groups:ops:doctor`
+  - `pnpm groups:ops:doctor:strict`
+  - `pnpm groups:ops:doctor:json`
+  - `pnpm groups:ops:doctor:strict:json`
+  - `pnpm groups:ops:doctor:json:file`
+  - `pnpm groups:ops:doctor:strict:json:file`
+  - `pnpm groups:ops:doctor:json:history`
+  - `pnpm groups:ops:doctor:strict:json:history`
+  - `pnpm groups:ops:doctor:history:prune`
+  - `pnpm groups:ops:doctor:history:prune:dry`
+  - `pnpm groups:ops:doctor:history:prune:age`
+  - `pnpm groups:ops:doctor:history:prune:age:dry`
+  - `pnpm groups:ops:doctor:history:report`
+  - `pnpm groups:ops:doctor:history:report:json`
+  - `pnpm groups:ops:doctor:history:report:strict`
+  - `pnpm groups:ops:doctor:history:report:strict:json`
+  - `pnpm groups:stage3:ops:release-controls:status`
+  - `pnpm groups:stage3:ops:release-controls:status:json`
+  - `pnpm groups:stage3:ops:release-controls:status:strict`
+  - `pnpm groups:stage3:ops:release-controls:next`
+  - `pnpm groups:stage3:ops:release-controls:next:json`
+  - `pnpm groups:ops:close:status:dry`
+  - `pnpm groups:ops:close:status`
+  - `pnpm groups:ops:close`
+  - `pnpm groups:ops:close:dry`
+- Updated `12-rollout-migration-and-risk-controls.md` with Stage 4 evidence automation references and closure policy.
+- Added doctor history retention utility:
+  - `scripts/prune-groups-ops-doctor-history.mjs`
+- Added doctor history reporting utility:
+  - `scripts/report-groups-ops-doctor-history.mjs`
+- Added Stage 3 release-controls prioritization utility:
+  - `scripts/groups-stage3-release-controls-status.mjs`
+  - `scripts/groups-stage3-release-controls-next-actions.mjs`
+- Local evidence:
+  - `pnpm groups:stage3:ops:log-entry -- --task-key=S3-P2-ST1-T1-SU1 --outcome=PASS --action='dry-run evidence writer validation' --notes='local preview only' --dry-run` -> PASS preview (`wroteFile: false`)
+  - `pnpm groups:stage4:rollout:log-entry -- --task-key=S4-P1-ST1-T1-SU1 --outcome=PASS --action='dry-run evidence writer validation' --notes='local preview only' --dry-run` -> PASS preview (`wroteFile: false`)
+  - `pnpm groups:stage4:rollout:evidence` -> pending (`NO ENTRY` across required `S4-P1-*` subtask keys)
+  - `pnpm groups:stage4:rollout:validate` -> PASS (required docs + command references + tracker/evidence consistency)
+  - `pnpm groups:stage4:rollout:summarize` -> generated Stage 4 summary artifacts (`docs/groups/upgrade/cache/stage4-rollout-evidence-summary.json` + `.md`) with `completeTaskCount: 0`, `pendingTaskCount: 13`
+  - `pnpm groups:stage4:rollout:status` -> combined evidence listing + summary generation in one command
+  - `pnpm groups:stage4:rollout:sync-summary:dry` -> pending tracker snapshot update detected (`changed: true`, `wroteFile: false`)
+  - `pnpm groups:stage4:rollout:status:sync` -> regenerated summary and wrote tracker snapshot block (`wroteFile: true`)
+  - `pnpm groups:stage4:rollout:sync:dry` -> no tracker mutations (`changed: []`, `wroteFile: false`)
+  - `pnpm groups:stage4:rollout:close:dry` -> executes expected pending-evidence summary + dry sync + validator checks with no mutations
+  - `pnpm groups:stage4:rollout:evidence:strict` -> expected fail until rollout evidence is recorded
+  - `pnpm groups:ops:refresh:dry` -> full cross-stage preflight completed; run-stamp dry update detected (`changed: true`, `wroteFile: false`)
+  - `pnpm groups:ops:refresh` -> full cross-stage status/sync/validate flow completed; operations run-stamp block updated (`wroteFile: true`)
+  - `pnpm groups:ops:status` -> cross-stage dashboard summary (`Stage 3: 0/7`, `Stage 4: 0/13`, `Combined: 0/20`)
+  - `pnpm groups:ops:status:strict` -> expected fail while evidence remains pending (`ops_status_strict_exit:1`)
+  - `pnpm groups:ops:status:sync` -> cross-stage status + Stage 3/4 summary tracker blocks + ops run-stamp updated (`wroteFile: true`)
+  - `pnpm groups:ops:status:sync:dry` -> non-destructive status-sync preflight (`changed: true`, `wroteFile: false`)
+  - `pnpm groups:ops:status:sync:strict` -> expected fail at strict gate while evidence remains pending (`ops_status_sync_strict_exit:1`)
+  - `pnpm groups:ops:doctor` -> read-only cross-stage health bundle PASS (`checkCount: 6`, `failedCount: 0`, `allPassed: true`)
+  - `pnpm groups:ops:doctor:strict` -> expected fail with pending evidence (`failedChecks: [ops-status-strict]`, `ops_doctor_strict_exit:1`)
+  - `pnpm groups:ops:doctor:json` -> machine-readable read-only health bundle PASS (`jsonMode: true`, `checkCount: 6`, `failedCount: 0`, `allPassed: true`)
+  - `pnpm groups:ops:doctor:strict:json` -> machine-readable strict gate expected fail with pending evidence (`failedChecks: [ops-status-strict]`, `ops_doctor_strict_json_exit:1`)
+  - `pnpm groups:ops:doctor:json:file` -> machine-readable health bundle artifact write PASS (`outputPath: docs/groups/upgrade/cache/groups-ops-doctor-summary.json`, `checkCount: 6`, `failedCount: 0`)
+  - `pnpm groups:ops:doctor:strict:json:file` -> strict-mode artifact write expected fail with pending evidence (`failedChecks: [ops-status-strict]`, `ops_doctor_strict_json_file_exit:1`)
+  - `pnpm groups:ops:doctor:json:history` -> timestamped machine-readable artifact write PASS (`outputPath: docs/groups/upgrade/cache/groups-ops-doctor-history/groups-ops-doctor-summary-*.json`, `checkCount: 6`, `failedCount: 0`)
+  - `pnpm groups:ops:doctor:strict:json:history` -> strict-mode timestamped artifact write expected fail with pending evidence (`failedChecks: [ops-status-strict]`, `ops_doctor_strict_json_history_exit:1`)
+  - `pnpm groups:ops:doctor:history:prune:dry -- --keep=1` -> dry-run retention preview PASS (`totalFiles: 2`, `removedCount: 1`, `keptCount: 1`)
+  - `pnpm groups:ops:doctor:history:prune -- --keep=2` -> write-mode retention pass preserving two newest artifacts (`removedCount: 0`, `keptCount: 2`)
+  - `pnpm groups:ops:doctor:history:prune:age:dry` -> age-based dry-run retention PASS after semantics fix (`countPruneEnabled: false`, `maxAgeDays: 30`, `removedCount: 0`)
+  - `pnpm groups:ops:doctor:history:prune -- --max-age-days=0 --keep=2` -> combined age+count write-mode retention PASS (`countPruneEnabled: true`, `effectiveKeepCount: 2`, `removedCount: 0`)
+  - `pnpm groups:ops:doctor:history:report` -> read-only report PASS (`fileCount: 2`, `oldestFile/newestFile` emitted, `totalSizeBytes: 4956`)
+  - `pnpm groups:ops:doctor:history:report:json` -> machine-readable report PASS (includes `files[]` inventory with mtime/size metadata)
+  - `pnpm groups:ops:doctor:history:report:strict` -> strict report PASS with existing artifacts (`strictMode: true`, `fileCount: 2`)
+  - `pnpm groups:ops:doctor:history:report:strict:json` -> machine-readable strict report PASS (`strictMode: true`, `files[]` included)
+  - `node scripts/report-groups-ops-doctor-history.mjs --strict --dir=<empty-temp-dir>` -> expected strict fail when inventory is empty (`report_history_strict_empty_exit:1`)
+  - `pnpm groups:stage3:ops:release-controls:status` -> focused status PASS for selected `S3-P2-ST1` checklist (`Progress: 0/7`, prioritized next task `S3-P2-ST1-T1-SU1`, suggested log command emitted)
+  - `pnpm groups:stage3:ops:release-controls:status:json` -> machine-readable focused status PASS (`sections[]`, `rows[]`, `nextTask` fields emitted)
+  - `pnpm groups:stage3:ops:release-controls:status:strict` -> expected fail while `S3-P2-ST1-*` evidence remains pending (`stage3_release_controls_status_strict_exit:1`)
+  - `pnpm groups:stage3:ops:release-controls:next` -> prioritized actionable plan PASS (`pendingCount: 7`, ordered `S3-P2-ST1-*` task list with per-task log command suggestions)
+  - `pnpm groups:stage3:ops:release-controls:next:json` -> machine-readable next-action plan PASS (`pendingCount`, `nextTaskKey`, `actions[]` payload emitted)
+  - `pnpm groups:ops:close:status:dry` -> pre-close dry preflight + dry close path PASS (no tracker mutation from dry steps)
+  - `pnpm groups:ops:close:status` -> expected fail at strict pre-close status gate while evidence remains pending (`ops_close_status_exit:1`)
+  - Updated `groups:ops:refresh:dry` semantics to avoid tracker snapshot mutation (`status` + `sync-summary:dry` path for Stage 3/4).
+  - `pnpm groups:ops:close:dry` -> PASS non-strict cross-stage close preflight (`stage3 close:dry` + `stage4 close:dry` + non-destructive `ops:refresh:dry`).
+  - `pnpm groups:ops:close` -> expected fail at Stage 3 strict evidence gate (`groups:stage3:ops:evidence:strict`) until staging PASS entries are recorded.
+  - Post-refactor verification: `pnpm groups:ops:refresh && pnpm groups:stage3:ops:evidence && pnpm groups:stage4:rollout:evidence` -> PASS behavior parity with shared helper library (all expected pending-evidence statuses preserved)
+  - Source modularity audit -> max file length 489 lines (`src/util/router.ts`), no files exceed 500 lines
+- Stage 4 checklist rows remain open until rollout execution evidence is attached for each required `S4-P1-ST1/ST2` subtask.
+
+<!-- GROUPS_STAGE4_SUMMARY_START -->
+### Stage 4 Rollout Snapshot (Auto-Generated)
+
+- Generated At: 2026-02-22T01:21:52.181Z
+- Completed Tasks: 0/13
+- Pending Tasks: 13
+- All Complete: no
+- Summary JSON: docs/groups/upgrade/cache/stage4-rollout-evidence-summary.json
+- Summary MD: docs/groups/upgrade/cache/stage4-rollout-evidence-summary.md
+- Pending Task Keys (up to 8):
+  - S4-P1-ST1-T1-SU1
+  - S4-P1-ST1-T1-SU2
+  - S4-P1-ST1-T2-SU1
+  - S4-P1-ST1-T2-SU2
+  - S4-P1-ST1-T3-SU1
+  - S4-P1-ST1-T3-SU2
+  - S4-P1-ST1-T3-SU3
+  - S4-P1-ST2-T1-SU1
+<!-- GROUPS_STAGE4_SUMMARY_END -->
+<!-- GROUPS_OPS_RUNSTAMP_START -->
+### Operations Refresh Stamp (Auto-Generated)
+
+- Refreshed At: 2026-02-22T01:21:54.680Z
+- Stage 3 Summary:
+  - Generated At: 2026-02-22T01:21:53.715Z
+  - Completed: 0/7
+  - Pending: 7
+  - All Complete: no
+- Stage 4 Summary:
+  - Generated At: 2026-02-22T01:21:52.181Z
+  - Completed: 0/13
+  - Pending: 13
+  - All Complete: no
+- Source Commands:
+  - pnpm groups:stage3:ops:status:sync
+  - pnpm groups:stage3:ops:validate
+  - pnpm groups:stage4:rollout:status:sync
+  - pnpm groups:stage4:rollout:validate
+<!-- GROUPS_OPS_RUNSTAMP_END -->
+## Definition of Done
+
+- [ ] D1 All P0 requirements accepted and verified
+- [ ] D2 Required telemetry events are complete and observable
+- [ ] D3 Required P0 e2e suite is stable in CI
+- [ ] D4 Rollout and rollback controls are validated

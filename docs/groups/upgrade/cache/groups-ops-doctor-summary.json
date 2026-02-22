@@ -1,0 +1,90 @@
+{
+  "strictMode": true,
+  "jsonMode": true,
+  "outputPath": "docs/groups/upgrade/cache/groups-ops-doctor-summary.json",
+  "checkCount": 7,
+  "failedCount": 1,
+  "failedChecks": [
+    "ops-status-strict"
+  ],
+  "allPassed": false,
+  "checks": [
+    {
+      "name": "ops-status",
+      "command": "pnpm groups:ops:status",
+      "ok": true,
+      "exitCode": 0,
+      "tail": [
+        "⏳ Stage 4 — 0/13 complete, 13 pending (summary @ 2026-02-22T00:06:50.106Z)",
+        "Pending keys (up to 5): S4-P1-ST1-T1-SU1, S4-P1-ST1-T1-SU2, S4-P1-ST1-T2-SU1, S4-P1-ST1-T2-SU2, S4-P1-ST1-T3-SU1",
+        "⏳ Combined — 0/20 complete, 20 pending"
+      ]
+    },
+    {
+      "name": "ops-status-strict",
+      "command": "pnpm groups:ops:status:strict",
+      "ok": false,
+      "exitCode": 1,
+      "tail": [
+        "⏳ Combined — 0/20 complete, 20 pending",
+        "ELIFECYCLE  Command failed with exit code 1.",
+        "❌ Strict mode failed: one or more cross-stage evidence tasks are still pending"
+      ]
+    },
+    {
+      "name": "stage3-validate",
+      "command": "pnpm groups:stage3:ops:validate",
+      "ok": true,
+      "exitCode": 0,
+      "tail": [
+        "✅ Controls doc contains owner-routing columns",
+        "✅ Tracker Stage 3 operational-readiness states align with evidence",
+        "✅ Groups operational readiness validation checks passed"
+      ]
+    },
+    {
+      "name": "stage4-validate",
+      "command": "pnpm groups:stage4:rollout:validate",
+      "ok": true,
+      "exitCode": 0,
+      "tail": [
+        "✅ Rollout controls doc contains Stage 4 automation command references",
+        "✅ Tracker Stage 4 rollout states align with evidence",
+        "✅ Groups Stage 4 rollout readiness validation checks passed"
+      ]
+    },
+    {
+      "name": "stage3-sync-summary-dry",
+      "command": "pnpm groups:stage3:ops:sync-summary:dry",
+      "ok": true,
+      "exitCode": 0,
+      "tail": [
+        "\"completeTaskCount\": 0,",
+        "\"totalTaskCount\": 7",
+        "}"
+      ]
+    },
+    {
+      "name": "stage4-sync-summary-dry",
+      "command": "pnpm groups:stage4:rollout:sync-summary:dry",
+      "ok": true,
+      "exitCode": 0,
+      "tail": [
+        "\"completeTaskCount\": 0,",
+        "\"totalTaskCount\": 13",
+        "}"
+      ]
+    },
+    {
+      "name": "ops-runstamp-dry",
+      "command": "node scripts/sync-groups-ops-runstamp-into-tracker.mjs --dry-run",
+      "ok": true,
+      "exitCode": 0,
+      "tail": [
+        "\"stage3Pending\": 7,",
+        "\"stage4Pending\": 13",
+        "}"
+      ]
+    }
+  ]
+}

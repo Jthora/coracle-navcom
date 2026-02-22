@@ -3,9 +3,21 @@
   import Input from "src/partials/Input.svelte"
   import Link from "src/partials/Link.svelte"
   import GroupAuditHistoryPanel from "src/app/views/GroupAuditHistoryPanel.svelte"
+  import GroupSettingsModeSwitch from "src/app/views/GroupSettingsModeSwitch.svelte"
+  import GroupSettingsExpertDiagnostics from "src/app/views/GroupSettingsExpertDiagnostics.svelte"
+  import GroupSettingsPolicyEditorPanel from "src/app/views/GroupSettingsPolicyEditorPanel.svelte"
+  import GroupSettingsMemberActionsPanel from "src/app/views/GroupSettingsMemberActionsPanel.svelte"
+  import GroupRelayPolicyEditor from "src/app/views/GroupRelayPolicyEditor.svelte"
   import GroupSettingsModerationComposer from "src/app/views/GroupSettingsModerationComposer.svelte"
   import {showInfo, showWarning} from "src/partials/Toast.svelte"
+  import {trackGroupTelemetry} from "src/app/groups/telemetry"
+  import {emitRelayPolicyOutcomeTelemetry} from "src/app/groups/telemetry-stage3"
   import {groupProjections, groupsHydrated} from "src/app/groups/state"
+  import {
+    getGroupAdminMode,
+    setGroupAdminMode,
+    type GroupAdminMode,
+  } from "src/app/groups/admin-mode"
   import {
     createGroupAdminUiVisibilityMap,
     GROUP_ADMIN_UI_CONTROL,
@@ -29,6 +41,12 @@
     type GroupMissionTier,
   } from "src/app/groups/policy"
   import {getSecureCapabilityGateMessage} from "src/app/groups/capability-gate"
+  import {
+    createDefaultRoomRelayPolicy,
+    loadRoomRelayPolicy,
+    type RoomRelayPolicy,
+  } from "src/app/groups/relay-policy"
+  import {getProjectionSecurityState} from "src/app/groups/security-state"
   import {
     buildModerationReasonText,
     createDefaultModerationDraft,
@@ -55,6 +73,17 @@
   $: policyNotices = evaluateGroupPolicyDraft(policy)
   $: policyValid = isGroupPolicyDraftValid(policy)
   $: secureCapabilityWarning = getSecureCapabilityGateMessage({preferredMode: policy.preferredMode})
+  $: policySummary = asGroupPolicySummary(policy)
+  $: securityState = getProjectionSecurityState(projection, Boolean(secureCapabilityWarning))
+
+  let uiMode: GroupAdminMode = "guided"
+  $: isExpertMode = uiMode === "expert"
+
+  const onSelectMode = (mode: GroupAdminMode) => {
+    uiMode = mode
+    setGroupAdminMode(groupId, mode)
+    trackGroupTelemetry("group_expert_mode_changed", {mode})
+  }
 
   const onPolicyTierChange = (event: Event) => {
     const target = event.currentTarget as HTMLSelectElement
@@ -96,6 +125,29 @@
   let moderationDraft = createDefaultModerationDraft()
   $: moderationActions = getModerationActionOptions()
   $: moderationReasonCodes = getModerationReasonCodeOptions()
+  let relayPolicy: RoomRelayPolicy = createDefaultRoomRelayPolicy(groupId)
+
+  $: if (projection) {
+    relayPolicy = loadRoomRelayPolicy(groupId)
+  }
+
+  const onRelayPolicyChanged = (next: RoomRelayPolicy) => {
+    relayPolicy = next
+  }
+
+  const onRelayPolicySaved = ({ok, message}: {ok: boolean; message: string}) => {
+    emitRelayPolicyOutcomeTelemetry({
+      emit: (event, props) => trackGroupTelemetry(event, props || {}),
+      relayCount: relayPolicy.relays.length,
+      ok,
+    })
+
+    if (ok) {
+      showInfo(message)
+    } else {
+      showWarning(message)
+    }
+  }
 
   const onModerationActionChange = (event: Event) => {
     const target = event.currentTarget as HTMLSelectElement
@@ -303,6 +355,10 @@
   $: document.title = projection
     ? `${projection.group.title || projection.group.id} · Admin`
     : "Group Admin"
+
+  $: if (projection) {
+    uiMode = getGroupAdminMode(groupId)
+  }
 </script>
 
 {#if !$groupsHydrated}
@@ -322,100 +378,56 @@
         Role: {actorRole}
       </span>
     </div>
+    <div class="mt-3 rounded border border-neutral-700 px-3 py-2 text-sm text-neutral-300">
+      Security state: <span class="text-neutral-100">{securityState.label}</span> — {securityState.hint}
+    </div>
   </div>
 
-  {#if adminUi[GROUP_ADMIN_UI_CONTROL.POLICY_EDITOR].visible}
+  <GroupSettingsModeSwitch mode={uiMode} {onSelectMode} />
+
+  {#if isExpertMode}
+    <GroupSettingsExpertDiagnostics
+      {projection}
+      {actorRole}
+      {secureCapabilityWarning}
+      {policySummary} />
+
+    <GroupRelayPolicyEditor
+      policy={relayPolicy}
+      onChange={onRelayPolicyChanged}
+      onSaved={onRelayPolicySaved} />
+  {:else}
     <div class="panel p-4">
-      <h3 class="text-sm uppercase tracking-[0.08em] text-neutral-300">Policy Editor</h3>
-      {#if !adminUi[GROUP_ADMIN_UI_CONTROL.POLICY_EDITOR].enabled}
-        <div class="mt-3 rounded border border-neutral-700 px-3 py-2 text-sm text-neutral-400">
-          {adminUi[GROUP_ADMIN_UI_CONTROL.POLICY_EDITOR].disabledReason}
-        </div>
-      {/if}
-      <div class="mt-3 grid gap-2 sm:grid-cols-3">
-        <label class="text-sm text-neutral-300">
-          Mission tier
-          <select
-            class="mt-1 h-9 w-full rounded border border-neutral-700 bg-neutral-900 px-3 text-neutral-100"
-            disabled={!adminUi[GROUP_ADMIN_UI_CONTROL.POLICY_EDITOR].enabled}
-            bind:value={policy.tier}
-            on:change={onPolicyTierChange}>
-            <option value={0}>Tier 0</option>
-            <option value={1}>Tier 1</option>
-            <option value={2}>Tier 2</option>
-          </select>
-        </label>
-        <label class="text-sm text-neutral-300">
-          Preferred mode
-          <select
-            class="mt-1 h-9 w-full rounded border border-neutral-700 bg-neutral-900 px-3 text-neutral-100"
-            disabled={!adminUi[GROUP_ADMIN_UI_CONTROL.POLICY_EDITOR].enabled}
-            bind:value={policy.preferredMode}
-            on:change={onPolicyModeChange}>
-            <option value="baseline-nip29">baseline-nip29</option>
-            <option value="secure-nip-ee">secure-nip-ee</option>
-          </select>
-        </label>
-        <label class="text-sm text-neutral-300">
-          Downgrade
-          <select
-            class="mt-1 h-9 w-full rounded border border-neutral-700 bg-neutral-900 px-3 text-neutral-100"
-            disabled={!adminUi[GROUP_ADMIN_UI_CONTROL.POLICY_EDITOR].enabled}
-            bind:value={policy.allowDowngrade}
-            on:change={onPolicyDowngradeChange}>
-            <option value={true}>Allowed</option>
-            <option value={false}>Disallowed</option>
-          </select>
-        </label>
+      <h3 class="text-sm uppercase tracking-[0.08em] text-neutral-300">Guided Summary</h3>
+      <p class="mt-2 text-sm text-neutral-400">
+        Advanced controls are hidden in guided mode. Current policy state remains preserved.
+      </p>
+      <div class="mt-3 rounded border border-neutral-700 px-3 py-2 text-sm text-neutral-300">
+        Current policy: <span class="text-neutral-100">{policySummary}</span>
       </div>
-
-      <div class="mt-3 space-y-2 text-sm">
-        {#if secureCapabilityWarning}
-          <div class="rounded border border-neutral-700 px-3 py-2 text-warning">
-            {secureCapabilityWarning}
-          </div>
-        {/if}
-        {#each policyNotices as notice, i (`policy-${i}`)}
-          <div
-            class="rounded border border-neutral-700 px-3 py-2"
-            class:text-warning={notice.level === "warning"}>
-            {notice.message}
-          </div>
-        {/each}
-      </div>
-
-      <div class="mt-3 space-y-2">
-        <Input
-          placeholder="Group title"
-          bind:value={metadataTitle}
-          disabled={!adminUi[GROUP_ADMIN_UI_CONTROL.POLICY_EDITOR].enabled} />
-        <Input
-          placeholder="Group description"
-          bind:value={metadataDescription}
-          disabled={!adminUi[GROUP_ADMIN_UI_CONTROL.POLICY_EDITOR].enabled} />
-        <Input
-          placeholder="Group picture URL"
-          bind:value={metadataPicture}
-          disabled={!adminUi[GROUP_ADMIN_UI_CONTROL.POLICY_EDITOR].enabled} />
-        <Input
-          placeholder="Change reason"
-          bind:value={metadataReason}
-          disabled={!adminUi[GROUP_ADMIN_UI_CONTROL.POLICY_EDITOR].enabled} />
-      </div>
-
-      <div class="mt-4 flex justify-end">
-        <button
-          class="btn btn-accent"
-          type="button"
-          on:click={onSavePolicyAndMetadata}
-          disabled={!canEditPolicy || !policyValid}>
-          Save Settings
-        </button>
+      <div class="mt-2 rounded border border-neutral-700 px-3 py-2 text-sm text-neutral-400">
+        Switch to Expert mode to edit advanced policy, diagnostics, and moderation controls.
       </div>
     </div>
   {/if}
 
-  {#if hasVisibleAdminActions}
+  {#if isExpertMode && adminUi[GROUP_ADMIN_UI_CONTROL.POLICY_EDITOR].visible}
+    <GroupSettingsPolicyEditorPanel
+      enabled={adminUi[GROUP_ADMIN_UI_CONTROL.POLICY_EDITOR].enabled}
+      {policy}
+      {policyNotices}
+      {policyValid}
+      bind:metadataTitle
+      bind:metadataDescription
+      bind:metadataPicture
+      bind:metadataReason
+      {onPolicyTierChange}
+      {onPolicyModeChange}
+      {onPolicyDowngradeChange}
+      {onSavePolicyAndMetadata} />
+  {/if}
+
+  {#if isExpertMode && hasVisibleAdminActions}
     <div class="panel p-4">
       <h3 class="text-sm uppercase tracking-[0.08em] text-neutral-300">Admin Actions</h3>
 
@@ -433,58 +445,22 @@
         {onModerationTargetPubkeyInput}
         {onSubmitModerationAction} />
 
-      {#if adminUi[GROUP_ADMIN_UI_CONTROL.PUT_MEMBER].visible}
-        <div class="mt-3 grid gap-2 sm:grid-cols-3">
-          <Input placeholder="Member pubkey" bind:value={memberPubkey} />
-          <label class="text-sm text-neutral-300">
-            Role
-            <select
-              class="mt-1 h-9 w-full rounded border border-neutral-700 bg-neutral-900 px-3 text-neutral-100"
-              bind:value={memberRole}>
-              <option value="member">member</option>
-              <option value="moderator">moderator</option>
-              <option value="admin">admin</option>
-              <option value="owner">owner</option>
-            </select>
-          </label>
-          <Input placeholder="Reason" bind:value={memberReason} />
-        </div>
-
-        <div class="mt-3 flex justify-end">
-          <button class="btn" type="button" on:click={onPutMember} disabled={!canManageMembers}>
-            Put Member
-          </button>
-        </div>
-      {/if}
-
-      {#if adminUi[GROUP_ADMIN_UI_CONTROL.REMOVE_MEMBER].visible}
-        <div class="mt-6 border-t border-neutral-700 pt-4">
-          <h4 class="text-sm uppercase tracking-[0.08em] text-danger">
-            Destructive Action: Remove Member
-          </h4>
-          <div class="mt-2 grid gap-2 sm:grid-cols-2">
-            <Input placeholder="Target member pubkey" bind:value={removePubkey} />
-            <Input placeholder="Removal reason" bind:value={removeReason} />
-          </div>
-          <div class="mt-2 text-xs text-neutral-400">
-            Type <strong>{destructiveToken}</strong> to confirm.
-          </div>
-          <div class="mt-2">
-            <Input placeholder={destructiveToken} bind:value={destructiveConfirmInput} />
-          </div>
-          <div class="mt-3 flex justify-end">
-            <button
-              class="btn"
-              type="button"
-              on:click={onRemoveMember}
-              disabled={!canRemoveMembers}>
-              Remove Member
-            </button>
-          </div>
-        </div>
-      {/if}
+      <GroupSettingsMemberActionsPanel
+        {adminUi}
+        {GROUP_ADMIN_UI_CONTROL}
+        {canManageMembers}
+        {canRemoveMembers}
+        bind:memberPubkey
+        bind:memberRole
+        bind:memberReason
+        bind:removePubkey
+        bind:removeReason
+        {destructiveToken}
+        bind:destructiveConfirmInput
+        {onPutMember}
+        {onRemoveMember} />
     </div>
-  {:else}
+  {:else if isExpertMode}
     <div class="panel p-4">
       <h3 class="text-sm uppercase tracking-[0.08em] text-neutral-300">Admin Actions</h3>
       <p class="mt-3 rounded border border-neutral-700 px-3 py-2 text-sm text-neutral-400">
@@ -493,7 +469,7 @@
     </div>
   {/if}
 
-  {#if adminUi[GROUP_ADMIN_UI_CONTROL.AUDIT_HISTORY].visible}
+  {#if isExpertMode && adminUi[GROUP_ADMIN_UI_CONTROL.AUDIT_HISTORY].visible}
     <GroupAuditHistoryPanel {projection} actorPubkey={$pubkey || undefined} />
   {/if}
 {/if}

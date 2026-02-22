@@ -7,9 +7,15 @@
     groupsHydrated,
     unreadGroupMessageCounts,
   } from "src/app/groups/state"
+  import {resolveGroupSecurityState} from "src/app/groups/security-state"
+
+  export let guardMessage = ""
+  export let guardFrom = ""
 
   const toGroupHref = (groupId: string) => `/groups/${encodeURIComponent(groupId)}/chat`
   const getUnreadCount = (groupId: string) => $unreadGroupMessageCounts.get(groupId) || 0
+  const getSecurityState = (transportMode: "baseline-nip29" | "secure-nip-ee") =>
+    resolveGroupSecurityState({transportMode})
 
   onMount(() => {
     ensureGroupsHydrated()
@@ -28,6 +34,17 @@
     </Link>
   </div>
   <p class="mt-3 text-neutral-300">Relay-managed groups you can browse, join, and administer.</p>
+  {#if guardMessage}
+    <div class="mt-3 rounded border border-warning px-3 py-2 text-sm text-warning">
+      <div>{guardMessage}</div>
+      {#if guardFrom}
+        <div class="mt-1 text-xs text-neutral-300">Redirected from {guardFrom}</div>
+      {/if}
+      <div class="mt-2">
+        <Link class="btn" href="/groups/create">Open Join Flow</Link>
+      </div>
+    </div>
+  {/if}
 </div>
 
 {#if !$groupsHydrated}
@@ -50,6 +67,7 @@
           {/if}
           <div>{group.memberCount} members</div>
           <div>{group.protocol.toUpperCase()}</div>
+          <div>{getSecurityState(group.transportMode).label}</div>
         </div>
       </div>
     </Link>

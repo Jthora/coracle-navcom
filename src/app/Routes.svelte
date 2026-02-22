@@ -67,7 +67,14 @@
           const path =
             result.redirectTo && result.redirectTo !== $current.path ? result.redirectTo : "/"
 
-          router.go({path, replace: true})
+          router.go({
+            path,
+            replace: true,
+            context: {
+              guardMessage: result.message || "You can’t open that page right now.",
+              guardFrom: $current.path,
+            },
+          })
         }
       }
     }

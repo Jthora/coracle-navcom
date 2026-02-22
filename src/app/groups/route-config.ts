@@ -27,11 +27,11 @@ export const registerGroupRoutesWithComponent = (
   },
 ) => {
   router.register("/groups", components.list, {
-    requireSigner: true,
+    requireSigner: false,
   })
 
   router.register("/groups/create", components.create, {
-    requireSigner: true,
+    requireSigner: false,
     serializers: {
       groupId: asGroupAddress,
       preferredMode: asGroupInviteMode,
@@ -41,7 +41,7 @@ export const registerGroupRoutesWithComponent = (
   })
 
   const detailOptions = {
-    requireSigner: true,
+    requireSigner: false,
     required: ["groupId"],
     serializers: {
       groupId: asGroupAddress,
