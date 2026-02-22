@@ -26,23 +26,23 @@ export const resolveGroupSecurityState = ({
   if (hasDowngradeSignal) {
     return {
       state: "fallback-active" as GroupSecurityState,
-      label: "Fallback active",
-      hint: "A non-preferred compatibility path is active after secure transport degraded. Review relay health.",
+      label: "Compatibility transport active",
+      hint: "Compatibility fallback is active after secure transport degraded. Review relay health and policy constraints.",
     }
   }
 
   if (transportMode === "secure-nip-ee") {
     return {
       state: "secure-active" as GroupSecurityState,
-      label: "Secure active (PQC-preferred)",
-      hint: "Preferred secure transport is active for this room.",
+      label: "Secure transport active",
+      hint: "Secure pilot transport is active for this room. Compatibility fallback may be used if capability drops.",
     }
   }
 
   return {
     state: "compatibility-active" as GroupSecurityState,
-    label: "Compatibility active (non-PQC)",
-    hint: "Compatibility transport is active for broader support.",
+    label: "Compatibility transport active",
+    hint: "Compatibility transport is active for broader support. This mode does not imply confidentiality guarantees.",
   }
 }
 
@@ -53,7 +53,7 @@ export const getProjectionSecurityState = (
   if (!projection) {
     return {
       state: "compatibility-active" as GroupSecurityState,
-      label: "Compatibility active (non-PQC)",
+      label: "Compatibility transport active",
       hint: "Security state unavailable until group data loads.",
     }
   }

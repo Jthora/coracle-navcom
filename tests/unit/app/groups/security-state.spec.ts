@@ -7,9 +7,9 @@ describe("app/groups security-state", () => {
 
     expect(state).toMatchObject({
       state: "secure-active",
-      label: "Secure active (PQC-preferred)",
+      label: "Secure transport active",
     })
-    expect(state.hint).toContain("Preferred secure transport is active")
+    expect(state.hint).toContain("Secure pilot transport is active")
   })
 
   it("returns explicit compatibility label for baseline transport", () => {
@@ -17,9 +17,9 @@ describe("app/groups security-state", () => {
 
     expect(state).toMatchObject({
       state: "compatibility-active",
-      label: "Compatibility active (non-PQC)",
+      label: "Compatibility transport active",
     })
-    expect(state.hint).toContain("Compatibility transport is active")
+    expect(state.hint).toContain("does not imply confidentiality")
   })
 
   it("prioritizes fallback and blocked messaging when signaled", () => {
@@ -34,9 +34,9 @@ describe("app/groups security-state", () => {
 
     expect(fallback).toMatchObject({
       state: "fallback-active",
-      label: "Fallback active",
+      label: "Compatibility transport active",
     })
-    expect(fallback.hint).toContain("non-preferred compatibility path")
+    expect(fallback.hint).toContain("Compatibility fallback is active")
     expect(blocked).toMatchObject({state: "blocked", label: "Blocked"})
     expect(blocked.hint).toContain("room policy and relay capabilities")
   })
@@ -46,7 +46,7 @@ describe("app/groups security-state", () => {
 
     expect(state).toMatchObject({
       state: "compatibility-active",
-      label: "Compatibility active (non-PQC)",
+      label: "Compatibility transport active",
       hint: "Security state unavailable until group data loads.",
     })
   })
@@ -62,8 +62,8 @@ describe("app/groups security-state", () => {
 
     expect(state).toMatchObject({
       state: "fallback-active",
-      label: "Fallback active",
+      label: "Compatibility transport active",
     })
-    expect(state.hint).toContain("non-preferred compatibility path")
+    expect(state.hint).toContain("Compatibility fallback is active")
   })
 })

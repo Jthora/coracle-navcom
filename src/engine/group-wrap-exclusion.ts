@@ -36,6 +36,24 @@ export type RemovedMemberWrapExclusionValidationResult =
   | {ok: true}
   | ({ok: false} & RemovedMemberWrapExclusionViolation)
 
+type EventOrdering = {
+  sequence: number
+  createdAt: number
+  eventId: string
+}
+
+const compareOrdering = (left: EventOrdering, right: EventOrdering) => {
+  if (left.sequence !== right.sequence) {
+    return left.sequence - right.sequence
+  }
+
+  if (left.createdAt !== right.createdAt) {
+    return left.createdAt - right.createdAt
+  }
+
+  return left.eventId.localeCompare(right.eventId)
+}
+
 const buildRemovedMemberCutoff = ({
   groupId,
   events,
@@ -45,15 +63,19 @@ const buildRemovedMemberCutoff = ({
   events: unknown[]
   projection: GroupProjection
 }) => {
-  const cutoffByPubkey = new Map<string, number>()
+  const cutoffByPubkey = new Map<string, EventOrdering>()
 
   for (const membership of Object.values(projection.members)) {
     if (membership.status === "removed") {
-      cutoffByPubkey.set(membership.pubkey, membership.updatedAt)
+      cutoffByPubkey.set(membership.pubkey, {
+        sequence: Number.MIN_SAFE_INTEGER,
+        createdAt: membership.updatedAt,
+        eventId: `projection:${membership.pubkey}`,
+      })
     }
   }
 
-  for (const event of events) {
+  for (const [index, event] of events.entries()) {
     const kind = asKind(event)
 
     if (kind !== GROUP_KINDS.NIP29.REMOVE_USER && kind !== GROUP_KINDS.NIP29.LEAVE_REQUEST) {
@@ -74,9 +96,14 @@ const buildRemovedMemberCutoff = ({
     }
 
     const current = cutoffByPubkey.get(removedPubkey)
+    const next: EventOrdering = {
+      sequence: index,
+      createdAt: removedAt,
+      eventId: asEventId(event),
+    }
 
-    if (typeof current !== "number" || removedAt > current) {
-      cutoffByPubkey.set(removedPubkey, removedAt)
+    if (!current || compareOrdering(next, current) > 0) {
+      cutoffByPubkey.set(removedPubkey, next)
     }
   }
 
@@ -98,7 +125,7 @@ export const validateRemovedMemberWrapExclusion = ({
     return {ok: true}
   }
 
-  for (const event of events) {
+  for (const [index, event] of events.entries()) {
     if (asKind(event) !== GROUP_KINDS.NIP_EE.GROUP_EVENT) {
       continue
     }
@@ -116,11 +143,16 @@ export const validateRemovedMemberWrapExclusion = ({
     }
 
     const recipients = getTagValues("p", tags)
+    const eventOrdering: EventOrdering = {
+      sequence: index,
+      createdAt,
+      eventId: asEventId(event),
+    }
 
     for (const recipient of recipients) {
       const cutoff = removedCutoff.get(recipient)
 
-      if (typeof cutoff === "number" && createdAt >= cutoff) {
+      if (cutoff && compareOrdering(eventOrdering, cutoff) >= 0) {
         return {
           ok: false,
           reason: "REMOVED_MEMBER_INCLUDED",

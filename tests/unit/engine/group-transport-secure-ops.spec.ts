@@ -2,8 +2,10 @@ import {beforeEach, describe, expect, it} from "vitest"
 import {GROUP_KINDS} from "../../../src/domain/group-kinds"
 import {encodeSecureGroupEpochContent} from "../../../src/engine/group-epoch-content"
 import {
+  GROUP_SECURE_SEND_INPUT_REASON,
   buildSecureSubscribeFilters,
   parseSecureGroupSendInput,
+  parseSecureGroupSendInputResult,
   parseSecureGroupSubscribeInput,
   reconcileSecureGroupEvents,
 } from "../../../src/engine/group-transport-secure-ops"
@@ -53,6 +55,17 @@ describe("engine/group-transport-secure-ops", () => {
     })
 
     expect(parseSecureGroupSendInput({groupId: "", content: "", recipients: []})).toBeNull()
+
+    const invalidRecipient = parseSecureGroupSendInputResult({
+      groupId: "ops",
+      content: "hello",
+      recipients: ["not-a-pubkey"],
+    })
+
+    expect(invalidRecipient).toMatchObject({
+      ok: false,
+      reason: GROUP_SECURE_SEND_INPUT_REASON.RECIPIENT_PUBKEY_INVALID,
+    })
   })
 
   it("parses subscribe input and builds filters", () => {

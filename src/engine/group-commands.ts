@@ -1,9 +1,5 @@
 import {pubkey} from "@welshman/app"
-import {publishThunk} from "@welshman/app"
-import {makeEvent} from "@welshman/util"
-import {Router, addMaximalFallbacks} from "@welshman/router"
 import {canPerformGroupControlAction} from "src/domain/group-control"
-import {GROUP_KINDS} from "src/domain/group-kinds"
 import {
   mapGroupCommandError,
   normalizeGroupCommandAck,
@@ -13,6 +9,8 @@ import {
 } from "src/domain/group-command-feedback"
 import type {GroupMemberRole} from "src/domain/group"
 import {dispatchGroupTransportAction} from "src/engine/group-transport"
+import {dispatchGroupTransportMessage} from "src/engine/group-transport"
+import type {GroupTransportModeId} from "src/engine/group-transport-contracts"
 import {recordGroupDowngradeAudit} from "src/engine/group-downgrade-audit"
 import {
   remediateCompromisedDevice,
@@ -64,13 +62,18 @@ export const publishGroupCreate = async (
     picture,
   }: {groupId: string; title?: string; description?: string; picture?: string},
   actorRole: GroupMemberRole = "admin",
+  {
+    requestedMode,
+  }: {
+    requestedMode?: GroupTransportModeId
+  } = {},
 ) => {
   ensureAllowed(actorRole, "create")
 
   return dispatchGroupTransportAction(
     "create",
     {groupId, title, description, picture},
-    {actorRole, diagnostics: createGroupCommandTransportDiagnostics()},
+    {actorRole, requestedMode, diagnostics: createGroupCommandTransportDiagnostics()},
   )
 }
 
@@ -82,9 +85,16 @@ export const publishGroupCreateWithAck = async (
     picture,
   }: {groupId: string; title?: string; description?: string; picture?: string},
   actorRole: GroupMemberRole = "admin",
+  {
+    requestedMode,
+  }: {
+    requestedMode?: GroupTransportModeId
+  } = {},
 ): Promise<GroupCommandOutcome<unknown>> => {
   try {
-    const value = await publishGroupCreate({groupId, title, description, picture}, actorRole)
+    const value = await publishGroupCreate({groupId, title, description, picture}, actorRole, {
+      requestedMode,
+    })
 
     return {
       ok: true,
@@ -100,7 +110,16 @@ export const publishGroupCreateWithRecovery = async (
   params: {groupId: string; title?: string; description?: string; picture?: string},
   actorRole: GroupMemberRole = "admin",
   retries = 1,
-) => withGroupCommandRetry(() => publishGroupCreateWithAck(params, actorRole), retries)
+  {
+    requestedMode,
+  }: {
+    requestedMode?: GroupTransportModeId
+  } = {},
+) =>
+  withGroupCommandRetry(
+    () => publishGroupCreateWithAck(params, actorRole, {requestedMode}),
+    retries,
+  )
 
 export const getGroupCreateRecoveryMessage = (result: GroupCommandOutcome<unknown>) => {
   if ("reason" in result) {
@@ -119,13 +138,18 @@ export const publishGroupJoin = async (
     reason,
   }: {groupId: string; memberPubkey?: string; reason?: string},
   actorRole: GroupMemberRole = "member",
+  {
+    requestedMode,
+  }: {
+    requestedMode?: GroupTransportModeId
+  } = {},
 ) => {
   ensureAllowed(actorRole, "join")
 
   return dispatchGroupTransportAction(
     "join",
     {groupId, memberPubkey, reason},
-    {actorRole, diagnostics: createGroupCommandTransportDiagnostics()},
+    {actorRole, requestedMode, diagnostics: createGroupCommandTransportDiagnostics()},
   )
 }
 
@@ -268,9 +292,23 @@ export const publishGroupCompromisedDeviceRemediation = async (
 export const publishGroupMessage = async ({
   groupId,
   content,
+  requestedMode = "baseline-nip29",
+  recipients,
+  localState,
+  missionTier,
+  actorRole = "member",
+  downgradeConfirmed = false,
+  allowTier2Override = false,
 }: {
   groupId: string
   content: string
+  requestedMode?: GroupTransportModeId
+  recipients?: string[]
+  localState?: unknown
+  missionTier?: 0 | 1 | 2
+  actorRole?: GroupMemberRole
+  downgradeConfirmed?: boolean
+  allowTier2Override?: boolean
 }) => {
   const normalizedGroupId = groupId.trim()
   const normalizedContent = content.trim()
@@ -283,11 +321,35 @@ export const publishGroupMessage = async ({
     throw new Error("Message content cannot be empty.")
   }
 
-  return publishThunk({
-    event: makeEvent(GROUP_KINDS.NIP_EE.GROUP_EVENT, {
+  return dispatchGroupTransportMessage(
+    {
+      groupId: normalizedGroupId,
       content: normalizedContent,
-      tags: [["h", normalizedGroupId]],
-    }),
-    relays: Router.get().FromUser().policy(addMaximalFallbacks).getUrls(),
-  })
+      requestedMode,
+      actorRole,
+      createdAt: Math.floor(Date.now() / 1000),
+      recipients,
+      localState,
+      missionTier,
+      downgradeConfirmed,
+      allowTier2Override,
+    },
+    {
+      onFallback: input => {
+        if (input.requestedMode !== "secure-nip-ee" || input.adapterId === "secure-nip-ee") {
+          return
+        }
+
+        recordGroupDowngradeAudit({
+          groupId: input.request.groupId,
+          action: "transport-downgrade",
+          actor: input.request.actorRole,
+          createdAt: input.request.createdAt,
+          requestedMode: input.request.requestedMode,
+          resolvedMode: input.adapterId,
+          reason: input.reason,
+        })
+      },
+    },
+  )
 }

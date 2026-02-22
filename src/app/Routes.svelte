@@ -6,6 +6,7 @@
   import Modal from "src/partials/Modal.svelte"
   import LazyRouteHost from "src/app/LazyRouteHost.svelte"
   import {menuIsOpen} from "src/app/state"
+  import {buildRouteRecoveryRedirectContext} from "src/app/groups/route-recovery"
   import {router} from "src/app/util/router"
 
   const {current, page, modals} = router
@@ -46,7 +47,17 @@
 
       for (const k of router.getMatch($current.path).route.required || []) {
         if (!props[k]) {
-          router.go({path: "/", replace: true})
+          router.go({
+            path: "/groups",
+            replace: true,
+            context: buildRouteRecoveryRedirectContext({
+              fromPath: $current.path,
+              message:
+                "This route is missing required data, so we redirected you to Groups. Open a valid group link or invite to continue.",
+              reason: `ROUTE_REQUIRED_PARAM_MISSING:${k}`,
+              props,
+            }),
+          })
           break
         }
       }
@@ -64,16 +75,23 @@
         if (!result.ok) {
           showWarning(result.message || "You can’t open that page right now.")
 
+          const recoveryReason =
+            "reason" in result && typeof result.reason === "string"
+              ? result.reason
+              : "ROUTE_GUARD_FAILED"
+
           const path =
             result.redirectTo && result.redirectTo !== $current.path ? result.redirectTo : "/"
 
           router.go({
             path,
             replace: true,
-            context: {
-              guardMessage: result.message || "You can’t open that page right now.",
-              guardFrom: $current.path,
-            },
+            context: buildRouteRecoveryRedirectContext({
+              fromPath: $current.path,
+              message: result.message || "You can’t open that page right now.",
+              reason: recoveryReason,
+              props: router.getProps($current),
+            }),
           })
         }
       }

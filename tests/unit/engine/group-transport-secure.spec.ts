@@ -71,6 +71,22 @@ describe("engine/group-transport-secure", () => {
     })
   })
 
+  it("returns deterministic validation message for invalid secure recipient pubkey", async () => {
+    setSecurePilotEnabled(true)
+
+    const result = await securePilotGroupTransport.sendMessage?.({
+      groupId: "ops",
+      content: "hello",
+      recipients: ["bad-pubkey"],
+    })
+
+    expect(result).toMatchObject({
+      ok: false,
+      code: "GROUP_TRANSPORT_VALIDATION_FAILED",
+      message: "Secure send recipient pubkeys must be valid 64-character hex strings.",
+    })
+  })
+
   it("returns capability blocked when secure subscription is attempted while disabled", async () => {
     setSecurePilotEnabled(false)
 

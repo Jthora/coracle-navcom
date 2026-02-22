@@ -2,6 +2,34 @@ import type {TrustedEvent} from "@welshman/util"
 import {recordPqcDmFallback} from "src/engine/pqc/dm-fallback-history"
 import {resolveDmReceiveContent} from "src/engine/pqc/dm-receive-envelope"
 
+const normalizePubkey = (value: unknown) =>
+  typeof value === "string" ? value.trim().toLowerCase() : ""
+
+export const deriveExpectedRecipientPubkeys = ({
+  tags,
+  localPubkey,
+}: {
+  tags: string[][]
+  localPubkey?: string
+}) => {
+  const recipients = Array.from(
+    new Set(
+      tags
+        .filter(tag => tag[0] === "p")
+        .map(tag => normalizePubkey(tag[1]))
+        .filter(Boolean),
+    ),
+  ).sort((left, right) => left.localeCompare(right))
+
+  const normalizedLocal = normalizePubkey(localPubkey)
+
+  if (normalizedLocal && recipients.includes(normalizedLocal)) {
+    return [normalizedLocal, ...recipients.filter(pubkey => pubkey !== normalizedLocal)]
+  }
+
+  return recipients
+}
+
 export const resolveMessagePlaintext = ({
   event,
   decryptedContent,
@@ -17,15 +45,20 @@ export const resolveMessagePlaintext = ({
   enableFallbackHistory?: boolean
   localPubkey?: string
 }) => {
-  const expectedRecipientPubkey = event.tags.find(tag => tag[0] === "p")?.[1]
+  const expectedRecipientPubkeys = deriveExpectedRecipientPubkeys({
+    tags: event.tags,
+    localPubkey,
+  })
+  const expectedRecipientPubkey = expectedRecipientPubkeys[0]
 
   const resolved = resolveDmReceiveContent({
     tags: event.tags,
     decryptedContent,
     policyMode,
     allowLegacyFallback,
-    expectedSenderPubkey: event.pubkey,
+    expectedSenderPubkey: normalizePubkey(event.pubkey),
     expectedRecipientPubkey,
+    expectedRecipientPubkeys,
   })
 
   if (resolved.reason && resolved.reason !== "DM_ENVELOPE_PARSE_OK") {

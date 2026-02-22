@@ -36,6 +36,24 @@ export type GroupInviteParseResult =
       error: GroupInviteParseError
     }
 
+export const GROUP_INVITE_DECODE_RECOVERY_REASON = {
+  URI_MALFORMED: "GROUP_INVITE_DECODE_URI_MALFORMED",
+  ENTRY_URI_MALFORMED: "GROUP_INVITE_DECODE_ENTRY_URI_MALFORMED",
+} as const
+
+export type GroupInviteDecodeRecoveryReasonCode =
+  (typeof GROUP_INVITE_DECODE_RECOVERY_REASON)[keyof typeof GROUP_INVITE_DECODE_RECOVERY_REASON]
+
+export type GroupInviteDecodeRecoveryError = {
+  reason: GroupInviteDecodeRecoveryReasonCode
+  value: unknown
+}
+
+export type GroupInviteDecodeResult = {
+  payloads: GroupInvitePayload[]
+  errors: GroupInviteDecodeRecoveryError[]
+}
+
 const GROUP_MODE_VALUES: GroupTransportMode[] = ["baseline-nip29", "secure-nip-ee"]
 const GROUP_TIER_VALUES: GroupInviteMissionTier[] = [0, 1, 2]
 
@@ -62,12 +80,22 @@ const parseLegacyGroupEntry = (entry: string): GroupInvitePayload | null => {
 }
 
 const parseDelimitedGroupEntry = (entry: string): GroupInviteParseResult | null => {
-  const parts = entry.split("|").map(part => decodeURIComponent((part || "").trim()))
+  const decodePart = (part: string): string | null => {
+    try {
+      return decodeURIComponent((part || "").trim())
+    } catch {
+      return null
+    }
+  }
+
+  const parts = entry.split("|").map(part => decodePart(part))
+
+  if (parts.some(part => part === null)) return null
 
   if (parts.length <= 1) return null
 
   return parseGroupInvitePayload({
-    groupId: parts[0],
+    groupId: parts[0] || "",
     preferredMode: parts[1] || undefined,
     missionTier: parts[2] || undefined,
     label: parts[3] || undefined,
@@ -179,14 +207,30 @@ export const parseGroupInvitePayload = (value: unknown): GroupInviteParseResult 
   }
 }
 
-export const decodeGroupInvitePayloads = (value: string): GroupInvitePayload[] => {
-  if (!value) return []
+export const decodeGroupInvitePayloadsResult = (value: string): GroupInviteDecodeResult => {
+  if (!value) return {payloads: [], errors: []}
 
-  const decodedValue = decodeURIComponent(value)
+  const errors: GroupInviteDecodeRecoveryError[] = []
+
+  let decodedValue = value
+
+  try {
+    decodedValue = decodeURIComponent(value)
+  } catch {
+    decodedValue = value
+    errors.push({
+      reason: GROUP_INVITE_DECODE_RECOVERY_REASON.URI_MALFORMED,
+      value,
+    })
+  }
+
   const jsonResult = parseJsonGroupEntry(decodedValue)
 
   if (jsonResult) {
-    return jsonResult.flatMap(result => (result.ok ? [result.value] : []))
+    return {
+      payloads: jsonResult.flatMap(result => (result.ok ? [result.value] : [])),
+      errors,
+    }
   }
 
   const items = decodedValue
@@ -197,29 +241,44 @@ export const decodeGroupInvitePayloads = (value: string): GroupInvitePayload[] =
   const result: GroupInvitePayload[] = []
 
   for (const item of items) {
-    const delimited = parseDelimitedGroupEntry(item)
+    let decodedItem = item
+
+    try {
+      decodedItem = decodeURIComponent(item)
+    } catch {
+      decodedItem = item
+      errors.push({
+        reason: GROUP_INVITE_DECODE_RECOVERY_REASON.ENTRY_URI_MALFORMED,
+        value: item,
+      })
+    }
+
+    const delimited = parseDelimitedGroupEntry(decodedItem)
 
     if (delimited?.ok) {
       result.push(delimited.value)
       continue
     }
 
-    const parsedJsonEntries = parseJsonGroupEntry(item)
+    const parsedJsonEntries = parseJsonGroupEntry(decodedItem)
 
     if (parsedJsonEntries) {
       result.push(...parsedJsonEntries.flatMap(entry => (entry.ok ? [entry.value] : [])))
       continue
     }
 
-    const legacy = parseLegacyGroupEntry(item)
+    const legacy = parseLegacyGroupEntry(decodedItem)
 
     if (legacy) {
       result.push(legacy)
     }
   }
 
-  return result
+  return {payloads: result, errors}
 }
+
+export const decodeGroupInvitePayloads = (value: string): GroupInvitePayload[] =>
+  decodeGroupInvitePayloadsResult(value).payloads
 
 export const encodeGroupInvitePayloads = (payloads: GroupInvitePayload[]): string =>
   payloads

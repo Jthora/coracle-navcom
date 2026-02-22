@@ -1,6 +1,8 @@
 import {describe, expect, it} from "vitest"
 import {
+  GROUP_INVITE_DECODE_RECOVERY_REASON,
   decodeGroupInvitePayloads,
+  decodeGroupInvitePayloadsResult,
   encodeGroupInvitePayloads,
   parseGroupInvitePayload,
   GROUP_INVITE_PARSE_REASON,
@@ -109,5 +111,52 @@ describe("app/invite schema", () => {
         groupId: "relay.beta'general",
       },
     ])
+  })
+
+  it("fails soft on malformed URI input", () => {
+    expect(() => decodeGroupInvitePayloads("%E0%A4%A")).not.toThrow()
+    expect(decodeGroupInvitePayloads("%E0%A4%A")).toEqual([])
+  })
+
+  it("skips malformed delimited entries and keeps valid ones", () => {
+    const encodedValid = encodeURIComponent("relay.valid'ops|secure-nip-ee|1|Ops")
+    const malformed = "relay.bad'ops|bad%ZZ|1|Broken"
+    const decoded = decodeGroupInvitePayloads(`${malformed},${encodedValid}`)
+
+    expect(decoded).toEqual([
+      {
+        groupId: "relay.valid'ops",
+        preferredMode: "secure-nip-ee",
+        missionTier: 1,
+        label: "Ops",
+      },
+    ])
+  })
+
+  it("returns typed recoverable decode errors for malformed input", () => {
+    const malformed = decodeGroupInvitePayloadsResult("%E0%A4%A")
+
+    expect(malformed.payloads).toEqual([])
+    expect(malformed.errors).toContainEqual({
+      reason: GROUP_INVITE_DECODE_RECOVERY_REASON.URI_MALFORMED,
+      value: "%E0%A4%A",
+    })
+
+    const mixed = decodeGroupInvitePayloadsResult(
+      "relay.bad'ops|bad%ZZ|1|Broken,relay.good'ops%7Csecure-nip-ee%7C1%7COps",
+    )
+
+    expect(mixed.payloads).toEqual([
+      {
+        groupId: "relay.good'ops",
+        preferredMode: "secure-nip-ee",
+        missionTier: 1,
+        label: "Ops",
+      },
+    ])
+    expect(mixed.errors).toContainEqual({
+      reason: GROUP_INVITE_DECODE_RECOVERY_REASON.ENTRY_URI_MALFORMED,
+      value: "relay.bad'ops|bad%ZZ|1|Broken",
+    })
   })
 })

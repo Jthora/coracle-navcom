@@ -6,7 +6,7 @@ import {Router} from "src/util/router"
 import {parseJson} from "src/util/misc"
 import {parseAnythingSync} from "src/util/nostr"
 import {getChannelId} from "src/engine"
-import {decodeGroupInvitePayloads, encodeGroupInvitePayloads} from "src/app/invite/schema"
+import {decodeGroupInvitePayloadsResult, encodeGroupInvitePayloads} from "src/app/invite/schema"
 
 // Decoders
 
@@ -35,7 +35,14 @@ export const asCsv = name => ({
 
 export const asInviteGroups = {
   encode: encodeGroupInvitePayloads,
-  decode: decodeAs("groups", decodeGroupInvitePayloads),
+  decode: value => {
+    const decoded = decodeGroupInvitePayloadsResult(value)
+
+    return {
+      groups: decoded.payloads,
+      groupInviteRecoveryErrors: decoded.errors,
+    }
+  },
 }
 
 export const asUrlComponent = name => ({

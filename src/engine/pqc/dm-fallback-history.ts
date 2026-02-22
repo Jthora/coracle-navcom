@@ -43,10 +43,14 @@ export const createPqcDmFallbackHistory = ({
       return
     }
 
-    const history = parseHistory(storage.getItem(key))
-    const next = [entry, ...history].slice(0, Math.max(1, limit))
+    try {
+      const history = parseHistory(storage.getItem(key))
+      const next = [entry, ...history].slice(0, Math.max(1, limit))
 
-    storage.setItem(key, JSON.stringify(next))
+      storage.setItem(key, JSON.stringify(next))
+    } catch {
+      return
+    }
   }
 
   const getAll = () => {
@@ -54,11 +58,19 @@ export const createPqcDmFallbackHistory = ({
       return []
     }
 
-    return parseHistory(storage.getItem(key))
+    try {
+      return parseHistory(storage.getItem(key))
+    } catch {
+      return []
+    }
   }
 
   const clear = () => {
-    storage?.removeItem(key)
+    try {
+      storage?.removeItem(key)
+    } catch {
+      return
+    }
   }
 
   return {

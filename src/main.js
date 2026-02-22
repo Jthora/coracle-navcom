@@ -6,9 +6,12 @@ import {makeSecret} from "@welshman/util"
 import {App as CapacitorApp} from "@capacitor/app"
 import {nsecDecode} from "src/util/nostr"
 import {router} from "src/app/util"
+import {initializeSecurePilotRuntime} from "src/app/groups/secure-pilot-bootstrap"
 import App from "src/app/App.svelte"
 import {installPrompt} from "src/partials/state"
 import {env} from "src/engine"
+import {setSecurePilotEnabled} from "src/engine/group-transport-secure"
+import {replaySecureGroupKeyRotationJobs} from "src/engine/group-key-rotation-service"
 
 // Nstart login - hash is replaced somewhere else, maybe router?
 if (window.location.hash?.startsWith("#nostr-login")) {
@@ -61,6 +64,27 @@ window.plausible =
   function () {
     ;(window.plausible.q = window.plausible.q || []).push(arguments)
   }
+
+const secureGroupKeyReplaySummary = replaySecureGroupKeyRotationJobs()
+
+window.plausible("groups_secure_rotation_replay_bootstrap", {
+  props: {
+    loaded_jobs: secureGroupKeyReplaySummary.loadedJobs,
+    resumed_failed: secureGroupKeyReplaySummary.resumedFromFailed,
+    deferred_failed: secureGroupKeyReplaySummary.deferredFailed,
+    reconciled_failed: secureGroupKeyReplaySummary.reconciledFailed,
+    exhausted_failed: secureGroupKeyReplaySummary.exhaustedFailed,
+    already_pending: secureGroupKeyReplaySummary.alreadyPending,
+    completed_jobs: secureGroupKeyReplaySummary.completedJobs,
+  },
+})
+
+initializeSecurePilotRuntime({
+  envEnabled: Boolean(env.ENABLE_SECURE_GROUP_PILOT),
+  envForceDisabled: Boolean(env.DISABLE_SECURE_GROUP_PILOT),
+  storage: typeof window !== "undefined" ? window.localStorage : null,
+  setEnabled: setSecurePilotEnabled,
+})
 
 window.addEventListener("beforeinstallprompt", e => {
   // Prevent Chrome 67 and earlier from automatically showing the prompt

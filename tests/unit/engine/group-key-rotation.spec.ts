@@ -84,4 +84,64 @@ describe("engine/group-key-rotation", () => {
     expect(thirdFailure?.nextRetryAt).toBeUndefined()
     expect(service.canRetry("ops", 999)).toBe(false)
   })
+
+  it("persists rotation jobs and restores idempotency keys across bootstrap", () => {
+    const data = new Map<string, string>()
+    const storage = {
+      getItem: (key: string) => data.get(key) || null,
+      setItem: (key: string, value: string) => {
+        data.set(key, value)
+      },
+      removeItem: (key: string) => {
+        data.delete(key)
+      },
+    }
+
+    const first = createGroupKeyRotationService({}, () => 100, {storage})
+    const created = first.scheduleRotation({
+      groupId: "ops",
+      keyId: "secure-session:ops",
+      trigger: "membership-change",
+      at: 100,
+    })
+
+    expect(created.idempotencyKey).toBe("group-rotation:ops:secure-session:ops:membership-change")
+
+    const second = createGroupKeyRotationService({}, () => 200, {storage})
+    const restored = second.getJob("ops")
+
+    expect(restored?.idempotencyKey).toBe(created.idempotencyKey)
+    expect(restored?.status).toBe("pending")
+  })
+
+  it("replays failed jobs whose retry window has elapsed and reports summary", () => {
+    const data = new Map<string, string>()
+    const storage = {
+      getItem: (key: string) => data.get(key) || null,
+      setItem: (key: string, value: string) => {
+        data.set(key, value)
+      },
+      removeItem: (key: string) => {
+        data.delete(key)
+      },
+    }
+
+    const service = createGroupKeyRotationService({maxRetries: 4}, () => 100, {storage})
+
+    service.scheduleRotation({
+      groupId: "ops",
+      keyId: "secure-session:ops",
+      trigger: "manual",
+      at: 100,
+    })
+    service.recordFailure("ops", "network down", 101)
+
+    const rehydrated = createGroupKeyRotationService({maxRetries: 4}, () => 200, {storage})
+    const summary = rehydrated.replayPendingJobs(200)
+
+    expect(summary.loadedJobs).toBe(1)
+    expect(summary.resumedFromFailed).toBe(1)
+    expect(rehydrated.getJob("ops")?.status).toBe("pending")
+    expect(rehydrated.getJob("ops")?.nextRetryAt).toBeUndefined()
+  })
 })

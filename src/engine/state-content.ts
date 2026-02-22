@@ -13,13 +13,14 @@ import {
   LABEL,
   NAMED_BOOKMARKS,
   readList,
+  type PublishedList,
 } from "@welshman/util"
 import {deriveEvents, deriveItems, deriveItemsByKey, withGetter} from "@welshman/store"
 import {derived} from "svelte/store"
 import {repository, pubkey, plaintext, getFollows} from "@welshman/app"
 import {groupBy, first, identity, pushToMapKey, simpleCache, sortBy} from "@welshman/lib"
 import Fuse from "fuse.js"
-import type {PublishedFeed, PublishedListFeed, PublishedList, PublishedUserList} from "src/domain"
+import type {PublishedFeed, PublishedListFeed, PublishedUserList} from "src/domain"
 import {
   CollectionSearch,
   EDITABLE_LIST_KINDS,
@@ -48,21 +49,21 @@ export const createStateContent = ({
 }) => {
   const listsById = deriveItemsByKey({
     repository,
-    getKey: list => list.event.id,
+    getKey: (list: any) => list.event.id,
     filters: [{kinds: EDITABLE_LIST_KINDS}],
     eventToItem: event => (event.tags.length > 1 ? readUserList(event) : null),
   })
 
   const lists = deriveItems(listsById)
 
-  const userLists = derived([lists, pubkey], ([$lists, $pubkey]: [PublishedUserList[], string]) =>
+  const userLists = derived([lists, pubkey], ([$lists, $pubkey]) =>
     sortBy(
-      l => l.title.toLowerCase(),
-      $lists.filter(list => list.event.pubkey === $pubkey),
+      (l: PublishedUserList) => l.title.toLowerCase(),
+      ($lists as PublishedUserList[]).filter(list => list.event.pubkey === $pubkey),
     ),
   )
 
-  const listSearch = derived(lists, $lists => new UserListSearch($lists))
+  const listSearch = derived(lists, $lists => new UserListSearch($lists as PublishedUserList[]))
 
   const feedsById = deriveItemsByKey({
     repository,
@@ -73,13 +74,14 @@ export const createStateContent = ({
 
   const feeds = deriveItems(feedsById)
 
-  const userFeeds = derived([feeds, pubkey], ([$feeds, $pubkey]: [PublishedFeed[], string]) =>
-    $feeds.filter(feed => feed.event.pubkey === $pubkey),
+  const userFeeds = derived([feeds, pubkey], ([$feeds, $pubkey]) =>
+    ($feeds as PublishedFeed[]).filter(feed => feed.event.pubkey === $pubkey),
   )
 
   const defaultFeed = derived([userFollows, userFeeds], ([$userFollows, $userFeeds]) => {
+    const follows = $userFollows as Set<string> | undefined
     let definition
-    if ($userFollows?.size > 0) {
+    if (follows?.size && follows.size > 0) {
       definition = makeScopeFeed(Scope.Follows)
     } else {
       definition = makeAuthorFeed(...env.DEFAULT_FOLLOWS)
@@ -116,10 +118,8 @@ export const createStateContent = ({
     }),
   )
 
-  const userFeedFavorites = derived(
-    [feedFavorites, pubkey],
-    ([$lists, $pubkey]: [PublishedList[], string]) =>
-      $lists.find(list => list.event.pubkey === $pubkey),
+  const userFeedFavorites = derived([feedFavorites, pubkey], ([$lists, $pubkey]) =>
+    ($lists as PublishedList[]).find(list => list.event.pubkey === $pubkey),
   )
 
   const userFavoritedFeeds = derived(userFeedFavorites, $list =>
@@ -158,20 +158,18 @@ export const createStateContent = ({
 
   const listFeedsById = deriveItemsByKey({
     repository,
-    getKey: feed => feed.event.id,
+    getKey: (feed: any) => feed.event.id,
     filters: [{kinds: [NAMED_BOOKMARKS]}],
     eventToItem: event => (event.tags.length > 1 ? mapListToFeed(readUserList(event)) : undefined),
   })
 
   const listFeeds = deriveItems(listFeedsById)
 
-  const userListFeeds = derived(
-    [listFeeds, pubkey],
-    ([$listFeeds, $pubkey]: [PublishedListFeed[], string]) =>
-      sortBy(
-        l => l.title.toLowerCase(),
-        $listFeeds.filter(feed => feed.list.event.pubkey === $pubkey),
-      ),
+  const userListFeeds = derived([listFeeds, pubkey], ([$listFeeds, $pubkey]) =>
+    sortBy(
+      (l: PublishedListFeed) => l.title.toLowerCase(),
+      ($listFeeds as PublishedListFeed[]).filter(feed => feed.list.event.pubkey === $pubkey),
+    ),
   )
 
   const handlers = derived(

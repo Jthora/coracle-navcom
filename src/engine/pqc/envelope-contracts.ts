@@ -1,5 +1,8 @@
 export const PQC_ENVELOPE_VERSION = 1 as const
 
+export const pqcEnvelopeModes = ["hybrid", "classical"] as const
+export type PqcEnvelopeMode = (typeof pqcEnvelopeModes)[number]
+
 export const requiredTopLevelFields = [
   "v",
   "mode",
@@ -29,9 +32,15 @@ export type PqcEnvelopeRecipient = {
   flags?: Record<string, unknown>
 }
 
+export type PqcEnvelopeCompat = {
+  fallback_mode?: string
+  reason_code?: string
+  [key: string]: unknown
+}
+
 export type PqcEnvelope = {
   v: number
-  mode: string
+  mode: PqcEnvelopeMode
   alg: string
   nonce: string
   ct: string
@@ -41,7 +50,7 @@ export type PqcEnvelope = {
   msg_id: string
   pad_len?: number
   ext?: Record<string, unknown>
-  compat?: Record<string, unknown>
+  compat?: PqcEnvelopeCompat
   chunk?: {
     id: string
     index: number

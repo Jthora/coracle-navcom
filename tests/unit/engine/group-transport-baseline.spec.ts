@@ -15,8 +15,17 @@ describe("engine/group-transport-baseline", () => {
     expect(baselineGroupTransport.canOperate({requestedMode: "legacy-bridge"}).ok).toBe(false)
   })
 
-  it("returns deterministic unsupported failures for unimplemented operations", async () => {
-    const sendResult = await baselineGroupTransport.sendMessage?.({})
+  it("validates baseline group message payload before send", async () => {
+    const invalid = await baselineGroupTransport.sendMessage?.({groupId: "", content: ""})
+
+    expect(invalid).toMatchObject({
+      ok: false,
+      code: "GROUP_TRANSPORT_VALIDATION_FAILED",
+      retryable: false,
+    })
+  })
+
+  it("returns deterministic unsupported failures for unimplemented subscribe/reconcile", async () => {
     const subscribeResult = await baselineGroupTransport.subscribe?.(
       {groupId: "ops"},
       {onEvent: () => {}},
@@ -26,11 +35,6 @@ describe("engine/group-transport-baseline", () => {
       remoteEvents: [],
     })
 
-    expect(sendResult).toMatchObject({
-      ok: false,
-      code: "GROUP_TRANSPORT_UNSUPPORTED",
-      retryable: false,
-    })
     expect(subscribeResult).toMatchObject({
       ok: false,
       code: "GROUP_TRANSPORT_UNSUPPORTED",

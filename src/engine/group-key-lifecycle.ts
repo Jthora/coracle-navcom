@@ -4,6 +4,15 @@ export type GroupKeyLifecycleStatus = "active" | "rotating" | "revoked" | "destr
 
 export type GroupKeyUseAction = "send" | "subscribe" | "reconcile" | "control"
 
+const SECURE_GROUP_KEY_LIFECYCLE_SCHEMA_VERSION = 1 as const
+const SECURE_GROUP_KEY_LIFECYCLE_STORAGE_KEY = "secure-group-key-lifecycle"
+
+type StorageLike = {
+  getItem: (key: string) => string | null
+  setItem: (key: string, value: string) => void
+  removeItem: (key: string) => void
+}
+
 export type GroupKeyLifecycleState = {
   keyId: string
   groupId: string
@@ -77,10 +86,108 @@ const baseUsageCounters = (): Record<GroupKeyUseAction, number> => ({
 const isTerminalState = (status: GroupKeyLifecycleStatus) =>
   status === "expired" || status === "revoked" || status === "destroyed"
 
+const isValidUsageCounters = (input: unknown): input is Record<GroupKeyUseAction, number> => {
+  if (!input || typeof input !== "object") {
+    return false
+  }
+
+  const candidate = input as Record<string, unknown>
+
+  return (
+    typeof candidate.send === "number" &&
+    typeof candidate.subscribe === "number" &&
+    typeof candidate.reconcile === "number" &&
+    typeof candidate.control === "number"
+  )
+}
+
+const isGroupKeyLifecycleState = (input: unknown): input is GroupKeyLifecycleState => {
+  if (!input || typeof input !== "object") {
+    return false
+  }
+
+  const candidate = input as Record<string, unknown>
+
+  return (
+    typeof candidate.keyId === "string" &&
+    typeof candidate.groupId === "string" &&
+    typeof candidate.secretClass === "string" &&
+    typeof candidate.status === "string" &&
+    typeof candidate.createdAt === "number" &&
+    typeof candidate.updatedAt === "number" &&
+    typeof candidate.useCount === "number" &&
+    (candidate.expiresAt === undefined || typeof candidate.expiresAt === "number") &&
+    (candidate.lastUsedAt === undefined || typeof candidate.lastUsedAt === "number") &&
+    isValidUsageCounters(candidate.usageByAction)
+  )
+}
+
+const loadPersistedLifecycleStates = (
+  storage: StorageLike | null | undefined,
+  storageKey: string,
+) => {
+  if (!storage) {
+    return []
+  }
+
+  try {
+    const raw = storage.getItem(storageKey)
+
+    if (!raw) {
+      return []
+    }
+
+    const parsed = JSON.parse(raw) as {
+      schema?: unknown
+      states?: unknown
+    }
+
+    if (
+      parsed?.schema !== SECURE_GROUP_KEY_LIFECYCLE_SCHEMA_VERSION ||
+      !Array.isArray(parsed.states)
+    ) {
+      storage.removeItem(storageKey)
+      return []
+    }
+
+    return parsed.states.filter(isGroupKeyLifecycleState)
+  } catch {
+    try {
+      storage.removeItem(storageKey)
+    } catch {}
+
+    return []
+  }
+}
+
 export const createGroupKeyLifecycleRegistry = (
   nowProvider: () => number = () => Math.floor(Date.now() / 1000),
+  {
+    storage,
+    storageKey = SECURE_GROUP_KEY_LIFECYCLE_STORAGE_KEY,
+  }: {storage?: StorageLike | null; storageKey?: string} = {},
 ): GroupKeyLifecycleRegistry => {
   const byKey = new Map<string, GroupKeyLifecycleState>()
+
+  const persist = () => {
+    if (!storage) {
+      return
+    }
+
+    try {
+      storage.setItem(
+        storageKey,
+        JSON.stringify({
+          schema: SECURE_GROUP_KEY_LIFECYCLE_SCHEMA_VERSION,
+          states: Array.from(byKey.values()),
+        }),
+      )
+    } catch {}
+  }
+
+  for (const state of loadPersistedLifecycleStates(storage, storageKey)) {
+    byKey.set(makeRegistryKey(state.groupId, state.keyId), state)
+  }
 
   const registerKey = ({
     keyId,
@@ -102,6 +209,7 @@ export const createGroupKeyLifecycleRegistry = (
       }
 
       byKey.set(registryKey, next)
+      persist()
 
       return next
     }
@@ -119,6 +227,7 @@ export const createGroupKeyLifecycleRegistry = (
     }
 
     byKey.set(registryKey, state)
+    persist()
 
     return state
   }
@@ -155,6 +264,10 @@ export const createGroupKeyLifecycleRegistry = (
         byKey.set(makeRegistryKey(state.groupId, state.keyId), next)
         expired.push(next)
       }
+    }
+
+    if (expired.length > 0) {
+      persist()
     }
 
     return expired
@@ -199,6 +312,7 @@ export const createGroupKeyLifecycleRegistry = (
     }
 
     byKey.set(makeRegistryKey(groupId, keyId), next)
+    persist()
 
     return {
       ok: true,
@@ -208,6 +322,7 @@ export const createGroupKeyLifecycleRegistry = (
 
   const reset = () => {
     byKey.clear()
+    persist()
   }
 
   const setKeyStatus = (
@@ -230,6 +345,7 @@ export const createGroupKeyLifecycleRegistry = (
     }
 
     byKey.set(makeRegistryKey(groupId, keyId), next)
+    persist()
 
     return next
   }
@@ -261,7 +377,17 @@ export const createGroupKeyLifecycleRegistry = (
   }
 }
 
-const secureTransportRegistry = createGroupKeyLifecycleRegistry()
+const defaultStorage =
+  typeof globalThis !== "undefined" && "localStorage" in globalThis
+    ? (globalThis.localStorage as StorageLike)
+    : null
+
+const secureTransportRegistry = createGroupKeyLifecycleRegistry(
+  () => Math.floor(Date.now() / 1000),
+  {
+    storage: defaultStorage,
+  },
+)
 
 const getSecureTransportSessionKeyId = (groupId: string) => `secure-session:${groupId}`
 

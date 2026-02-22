@@ -1,13 +1,9 @@
-import {
-  validatePqcEnvelope,
-  type EnvelopeValidationErrorCode,
-} from "src/engine/pqc/envelope-validation"
+import {validatePqcEnvelope} from "src/engine/pqc/envelope-validation"
+import {pqcEnvelopeModes, type PqcEnvelopeMode} from "src/engine/pqc/envelope-contracts"
+import type {EnvelopeValidationErrorCode} from "src/engine/pqc/envelope-contracts"
 import type {PqcPolicyMode} from "src/engine/pqc/negotiation"
 
 export const DM_SECURE_UNDECRYPTABLE_PLACEHOLDER = "Secure message unavailable."
-
-export const pqcEnvelopeModes = ["hybrid", "classical"] as const
-export type PqcEnvelopeMode = (typeof pqcEnvelopeModes)[number]
 
 export type DmEnvelopeParseReasonCode =
   | "DM_ENVELOPE_PARSE_OK"
@@ -39,6 +35,7 @@ export type ResolveDmReceiveContentInput = {
   allowLegacyFallback?: boolean
   expectedSenderPubkey?: string
   expectedRecipientPubkey?: string
+  expectedRecipientPubkeys?: string[]
 }
 
 export type ResolveDmReceiveContentResult = {
@@ -48,6 +45,9 @@ export type ResolveDmReceiveContentResult = {
 }
 
 const envelopeModeSet = new Set<string>(pqcEnvelopeModes)
+
+const normalizePubkey = (value: unknown) =>
+  typeof value === "string" ? value.trim().toLowerCase() : ""
 
 const decodeBase64Utf8 = (value: string) => {
   if (typeof atob === "function") {
@@ -67,7 +67,7 @@ const decodeBase64Utf8 = (value: string) => {
 
 const mapValidationCodeToReason = (
   code: EnvelopeValidationErrorCode,
-): DmEnvelopeParseReasonCode => {
+): Exclude<DmEnvelopeParseReasonCode, "DM_ENVELOPE_PARSE_OK"> => {
   switch (code) {
     case "ERR_ENV_VERSION_UNSUPPORTED":
       return "DM_ENVELOPE_VERSION_UNSUPPORTED"
@@ -89,17 +89,19 @@ const validateEnvelopeAssociatedDataBinding = ({
   envelope,
   expectedSenderPubkey,
   expectedRecipientPubkey,
+  expectedRecipientPubkeys,
 }: {
   ad: string
   envelope: {
     v: number
-    mode: string
+    mode: PqcEnvelopeMode
     alg: string
     ts: number
     msg_id: string
   }
   expectedSenderPubkey?: string
   expectedRecipientPubkey?: string
+  expectedRecipientPubkeys?: string[]
 }) => {
   try {
     const parsedAd = JSON.parse(ad) as {
@@ -116,16 +118,27 @@ const validateEnvelopeAssociatedDataBinding = ({
       return false
     }
 
-    if (expectedSenderPubkey && parsedAd.sender !== expectedSenderPubkey) {
+    if (
+      expectedSenderPubkey &&
+      normalizePubkey(parsedAd.sender) !== normalizePubkey(expectedSenderPubkey)
+    ) {
       return false
     }
 
-    if (expectedRecipientPubkey) {
+    const recipientCandidates = Array.from(
+      new Set(
+        [expectedRecipientPubkey, ...(expectedRecipientPubkeys || [])]
+          .map(candidate => normalizePubkey(candidate))
+          .filter(Boolean),
+      ),
+    )
+
+    if (recipientCandidates.length > 0) {
       const recipients = Array.isArray(parsedAd.recipients)
-        ? (parsedAd.recipients as unknown[]).filter(value => typeof value === "string")
+        ? (parsedAd.recipients as unknown[]).map(value => normalizePubkey(value)).filter(Boolean)
         : []
 
-      if (!recipients.includes(expectedRecipientPubkey)) {
+      if (!recipientCandidates.some(candidate => recipients.includes(candidate))) {
         return false
       }
     }
@@ -171,13 +184,18 @@ export const parseDmPqcEnvelopeContent = (
   {
     expectedSenderPubkey,
     expectedRecipientPubkey,
-  }: {expectedSenderPubkey?: string; expectedRecipientPubkey?: string} = {},
+    expectedRecipientPubkeys,
+  }: {
+    expectedSenderPubkey?: string
+    expectedRecipientPubkey?: string
+    expectedRecipientPubkeys?: string[]
+  } = {},
 ): DmEnvelopeParseResult => {
   try {
     const parsed = JSON.parse(content)
     const validation = validatePqcEnvelope(parsed, {strict: true, enforceCanonicalKeyOrder: true})
 
-    if (!validation.ok) {
+    if (validation.ok === false) {
       return {
         ok: false,
         reason: mapValidationCodeToReason(validation.code),
@@ -191,6 +209,7 @@ export const parseDmPqcEnvelopeContent = (
       envelope: validation.value,
       expectedSenderPubkey,
       expectedRecipientPubkey,
+      expectedRecipientPubkeys,
     })
 
     if (!adBindingValid) {
@@ -222,6 +241,7 @@ export const resolveDmReceiveContent = ({
   allowLegacyFallback = true,
   expectedSenderPubkey,
   expectedRecipientPubkey,
+  expectedRecipientPubkeys,
 }: ResolveDmReceiveContentInput): ResolveDmReceiveContentResult => {
   const mode = getPqcEnvelopeModeFromTags(tags)
 
@@ -232,6 +252,7 @@ export const resolveDmReceiveContent = ({
   const parsed = parseDmPqcEnvelopeContent(decryptedContent, {
     expectedSenderPubkey,
     expectedRecipientPubkey,
+    expectedRecipientPubkeys,
   })
 
   if (parsed.ok) {

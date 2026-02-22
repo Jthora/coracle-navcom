@@ -1,0 +1,205 @@
+# Groups + PQC Action Plan Progress Tracker
+
+Date: 2026-02-21  
+Scope: Execution tracking for `action-plan.md`  
+Legend: `Stage -> Phase -> Step -> Task`
+
+- [x] 1.0 Stage 1 — Program Setup and Scope Lock
+  - [x] 1.1 Phase 0 — Scope lock
+    - [x] 1.1.1 Step — Finalize guarantee taxonomy
+      - [x] 1.1.1.1 Task — Define canonical transport modes (baseline, secure pilot, compatibility)
+        - [x] 1.1.1.1.1 Sub-task — Inventory current runtime mode selectors across UI/engine
+        - [x] 1.1.1.1.2 Sub-task — Draft canonical mode definitions and fallback semantics
+        - [x] 1.1.1.1.3 Sub-task — Publish definitions in plan docs for implementation reference
+      - [x] 1.1.1.2 Task — Define guarantee labels (integrity vs confidentiality)
+        - [x] 1.1.1.2.1 Sub-task — Enumerate all user-visible security labels and hints
+        - [x] 1.1.1.2.2 Sub-task — Map each label to concrete technical guarantee level
+        - [x] 1.1.1.2.3 Sub-task — Flag ambiguous terms and replacement copy
+      - [x] 1.1.1.3 Task — Approve UI/telemetry wording map
+        - [x] 1.1.1.3.1 Sub-task — Produce final wording table (UI text, telemetry fields)
+        - [x] 1.1.1.3.2 Sub-task — Resolve conflicts between product copy and runtime semantics
+        - [x] 1.1.1.3.3 Sub-task — Record approval decision and freeze wording
+    - [x] 1.1.2 Step — Finalize acceptance criteria
+      - [x] 1.1.2.1 Task — Freeze per-finding acceptance criteria (`G`, `P2`, `P3`)
+        - [x] 1.1.2.1.1 Sub-task — Convert each finding into measurable “done” condition
+        - [x] 1.1.2.1.2 Sub-task — Add expected evidence artifact for each condition
+      - [x] 1.1.2.2 Task — Freeze test matrix for functional/correctness/resilience/security/type gates
+        - [x] 1.1.2.2.1 Sub-task — Define per-gate required test suites and commands
+        - [x] 1.1.2.2.2 Sub-task — Define minimum pass criteria for merge eligibility
+
+- [x] 2.0 Stage 2 — Immediate Risk Reduction
+  - [x] 2.1 Phase 1 — Crash-proofing and truth-in-labeling
+    - [x] 2.1.1 Step — Harden malformed input and storage failure behavior
+      - [x] 2.1.1.1 Task — Add try/catch around invite decode paths (`P3-05`)
+        - [x] 2.1.1.1.1 Sub-task — Identify all decode entry points and shared helpers
+        - [x] 2.1.1.1.2 Sub-task — Add guarded decode wrapper with typed error output
+        - [x] 2.1.1.1.3 Sub-task — Add malformed-encoding unit tests for non-crash behavior
+      - [x] 2.1.1.2 Task — Add fail-soft handling for localStorage reads/writes (`P3-06`)
+        - [x] 2.1.1.2.1 Sub-task — Inventory localStorage usages in scoped modules
+        - [x] 2.1.1.2.2 Sub-task — Wrap read/write access with safe helper and fallback values
+        - [x] 2.1.1.2.3 Sub-task — Simulate quota/private-mode/storage-disabled failures in tests
+      - [x] 2.1.1.3 Task — Add typed recoverable error mapping for affected routes
+        - [x] 2.1.1.3.1 Sub-task — Define recoverable error enum + route mapping
+        - [x] 2.1.1.3.2 Sub-task — Connect mapping to existing guard/recovery UX
+    - [x] 2.1.2 Step — Front-load secure-send input checks
+      - [x] 2.1.2.1 Task — Validate recipient/key shape pre-send (`P3-07`)
+        - [x] 2.1.2.1.1 Sub-task — Define strict recipient/key schema validators
+        - [x] 2.1.2.1.2 Sub-task — Enforce validation before secure send pipeline execution
+        - [x] 2.1.2.1.3 Sub-task — Add negative tests for malformed/partial recipients
+      - [x] 2.1.2.2 Task — Return deterministic user-facing errors for invalid input
+        - [x] 2.1.2.2.1 Sub-task — Map validation failures to stable error categories
+        - [x] 2.1.2.2.2 Sub-task — Ensure UI messages are actionable and non-ambiguous
+    - [x] 2.1.3 Step — Align claims with guarantees
+      - [x] 2.1.3.1 Task — Remove/adjust confidentiality claims for non-confidentiality path (`P3-01`)
+        - [x] 2.1.3.1.1 Sub-task — Locate claim surfaces in groups list/detail/chat/create views
+        - [x] 2.1.3.1.2 Sub-task — Update wording to integrity/transport framing
+      - [x] 2.1.3.2 Task — Add/confirm mode-to-guarantee matrix references in docs/telemetry (`P3-02` partial)
+        - [x] 2.1.3.2.1 Sub-task — Add matrix section to docs with mode/guarantee mapping
+        - [x] 2.1.3.2.2 Sub-task — Align telemetry field names with matrix terminology
+
+- [x] 3.0 Stage 3 — Core Transport Correctness
+  - [x] 3.1 Phase 2 — Intent-to-runtime enforcement
+    - [x] 3.1.1 Step — Single source of truth for transport mode
+      - [x] 3.1.1.1 Task — Thread guided privacy selection into dispatch selection (`G-01`, `P2-01`)
+        - [x] 3.1.1.1.1 Sub-task — Trace create/join flow from UI state into command payloads
+        - [x] 3.1.1.1.2 Sub-task — Implement unified mode resolver in transport boundary
+        - [x] 3.1.1.1.3 Sub-task — Add tests proving selected mode reaches runtime dispatch
+      - [x] 3.1.1.2 Task — Document defaulting behavior and fallback precedence
+        - [x] 3.1.1.2.1 Sub-task — Write precedence rules (requested mode, capability, fallback)
+        - [x] 3.1.1.2.2 Sub-task — Add examples for pilot-off and pilot-on states
+    - [x] 3.1.2 Step — Route all group chat sends through transport abstraction
+      - [x] 3.1.2.1 Task — Refactor direct publish path to adapter-based send (`G-02`, `P2-02`)
+        - [x] 3.1.2.1.1 Sub-task — Replace direct publish call sites with adapter send entry
+        - [x] 3.1.2.1.2 Sub-task — Preserve existing message lifecycle and retry semantics
+        - [x] 3.1.2.1.3 Sub-task — Add regression tests to prevent future bypasses
+      - [x] 3.1.2.2 Task — Ensure tier/capability checks run for chat sends
+        - [x] 3.1.2.2.1 Sub-task — Reuse capability gate in send path preflight
+        - [x] 3.1.2.2.2 Sub-task — Emit diagnostics when check forces fallback
+    - [x] 3.1.3 Step — Pilot activation and runtime state clarity
+      - [x] 3.1.3.1 Task — Verify non-test secure pilot activation paths (`G-03`, `P2-03`)
+        - [x] 3.1.3.1.1 Sub-task — Trace feature-flag/bootstrap path in production code
+        - [x] 3.1.3.1.2 Sub-task — Add integration check for active pilot runtime state
+      - [x] 3.1.3.2 Task — Align runtime status reporting with UI labels
+        - [x] 3.1.3.2.1 Sub-task — Standardize status enums between UI and engine
+        - [x] 3.1.3.2.2 Sub-task — Add mapping tests for each status state
+    - [x] 3.1.4 Step — PQC type-contract stabilization
+      - [x] 3.1.4.1 Task — Align envelope/result unions across PQC modules (`G-04`)
+        - [x] 3.1.4.1.1 Sub-task — Identify union mismatches at module boundaries
+        - [x] 3.1.4.1.2 Sub-task — Refactor types to shared contract definitions
+        - [x] 3.1.4.1.3 Sub-task — Update parsing/validation call signatures
+      - [x] 3.1.4.2 Task — Resolve touched typecheck failures in commands/transport boundaries
+        - [x] 3.1.4.2.1 Sub-task — Run scoped typecheck for touched modules
+        - [x] 3.1.4.2.2 Sub-task — Fix boundary type errors and remove unsafe casts where feasible
+
+- [x] 4.0 Stage 4 — Reliability and Edge-Case Hardening
+  - [x] 4.1 Phase 3 — Durability and deterministic behavior
+    - [x] 4.1.1 Step — Persist key rotation/lifecycle state
+      - [x] 4.1.1.1 Task — Add durable storage for rotation queue and lifecycle counters (`P3-03`)
+        - [x] 4.1.1.1.1 Sub-task — Define persistence schema for queue/state metadata
+        - [x] 4.1.1.1.2 Sub-task — Implement read/write layer with corruption-safe defaults
+        - [x] 4.1.1.1.3 Sub-task — Add migration/versioning strategy for future schema changes
+      - [x] 4.1.1.2 Task — Implement startup replay/reconciliation for pending jobs
+        - [x] 4.1.1.2.1 Sub-task — Load pending jobs at bootstrap
+        - [x] 4.1.1.2.2 Sub-task — Reconcile stale/incompatible jobs before replay
+        - [x] 4.1.1.2.3 Sub-task — Add telemetry for replay outcomes
+      - [x] 4.1.1.3 Task — Add idempotency safeguards for replayed jobs
+        - [x] 4.1.1.3.1 Sub-task — Assign deterministic idempotency keys per job intent
+        - [x] 4.1.1.3.2 Sub-task — Prevent duplicate side effects on retried/replayed execution
+    - [x] 4.1.2 Step — Multi-recipient AD binding correctness
+      - [x] 4.1.2.1 Task — Replace first-`p` heuristic with deterministic binding rules (`P3-04`)
+        - [x] 4.1.2.1.1 Sub-task — Define deterministic recipient-selection algorithm
+        - [x] 4.1.2.1.2 Sub-task — Implement algorithm in receive plaintext resolution path
+        - [x] 4.1.2.1.3 Sub-task — Preserve backward compatibility where required
+      - [x] 4.1.2.2 Task — Cover ordering/duplicate/self-send edge cases in tests
+        - [x] 4.1.2.2.1 Sub-task — Add table-driven unit cases for tag permutations
+        - [x] 4.1.2.2.2 Sub-task — Add integration case for self-send + multi-recipient
+    - [x] 4.1.3 Step — Route/guard recovery coherence
+      - [x] 4.1.3.1 Task — Preserve recovery context across serializer/redirect guard interactions (`P2-05`)
+        - [x] 4.1.3.1.1 Sub-task — Identify redirect points that drop guard context
+        - [x] 4.1.3.1.2 Sub-task — Carry reason metadata through redirect chain
+    - [x] 4.1.4 Step — Timestamp trust hardening
+      - [x] 4.1.4.1 Task — Reduce exclusion dependence on untrusted `created_at` ordering (`P3-08`)
+        - [x] 4.1.4.1.1 Sub-task — Audit exclusion decisions using raw timestamp order
+        - [x] 4.1.4.1.2 Sub-task — Switch to verified or monotonic precedence inputs where available
+      - [x] 4.1.4.2 Task — Add tie-break/verification rules for skewed timestamps
+        - [x] 4.1.4.2.1 Sub-task — Define deterministic tie-break rules for equal/skewed events
+        - [x] 4.1.4.2.2 Sub-task — Add skew/adversarial ordering test coverage
+
+- [ ] 5.0 Stage 5 — Structural Security Uplift and Closeout
+  - [ ] 5.1 Phase 4 — Integrity model uplift
+    - [x] 5.1.1 Step — Replace weak local integrity signaling
+      - [x] 5.1.1.1 Task — Design cryptographically grounded integrity primitive (`P3-02`)
+        - [x] 5.1.1.1.1 Sub-task — Document threat model and attacker capabilities
+        - [x] 5.1.1.1.2 Sub-task — Evaluate candidate primitives and tradeoffs
+        - [x] 5.1.1.1.3 Sub-task — Select primitive and produce design spec
+      - [x] 5.1.1.2 Task — Implement and integrate integrity verification path
+        - [x] 5.1.1.2.1 Sub-task — Implement encoder/decoder integrity generation and checks
+        - [x] 5.1.1.2.2 Sub-task — Integrate failure behavior with existing recovery UX
+        - [x] 5.1.1.2.3 Sub-task — Add compatibility handling for legacy payloads
+      - [x] 5.1.1.3 Task — Add tamper-oriented tests and threat-model notes
+        - [x] 5.1.1.3.1 Sub-task — Add tamper mutation tests for integrity failures
+        - [x] 5.1.1.3.2 Sub-task — Publish threat-model notes beside implementation
+  - [ ] 5.2 Phase 5 — Final validation and rollout
+    - [x] 5.2.1 Step — Validation gates
+      - [x] 5.2.1.1 Task — Pass functional gate (unit + smoke for touched paths)
+        - [x] 5.2.1.1.1 Sub-task — Run targeted unit suites for modified modules
+        - [x] 5.2.1.1.2 Sub-task — Run groups smoke suites and record artifacts
+      - [x] 5.2.1.2 Task — Pass correctness gate (no direct-send bypass)
+        - [x] 5.2.1.2.1 Sub-task — Add assertion coverage for adapter-only send path
+        - [x] 5.2.1.2.2 Sub-task — Verify no direct publish call remains in group send flow
+      - [x] 5.2.1.3 Task — Pass resilience gate (malformed input/storage fail-soft)
+        - [x] 5.2.1.3.1 Sub-task — Run malformed invite cases across route entrypoints
+        - [x] 5.2.1.3.2 Sub-task — Run storage-failure simulation cases and verify continuity
+      - [x] 5.2.1.4 Task — Pass security-claims gate (label ↔ guarantee alignment)
+        - [x] 5.2.1.4.1 Sub-task — Review UI strings against guarantee matrix
+        - [x] 5.2.1.4.2 Sub-task — Review telemetry fields against guarantee matrix
+      - [x] 5.2.1.5 Task — Pass type-safety gate for touched PQC/transport modules
+        - [x] 5.2.1.5.1 Sub-task — Run scoped typecheck for touched folders
+        - [x] 5.2.1.5.2 Sub-task — Capture pass output and unresolved debt separately
+    - [ ] 5.2.2 Step — Rollout controls
+      - [x] 5.2.2.1 Task — Enable phased rollout with feature flags for material behavior changes
+        - [x] 5.2.2.1.1 Sub-task — Define rollout cohorts and flag defaults
+        - [x] 5.2.2.1.2 Sub-task — Add kill-switch behavior and rollback instructions
+      - [ ] 5.2.2.2 Task — Monitor fallback/placeholder and replay telemetry for one release cycle
+        - [ ] 5.2.2.2.1 Sub-task — Define telemetry thresholds and alert conditions
+        - [ ] 5.2.2.2.2 Sub-task — Produce weekly stability review snapshots
+      - [ ] 5.2.2.3 Task — Confirm closure or document accepted risks per finding
+        - [ ] 5.2.2.3.1 Sub-task — Update finding status with evidence links
+        - [ ] 5.2.2.3.2 Sub-task — Record accepted-risk rationale and owner for unresolved items
+
+## Finding Coverage Checklist
+
+- [x] C.1 `G-01` covered
+  - [x] C.1.1 Sub-task — Link implementation PR(s)/diff(s)
+- [x] C.2 `G-02` covered
+  - [x] C.2.1 Sub-task — Link implementation PR(s)/diff(s)
+- [x] C.3 `G-03` covered
+  - [x] C.3.1 Sub-task — Link implementation PR(s)/diff(s)
+- [x] C.4 `G-04` covered
+  - [x] C.4.1 Sub-task — Link implementation PR(s)/diff(s)
+- [x] C.5 `P2-01` covered
+  - [x] C.5.1 Sub-task — Link implementation PR(s)/diff(s)
+- [x] C.6 `P2-02` covered
+  - [x] C.6.1 Sub-task — Link implementation PR(s)/diff(s)
+- [x] C.7 `P2-03` covered
+  - [x] C.7.1 Sub-task — Link implementation PR(s)/diff(s)
+- [ ] C.8 `P2-04` covered
+  - [ ] C.8.1 Sub-task — Link implementation PR(s)/diff(s)
+- [x] C.9 `P2-05` covered
+  - [x] C.9.1 Sub-task — Link implementation PR(s)/diff(s)
+- [x] C.10 `P3-01` covered
+  - [x] C.10.1 Sub-task — Link implementation PR(s)/diff(s)
+- [x] C.11 `P3-02` covered
+  - [x] C.11.1 Sub-task — Link implementation PR(s)/diff(s)
+- [x] C.12 `P3-03` covered
+  - [x] C.12.1 Sub-task — Link implementation PR(s)/diff(s)
+- [x] C.13 `P3-04` covered
+  - [x] C.13.1 Sub-task — Link implementation PR(s)/diff(s)
+- [x] C.14 `P3-05` covered
+  - [x] C.14.1 Sub-task — Link implementation PR(s)/diff(s)
+- [x] C.15 `P3-06` covered
+  - [x] C.15.1 Sub-task — Link implementation PR(s)/diff(s)
+- [x] C.16 `P3-07` covered
+  - [x] C.16.1 Sub-task — Link implementation PR(s)/diff(s)
+- [x] C.17 `P3-08` covered
+  - [x] C.17.1 Sub-task — Link implementation PR(s)/diff(s)

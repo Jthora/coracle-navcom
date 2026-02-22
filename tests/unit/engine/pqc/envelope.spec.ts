@@ -69,6 +69,32 @@ describe("engine/pqc/envelope-validation", () => {
     })
   })
 
+  it("rejects envelopes with unsupported mode values", () => {
+    const result = validatePqcEnvelope({...makeValidMinimalEnvelope(), mode: "future-mode" as any})
+
+    expect(result).toMatchObject({
+      ok: false,
+      code: "ERR_ENV_FIELD_INVALID",
+      field: "mode",
+    })
+  })
+
+  it("rejects invalid compat metadata field types", () => {
+    const result = validatePqcEnvelope(
+      {
+        ...makeValidMinimalEnvelope(),
+        compat: {fallback_mode: 123 as any},
+      },
+      {enforceCanonicalKeyOrder: false},
+    )
+
+    expect(result).toMatchObject({
+      ok: false,
+      code: "ERR_ENV_FIELD_INVALID",
+      field: "compat.fallback_mode",
+    })
+  })
+
   it("rejects unknown critical fields in strict mode", () => {
     const result = validatePqcEnvelope(makeMalformedEnvelopeUnknownCriticalField(), {strict: true})
 

@@ -5,7 +5,13 @@ const makeKey = (groupId: string) => `group_admin_mode:${groupId}`
 export const getGroupAdminMode = (groupId: string): GroupAdminMode => {
   if (typeof window === "undefined") return "guided"
 
-  const stored = window.localStorage.getItem(makeKey(groupId))
+  let stored: string | null = null
+
+  try {
+    stored = window.localStorage.getItem(makeKey(groupId))
+  } catch {
+    return "guided"
+  }
 
   return stored === "expert" ? "expert" : "guided"
 }
@@ -13,5 +19,9 @@ export const getGroupAdminMode = (groupId: string): GroupAdminMode => {
 export const setGroupAdminMode = (groupId: string, mode: GroupAdminMode) => {
   if (typeof window === "undefined") return
 
-  window.localStorage.setItem(makeKey(groupId), mode)
+  try {
+    window.localStorage.setItem(makeKey(groupId), mode)
+  } catch {
+    return
+  }
 }

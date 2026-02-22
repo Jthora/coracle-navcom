@@ -56,4 +56,26 @@ describe("engine/pqc/dm-fallback-history", () => {
     history.clear()
     expect(history.getAll()).toEqual([])
   })
+
+  it("fails soft when storage operations throw", () => {
+    const storage = {
+      getItem: () => {
+        throw new Error("read failed")
+      },
+      setItem: () => {
+        throw new Error("write failed")
+      },
+      removeItem: () => {
+        throw new Error("remove failed")
+      },
+    }
+
+    const history = createPqcDmFallbackHistory({storage, key: "test-history-throws", limit: 2})
+
+    expect(() =>
+      history.record({direction: "send", mode: "x", reason: "r", timestamp: 1}),
+    ).not.toThrow()
+    expect(history.getAll()).toEqual([])
+    expect(() => history.clear()).not.toThrow()
+  })
 })

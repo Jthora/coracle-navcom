@@ -1,5 +1,6 @@
 import {SocketEvent, Pool, makeSocketPolicyAuth} from "@welshman/net"
-import type {Socket, StampedEvent, TrustedEvent} from "@welshman/util"
+import type {Socket} from "@welshman/net"
+import type {StampedEvent, TrustedEvent} from "@welshman/util"
 import {always, now, pushToMapKey} from "@welshman/lib"
 import {sync, localStorageProvider} from "@welshman/store"
 

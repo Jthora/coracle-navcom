@@ -116,4 +116,38 @@ describe("engine/group-key-lifecycle", () => {
       reason: "Key is not usable because it is revoked.",
     })
   })
+
+  it("persists lifecycle counters and restores them across registry bootstrap", () => {
+    const data = new Map<string, string>()
+    const storage = {
+      getItem: (key: string) => data.get(key) || null,
+      setItem: (key: string, value: string) => {
+        data.set(key, value)
+      },
+      removeItem: (key: string) => {
+        data.delete(key)
+      },
+    }
+
+    const registry = createGroupKeyLifecycleRegistry(() => 50, {storage})
+
+    registry.registerKey({
+      keyId: "k2",
+      groupId: "ops",
+      secretClass: "S2",
+      createdAt: 50,
+      expiresAt: 200,
+    })
+
+    registry.recordKeyUse({keyId: "k2", groupId: "ops", action: "send", at: 55})
+    registry.recordKeyUse({keyId: "k2", groupId: "ops", action: "reconcile", at: 60})
+
+    const rehydrated = createGroupKeyLifecycleRegistry(() => 100, {storage})
+    const restored = rehydrated.getKeyState("ops", "k2")
+
+    expect(restored?.useCount).toBe(2)
+    expect(restored?.usageByAction.send).toBe(1)
+    expect(restored?.usageByAction.reconcile).toBe(1)
+    expect(restored?.lastUsedAt).toBe(60)
+  })
 })

@@ -38,10 +38,95 @@ export type GroupTelemetryEvent =
 
 const dedupe = new Map<string, number>()
 
+const normalizeTransportMode = (
+  value: unknown,
+): "baseline" | "secure-pilot" | "compatibility" | null => {
+  if (typeof value !== "string") return null
+
+  const normalized = value.trim().toLowerCase()
+
+  if (
+    normalized === "secure-nip-ee" ||
+    normalized === "secure-pilot" ||
+    normalized === "secure-active"
+  ) {
+    return "secure-pilot"
+  }
+
+  if (normalized === "baseline-nip29" || normalized === "baseline") {
+    return "baseline"
+  }
+
+  if (
+    normalized === "compatibility" ||
+    normalized === "compatibility-active" ||
+    normalized === "fallback-active"
+  ) {
+    return "compatibility"
+  }
+
+  return null
+}
+
+const normalizeGuaranteeLabel = (
+  value: unknown,
+  resolvedMode: "baseline" | "secure-pilot" | "compatibility" | null,
+): "transport-integrity" | "confidentiality" | "compatibility-delivery" | null => {
+  if (typeof value === "string") {
+    const normalized = value.trim().toLowerCase()
+
+    if (
+      normalized === "transport-integrity" ||
+      normalized === "confidentiality" ||
+      normalized === "compatibility-delivery"
+    ) {
+      return normalized
+    }
+  }
+
+  if (resolvedMode === "secure-pilot") {
+    return "transport-integrity"
+  }
+
+  if (resolvedMode === "baseline" || resolvedMode === "compatibility") {
+    return "compatibility-delivery"
+  }
+
+  return null
+}
+
+const withCanonicalTransportTelemetry = (props: Record<string, unknown>) => {
+  const requestedMode = normalizeTransportMode(
+    props.requested_transport_mode ?? props.requestedMode ?? props.mode,
+  )
+  const resolvedMode = normalizeTransportMode(
+    props.resolved_transport_mode ??
+      props.resolvedMode ??
+      props.transport_mode ??
+      props.security_state,
+  )
+  const guaranteeLabel = normalizeGuaranteeLabel(props.guarantee_label, resolvedMode)
+  const fallbackReason =
+    typeof props.fallback_reason === "string"
+      ? props.fallback_reason
+      : requestedMode && resolvedMode && requestedMode !== resolvedMode
+        ? "runtime-error"
+        : "none"
+
+  return {
+    ...props,
+    ...(requestedMode ? {requested_transport_mode: requestedMode} : {}),
+    ...(resolvedMode ? {resolved_transport_mode: resolvedMode} : {}),
+    ...(guaranteeLabel ? {guarantee_label: guaranteeLabel} : {}),
+    fallback_reason: fallbackReason,
+  }
+}
+
 const sanitizeProps = (props: Record<string, unknown>) => {
+  const canonical = withCanonicalTransportTelemetry(props)
   const safe: Record<string, string | number | boolean> = {}
 
-  for (const [key, value] of Object.entries(props)) {
+  for (const [key, value] of Object.entries(canonical)) {
     if (typeof value === "string") {
       safe[key] = value.slice(0, 80)
     } else if (typeof value === "number" || typeof value === "boolean") {

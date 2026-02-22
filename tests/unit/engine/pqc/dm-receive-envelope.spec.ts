@@ -76,6 +76,34 @@ describe("engine/pqc/dm-receive-envelope", () => {
     }
   })
 
+  it("accepts parse when any provided expected recipient candidate matches associated data", () => {
+    const built = buildDmPqcEnvelope({
+      plaintext: "hello candidate binding",
+      senderPubkey: "sender",
+      recipients: ["peer-a", "peer-b"],
+      mode: "hybrid",
+      algorithm: "hybrid-mlkem768+x25519-aead-v1",
+      createdAt: 1739836800,
+      messageId: "msg-parse-candidates",
+      nonceSeed: "seed",
+    })
+
+    expect(built.ok).toBe(true)
+
+    if (built.ok) {
+      const parsed = parseDmPqcEnvelopeContent(built.content, {
+        expectedSenderPubkey: "sender",
+        expectedRecipientPubkeys: ["peer-z", "peer-b"],
+      })
+
+      expect(parsed.ok).toBe(true)
+      if (parsed.ok) {
+        expect(parsed.reason).toBe("DM_ENVELOPE_PARSE_OK")
+        expect(parsed.plaintext).toBe("hello candidate binding")
+      }
+    }
+  })
+
   it("maps invalid envelope json to a stable parse reason", () => {
     const parsed = parseDmPqcEnvelopeContent("{not-json")
 

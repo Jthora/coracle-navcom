@@ -42,7 +42,9 @@ export const createStateSocial = ({
   const getMinWot = () => getSetting("min_wot_score") / getMaxWot()
 
   const userFollowList = derived([followListsByPubkey, pubkey, anonymous], ([$m, $pk, $anon]) => {
-    return $pk ? $m.get($pk) : makeList({kind: FOLLOWS, publicTags: $anon.follows})
+    const anonState = ($anon || {}) as {follows?: string[][]}
+
+    return $pk ? $m.get($pk) : makeList({kind: FOLLOWS, publicTags: anonState.follows || []})
   })
 
   const userFollows = withGetter(
@@ -86,9 +88,14 @@ export const createStateSocial = ({
         $profilesByPubkey,
         $pubkey,
       ]) => {
-        const words = [...$userSettings.muted_words, ...$userMutedWords]
-        const minWot = $userSettings.min_wot_score
-        const minPow = $userSettings.min_pow_difficulty
+        const settings = ($userSettings || {}) as {
+          muted_words?: string[]
+          min_wot_score?: number
+          min_pow_difficulty?: number
+        }
+        const words = [...(settings.muted_words || []), ...$userMutedWords]
+        const minWot = settings.min_wot_score || 0
+        const minPow = settings.min_pow_difficulty || 0
         const regex =
           words.length > 0
             ? new RegExp(`\\b(${words.map(w => w.toLowerCase().trim()).join("|")})\\b`)

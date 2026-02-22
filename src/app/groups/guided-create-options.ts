@@ -15,7 +15,7 @@ export const GUIDED_PRIVACY_OPTIONS: Array<{
   {
     id: "private",
     label: "PQC-preferred",
-    description: "Prefer post-quantum-capable secure transport when relays support it.",
+    description: "Secure pilot preferred (uses compatibility fallback if unavailable).",
   },
   {
     id: "fallback-friendly",
@@ -46,14 +46,14 @@ export const getGuidedSecurityStatus = (privacy: GuidedPrivacyLevel) => {
   if (privacy === "private") {
     return {
       badge: "PQC-preferred",
-      hint: "Attempts secure post-quantum-capable transport first. If unavailable, compatibility fallback is shown.",
+      hint: "Uses secure post-quantum-capable transport first. If unavailable, compatibility fallback is shown.",
     }
   }
 
   if (privacy === "fallback-friendly") {
     return {
       badge: "Prefer compatibility",
-      hint: "Uses compatibility mode for broader relay support. You can switch to PQC-preferred later.",
+      hint: "Compatibility transport is prioritized for broader relay support. You can switch to PQC-preferred later.",
     }
   }
 

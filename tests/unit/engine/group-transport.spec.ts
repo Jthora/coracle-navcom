@@ -1,6 +1,7 @@
 import {describe, expect, it, vi} from "vitest"
 import {
   dispatchGroupTransportAction,
+  dispatchGroupTransportMessage,
   resolveGroupTransportAdapter,
 } from "src/engine/group-transport"
 import {okTransportResult, type GroupTransport} from "src/engine/group-transport-contracts"
@@ -169,5 +170,103 @@ describe("engine/group-transport", () => {
 
     expect(onTierOverride).toHaveBeenCalledTimes(1)
     expect(onTierOverride.mock.calls[0][0].auditEvent.action).toBe("tier-policy-override")
+  })
+
+  it("dispatches group messages through adapter sendMessage with diagnostics", async () => {
+    const sendMessage = vi.fn(async () => okTransportResult({id: "m1"}))
+
+    const baselineAdapter: GroupTransport = {
+      getModeId: () => "baseline-nip29",
+      canOperate: () => ({ok: true}),
+      publishControlAction: async () => okTransportResult({ok: true}),
+      sendMessage,
+    }
+
+    const onResolved = vi.fn()
+    const onFallback = vi.fn()
+
+    const result = await dispatchGroupTransportMessage(
+      {
+        groupId: "ops",
+        content: "hello",
+        requestedMode: "baseline-nip29",
+        actorRole: "member",
+        createdAt: 100,
+      },
+      {onResolved, onFallback},
+      [baselineAdapter],
+    )
+
+    expect(result).toEqual({id: "m1"})
+    expect(sendMessage).toHaveBeenCalledTimes(1)
+    expect(onResolved).toHaveBeenCalledTimes(1)
+    expect(onFallback).toHaveBeenCalledTimes(0)
+  })
+
+  it("falls back message dispatch when secure adapter cannot operate", async () => {
+    const secureAdapter: GroupTransport = {
+      getModeId: () => "secure-nip-ee",
+      canOperate: () => ({ok: false, reason: "Secure capability unavailable"}),
+      publishControlAction: async () => okTransportResult({ok: true}),
+      sendMessage: async () => okTransportResult({id: "secure"}),
+    }
+
+    const baselineSend = vi.fn(async () => okTransportResult({id: "baseline"}))
+
+    const baselineAdapter: GroupTransport = {
+      getModeId: () => "baseline-nip29",
+      canOperate: () => ({ok: true}),
+      publishControlAction: async () => okTransportResult({ok: true}),
+      sendMessage: baselineSend,
+    }
+
+    const onFallback = vi.fn()
+
+    const result = await dispatchGroupTransportMessage(
+      {
+        groupId: "ops",
+        content: "hello",
+        requestedMode: "secure-nip-ee",
+        actorRole: "member",
+        createdAt: 100,
+      },
+      {onFallback},
+      [secureAdapter, baselineAdapter],
+    )
+
+    expect(result).toEqual({id: "baseline"})
+    expect(baselineSend).toHaveBeenCalledTimes(1)
+    expect(onFallback).toHaveBeenCalledTimes(1)
+  })
+
+  it("blocks message dispatch when capability fallback is disabled", async () => {
+    const secureAdapter: GroupTransport = {
+      getModeId: () => "secure-nip-ee",
+      canOperate: () => ({ok: false, reason: "Secure capability unavailable"}),
+      publishControlAction: async () => okTransportResult({ok: true}),
+      sendMessage: async () => okTransportResult({id: "secure"}),
+    }
+
+    const baselineAdapter: GroupTransport = {
+      getModeId: () => "baseline-nip29",
+      canOperate: () => ({ok: true}),
+      publishControlAction: async () => okTransportResult({ok: true}),
+      sendMessage: async () => okTransportResult({id: "baseline"}),
+    }
+
+    await expect(
+      dispatchGroupTransportMessage(
+        {
+          groupId: "ops",
+          content: "hello",
+          requestedMode: "secure-nip-ee",
+          actorRole: "member",
+          createdAt: 100,
+        },
+        {},
+        [secureAdapter, baselineAdapter],
+        {allowCapabilityFallback: false},
+      ),
+    ).rejects.toThrow("Capability gate blocked requested mode")
   })
 })

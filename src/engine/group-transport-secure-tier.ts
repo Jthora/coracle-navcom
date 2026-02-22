@@ -36,7 +36,7 @@ export const evaluateSecureGroupSendTierPolicy = ({
     allowTier2Override,
   })
 
-  if (!evaluated.ok) {
+  if (evaluated.ok === false) {
     return {
       ok: false,
       reason: evaluated.reason,

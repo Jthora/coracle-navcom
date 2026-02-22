@@ -4,7 +4,7 @@ import {
   type GroupTransportCanOperateInput,
 } from "src/engine/group-transport-contracts"
 import {
-  parseSecureGroupSendInput,
+  parseSecureGroupSendInputResult,
   parseSecureGroupSubscribeInput,
   reconcileSecureGroupEvents,
   sendSecureGroupMessage,
@@ -60,17 +60,13 @@ export const securePilotGroupTransport: GroupTransport = {
   sendMessage: async input => {
     if (!securePilotEnabled) return secureDisabledResult()
 
-    const parsed = parseSecureGroupSendInput(input)
+    const parsed = parseSecureGroupSendInputResult(input)
 
-    if (!parsed) {
-      return errTransportResult(
-        "GROUP_TRANSPORT_VALIDATION_FAILED",
-        "Invalid secure send payload. Required: groupId, content, recipients.",
-        false,
-      )
+    if (parsed.ok === false) {
+      return errTransportResult("GROUP_TRANSPORT_VALIDATION_FAILED", parsed.message, false)
     }
 
-    return sendSecureGroupMessage(parsed)
+    return sendSecureGroupMessage(parsed.value)
   },
   subscribe: async (input, handlers) => {
     if (!securePilotEnabled) return secureDisabledResult()

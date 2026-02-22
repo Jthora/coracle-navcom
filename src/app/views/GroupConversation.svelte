@@ -13,6 +13,7 @@
     emitSecurityStateTransitionTelemetry,
   } from "src/app/groups/telemetry-stage3"
   import {getRelayFallbackPlan, loadRoomRelayPolicy} from "src/app/groups/relay-policy"
+  import type {GroupSecurityState} from "src/app/groups/security-state"
   import {getProjectionSecurityState} from "src/app/groups/security-state"
   import {
     getAbsoluteGroupJoinPrefillHref,
@@ -28,7 +29,7 @@
   let downgradeBanner: string | null = null
   let inviteCue: string | null = null
   let didTrackSecurityShown = false
-  let previousSecurityState: string | null = null
+  let previousSecurityState: GroupSecurityState | "unknown" | null = null
 
   $: projection = $groupProjections.get(groupId)
   $: securityState = getProjectionSecurityState(projection, Boolean(downgradeBanner))
@@ -40,6 +41,11 @@
         .sort(
           (left, right) => left.created_at - right.created_at || left.id.localeCompare(right.id),
         )
+    : []
+  $: activeRecipients = projection
+    ? Object.values(projection.members || {})
+        .filter(member => member?.status === "active" && typeof member?.pubkey === "string")
+        .map(member => member.pubkey)
     : []
 
   $: document.title = projection ? `${groupTitle} · Group Chat` : "Group Chat"
@@ -100,6 +106,9 @@
     trackGroupTelemetry("group_chat_opened", {
       route: "group-chat",
       groupIdShape: groupId.includes("'") ? "relay-address" : "opaque",
+      resolved_transport_mode: projection?.group?.transportMode || "baseline-nip29",
+      security_state: securityState.state,
+      security_state_label: securityState.label,
     })
   })
 
@@ -111,6 +120,8 @@
       route: "group-chat",
       state: securityState.state,
       security_state: securityState.state,
+      security_state_label: securityState.label,
+      resolved_transport_mode: projection?.group?.transportMode || "baseline-nip29",
     })
 
     emitSecurityStateTransitionTelemetry({
@@ -172,12 +183,20 @@
       entry_point: "chat_compose",
       is_first_message: isFirstMessageAttempt,
       security_state: securityState.state,
+      security_state_label: securityState.label,
+      resolved_transport_mode: projection?.group?.transportMode || "baseline-nip29",
     })
 
     pendingSend = true
 
     try {
-      await publishGroupMessage({groupId, content})
+      await publishGroupMessage({
+        groupId,
+        content,
+        requestedMode: projection?.group?.transportMode || "baseline-nip29",
+        recipients: activeRecipients,
+        localState: projection,
+      })
 
       if (isFirstMessageAttempt) {
         trackGroupTelemetry("group_first_message_succeeded", {

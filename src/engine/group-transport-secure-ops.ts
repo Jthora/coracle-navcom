@@ -37,6 +37,7 @@ import {
 } from "src/engine/group-transport-contracts"
 import {evaluateSecureGroupSendTierPolicy} from "src/engine/group-transport-secure-tier"
 import type {GroupMissionTier} from "src/engine/group-tier-policy"
+import {isHex} from "src/util/nostr"
 
 export type SecureGroupSendInput = {
   groupId: string
@@ -61,13 +62,45 @@ export type SecureGroupSubscribeInput = {
 const asStringArray = (value: unknown) =>
   Array.isArray(value) ? value.filter(v => typeof v === "string") : []
 
-export const parseSecureGroupSendInput = (input: unknown): SecureGroupSendInput | null => {
-  if (!input || typeof input !== "object") return null
+export const GROUP_SECURE_SEND_INPUT_REASON = {
+  INVALID_SHAPE: "GROUP_SECURE_SEND_INVALID_SHAPE",
+  GROUP_ID_REQUIRED: "GROUP_SECURE_SEND_GROUP_ID_REQUIRED",
+  CONTENT_REQUIRED: "GROUP_SECURE_SEND_CONTENT_REQUIRED",
+  RECIPIENTS_REQUIRED: "GROUP_SECURE_SEND_RECIPIENTS_REQUIRED",
+  RECIPIENT_PUBKEY_INVALID: "GROUP_SECURE_SEND_RECIPIENT_PUBKEY_INVALID",
+} as const
+
+export type GroupSecureSendInputReason =
+  (typeof GROUP_SECURE_SEND_INPUT_REASON)[keyof typeof GROUP_SECURE_SEND_INPUT_REASON]
+
+export type ParseSecureGroupSendInputResult =
+  | {
+      ok: true
+      value: SecureGroupSendInput
+    }
+  | {
+      ok: false
+      reason: GroupSecureSendInputReason
+      message: string
+    }
+
+export const parseSecureGroupSendInputResult = (
+  input: unknown,
+): ParseSecureGroupSendInputResult => {
+  if (!input || typeof input !== "object") {
+    return {
+      ok: false,
+      reason: GROUP_SECURE_SEND_INPUT_REASON.INVALID_SHAPE,
+      message: "Invalid secure send payload shape.",
+    }
+  }
 
   const candidate = input as Record<string, unknown>
   const groupId = typeof candidate.groupId === "string" ? candidate.groupId.trim() : ""
-  const content = typeof candidate.content === "string" ? candidate.content : ""
+  const content = typeof candidate.content === "string" ? candidate.content.trim() : ""
   const recipients = asStringArray(candidate.recipients)
+    .map(recipient => recipient.trim().toLowerCase())
+    .filter(Boolean)
   const delay = typeof candidate.delay === "number" ? candidate.delay : 0
   const missionTier =
     candidate.missionTier === 0 || candidate.missionTier === 1 || candidate.missionTier === 2
@@ -83,21 +116,62 @@ export const parseSecureGroupSendInput = (input: unknown): SecureGroupSendInput 
   const allowTier2Override =
     typeof candidate.allowTier2Override === "boolean" ? candidate.allowTier2Override : undefined
 
-  if (!groupId || !content || recipients.length === 0) return null
+  if (!groupId) {
+    return {
+      ok: false,
+      reason: GROUP_SECURE_SEND_INPUT_REASON.GROUP_ID_REQUIRED,
+      message: "Secure send requires a non-empty group ID.",
+    }
+  }
+
+  if (!content) {
+    return {
+      ok: false,
+      reason: GROUP_SECURE_SEND_INPUT_REASON.CONTENT_REQUIRED,
+      message: "Secure send requires non-empty message content.",
+    }
+  }
+
+  if (recipients.length === 0) {
+    return {
+      ok: false,
+      reason: GROUP_SECURE_SEND_INPUT_REASON.RECIPIENTS_REQUIRED,
+      message: "Secure send requires at least one recipient.",
+    }
+  }
+
+  const invalidRecipient = recipients.find(recipient => !isHex(recipient))
+
+  if (invalidRecipient) {
+    return {
+      ok: false,
+      reason: GROUP_SECURE_SEND_INPUT_REASON.RECIPIENT_PUBKEY_INVALID,
+      message: "Secure send recipient pubkeys must be valid 64-character hex strings.",
+    }
+  }
 
   return {
-    groupId,
-    content,
-    recipients,
-    delay,
-    localState: candidate.localState,
-    missionTier,
-    actorRole,
-    requestedMode,
-    resolvedMode,
-    downgradeConfirmed,
-    allowTier2Override,
+    ok: true,
+    value: {
+      groupId,
+      content,
+      recipients,
+      delay,
+      localState: candidate.localState,
+      missionTier,
+      actorRole,
+      requestedMode,
+      resolvedMode,
+      downgradeConfirmed,
+      allowTier2Override,
+    },
   }
+}
+
+export const parseSecureGroupSendInput = (input: unknown): SecureGroupSendInput | null => {
+  const parsed = parseSecureGroupSendInputResult(input)
+
+  return parsed.ok ? parsed.value : null
 }
 
 export const parseSecureGroupSubscribeInput = (
@@ -147,7 +221,7 @@ export const sendSecureGroupMessage = async (
     allowTier2Override: input.allowTier2Override,
   })
 
-  if (!tierPolicy.ok) {
+  if (tierPolicy.ok === false) {
     return errTransportResult("GROUP_TRANSPORT_CAPABILITY_BLOCKED", tierPolicy.reason, false)
   }
 
@@ -195,7 +269,7 @@ export const sendSecureGroupMessage = async (
       recipients: recipientResolution.eligibleRecipients,
     })
 
-    if (!encodedContent.ok) {
+    if (encodedContent.ok === false) {
       return errTransportResult("GROUP_TRANSPORT_VALIDATION_FAILED", encodedContent.message, false)
     }
 
@@ -371,7 +445,8 @@ export const reconcileSecureGroupEvents = async ({
 
   if (
     invalidEpochEvent &&
-    !invalidEpochEvent.ok &&
+    invalidEpochEvent.ok === false &&
+    "reason" in invalidEpochEvent &&
     invalidEpochEvent.reason === "GROUP_EPOCH_MISMATCH"
   ) {
     const repaired = repairSecureGroupEpochStateFromEvents({
@@ -389,10 +464,14 @@ export const reconcileSecureGroupEvents = async ({
     }
   }
 
-  if (invalidEpochEvent && !invalidEpochEvent.ok) {
+  if (invalidEpochEvent && invalidEpochEvent.ok === false) {
+    const reason =
+      "reason" in invalidEpochEvent ? String(invalidEpochEvent.reason) : "GROUP_EPOCH_INVALID"
+    const eventId = "eventId" in invalidEpochEvent ? String(invalidEpochEvent.eventId) : "unknown"
+
     return errTransportResult(
       "GROUP_TRANSPORT_VALIDATION_FAILED",
-      `Secure group epoch validation failed (${invalidEpochEvent.reason}) for event ${invalidEpochEvent.eventId}.`,
+      `Secure group epoch validation failed (${reason}) for event ${eventId}.`,
       true,
     )
   }
@@ -402,10 +481,15 @@ export const reconcileSecureGroupEvents = async ({
     expectedEpochId,
   })
 
-  if (invalidContentEvent && !invalidContentEvent.ok) {
+  if (invalidContentEvent && invalidContentEvent.ok === false) {
+    const reason =
+      "reason" in invalidContentEvent ? String(invalidContentEvent.reason) : "GROUP_DECRYPT_INVALID"
+    const eventId =
+      "eventId" in invalidContentEvent ? String(invalidContentEvent.eventId) : "unknown"
+
     return errTransportResult(
       "GROUP_TRANSPORT_VALIDATION_FAILED",
-      `Secure group decrypt validation failed (${invalidContentEvent.reason}) for event ${invalidContentEvent.eventId}.`,
+      `Secure group decrypt validation failed (${reason}) for event ${eventId}.`,
       false,
     )
   }
@@ -416,7 +500,7 @@ export const reconcileSecureGroupEvents = async ({
     projection,
   })
 
-  if (!wrapExclusionValidation.ok) {
+  if (wrapExclusionValidation.ok === false) {
     return errTransportResult(
       "GROUP_TRANSPORT_VALIDATION_FAILED",
       `Secure group wrap exclusion validation failed (${wrapExclusionValidation.reason}) for event ${wrapExclusionValidation.eventId}.`,

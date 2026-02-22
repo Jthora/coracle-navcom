@@ -116,7 +116,7 @@ export const benchmarkDmEncryptDecryptLatency = ({
         algorithm: "hybrid-mlkem768+x25519-aead-v1",
       })
 
-      if (!result.ok) {
+      if (result.ok === false) {
         throw new Error(result.message)
       }
     },
@@ -130,7 +130,7 @@ export const benchmarkDmEncryptDecryptLatency = ({
     algorithm: "hybrid-mlkem768+x25519-aead-v1",
   })
 
-  if (!envelope.ok) {
+  if (envelope.ok === false) {
     throw new Error(envelope.message)
   }
 

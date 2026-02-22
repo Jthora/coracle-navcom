@@ -270,7 +270,7 @@ export const sendMessage = (channelId: string, content: string, delay: number) =
     allowClassicalFallback: getSetting("pqc_dm_allow_fallback") !== false,
   })
 
-  if (!preflight.allowed) {
+  if (preflight.allowed === false) {
     throw new Error(
       `DM send blocked by PQC policy: ${preflight.blockReason || "DM_POLICY_BLOCKED"}`,
     )
@@ -284,16 +284,18 @@ export const sendMessage = (channelId: string, content: string, delay: number) =
   const extraTags: string[][] = []
 
   if (getSetting("pqc_dm_enabled") === true) {
+    const envelopeMode = preflight.mode === "hybrid" ? "hybrid" : "classical"
+
     const envelope = buildDmPqcEnvelope({
       plaintext: content,
       senderPubkey,
       recipients: dmRecipients,
-      mode: preflight.mode,
-      algorithm: preflight.mode === "hybrid" ? preferredHybridAlg : "classical-x25519-aead-v1",
+      mode: envelopeMode,
+      algorithm: envelopeMode === "hybrid" ? preferredHybridAlg : "classical-x25519-aead-v1",
       fallbackReasonCode: fallbackReason,
     })
 
-    if (!envelope.ok) {
+    if (envelope.ok === false) {
       if (policyMode === "strict") {
         throw new Error(`DM send blocked by PQC envelope encode failure: ${envelope.reason}`)
       }

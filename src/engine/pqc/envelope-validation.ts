@@ -1,16 +1,19 @@
 import {
   PQC_ENVELOPE_VERSION,
+  pqcEnvelopeModes,
   optionalRecipientFields,
   optionalTopLevelFields,
   requiredRecipientFields,
   requiredTopLevelFields,
   type EnvelopeValidationOptions,
   type EnvelopeValidationResult,
+  type PqcEnvelopeMode,
   type PqcEnvelope,
 } from "src/engine/pqc/envelope-contracts"
 
 const allowedTopLevel = new Set([...requiredTopLevelFields, ...optionalTopLevelFields])
 const allowedRecipient = new Set([...requiredRecipientFields, ...optionalRecipientFields])
+const allowedModes = new Set<PqcEnvelopeMode>(pqcEnvelopeModes)
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   value !== null && typeof value === "object" && !Array.isArray(value)
@@ -102,6 +105,15 @@ export const validatePqcEnvelope = (
     }
   }
 
+  if (!allowedModes.has(input.mode as PqcEnvelopeMode)) {
+    return {
+      ok: false,
+      code: "ERR_ENV_FIELD_INVALID",
+      message: `Invalid mode: expected one of ${pqcEnvelopeModes.join(", ")}`,
+      field: "mode",
+    }
+  }
+
   if (typeof input.ts !== "number") {
     return {
       ok: false,
@@ -117,6 +129,37 @@ export const validatePqcEnvelope = (
       code: "ERR_ENV_RECIPIENT_WRAP_INVALID",
       message: "Envelope recipients must be a non-empty array.",
       field: "recipients",
+    }
+  }
+
+  if (input.compat !== undefined) {
+    if (!isRecord(input.compat)) {
+      return {
+        ok: false,
+        code: "ERR_ENV_FIELD_INVALID",
+        message: "Invalid type for compat: expected object",
+        field: "compat",
+      }
+    }
+
+    const compat = input.compat as Record<string, unknown>
+
+    if (compat.fallback_mode !== undefined && typeof compat.fallback_mode !== "string") {
+      return {
+        ok: false,
+        code: "ERR_ENV_FIELD_INVALID",
+        message: "Invalid type for compat.fallback_mode: expected string",
+        field: "compat.fallback_mode",
+      }
+    }
+
+    if (compat.reason_code !== undefined && typeof compat.reason_code !== "string") {
+      return {
+        ok: false,
+        code: "ERR_ENV_FIELD_INVALID",
+        message: "Invalid type for compat.reason_code: expected string",
+        field: "compat.reason_code",
+      }
     }
   }
 

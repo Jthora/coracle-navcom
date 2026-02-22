@@ -154,6 +154,12 @@ export const env = {
   ENABLE_GUIDED_SIGNUP_SHADOW: JSON.parse(
     import.meta.env.VITE_ENABLE_GUIDED_SIGNUP_SHADOW ?? "false",
   ) as boolean,
+  ENABLE_SECURE_GROUP_PILOT: JSON.parse(
+    import.meta.env.VITE_ENABLE_SECURE_GROUP_PILOT ?? "true",
+  ) as boolean,
+  DISABLE_SECURE_GROUP_PILOT: JSON.parse(
+    import.meta.env.VITE_DISABLE_SECURE_GROUP_PILOT ?? "false",
+  ) as boolean,
   BLUR_CONTENT: JSON.parse(import.meta.env.VITE_BLUR_CONTENT) as boolean,
   BLOSSOM_URLS: fromCsv(import.meta.env.VITE_BLOSSOM_URLS) as string[],
   ONBOARDING_LISTS: fromCsv(import.meta.env.VITE_ONBOARDING_LISTS) as string[],

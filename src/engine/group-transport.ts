@@ -9,6 +9,8 @@ import type {GroupMemberRole} from "src/domain/group"
 import {
   type GroupTransport,
   type GroupTransportDiagnostics,
+  type GroupTransportMessageDiagnostics,
+  type GroupTransportMessageRequest,
 } from "src/engine/group-transport-contracts"
 import {evaluateTierPolicy, type GroupMissionTier} from "src/engine/group-tier-policy"
 
@@ -168,3 +170,130 @@ export const dispatchGroupTransportAction = (
       allowTier2Override,
     },
   )
+
+const resolveGroupMessageTransportAdapter = (
+  request: GroupTransportMessageRequest,
+  available = adapters,
+  capabilitySnapshot?: {readiness?: "R0" | "R1" | "R2" | "R3" | "R4"; reasons?: string[]},
+): GroupTransport => {
+  const resolved = available.find(
+    adapter => adapter.canOperate({requestedMode: request.requestedMode, capabilitySnapshot}).ok,
+  )
+
+  return resolved || baselineGroupTransport
+}
+
+export const dispatchGroupTransportMessage = async (
+  request: GroupTransportMessageRequest,
+  diagnostics: GroupTransportMessageDiagnostics = {},
+  available = adapters,
+  {
+    capabilitySnapshot,
+    allowCapabilityFallback = true,
+    missionTier = 0,
+    downgradeConfirmed = false,
+    allowTier2Override = false,
+  }: {
+    capabilitySnapshot?: {readiness?: "R0" | "R1" | "R2" | "R3" | "R4"; reasons?: string[]}
+    allowCapabilityFallback?: boolean
+    missionTier?: GroupMissionTier
+    downgradeConfirmed?: boolean
+    allowTier2Override?: boolean
+  } = {},
+): Promise<unknown> => {
+  const normalizedGroupId = request.groupId.trim()
+  const normalizedContent = request.content.trim()
+
+  if (!normalizedGroupId || !normalizedContent) {
+    throw new Error("Group transport message requires non-empty groupId and content.")
+  }
+
+  const normalizedRequest: GroupTransportMessageRequest = {
+    ...request,
+    groupId: normalizedGroupId,
+    content: normalizedContent,
+  }
+
+  const requestedAdapter = available.find(
+    adapter => adapter.getModeId() === normalizedRequest.requestedMode,
+  )
+  const requestedGate = requestedAdapter?.canOperate({
+    requestedMode: normalizedRequest.requestedMode,
+    capabilitySnapshot,
+  })
+
+  if (requestedAdapter && requestedGate && !requestedGate.ok && !allowCapabilityFallback) {
+    diagnostics.onCapabilityBlocked?.({
+      request: normalizedRequest,
+      requestedMode: normalizedRequest.requestedMode,
+      reason: requestedGate.reason,
+    })
+
+    throw new Error(
+      `Capability gate blocked requested mode '${normalizedRequest.requestedMode}': ${requestedGate.reason || "unavailable"}`,
+    )
+  }
+
+  const resolved = resolveGroupMessageTransportAdapter(
+    normalizedRequest,
+    available,
+    capabilitySnapshot,
+  )
+
+  diagnostics.onResolved?.({request: normalizedRequest, adapterId: resolved.getModeId()})
+
+  if (normalizedRequest.requestedMode !== resolved.getModeId()) {
+    diagnostics.onFallback?.({
+      request: normalizedRequest,
+      requestedMode: normalizedRequest.requestedMode,
+      adapterId: resolved.getModeId(),
+      reason: requestedGate && !requestedGate.ok ? requestedGate.reason : undefined,
+    })
+  }
+
+  const tierPolicy = evaluateTierPolicy({
+    missionTier,
+    groupId: normalizedRequest.groupId,
+    actorRole: normalizedRequest.actorRole,
+    requestedMode: normalizedRequest.requestedMode,
+    resolvedMode: resolved.getModeId(),
+    downgradeConfirmed,
+    allowTier2Override,
+    now: normalizedRequest.createdAt,
+  })
+
+  if ("reason" in tierPolicy) {
+    diagnostics.onTierPolicyBlocked?.({
+      request: normalizedRequest,
+      missionTier,
+      reason: tierPolicy.reason,
+    })
+
+    throw new Error(tierPolicy.reason)
+  }
+
+  if (tierPolicy.overrideAuditEvent) {
+    diagnostics.onTierOverride?.({
+      request: normalizedRequest,
+      auditEvent: tierPolicy.overrideAuditEvent,
+    })
+  }
+
+  if (!resolved.sendMessage) {
+    throw new Error(`Transport adapter '${resolved.getModeId()}' does not implement sendMessage.`)
+  }
+
+  const result = await resolved.sendMessage({
+    ...normalizedRequest,
+    resolvedMode: resolved.getModeId(),
+    missionTier,
+    downgradeConfirmed,
+    allowTier2Override,
+  })
+
+  if ("message" in result) {
+    throw new Error(result.message)
+  }
+
+  return result.value
+}

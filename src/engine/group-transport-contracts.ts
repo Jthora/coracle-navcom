@@ -33,6 +33,21 @@ export type GroupTransportControlRequest = {
   createdAt: number
 }
 
+export type GroupTransportMessageRequest = {
+  groupId: string
+  content: string
+  requestedMode: GroupTransportModeId
+  actorRole: GroupMemberRole
+  createdAt: number
+  recipients?: string[]
+  delay?: number
+  localState?: unknown
+  missionTier?: 0 | 1 | 2
+  resolvedMode?: GroupTransportModeId
+  downgradeConfirmed?: boolean
+  allowTier2Override?: boolean
+}
+
 export type GroupTransportErrorCode =
   | "GROUP_TRANSPORT_UNSUPPORTED"
   | "GROUP_TRANSPORT_CAPABILITY_BLOCKED"
@@ -94,6 +109,39 @@ export type GroupTransportDiagnostics = {
   }) => void
   onTierOverride?: (input: {
     intent: GroupTransportControlRequest
+    auditEvent: {
+      action: string
+      groupId: string
+      missionTier: 0 | 1 | 2
+      requestedMode: GroupTransportModeId
+      resolvedMode: GroupTransportModeId
+      actorRole: string
+      createdAt: number
+      reason: string
+    }
+  }) => void
+}
+
+export type GroupTransportMessageDiagnostics = {
+  onResolved?: (input: {request: GroupTransportMessageRequest; adapterId: string}) => void
+  onFallback?: (input: {
+    request: GroupTransportMessageRequest
+    requestedMode: string
+    adapterId: string
+    reason?: string
+  }) => void
+  onCapabilityBlocked?: (input: {
+    request: GroupTransportMessageRequest
+    requestedMode: string
+    reason?: string
+  }) => void
+  onTierPolicyBlocked?: (input: {
+    request: GroupTransportMessageRequest
+    missionTier: 0 | 1 | 2
+    reason: string
+  }) => void
+  onTierOverride?: (input: {
+    request: GroupTransportMessageRequest
     auditEvent: {
       action: string
       groupId: string

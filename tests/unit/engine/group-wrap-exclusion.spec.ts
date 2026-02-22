@@ -125,4 +125,85 @@ describe("engine/group-wrap-exclusion", () => {
       removedPubkey: removed,
     })
   })
+
+  it("prefers deterministic event sequence over skewed created_at timestamps", () => {
+    const projection = makeTestProjection("ops")
+    const removed = "a".repeat(64)
+
+    const result = validateRemovedMemberWrapExclusion({
+      groupId: "ops",
+      projection,
+      events: [
+        {
+          id: "remove-skewed",
+          pubkey: "f".repeat(64),
+          kind: GROUP_KINDS.NIP29.REMOVE_USER,
+          created_at: 1739836700,
+          tags: [
+            ["h", "ops"],
+            ["p", removed],
+          ],
+          content: "",
+          sig: "s".repeat(128),
+        },
+        {
+          id: "bad-after-removal",
+          pubkey: "f".repeat(64),
+          kind: GROUP_KINDS.NIP_EE.GROUP_EVENT,
+          created_at: 1739836600,
+          tags: [
+            ["h", "ops"],
+            ["p", removed],
+          ],
+          content: "{}",
+          sig: "s".repeat(128),
+        },
+      ],
+    })
+
+    expect(result).toEqual({
+      ok: false,
+      reason: "REMOVED_MEMBER_INCLUDED",
+      eventId: "bad-after-removal",
+      removedPubkey: removed,
+    })
+  })
+
+  it("does not exclude secure wraps that occur before removal in deterministic sequence", () => {
+    const projection = makeTestProjection("ops")
+    const removed = "a".repeat(64)
+
+    const result = validateRemovedMemberWrapExclusion({
+      groupId: "ops",
+      projection,
+      events: [
+        {
+          id: "ok-before-removal",
+          pubkey: "f".repeat(64),
+          kind: GROUP_KINDS.NIP_EE.GROUP_EVENT,
+          created_at: 1739836805,
+          tags: [
+            ["h", "ops"],
+            ["p", removed],
+          ],
+          content: "{}",
+          sig: "s".repeat(128),
+        },
+        {
+          id: "remove-later",
+          pubkey: "f".repeat(64),
+          kind: GROUP_KINDS.NIP29.REMOVE_USER,
+          created_at: 1739836800,
+          tags: [
+            ["h", "ops"],
+            ["p", removed],
+          ],
+          content: "",
+          sig: "s".repeat(128),
+        },
+      ],
+    })
+
+    expect(result).toEqual({ok: true})
+  })
 })

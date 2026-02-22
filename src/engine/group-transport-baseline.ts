@@ -9,6 +9,7 @@ import {
   buildGroupPutMemberTemplate,
   buildGroupRemoveMemberTemplate,
 } from "src/domain/group-control"
+import {GROUP_KINDS} from "src/domain/group-kinds"
 import {
   errTransportResult,
   okTransportResult,
@@ -20,6 +21,41 @@ const publishGroupTemplate = (template: Parameters<typeof makeEvent>[1] & {kind:
     event: makeEvent(template.kind, template),
     relays: Router.get().FromUser().policy(addMaximalFallbacks).getUrls(),
   })
+
+const sendMessage: GroupTransport["sendMessage"] = async input => {
+  if (!input || typeof input !== "object") {
+    return errTransportResult(
+      "GROUP_TRANSPORT_VALIDATION_FAILED",
+      "Invalid baseline send payload.",
+      false,
+    )
+  }
+
+  const candidate = input as Record<string, unknown>
+  const groupId = typeof candidate.groupId === "string" ? candidate.groupId.trim() : ""
+  const content = typeof candidate.content === "string" ? candidate.content.trim() : ""
+
+  if (!groupId || !content) {
+    return errTransportResult(
+      "GROUP_TRANSPORT_VALIDATION_FAILED",
+      "Baseline send requires non-empty groupId and content.",
+      false,
+    )
+  }
+
+  const delay = typeof candidate.delay === "number" ? candidate.delay : 0
+
+  const value = await publishThunk({
+    delay,
+    event: makeEvent(GROUP_KINDS.NIP_EE.GROUP_EVENT, {
+      content,
+      tags: [["h", groupId]],
+    }),
+    relays: Router.get().FromUser().policy(addMaximalFallbacks).getUrls(),
+  })
+
+  return okTransportResult(value)
+}
 
 const publishControlAction: GroupTransport["publishControlAction"] = async request => {
   const {action, payload} = request
@@ -111,12 +147,7 @@ export const baselineGroupTransport: GroupTransport = {
         : "Unsupported mode for baseline adapter",
   }),
   publishControlAction,
-  sendMessage: async () =>
-    errTransportResult(
-      "GROUP_TRANSPORT_UNSUPPORTED",
-      "Baseline adapter does not implement sendMessage yet.",
-      false,
-    ),
+  sendMessage,
   subscribe: async () =>
     errTransportResult(
       "GROUP_TRANSPORT_UNSUPPORTED",

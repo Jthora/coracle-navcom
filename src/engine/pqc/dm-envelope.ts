@@ -1,10 +1,11 @@
-import {validatePqcEnvelope, type PqcEnvelope} from "src/engine/pqc/envelope-validation"
+import {validatePqcEnvelope} from "src/engine/pqc/envelope-validation"
+import type {PqcEnvelope, PqcEnvelopeMode} from "src/engine/pqc/envelope-contracts"
 
 export type DmEnvelopeBuildInput = {
   plaintext: string
   senderPubkey: string
   recipients: string[]
-  mode: "hybrid" | "classical"
+  mode: PqcEnvelopeMode
   algorithm: string
   createdAt?: number
   messageId?: string
@@ -42,7 +43,7 @@ export const buildDmEnvelopeAssociatedData = ({
 }: {
   senderPubkey: string
   recipients: string[]
-  mode: "hybrid" | "classical"
+  mode: PqcEnvelopeMode
   algorithm: string
   createdAt: number
   messageId: string
@@ -116,7 +117,7 @@ export const buildDmPqcEnvelope = ({
 
     const validation = validatePqcEnvelope(envelope)
 
-    if (!validation.ok) {
+    if (validation.ok === false) {
       return {
         ok: false,
         reason: "DM_ENVELOPE_ENCODE_FAILED",

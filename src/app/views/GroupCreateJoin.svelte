@@ -22,6 +22,7 @@
     getRecommendedRelayHost,
     type GuidedPrivacyLevel,
   } from "src/app/groups/guided-create-options"
+  import {resolveRequestedTransportMode} from "src/app/groups/transport-mode"
 
   export let groupId = ""
   export let preferredMode = ""
@@ -58,6 +59,16 @@
   ].filter(Boolean)
   $: joinPrompts = buildJoinPolicyPrompts(joinGroupAddress)
   $: securityStatus = getGuidedSecurityStatus(createPrivacy)
+  $: createRequestedTransport = resolveRequestedTransportMode({
+    flow: "create",
+    privacy: createPrivacy,
+    invitePreferredMode: preferredMode,
+  })
+  $: joinRequestedTransport = resolveRequestedTransportMode({
+    flow: "join",
+    privacy: createPrivacy,
+    invitePreferredMode: preferredMode,
+  })
   $: joinInviteHints = [
     preferredMode ? `Invite mode hint: ${preferredMode}` : "",
     missionTier === null ? "" : `Invite mission tier hint: ${missionTier}`,
@@ -125,6 +136,8 @@
       privacy: createPrivacy,
       relayHost: createRelayHost,
       hasManualAddress: Boolean(createGroupIdOverride.trim()),
+      requested_transport_mode: createRequestedTransport.requestedMode,
+      transport_mode_source: createRequestedTransport.source,
       mode: "guided",
       entry_point: groupId ? "invite_prefill" : "groups_create",
     })
@@ -140,6 +153,7 @@
         },
         "admin",
         1,
+        {requestedMode: createRequestedTransport.requestedMode},
       )
 
       const message = getGroupCreateRecoveryMessage(result)
@@ -198,6 +212,8 @@
     })
     trackGroupTelemetry("group_setup_join_attempt", {
       hasPrefill: Boolean(groupId),
+      requested_transport_mode: joinRequestedTransport.requestedMode,
+      transport_mode_source: joinRequestedTransport.source,
       mode: "guided",
     })
     trackGroupTelemetry("group_join_submitted", {
@@ -210,7 +226,9 @@
     pendingJoin = true
 
     try {
-      await publishGroupJoin({groupId: parsed.value.canonicalId})
+      await publishGroupJoin({groupId: parsed.value.canonicalId}, "member", {
+        requestedMode: joinRequestedTransport.requestedMode,
+      })
       setupCompleted = true
       trackGroupTelemetry("group_setup_join_result", {result: "success"})
       trackGroupTelemetry("group_setup_completed", {

@@ -1,5 +1,6 @@
 import {describe, expect, it} from "vitest"
 import {asInviteGroups} from "src/app/util/router"
+import {GROUP_INVITE_DECODE_RECOVERY_REASON} from "src/app/invite/schema"
 
 describe("app/util router invite serializer", () => {
   it("decodes groups payload into structured entries", () => {
@@ -20,5 +21,18 @@ describe("app/util router invite serializer", () => {
     const decoded = asInviteGroups.decode("relay.one'ops,relay.two'coord") as {groups: unknown[]}
 
     expect(decoded.groups).toEqual([{groupId: "relay.one'ops"}, {groupId: "relay.two'coord"}])
+  })
+
+  it("returns typed recoverable decode errors for malformed invite entries", () => {
+    const decoded = asInviteGroups.decode("relay.bad'ops|bad%ZZ|1|Broken") as {
+      groups: unknown[]
+      groupInviteRecoveryErrors: Array<{reason: string}>
+    }
+
+    expect(decoded.groups).toEqual([])
+    expect(decoded.groupInviteRecoveryErrors).toContainEqual({
+      reason: GROUP_INVITE_DECODE_RECOVERY_REASON.ENTRY_URI_MALFORMED,
+      value: "relay.bad'ops|bad%ZZ|1|Broken",
+    })
   })
 })
