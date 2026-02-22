@@ -617,6 +617,20 @@
     return "border-neutral-600 text-neutral-300"
   }
 
+  const getCapabilitySignalLabel = (value?: boolean | null) => {
+    if (value === true) return "yes"
+    if (value === false) return "no"
+
+    return "unknown"
+  }
+
+  const getCapabilitySignalClass = (value?: boolean | null) => {
+    if (value === true) return "border-emerald-500 text-emerald-300"
+    if (value === false) return "border-warning text-warning"
+
+    return "border-neutral-600 text-neutral-300"
+  }
+
   const getChecklistStatusClass = (done: boolean) =>
     done ? "border-emerald-500 text-emerald-300" : "border-warning text-warning"
 
@@ -1059,6 +1073,29 @@
                   {/if}
                 </div>
                 <div class="mt-1 text-neutral-400">{check.details}</div>
+                <div class="mt-2 flex flex-wrap items-center gap-1">
+                  <span class="text-[10px] uppercase tracking-[0.08em] text-neutral-500"
+                    >Capabilities</span>
+                  <span
+                    class={`rounded border px-2 py-0.5 ${getCapabilitySignalClass(check.supportsNip29)}`}
+                    >NIP-29 {getCapabilitySignalLabel(check.supportsNip29)}</span>
+                  <span
+                    class={`rounded border px-2 py-0.5 ${getCapabilitySignalClass(check.supportsNip42)}`}
+                    >NIP-42 {getCapabilitySignalLabel(check.supportsNip42)}</span>
+                  <span
+                    class={`rounded border px-2 py-0.5 ${getCapabilitySignalClass(check.supportsNip104)}`}
+                    >NIP-104 {getCapabilitySignalLabel(check.supportsNip104)}</span>
+                  <span
+                    class={`rounded border px-2 py-0.5 ${getCapabilitySignalClass(check.supportsNipEeSignal)}`}
+                    >NIP-EE signal {getCapabilitySignalLabel(check.supportsNipEeSignal)}</span>
+                  <span
+                    class={`rounded border px-2 py-0.5 ${getCapabilitySignalClass(check.supportsNavcomBaseline)}`}
+                    >Navcom baseline {getCapabilitySignalLabel(check.supportsNavcomBaseline)}</span>
+                  {#if check.isNavcomDefaultRelay}
+                    <span class="rounded border border-accent px-2 py-0.5 text-accent"
+                      >Default Navcom relay</span>
+                  {/if}
+                </div>
                 {#if check.status === "auth-required" && !isCreateRelayConfirmed(check.relay)}
                   <div class="mt-2">
                     <button
@@ -1228,6 +1265,29 @@
                 {/if}
               </div>
               <div class="mt-1 text-neutral-400">{check.details}</div>
+              <div class="mt-2 flex flex-wrap items-center gap-1">
+                <span class="text-[10px] uppercase tracking-[0.08em] text-neutral-500"
+                  >Capabilities</span>
+                <span
+                  class={`rounded border px-2 py-0.5 ${getCapabilitySignalClass(check.supportsNip29)}`}
+                  >NIP-29 {getCapabilitySignalLabel(check.supportsNip29)}</span>
+                <span
+                  class={`rounded border px-2 py-0.5 ${getCapabilitySignalClass(check.supportsNip42)}`}
+                  >NIP-42 {getCapabilitySignalLabel(check.supportsNip42)}</span>
+                <span
+                  class={`rounded border px-2 py-0.5 ${getCapabilitySignalClass(check.supportsNip104)}`}
+                  >NIP-104 {getCapabilitySignalLabel(check.supportsNip104)}</span>
+                <span
+                  class={`rounded border px-2 py-0.5 ${getCapabilitySignalClass(check.supportsNipEeSignal)}`}
+                  >NIP-EE signal {getCapabilitySignalLabel(check.supportsNipEeSignal)}</span>
+                <span
+                  class={`rounded border px-2 py-0.5 ${getCapabilitySignalClass(check.supportsNavcomBaseline)}`}
+                  >Navcom baseline {getCapabilitySignalLabel(check.supportsNavcomBaseline)}</span>
+                {#if check.isNavcomDefaultRelay}
+                  <span class="rounded border border-accent px-2 py-0.5 text-accent"
+                    >Default Navcom relay</span>
+                {/if}
+              </div>
               {#if check.status === "auth-required" && !isJoinRelayConfirmed(check.relay)}
                 <div class="mt-2">
                   <button

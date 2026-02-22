@@ -1,6 +1,7 @@
 <script lang="ts">
   import {onMount} from "svelte"
   import Link from "src/partials/Link.svelte"
+  import Popover from "src/partials/Popover.svelte"
   import {
     ensureGroupsHydrated,
     groupSummaries,
@@ -40,6 +41,19 @@
     <div class="flex items-center gap-2">
       <i class="fa fa-users text-accent" />
       <h2 class="text-lg uppercase tracking-[0.08em]">Groups</h2>
+      <Popover triggerType="mouseenter" placement="bottom-start" opts={{maxWidth: 320}}>
+        <button
+          slot="trigger"
+          class="text-neutral-400 transition hover:text-neutral-200"
+          type="button"
+          aria-label="Groups info">
+          <i class="fa fa-info-circle" />
+        </button>
+        <div slot="tooltip" class="space-y-2 text-sm text-neutral-200">
+          <p>Relay-managed groups you can browse, join, and administer.</p>
+          <p>Security labels are shown on each group card and expanded in Chat/Settings.</p>
+        </div>
+      </Popover>
     </div>
     <div class="flex items-center gap-2">
       <Link class="btn" href="/groups/create?flow=join">
@@ -50,10 +64,6 @@
       </Link>
     </div>
   </div>
-  <p class="mt-3 text-neutral-300">Relay-managed groups you can browse, join, and administer.</p>
-  <p class="mt-1 text-xs text-neutral-400">
-    Security labels are shown on each group card and expanded in Chat/Settings.
-  </p>
   {#if guardMessage}
     <div class="mt-3 rounded border border-warning px-3 py-2 text-sm text-warning">
       <div>{guardMessage}</div>

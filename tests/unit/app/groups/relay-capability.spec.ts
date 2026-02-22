@@ -87,6 +87,32 @@ describe("app/groups relay-capability", () => {
     expect(result.challengeResponseAuth).toBe(true)
   })
 
+  it("captures additional capability signals for navcom baseline visibility", () => {
+    const result = evaluateRelayCapabilityFromInfo({
+      supported_nips: [29, 42, 104],
+      supported_group_modes: ["secure-nip-ee"],
+    })
+
+    expect(result.supportsNip29).toBe(true)
+    expect(result.supportsNip42).toBe(true)
+    expect(result.supportsNip104).toBe(true)
+    expect(result.supportsNipEeSignal).toBe(true)
+    expect(result.supportsNavcomBaseline).toBe(true)
+    expect(result.advertisedNips).toEqual([29, 42, 104])
+  })
+
+  it("adds navcom default relay context in details", () => {
+    const result = evaluateRelayCapabilityFromInfo(
+      {
+        supported_nips: [29],
+      },
+      "wss://relay.navcom.app",
+    )
+
+    expect(result.isNavcomDefaultRelay).toBe(true)
+    expect(result.details).toContain("relay.navcom.app is the default Navcom relay")
+  })
+
   it("marks relay no-groups when NIP-29 is missing", () => {
     const result = evaluateRelayCapabilityFromInfo({supported_nips: [1, 42]})
 

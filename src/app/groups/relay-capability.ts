@@ -12,6 +12,13 @@ export type RelayCapabilityCheck = {
   relay: string
   status: RelayCapabilityStatus
   supportsGroups: boolean | null
+  supportsNip29?: boolean | null
+  supportsNip42?: boolean | null
+  supportsNip104?: boolean | null
+  supportsNipEeSignal?: boolean | null
+  supportsNavcomBaseline?: boolean | null
+  isNavcomDefaultRelay?: boolean
+  advertisedNips?: number[]
   authRequired: boolean | null
   challengeResponseAuth: boolean | null
   details: string
@@ -57,6 +64,11 @@ type RelaySocketLike = {
 
 type RelayInfoLike = {
   supported_nips?: unknown
+  supported_group_modes?: unknown
+  supported_groups?: unknown
+  software?: unknown
+  name?: unknown
+  description?: unknown
   limitation?: {
     auth_required?: unknown
   }
@@ -160,45 +172,166 @@ const getRelayInfoUrl = (relay: string) => {
   }
 }
 
+const NAVCOM_DEFAULT_RELAY_HOST = "relay.navcom.app"
+
+const toRelayHost = (relay: string) => {
+  const value = (relay || "").trim()
+
+  if (!value) return ""
+
+  try {
+    return new URL(value).hostname.toLowerCase()
+  } catch {
+    return value
+      .replace(/^wss?:\/\//, "")
+      .replace(/\/.*/, "")
+      .toLowerCase()
+  }
+}
+
+const isNavcomDefaultRelay = (relay: string) => toRelayHost(relay) === NAVCOM_DEFAULT_RELAY_HOST
+
+const toSupportedNips = (supportedNips: unknown): number[] => {
+  if (!Array.isArray(supportedNips)) return []
+
+  return supportedNips
+    .filter(nip => typeof nip === "number" && Number.isFinite(nip))
+    .map(nip => Number(nip))
+}
+
+const toLowercaseTokens = (value: unknown): string[] => {
+  if (typeof value === "string") {
+    return [value.toLowerCase()]
+  }
+
+  if (!Array.isArray(value)) return []
+
+  return value
+    .filter(item => typeof item === "string")
+    .map(item => item.toLowerCase())
+}
+
+const resolveNipEeSignal = (input: RelayInfoLike): boolean | null => {
+  const tokens = [
+    ...toLowercaseTokens(input.supported_group_modes),
+    ...toLowercaseTokens(input.supported_groups),
+    ...toLowercaseTokens(input.software),
+    ...toLowercaseTokens(input.name),
+    ...toLowercaseTokens(input.description),
+  ]
+
+  if (tokens.length === 0) return null
+
+  return tokens.some(token => token.includes("nip-ee") || token.includes("secure-nip-ee"))
+}
+
+const resolveNavcomBaseline = ({
+  supportsNip104,
+  supportsNipEeSignal,
+}: {
+  supportsNip104: boolean
+  supportsNipEeSignal: boolean | null
+}): boolean | null => {
+  if (!supportsNip104) return false
+  if (supportsNipEeSignal === true) return true
+  if (supportsNipEeSignal === false) return false
+
+  return null
+}
+
+const buildCapabilityDetailSuffix = ({
+  supportsNip29,
+  supportsNip42,
+  supportsNip104,
+  supportsNipEeSignal,
+  isDefaultRelay,
+}: {
+  supportsNip29: boolean
+  supportsNip42: boolean
+  supportsNip104: boolean
+  supportsNipEeSignal: boolean | null
+  isDefaultRelay: boolean
+}) => {
+  const nipEeLabel =
+    supportsNipEeSignal === true ? "yes" : supportsNipEeSignal === false ? "no" : "unknown"
+
+  const baselineHint =
+    supportsNip104 && supportsNipEeSignal === true
+      ? "Navcom baseline advertised."
+      : "Navcom baseline is not fully advertised; fallback/interoperability may still work."
+
+  const defaultRelayHint = isDefaultRelay
+    ? " relay.navcom.app is the default Navcom relay."
+    : ""
+
+  return `Capability signals: NIP-29 ${supportsNip29 ? "yes" : "no"}, NIP-42 ${supportsNip42 ? "yes" : "no"}, NIP-104 ${supportsNip104 ? "yes" : "no"}, NIP-EE signal ${nipEeLabel}. ${baselineHint} NIP-104-PQC is client-side and may operate without explicit relay advertisement.${defaultRelayHint}`
+}
+
 export const evaluateRelayCapabilityFromInfo = (
   input: RelayInfoLike,
+  relay?: string,
 ): Omit<RelayCapabilityCheck, "relay"> => {
-  const nips = Array.isArray(input.supported_nips)
-    ? input.supported_nips.filter(nip => typeof nip === "number")
-    : []
+  const nips = toSupportedNips(input.supported_nips)
+  const supportsNip29 = nips.includes(29)
+  const supportsNip42 = nips.includes(42)
+  const supportsNip104 = nips.includes(104)
+  const supportsNipEeSignal = resolveNipEeSignal(input)
+  const supportsNavcomBaseline = resolveNavcomBaseline({supportsNip104, supportsNipEeSignal})
+  const defaultRelay = relay ? isNavcomDefaultRelay(relay) : false
 
-  const supportsGroups = nips.includes(29)
-  const challengeResponseAuth = nips.includes(42)
+  const supportsGroups = supportsNip29
+  const challengeResponseAuth = supportsNip42
   const authRequired = input.limitation?.auth_required === true
+
+  const capabilityDetailSuffix = buildCapabilityDetailSuffix({
+    supportsNip29,
+    supportsNip42,
+    supportsNip104,
+    supportsNipEeSignal,
+    isDefaultRelay: defaultRelay,
+  })
+
+  const capabilitySignals = {
+    supportsNip29,
+    supportsNip42,
+    supportsNip104,
+    supportsNipEeSignal,
+    supportsNavcomBaseline,
+    isNavcomDefaultRelay: defaultRelay,
+    advertisedNips: nips,
+  }
 
   if (authRequired) {
     return {
+      ...capabilitySignals,
       status: "auth-required",
       supportsGroups,
       authRequired,
       challengeResponseAuth,
-      details: "Relay requires challenge/response authentication before write access.",
+      details: `Relay requires challenge/response authentication before write access. ${capabilityDetailSuffix}`,
     }
   }
 
   if (!supportsGroups) {
     return {
+      ...capabilitySignals,
       status: "no-groups",
       supportsGroups,
       authRequired,
       challengeResponseAuth,
-      details: "Relay does not advertise NIP-29 group support.",
+      details: `Relay does not advertise NIP-29 group support. Some relays may still interoperate, but behavior is not guaranteed. ${capabilityDetailSuffix}`,
     }
   }
 
   return {
+    ...capabilitySignals,
     status: "ready",
     supportsGroups,
     authRequired,
     challengeResponseAuth,
     details: challengeResponseAuth
-      ? "Relay supports groups and optional challenge/response auth."
-      : "Relay supports groups.",
+      ? `Relay supports groups and optional challenge/response auth. ${capabilityDetailSuffix}`
+      : `Relay supports groups. ${capabilityDetailSuffix}`,
   }
 }
 
@@ -230,6 +363,13 @@ export const checkRelayCapability = async (
       relay,
       status: "unreachable",
       supportsGroups: null,
+      supportsNip29: null,
+      supportsNip42: null,
+      supportsNip104: null,
+      supportsNipEeSignal: null,
+      supportsNavcomBaseline: null,
+      isNavcomDefaultRelay: isNavcomDefaultRelay(relay),
+      advertisedNips: [],
       authRequired: null,
       challengeResponseAuth: null,
       details: "Relay URL is invalid.",
@@ -259,7 +399,7 @@ export const checkRelayCapability = async (
         }
 
         const payload = (await response.json()) as RelayInfoLike
-        const evaluated = evaluateRelayCapabilityFromInfo(payload)
+        const evaluated = evaluateRelayCapabilityFromInfo(payload, relay)
 
         const result = {
           relay,
@@ -299,6 +439,13 @@ export const checkRelayCapability = async (
     relay,
     status: "unreachable",
     supportsGroups: null,
+    supportsNip29: null,
+    supportsNip42: null,
+    supportsNip104: null,
+    supportsNipEeSignal: null,
+    supportsNavcomBaseline: null,
+    isNavcomDefaultRelay: isNavcomDefaultRelay(relay),
+    advertisedNips: [],
     authRequired: null,
     challengeResponseAuth: null,
     details: "Relay capability probe failed after retries (network/CORS/unreachable).",
