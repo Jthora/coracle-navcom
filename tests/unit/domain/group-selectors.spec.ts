@@ -1,5 +1,6 @@
 import {describe, expect, it} from "vitest"
 import {makeGroup, makeMembership, makeProjection} from "src/domain/group"
+import {GROUP_KINDS} from "src/domain/group-kinds"
 import {
   selectGroupListItems,
   selectGroupProjection,
@@ -41,6 +42,75 @@ describe("group-selectors", () => {
     const items = selectGroupListItems(byGroup, {now: 210})
 
     expect(items.map(({id}) => id)).toEqual(["ops", "intel"])
+  })
+
+  it("hides secure groups that only have opaque encrypted events for other users", () => {
+    const secure = makeProjection(
+      makeGroup({
+        id: "secure-hidden",
+        protocol: "nip-ee",
+        transportMode: "secure-nip-ee",
+        updatedAt: 300,
+      }),
+    )
+
+    secure.sourceEvents.push({
+      id: "evt-secure-1",
+      kind: GROUP_KINDS.NIP_EE.GROUP_EVENT,
+      pubkey: "other-pubkey",
+      content: "opaque-ciphertext",
+      created_at: 300,
+      tags: [["h", "secure-hidden"]],
+      sig: "sig",
+    } as any)
+
+    const baseline = makeProjection(
+      makeGroup({
+        id: "baseline",
+        protocol: "nip29",
+        transportMode: "baseline-nip29",
+        updatedAt: 200,
+      }),
+    )
+
+    const byGroup = new Map([
+      ["secure-hidden", secure],
+      ["baseline", baseline],
+    ])
+
+    const items = selectGroupListItems(byGroup, {currentPubkey: "me"})
+
+    expect(items.map(({id}) => id)).toEqual(["baseline"])
+  })
+
+  it("shows secure groups when current user has direct access signal", () => {
+    const secure = makeProjection(
+      makeGroup({
+        id: "secure-visible",
+        protocol: "nip-ee",
+        transportMode: "secure-nip-ee",
+        updatedAt: 400,
+      }),
+    )
+
+    secure.sourceEvents.push({
+      id: "evt-secure-2",
+      kind: GROUP_KINDS.NIP_EE.WELCOME,
+      pubkey: "admin-pubkey",
+      content: "welcome-envelope",
+      created_at: 400,
+      tags: [
+        ["h", "secure-visible"],
+        ["p", "me"],
+      ],
+      sig: "sig",
+    } as any)
+
+    const byGroup = new Map([["secure-visible", secure]])
+
+    const items = selectGroupListItems(byGroup, {currentPubkey: "me"})
+
+    expect(items.map(({id}) => id)).toEqual(["secure-visible"])
   })
 
   it("selects a single projection by id", () => {

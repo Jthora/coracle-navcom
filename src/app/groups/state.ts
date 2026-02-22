@@ -41,8 +41,8 @@ const groupEvents = deriveEvents({
 let hydrationStarted = false
 let stopHydration: null | (() => void) = null
 
-export const groupSummaries = derived(groupProjections, $groupProjections =>
-  selectGroupListItems($groupProjections),
+export const groupSummaries = derived([groupProjections, pubkey], ([$groupProjections, $pubkey]) =>
+  selectGroupListItems($groupProjections, {currentPubkey: $pubkey || null}),
 )
 
 const getSeenAt = (state: Record<string, number>, path: string) => {

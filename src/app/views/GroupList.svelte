@@ -14,6 +14,13 @@
 
   const toGroupHref = (groupId: string) => `/groups/${encodeURIComponent(groupId)}/chat`
   const getUnreadCount = (groupId: string) => $unreadGroupMessageCounts.get(groupId) || 0
+  const isOpaqueGroupId = (value: string) => /^[a-f0-9]{32,}$/i.test(value)
+  const getGroupTitle = (group: (typeof $groupSummaries)[number]) =>
+    group.title === group.id && isOpaqueGroupId(group.id)
+      ? `${group.id.slice(0, 12)}…${group.id.slice(-8)}`
+      : group.title
+  const showFullGroupId = (group: (typeof $groupSummaries)[number]) =>
+    group.title === group.id && isOpaqueGroupId(group.id)
   const getSecurityState = (transportMode: "baseline-nip29" | "secure-nip-ee") =>
     resolveGroupSecurityState({transportMode})
 
@@ -60,7 +67,10 @@
     <Link class="panel block p-4" href={toGroupHref(group.id)}>
       <div class="flex items-center justify-between gap-4">
         <div>
-          <h3 class="font-semibold text-neutral-50">{group.title}</h3>
+          <h3 class="font-semibold text-neutral-50">{getGroupTitle(group)}</h3>
+          {#if showFullGroupId(group)}
+            <p class="mt-1 font-mono text-xs text-neutral-500">{group.id}</p>
+          {/if}
           <p class="mt-1 text-sm text-neutral-300">{group.description || "No description yet."}</p>
         </div>
         <div class="text-right text-xs text-neutral-400">
