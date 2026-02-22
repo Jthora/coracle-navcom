@@ -407,3 +407,15 @@ Implemented for Task `5.2.2.1.2`:
    - Restore forward state after mitigation: unset kill-switch first, then return to default-on config.
 - Verification evidence:
    - `pnpm vitest run tests/unit/app/groups/secure-pilot-bootstrap.spec.ts` (passing).
+
+## 14) Relay Auth + Capability UX Hardening Track
+
+- A dedicated implementation stream for high-security relay support is tracked in:
+   - `docs/groups/relay-auth-ux-hardening/README.md`
+   - `docs/groups/relay-auth-ux-hardening/implementation-plan.md`
+   - `docs/groups/relay-auth-ux-hardening/progress-tracker.md`
+- Baseline implementation already landed in product UI as preflight scaffolding:
+   - relay preset + multi-relay selected-source model in `GroupCreateJoin.svelte`,
+   - relay capability status checks (`ready`, `auth-required`, `no-groups`, `unreachable`),
+   - create/join gating when auth-required relays are unresolved.
+- Remaining work (full challenge/response handshake, credential lifecycle UX, share package) proceeds under that tracker and rolls up to Stage `5.2.2` closeout evidence.

@@ -157,6 +157,9 @@ Legend: `Stage -> Phase -> Step -> Task`
         - [x] 5.2.1.5.1 Sub-task — Run scoped typecheck for touched folders
         - [x] 5.2.1.5.2 Sub-task — Capture pass output and unresolved debt separately
     - [ ] 5.2.2 Step — Rollout controls
+      - [ ] 5.2.2.0 Task — Track relay auth + capability UX hardening stream
+        - [x] 5.2.2.0.1 Sub-task — Publish dedicated execution docs in `docs/groups/relay-auth-ux-hardening/`
+        - [ ] 5.2.2.0.2 Sub-task — Mirror milestone completion from dedicated tracker into Stage 5 rollup
       - [x] 5.2.2.1 Task — Enable phased rollout with feature flags for material behavior changes
         - [x] 5.2.2.1.1 Sub-task — Define rollout cohorts and flag defaults
         - [x] 5.2.2.1.2 Sub-task — Add kill-switch behavior and rollback instructions
