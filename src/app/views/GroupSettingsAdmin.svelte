@@ -374,12 +374,17 @@
   <div class="panel p-4">
     <div class="flex items-center justify-between gap-3">
       <h2 class="text-lg uppercase tracking-[0.08em]">Group Settings & Admin</h2>
-      <span class="rounded border border-neutral-700 px-2 py-1 text-xs text-neutral-300">
-        Role: {actorRole}
-      </span>
+      <div class="flex flex-wrap items-center justify-end gap-2">
+        <span class="rounded border border-neutral-700 px-2 py-1 text-xs text-neutral-300">
+          Role: {actorRole}
+        </span>
+        <span class="rounded border border-neutral-700 px-2 py-1 text-xs text-neutral-300">
+          {securityState.label}
+        </span>
+      </div>
     </div>
     <div class="mt-3 rounded border border-neutral-700 px-3 py-2 text-sm text-neutral-300">
-      Security state: <span class="text-neutral-100">{securityState.label}</span> — {securityState.hint}
+      {securityState.hint}
     </div>
   </div>
 

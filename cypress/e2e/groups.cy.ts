@@ -91,14 +91,29 @@ describe("groups", () => {
   it("shows persistent guard recovery after blocked elevated route", () => {
     visitWithTelemetry("/groups/ops/settings")
     waitForAppReady()
-    cy.url({timeout: 20000}).should("include", "/groups/ops")
+    cy.url({timeout: 20000}).should("include", "/groups")
     cy.contains(
-      "Moderation and settings are currently available for relay-addressed groups only.",
-      {
-        timeout: 20000,
-      },
+      /This group link is incomplete or invalid|Settings and moderation only work for relay-addressed groups/,
+      {timeout: 20000},
     )
-    cy.contains("Open Group Chat", {timeout: 20000})
+    cy.contains(/Next step: continue in Group Chat|Next step: use Create\/Join/, {
+      timeout: 20000,
+    })
+    cy.contains(/Open Group Chat|Open Join Flow/, {timeout: 20000})
+  })
+
+  it("shows security readability cues on groups list", () => {
+    visitWithTelemetry("/groups")
+    waitForAppReady()
+    cy.contains("Security labels are shown on each group card", {timeout: 20000})
+  })
+
+  it("shows explicit PQC language in guided create security status", () => {
+    visitWithTelemetry("/groups/create")
+    waitForAppReady()
+    cy.contains("Create a room", {timeout: 20000}).click()
+    cy.contains(/PQC-preferred|Compatibility first/, {timeout: 20000})
+    cy.contains(/secure post-quantum-capable transport|compatibility fallback/, {timeout: 20000})
   })
 
   it("emits setup and join funnel telemetry with required properties", () => {

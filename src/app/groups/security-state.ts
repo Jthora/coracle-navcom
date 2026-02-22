@@ -19,7 +19,7 @@ export const resolveGroupSecurityState = ({
     return {
       state: "blocked" as GroupSecurityState,
       label: "Blocked",
-      hint: "Policy constraints are preventing secure operation. Review admin settings.",
+      hint: "Policy constraints are preventing secure operation. Review room policy and relay capabilities.",
     }
   }
 
@@ -27,22 +27,22 @@ export const resolveGroupSecurityState = ({
     return {
       state: "fallback-active" as GroupSecurityState,
       label: "Fallback active",
-      hint: "A non-preferred path is active. Review relay health and security settings.",
+      hint: "A non-preferred compatibility path is active after secure transport degraded. Review relay health.",
     }
   }
 
   if (transportMode === "secure-nip-ee") {
     return {
       state: "secure-active" as GroupSecurityState,
-      label: "Secure active",
-      hint: "Preferred secure transport is active.",
+      label: "Secure active (PQC-preferred)",
+      hint: "Preferred secure transport is active for this room.",
     }
   }
 
   return {
     state: "compatibility-active" as GroupSecurityState,
-    label: "Compatibility active",
-    hint: "Compatibility mode is active for broader support.",
+    label: "Compatibility active (non-PQC)",
+    hint: "Compatibility transport is active for broader support.",
   }
 }
 
@@ -53,7 +53,7 @@ export const getProjectionSecurityState = (
   if (!projection) {
     return {
       state: "compatibility-active" as GroupSecurityState,
-      label: "Compatibility active",
+      label: "Compatibility active (non-PQC)",
       hint: "Security state unavailable until group data loads.",
     }
   }

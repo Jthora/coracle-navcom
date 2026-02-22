@@ -9,18 +9,18 @@ export const GUIDED_PRIVACY_OPTIONS: Array<{
 }> = [
   {
     id: "standard",
-    label: "Standard privacy",
-    description: "Balanced default for most rooms.",
+    label: "Standard (balanced)",
+    description: "Balanced default. Uses compatibility mode unless secure relays are available.",
   },
   {
     id: "private",
-    label: "Extra private",
-    description: "Prefer stronger protections when supported.",
+    label: "PQC-preferred",
+    description: "Prefer post-quantum-capable secure transport when relays support it.",
   },
   {
     id: "fallback-friendly",
     label: "Compatibility first",
-    description: "Prioritize broad relay compatibility.",
+    description: "Prioritize widest compatibility over PQC-preferred transport.",
   },
 ]
 
@@ -45,20 +45,20 @@ export const getRecommendedRelayHost = (groupId = "") => {
 export const getGuidedSecurityStatus = (privacy: GuidedPrivacyLevel) => {
   if (privacy === "private") {
     return {
-      badge: "Prefer stronger protection",
-      hint: "If relay capabilities are limited, we will show compatibility fallback and next steps.",
+      badge: "PQC-preferred",
+      hint: "Attempts secure post-quantum-capable transport first. If unavailable, compatibility fallback is shown.",
     }
   }
 
   if (privacy === "fallback-friendly") {
     return {
       badge: "Prefer compatibility",
-      hint: "You can switch to stronger privacy later in room settings when relays support it.",
+      hint: "Uses compatibility mode for broader relay support. You can switch to PQC-preferred later.",
     }
   }
 
   return {
     badge: "Balanced default",
-    hint: "If security mode changes, check the room status banner for recovery actions.",
+    hint: "Starts balanced between compatibility and stronger transport. Runtime state is shown in the room banner.",
   }
 }

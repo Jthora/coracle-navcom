@@ -32,7 +32,8 @@ export const guardGroupRoute = ({
     return {
       ok: false,
       reason: GROUP_ROUTE_GUARD_REASON.INVALID_GROUP_ID,
-      message: "That group link is invalid. Please open a valid group address.",
+      message:
+        "This group link is incomplete or invalid, so we redirected you to Groups. Open a valid invite or group address to continue.",
       redirectTo: "/groups",
     }
   }
@@ -43,7 +44,8 @@ export const guardGroupRoute = ({
     return {
       ok: false,
       reason: GROUP_ROUTE_GUARD_REASON.INVALID_GROUP_ID,
-      message: "That group link is invalid. Please open a valid group address.",
+      message:
+        "This group link is incomplete or invalid, so we redirected you to Groups. Open a valid invite or group address to continue.",
       redirectTo: "/groups",
     }
   }
@@ -52,7 +54,8 @@ export const guardGroupRoute = ({
     return {
       ok: false,
       reason: GROUP_ROUTE_GUARD_REASON.BASELINE_TIER_REQUIRED,
-      message: "Moderation and settings are currently available for relay-addressed groups only.",
+      message:
+        "Settings and moderation only work for relay-addressed groups. We redirected you to a supported group view.",
       redirectTo: `/groups/${encodeURIComponent(parsed.canonicalId)}`,
     }
   }

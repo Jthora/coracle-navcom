@@ -34,12 +34,18 @@
     </Link>
   </div>
   <p class="mt-3 text-neutral-300">Relay-managed groups you can browse, join, and administer.</p>
+  <p class="mt-1 text-xs text-neutral-400">
+    Security labels are shown on each group card and expanded in Chat/Settings.
+  </p>
   {#if guardMessage}
     <div class="mt-3 rounded border border-warning px-3 py-2 text-sm text-warning">
       <div>{guardMessage}</div>
       {#if guardFrom}
         <div class="mt-1 text-xs text-neutral-300">Redirected from {guardFrom}</div>
       {/if}
+      <div class="mt-1 text-xs text-neutral-300">
+        Next step: use Create/Join to open a valid invite, or select an existing group below.
+      </div>
       <div class="mt-2">
         <Link class="btn" href="/groups/create">Open Join Flow</Link>
       </div>
@@ -67,7 +73,13 @@
           {/if}
           <div>{group.memberCount} members</div>
           <div>{group.protocol.toUpperCase()}</div>
-          <div>{getSecurityState(group.transportMode).label}</div>
+          <div>
+            <span
+              class="inline-flex rounded border border-neutral-700 px-2 py-0.5 text-neutral-300"
+              title={getSecurityState(group.transportMode).hint}>
+              {getSecurityState(group.transportMode).label}
+            </span>
+          </div>
         </div>
       </div>
     </Link>

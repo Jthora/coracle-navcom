@@ -8,6 +8,7 @@
     "test": "npm run test:unit && npm run test:e2e",
     "test:unit": "vitest --watch=false",
     "test:e2e": "cypress run",
+    "groups:test:smoke": "cypress run --spec cypress/e2e/groups-smoke.cy.ts,cypress/e2e/groups-routes-smoke.cy.ts",
     "build": "rm -rf dist && pwa-assets-generator && vite build",
     "run:android": "cap sync && cap run android",
     "release:android": "cap sync && cap build android --androidreleasetype APK --signing-type apksigner",

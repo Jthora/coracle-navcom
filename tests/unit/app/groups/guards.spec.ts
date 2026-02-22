@@ -7,12 +7,21 @@ describe("app/groups guards", () => {
       ok: false,
       reason: GROUP_ROUTE_GUARD_REASON.INVALID_GROUP_ID,
       redirectTo: "/groups",
+      message:
+        "This group link is incomplete or invalid, so we redirected you to Groups. Open a valid invite or group address to continue.",
     })
 
-    expect(guardGroupRoute({path: "/groups/bad", groupId: "invalid group id"})).toMatchObject({
+    expect(
+      guardGroupRoute({
+        path: "/groups/bad",
+        groupId: "invalid group id",
+      }),
+    ).toMatchObject({
       ok: false,
       reason: GROUP_ROUTE_GUARD_REASON.INVALID_GROUP_ID,
       redirectTo: "/groups",
+      message:
+        "This group link is incomplete or invalid, so we redirected you to Groups. Open a valid invite or group address to continue.",
     })
   })
 
@@ -42,6 +51,8 @@ describe("app/groups guards", () => {
       ok: false,
       reason: GROUP_ROUTE_GUARD_REASON.BASELINE_TIER_REQUIRED,
       redirectTo: "/groups/ops",
+      message:
+        "Settings and moderation only work for relay-addressed groups. We redirected you to a supported group view.",
     })
 
     expect(
@@ -50,5 +61,18 @@ describe("app/groups guards", () => {
         groupId: "relay.example'ops",
       }),
     ).toEqual({ok: true})
+  })
+
+  it("canonicalizes non-relay ids when redirecting elevated routes", () => {
+    expect(
+      guardGroupRoute({
+        path: "/groups/TEAM_ONE/settings",
+        groupId: "TEAM_ONE",
+      }),
+    ).toMatchObject({
+      ok: false,
+      reason: GROUP_ROUTE_GUARD_REASON.BASELINE_TIER_REQUIRED,
+      redirectTo: "/groups/team_one",
+    })
   })
 })

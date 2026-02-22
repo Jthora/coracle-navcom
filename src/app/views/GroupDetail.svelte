@@ -41,6 +41,9 @@
         {#if guardFrom}
           <div class="mt-1 text-xs text-neutral-300">Redirected from {guardFrom}</div>
         {/if}
+        <div class="mt-1 text-xs text-neutral-300">
+          Next step: continue in Group Chat for this group, or open another invite from Groups.
+        </div>
         <div class="mt-2">
           <Link class="btn" href={toRoute("chat")}>Open Group Chat</Link>
         </div>
@@ -87,6 +90,9 @@
         {#if guardFrom}
           <div class="mt-1 text-xs text-neutral-300">Redirected from {guardFrom}</div>
         {/if}
+        <div class="mt-1 text-xs text-neutral-300">
+          Next step: continue in Group Chat for this group, or open another invite from Groups.
+        </div>
         <div class="mt-2">
           <Link class="btn" href={toRoute("chat")}>Open Group Chat</Link>
         </div>
@@ -94,7 +100,7 @@
     {/if}
 
     <div class="mt-4 flex flex-wrap gap-2 text-sm">
-      <Link class="btn" href={toRoute("chat")}>Chat</Link>
+      <Link class="btn btn-accent" href={toRoute("chat")}>Chat</Link>
       <Link class="btn" href={toRoute("overview")}>Overview</Link>
       <Link class="btn" href={toRoute("members")}>Members</Link>
       <Link class="btn" href={toRoute("moderation")}>Moderation</Link>

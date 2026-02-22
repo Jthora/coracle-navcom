@@ -89,6 +89,25 @@
 
 {#if $menuIsOpen}
   <SliderMenu onEscape={closeMenu}>
+    <div class="m-auto max-w-[236px] py-4">
+      <div class="mb-2 text-xs uppercase tracking-[0.08em] text-neutral-400">Quick Actions</div>
+      <div class="grid grid-cols-2 gap-3">
+        <MenuMobileItem disabled={!$signer} href="/groups" on:click={goGroups}>
+          <i class="fa fa-users" />
+          <div class="relative inline-block">
+            Groups
+            {#if $hasUnreadGroupMessages}
+              <div
+                class="absolute -right-2 top-0 h-2 w-2 rounded border border-solid border-white bg-accent" />
+            {/if}
+          </div>
+        </MenuMobileItem>
+        <MenuMobileItem disabled={!$signer} href="/groups/create" on:click={closeMenu}>
+          <i class="fa fa-plus" /> Create Group
+        </MenuMobileItem>
+      </div>
+    </div>
+
     <div class="m-auto max-w-[236px] py-8">
       {#if $pubkey}
         <Button
