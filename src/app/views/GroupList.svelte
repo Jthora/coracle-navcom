@@ -41,9 +41,14 @@
       <i class="fa fa-users text-accent" />
       <h2 class="text-lg uppercase tracking-[0.08em]">Groups</h2>
     </div>
-    <Link class="btn btn-accent" href="/groups/create">
-      <i class="fa-solid fa-plus" /> Create
-    </Link>
+    <div class="flex items-center gap-2">
+      <Link class="btn" href="/groups/create?flow=join">
+        <i class="fa-solid fa-right-to-bracket" /> Join
+      </Link>
+      <Link class="btn btn-accent" href="/groups/create">
+        <i class="fa-solid fa-plus" /> Create
+      </Link>
+    </div>
   </div>
   <p class="mt-3 text-neutral-300">Relay-managed groups you can browse, join, and administer.</p>
   <p class="mt-1 text-xs text-neutral-400">
@@ -56,10 +61,11 @@
         <div class="mt-1 text-xs text-neutral-300">Redirected from {guardFrom}</div>
       {/if}
       <div class="mt-1 text-xs text-neutral-300">
-        Next step: use Create/Join to open a valid invite, or select an existing group below.
+        Next step: create a new group, join from invite, or select an existing group below.
       </div>
-      <div class="mt-2">
-        <Link class="btn" href="/groups/create">Open Group Setup</Link>
+      <div class="mt-2 flex gap-2">
+        <Link class="btn" href="/groups/create?flow=join">Join from Invite</Link>
+        <Link class="btn" href="/groups/create">Create Group</Link>
       </div>
     </div>
   {/if}
@@ -108,7 +114,7 @@
     <div class="panel p-6 text-center text-neutral-200">
       <p>No groups available yet.</p>
       <p class="mt-2 text-sm text-neutral-400">
-        Create a group or open a shared invite link to begin.
+        Join from invite or create a group to begin.
       </p>
     </div>
   {/each}

@@ -55,7 +55,7 @@
   export let missionTier: 0 | 1 | 2 | null = null
   export let label = ""
 
-  let flow: GuidedCreateJoinFlow = "start"
+  let flow: GuidedCreateJoinFlow = "create"
   let createRelayHost = ""
   let createSelectedRelaysText = ""
   let createSelectedRelays: string[] = []
@@ -914,6 +914,12 @@
   }
 
   onMount(() => {
+    const requestedFlow = new URLSearchParams(window.location.search).get("flow")
+
+    if (!groupId && requestedFlow === "join") {
+      flow = "join"
+    }
+
     if (setupStarted) return
 
     setupStarted = true
@@ -945,14 +951,11 @@
     })
   })
 
-  $: document.title =
-    flow === "join" ? "Join Group" : flow === "create" ? "Create Group" : "Groups Setup"
+  $: document.title = flow === "join" ? "Join Group" : "Create Group"
   $: breadcrumbSection =
-    flow === "create"
-      ? ("create-room" as GroupBreadcrumbSection)
-      : flow === "join"
-        ? ("join-room" as GroupBreadcrumbSection)
-        : ("create" as GroupBreadcrumbSection)
+    flow === "join"
+      ? ("join-room" as GroupBreadcrumbSection)
+      : ("create-room" as GroupBreadcrumbSection)
   $: breadcrumbs = buildGroupBreadcrumbItems({section: breadcrumbSection})
 </script>
 
@@ -960,9 +963,9 @@
   <GroupBreadcrumbs items={breadcrumbs} />
   <div class="flex items-center gap-2">
     <i class="fa fa-route text-accent" />
-    <h2 class="text-lg uppercase tracking-[0.08em]">Group Setup</h2>
+    <h2 class="text-lg uppercase tracking-[0.08em]">Create or Join Group</h2>
   </div>
-  <p class="mt-3 text-neutral-300">Choose what you want to do first.</p>
+  <p class="mt-3 text-neutral-300">Choose your path. You can switch anytime.</p>
 
   <div class="mt-4 grid gap-3 sm:grid-cols-2">
     <button
@@ -982,20 +985,11 @@
   </div>
 </div>
 
-{#if flow === "start"}
-  <div class="panel p-6 text-sm text-neutral-300">
-    Start by choosing <strong>Create a room</strong> or <strong>Join from invite</strong>.
-  </div>
-{/if}
-
 {#if flow === "create"}
   <div class="panel p-4">
-    <div class="flex items-center justify-between gap-2">
-      <div class="flex items-center gap-2">
-        <i class="fa fa-plus-circle text-accent" />
-        <h2 class="text-lg uppercase tracking-[0.08em]">Create Group</h2>
-      </div>
-      <button class="btn" type="button" on:click={() => goToFlow("start")}>Back</button>
+    <div class="flex items-center gap-2">
+      <i class="fa fa-plus-circle text-accent" />
+      <h2 class="text-lg uppercase tracking-[0.08em]">Create Group</h2>
     </div>
 
     <div class="mt-3 grid gap-2 sm:grid-cols-2">
@@ -1179,12 +1173,9 @@
 
 {#if flow === "join"}
   <div class="panel p-4">
-    <div class="flex items-center justify-between gap-2">
-      <div class="flex items-center gap-2">
-        <i class="fa fa-sign-in-alt text-accent" />
-        <h2 class="text-lg uppercase tracking-[0.08em]">Join Group</h2>
-      </div>
-      <button class="btn" type="button" on:click={() => goToFlow("start")}>Back</button>
+    <div class="flex items-center gap-2">
+      <i class="fa fa-sign-in-alt text-accent" />
+      <h2 class="text-lg uppercase tracking-[0.08em]">Join Group</h2>
     </div>
 
     {#if groupId}

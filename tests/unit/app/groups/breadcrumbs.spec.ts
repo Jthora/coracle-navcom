@@ -9,7 +9,6 @@ describe("groups-breadcrumbs", () => {
   it("returns create flow breadcrumbs", () => {
     expect(buildGroupBreadcrumbItems({section: "create-room"})).toEqual([
       {label: "Groups", href: "/groups"},
-      {label: "Group Setup", href: "/groups/create"},
       {label: "Create Group", current: true},
     ])
   })

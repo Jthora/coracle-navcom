@@ -1,6 +1,6 @@
 import {parseGroupAddressResult} from "src/domain/group-id"
 
-export type GuidedCreateJoinFlow = "start" | "create" | "join"
+export type GuidedCreateJoinFlow = "create" | "join"
 
 export const toGroupSlug = (value: string) =>
   (value || "")

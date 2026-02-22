@@ -6,7 +6,6 @@ export type GroupBreadcrumbItem = {
 
 export type GroupBreadcrumbSection =
   | "list"
-  | "create"
   | "create-room"
   | "join-room"
   | "overview"
@@ -21,7 +20,6 @@ const toReadableGroupLabel = (value: string) =>
   isOpaqueGroupId(value) ? `${value.slice(0, 12)}…${value.slice(-8)}` : value
 
 const resolveCurrentLabel = (section: GroupBreadcrumbSection) => {
-  if (section === "create") return "Group Setup"
   if (section === "create-room") return "Create Group"
   if (section === "join-room") return "Join Group"
   if (section === "chat") return "Chat"
@@ -47,14 +45,7 @@ export const buildGroupBreadcrumbItems = ({
 
   const items: GroupBreadcrumbItem[] = [{label: "Groups", href: "/groups"}]
 
-  if (section === "create" || section === "create-room" || section === "join-room") {
-    if (section === "create") {
-      items.push({label: "Group Setup", current: true})
-
-      return items
-    }
-
-    items.push({label: "Group Setup", href: "/groups/create"})
+  if (section === "create-room" || section === "join-room") {
     items.push({label: resolveCurrentLabel(section), current: true})
 
     return items
