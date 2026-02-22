@@ -9,18 +9,21 @@ export const GUIDED_PRIVACY_OPTIONS: Array<{
 }> = [
   {
     id: "standard",
-    label: "Standard (balanced)",
-    description: "Balanced default. Uses compatibility mode unless secure relays are available.",
+    label: "Balanced security (recommended)",
+    description:
+      "Security: Medium. Trade-off: balanced reliability and stronger transport when available. Encryption: compatibility transport by default, auto-upgrades to secure transport when available. PQC: opportunistic.",
   },
   {
     id: "private",
-    label: "PQC-preferred",
-    description: "Secure pilot preferred (uses compatibility fallback if unavailable).",
+    label: "Higher security (PQC preferred)",
+    description:
+      "Security: Higher. Trade-off: stronger transport preference with possible fallback on unsupported relays. Encryption: secure transport preferred with compatibility fallback. PQC: yes, preferred when available.",
   },
   {
     id: "fallback-friendly",
-    label: "Compatibility first",
-    description: "Prioritize widest compatibility over PQC-preferred transport.",
+    label: "Maximum compatibility (lowest security)",
+    description:
+      "Security: Lower. Trade-off: highest relay/device compatibility over stronger transport. Encryption: compatibility transport path. PQC: no by default.",
   },
 ]
 
@@ -45,20 +48,20 @@ export const getRecommendedRelayHost = (groupId = "") => {
 export const getGuidedSecurityStatus = (privacy: GuidedPrivacyLevel) => {
   if (privacy === "private") {
     return {
-      badge: "PQC-preferred",
-      hint: "Uses secure post-quantum-capable transport first. If unavailable, compatibility fallback is shown.",
+      badge: "Higher security (PQC preferred)",
+      hint: "Uses secure transport first and prefers PQC-capable path when available. Trade-off: may fall back to compatibility on unsupported relays.",
     }
   }
 
   if (privacy === "fallback-friendly") {
     return {
-      badge: "Prefer compatibility",
-      hint: "Compatibility transport is prioritized for broader relay support. You can switch to PQC-preferred later.",
+      badge: "Maximum compatibility",
+      hint: "Uses compatibility transport for widest support. Trade-off: lower security than PQC-preferred mode.",
     }
   }
 
   return {
-    badge: "Balanced default",
-    hint: "Starts balanced between compatibility and stronger transport. Runtime state is shown in the room banner.",
+    badge: "Balanced security",
+    hint: "Starts in compatibility transport and upgrades to secure transport when available. Trade-off: balanced reliability and security.",
   }
 }

@@ -340,8 +340,8 @@
         class="rounded border border-neutral-700 px-3 py-2 text-sm text-neutral-300 sm:col-span-2">
         <div class="mb-2 font-semibold text-neutral-100">Privacy level</div>
         <p class="mb-2 text-xs text-neutral-400">
-          Choose how room transport should behave: <strong>PQC-preferred</strong> attempts secure post-quantum-capable
-          transport first, while compatibility options prioritize broader relay support.
+          Choose based on three things: security level, reliability trade-off, and PQC usage. Each
+          option below states the transport/encryption path used and whether PQC is preferred.
         </p>
         <div class="space-y-2">
           {#each GUIDED_PRIVACY_OPTIONS as option}
