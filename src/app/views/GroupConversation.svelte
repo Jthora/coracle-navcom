@@ -283,10 +283,11 @@
         {/if}
       </div>
       <div class="flex gap-2 text-sm">
-        <Link class="btn btn-accent" href={inviteCreateHref()} on:click={onOpenInvite}>Invite</Link>
+        <Link class="btn btn-accent" href={`${baseRoute()}/chat`}>Chat</Link>
         <Link class="btn" href={baseRoute()}>Overview</Link>
         <Link class="btn" href={`${baseRoute()}/members`}>Members</Link>
         <Link class="btn" href={`${baseRoute()}/settings`}>Settings</Link>
+        <Link class="btn" href={inviteCreateHref()} on:click={onOpenInvite}>Invite</Link>
         <button class="btn" type="button" on:click={onShareInvite}>Share</button>
       </div>
     </div>

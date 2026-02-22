@@ -16,8 +16,6 @@
   $: detail = projection ? buildGroupDetailViewModel(projection) : null
   $: securityState = getProjectionSecurityState(projection)
   $: section = getGroupRouteSection(window.location.pathname)
-  $: sectionTitle =
-    section === "overview" ? "Overview" : section[0].toUpperCase() + section.slice(1)
   $: document.title = detail ? `${detail.title} · Groups` : "Group · Groups"
   $: breadcrumbs = buildGroupBreadcrumbItems({
     section,
@@ -32,6 +30,14 @@
   }
 
   const asShortKey = (pubkey: string) => `${pubkey.slice(0, 8)}…${pubkey.slice(-8)}`
+  const isSectionActive = (
+    nextSection: "overview" | "chat" | "members" | "moderation" | "settings",
+  ) => section === nextSection
+  $: allMembers = projection
+    ? Object.values(projection.members)
+        .slice()
+        .sort((left, right) => right.updatedAt - left.updatedAt)
+    : []
 
   onMount(() => {
     ensureGroupsHydrated()
@@ -108,11 +114,19 @@
     {/if}
 
     <div class="mt-4 flex flex-wrap gap-2 text-sm">
-      <Link class="btn btn-accent" href={toRoute("chat")}>Chat</Link>
-      <Link class="btn" href={toRoute("overview")}>Overview</Link>
-      <Link class="btn" href={toRoute("members")}>Members</Link>
-      <Link class="btn" href={toRoute("moderation")}>Moderation</Link>
-      <Link class="btn" href={toRoute("settings")}>Settings</Link>
+      <Link class={isSectionActive("chat") ? "btn btn-accent" : "btn"} href={toRoute("chat")}
+        >Chat</Link>
+      <Link
+        class={isSectionActive("overview") ? "btn btn-accent" : "btn"}
+        href={toRoute("overview")}>Overview</Link>
+      <Link class={isSectionActive("members") ? "btn btn-accent" : "btn"} href={toRoute("members")}
+        >Members</Link>
+      <Link
+        class={isSectionActive("moderation") ? "btn btn-accent" : "btn"}
+        href={toRoute("moderation")}>Moderation</Link>
+      <Link
+        class={isSectionActive("settings") ? "btn btn-accent" : "btn"}
+        href={toRoute("settings")}>Settings</Link>
     </div>
 
     <div class="mt-4 grid gap-2 text-sm text-neutral-300 sm:grid-cols-3">
@@ -126,47 +140,69 @@
     </div>
   </div>
 
-  <div class="panel p-4">
-    <h3 class="text-sm uppercase tracking-[0.08em] text-neutral-300">
-      {sectionTitle} · Membership Preview
-    </h3>
-    {#if detail.memberPreview.length === 0}
-      <p class="mt-3 text-sm text-neutral-400">No membership records yet.</p>
-    {:else}
-      <div class="mt-3 space-y-2">
-        {#each detail.memberPreview as member (member.pubkey)}
-          <div
-            class="flex items-center justify-between rounded border border-neutral-700 px-3 py-2 text-sm">
-            <div class="font-mono text-neutral-200">{asShortKey(member.pubkey)}</div>
-            <div class="flex items-center gap-3 text-neutral-300">
-              <span class="uppercase">{member.role}</span>
-              <span class="capitalize">{member.status}</span>
+  {#if section === "members"}
+    <div class="panel p-4">
+      <h3 class="text-sm uppercase tracking-[0.08em] text-neutral-300">Members</h3>
+      {#if allMembers.length === 0}
+        <p class="mt-3 text-sm text-neutral-400">No membership records yet.</p>
+      {:else}
+        <div class="mt-3 space-y-2">
+          {#each allMembers as member (member.pubkey)}
+            <div
+              class="flex items-center justify-between rounded border border-neutral-700 px-3 py-2 text-sm">
+              <div class="font-mono text-neutral-200">{asShortKey(member.pubkey)}</div>
+              <div class="flex items-center gap-3 text-neutral-300">
+                <span class="uppercase">{member.role}</span>
+                <span class="capitalize">{member.status}</span>
+              </div>
             </div>
-          </div>
-        {/each}
-      </div>
-    {/if}
-  </div>
+          {/each}
+        </div>
+      {/if}
+    </div>
+  {:else}
+    <div class="panel p-4">
+      <h3 class="text-sm uppercase tracking-[0.08em] text-neutral-300">
+        Overview · Membership Preview
+      </h3>
+      {#if detail.memberPreview.length === 0}
+        <p class="mt-3 text-sm text-neutral-400">No membership records yet.</p>
+      {:else}
+        <div class="mt-3 space-y-2">
+          {#each detail.memberPreview as member (member.pubkey)}
+            <div
+              class="flex items-center justify-between rounded border border-neutral-700 px-3 py-2 text-sm">
+              <div class="font-mono text-neutral-200">{asShortKey(member.pubkey)}</div>
+              <div class="flex items-center gap-3 text-neutral-300">
+                <span class="uppercase">{member.role}</span>
+                <span class="capitalize">{member.status}</span>
+              </div>
+            </div>
+          {/each}
+        </div>
+      {/if}
+    </div>
 
-  <div class="panel p-4">
-    <h3 class="text-sm uppercase tracking-[0.08em] text-neutral-300">Recent Timeline</h3>
-    {#if detail.auditPreview.length === 0}
-      <p class="mt-3 text-sm text-neutral-400">No moderation events yet.</p>
-    {:else}
-      <div class="mt-3 space-y-2">
-        {#each detail.auditPreview as entry, i (`${entry.action}-${entry.createdAt}-${i}`)}
-          <div class="rounded border border-neutral-700 px-3 py-2 text-sm text-neutral-300">
-            <div class="flex items-center justify-between gap-2">
-              <span class="font-semibold text-neutral-100">{entry.action}</span>
-              <span class="text-xs text-neutral-400">{formatTimestamp(entry.createdAt)}</span>
+    <div class="panel p-4">
+      <h3 class="text-sm uppercase tracking-[0.08em] text-neutral-300">Recent Timeline</h3>
+      {#if detail.auditPreview.length === 0}
+        <p class="mt-3 text-sm text-neutral-400">No moderation events yet.</p>
+      {:else}
+        <div class="mt-3 space-y-2">
+          {#each detail.auditPreview as entry, i (`${entry.action}-${entry.createdAt}-${i}`)}
+            <div class="rounded border border-neutral-700 px-3 py-2 text-sm text-neutral-300">
+              <div class="flex items-center justify-between gap-2">
+                <span class="font-semibold text-neutral-100">{entry.action}</span>
+                <span class="text-xs text-neutral-400">{formatTimestamp(entry.createdAt)}</span>
+              </div>
+              <div class="mt-1 text-xs text-neutral-400">Actor {asShortKey(entry.actor)}</div>
+              {#if entry.reason}
+                <div class="mt-1 text-neutral-300">{entry.reason}</div>
+              {/if}
             </div>
-            <div class="mt-1 text-xs text-neutral-400">Actor {asShortKey(entry.actor)}</div>
-            {#if entry.reason}
-              <div class="mt-1 text-neutral-300">{entry.reason}</div>
-            {/if}
-          </div>
-        {/each}
-      </div>
-    {/if}
-  </div>
+          {/each}
+        </div>
+      {/if}
+    </div>
+  {/if}
 {/if}

@@ -27,4 +27,20 @@ describe("groups-breadcrumbs", () => {
       {label: "Chat", current: true},
     ])
   })
+
+  it("truncates opaque group IDs in breadcrumb labels", () => {
+    expect(
+      buildGroupBreadcrumbItems({
+        section: "settings",
+        groupId: "6123b59ede57c4abe32210652d7ae4712552a42695f50aedbac714d85d935044",
+      }),
+    ).toEqual([
+      {label: "Groups", href: "/groups"},
+      {
+        label: "6123b59ede57…5d935044",
+        href: "/groups/6123b59ede57c4abe32210652d7ae4712552a42695f50aedbac714d85d935044",
+      },
+      {label: "Settings", current: true},
+    ])
+  })
 })

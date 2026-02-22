@@ -1,6 +1,5 @@
 <script lang="ts">
   import {pubkey} from "@welshman/app"
-  import Input from "src/partials/Input.svelte"
   import Link from "src/partials/Link.svelte"
   import GroupBreadcrumbs from "src/app/groups/GroupBreadcrumbs.svelte"
   import {buildGroupBreadcrumbItems, type GroupBreadcrumbSection} from "src/app/groups/breadcrumbs"
@@ -81,6 +80,11 @@
     typeof window !== "undefined" && window.location.pathname.endsWith("/moderation")
       ? ("moderation" as GroupBreadcrumbSection)
       : ("settings" as GroupBreadcrumbSection)
+  $: adminSectionTitle = adminSection === "moderation" ? "Moderation" : "Settings"
+  $: adminSectionDescription =
+    adminSection === "moderation"
+      ? "Review moderation actions, enforce membership controls, and capture governance rationale."
+      : "Configure group policy, relay behavior, and admin controls for this group."
   $: breadcrumbs = buildGroupBreadcrumbItems({
     section: adminSection,
     groupId,
@@ -364,7 +368,7 @@
   }
 
   $: document.title = projection
-    ? `${projection.group.title || projection.group.id} · Admin`
+    ? `${projection.group.title || projection.group.id} · ${adminSectionTitle}`
     : "Group Admin"
 
   $: if (projection) {
@@ -385,7 +389,7 @@
   <div class="panel p-4">
     <GroupBreadcrumbs items={breadcrumbs} />
     <div class="flex items-center justify-between gap-3">
-      <h2 class="text-lg uppercase tracking-[0.08em]">Group Settings & Admin</h2>
+      <h2 class="text-lg uppercase tracking-[0.08em]">{adminSectionTitle} · Admin</h2>
       <div class="flex flex-wrap items-center justify-end gap-2">
         <span class="rounded border border-neutral-700 px-2 py-1 text-xs text-neutral-300">
           Role: {actorRole}
@@ -394,6 +398,18 @@
           {securityState.label}
         </span>
       </div>
+    </div>
+    <p class="mt-2 text-sm text-neutral-300">{adminSectionDescription}</p>
+    <div class="mt-3 flex flex-wrap gap-2 text-sm">
+      <Link
+        class={adminSection === "settings" ? "btn btn-accent" : "btn"}
+        href={`/groups/${encodeURIComponent(groupId)}/settings`}>Settings</Link>
+      <Link
+        class={adminSection === "moderation" ? "btn btn-accent" : "btn"}
+        href={`/groups/${encodeURIComponent(groupId)}/moderation`}>Moderation</Link>
+      <Link class="btn" href={`/groups/${encodeURIComponent(groupId)}`}>Overview</Link>
+      <Link class="btn" href={`/groups/${encodeURIComponent(groupId)}/chat`}>Chat</Link>
+      <Link class="btn" href={`/groups/${encodeURIComponent(groupId)}/members`}>Members</Link>
     </div>
     <div class="mt-3 rounded border border-neutral-700 px-3 py-2 text-sm text-neutral-300">
       {securityState.hint}

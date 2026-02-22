@@ -14,7 +14,8 @@
   export let guardMessage = ""
   export let guardFrom = ""
 
-  const toGroupHref = (groupId: string) => `/groups/${encodeURIComponent(groupId)}/chat`
+  const toGroupOverviewHref = (groupId: string) => `/groups/${encodeURIComponent(groupId)}`
+  const toGroupChatHref = (groupId: string) => `/groups/${encodeURIComponent(groupId)}/chat`
   const getUnreadCount = (groupId: string) => $unreadGroupMessageCounts.get(groupId) || 0
   const isOpaqueGroupId = (value: string) => /^[a-f0-9]{32,}$/i.test(value)
   const getGroupTitle = (group: (typeof $groupSummaries)[number]) =>
@@ -58,7 +59,7 @@
         Next step: use Create/Join to open a valid invite, or select an existing group below.
       </div>
       <div class="mt-2">
-        <Link class="btn" href="/groups/create">Open Join Flow</Link>
+        <Link class="btn" href="/groups/create">Open Group Setup</Link>
       </div>
     </div>
   {/if}
@@ -68,10 +69,12 @@
   <div class="panel p-6 text-center text-neutral-300">Loading groups…</div>
 {:else}
   {#each $groupSummaries as group (group.id)}
-    <Link class="panel block p-4" href={toGroupHref(group.id)}>
+    <div class="panel p-4">
       <div class="flex items-center justify-between gap-4">
         <div>
-          <h3 class="font-semibold text-neutral-50">{getGroupTitle(group)}</h3>
+          <Link
+            class="font-semibold text-neutral-50 hover:text-neutral-200"
+            href={toGroupOverviewHref(group.id)}>{getGroupTitle(group)}</Link>
           {#if showFullGroupId(group)}
             <p class="mt-1 font-mono text-xs text-neutral-500">{group.id}</p>
           {/if}
@@ -96,7 +99,11 @@
           </div>
         </div>
       </div>
-    </Link>
+      <div class="mt-3 flex justify-end gap-2">
+        <Link class="btn" href={toGroupOverviewHref(group.id)}>Overview</Link>
+        <Link class="btn btn-accent" href={toGroupChatHref(group.id)}>Open Chat</Link>
+      </div>
+    </div>
   {:else}
     <div class="panel p-6 text-center text-neutral-200">
       <p>No groups available yet.</p>

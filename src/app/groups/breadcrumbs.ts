@@ -15,6 +15,11 @@ export type GroupBreadcrumbSection =
   | "moderation"
   | "settings"
 
+const isOpaqueGroupId = (value: string) => /^[a-f0-9]{32,}$/i.test(value)
+
+const toReadableGroupLabel = (value: string) =>
+  isOpaqueGroupId(value) ? `${value.slice(0, 12)}…${value.slice(-8)}` : value
+
 const resolveCurrentLabel = (section: GroupBreadcrumbSection) => {
   if (section === "create") return "Group Setup"
   if (section === "create-room") return "Create Group"
@@ -57,7 +62,7 @@ export const buildGroupBreadcrumbItems = ({
 
   const encodedGroupId = groupId ? encodeURIComponent(groupId) : ""
   const groupHref = encodedGroupId ? `/groups/${encodedGroupId}` : "/groups"
-  const resolvedGroupLabel = groupTitle || groupId || "Group"
+  const resolvedGroupLabel = toReadableGroupLabel(groupTitle || groupId || "Group")
 
   if (section === "overview") {
     items.push({label: resolvedGroupLabel, current: true})
