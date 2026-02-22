@@ -4,6 +4,7 @@
   import {showInfo, showWarning} from "src/partials/Toast.svelte"
   import {router} from "src/app/util/router"
   import {
+    env,
     getGroupCreateRecoveryMessage,
     publishGroupCreateWithRecovery,
     publishGroupJoin,
@@ -17,10 +18,15 @@
     type GuidedCreateJoinFlow,
   } from "src/app/groups/guided-create-join"
   import {
-    GUIDED_PRIVACY_OPTIONS,
+    GUIDED_RELAY_PRESET_OPTIONS,
     getGuidedSecurityStatus,
+    getPrimaryRelayHostFromSelectedRelays,
     getRecommendedRelayHost,
+    getRelayPresetValues,
+    formatSelectedRelays,
+    parseSelectedRelays,
     type GuidedPrivacyLevel,
+    type GuidedRelayPreset,
   } from "src/app/groups/guided-create-options"
   import {resolveRequestedTransportMode} from "src/app/groups/transport-mode"
 
@@ -31,6 +37,9 @@
 
   let flow: GuidedCreateJoinFlow = "start"
   let createRelayHost = ""
+  let createSelectedRelaysText = ""
+  let createSelectedRelays: string[] = []
+  let createRelayPreset: GuidedRelayPreset = "navcom"
   let createRoomName = ""
   let createPrivacy: GuidedPrivacyLevel = "standard"
   let createGroupIdOverride = ""
@@ -47,14 +56,22 @@
   let setupStarted = false
   let joinSubmittedAt = 0
 
+  $: createSelectedRelays = parseSelectedRelays(createSelectedRelaysText)
+  $: createRelayHost = getPrimaryRelayHostFromSelectedRelays(createSelectedRelaysText)
   $: createGroupId = buildRelayGroupAddress(createRelayHost, createRoomName)
   $: createPrompts = buildCreatePolicyPrompts(createGroupIdOverride || createGroupId)
   $: createWarnings = [
     createRoomName && createGroupId && !createGroupId.endsWith(createRoomName.toLowerCase())
       ? "Room name is normalized to a relay-safe slug."
       : "",
+    createSelectedRelays.length === 0
+      ? "Add at least one relay in Selected Relays to create the group."
+      : "",
+    createSelectedRelays.length > 1
+      ? "Primary relay host is derived from the first selected relay address."
+      : "",
     createRelayHost && !createRelayHost.includes(".")
-      ? "Relay host looks incomplete; include a full host name when possible."
+      ? "Primary relay host looks incomplete; use a full relay address when possible."
       : "",
   ].filter(Boolean)
   $: joinPrompts = buildJoinPolicyPrompts(joinGroupAddress)
@@ -82,8 +99,15 @@
 
   $: preferredRelayHost = getRecommendedRelayHost(groupId)
 
-  $: if (!createRelayHost && flow !== "join") {
-    createRelayHost = preferredRelayHost
+  $: if (!createSelectedRelaysText && flow !== "join") {
+    const relays = getRelayPresetValues({
+      preset: createRelayPreset,
+      recommendedRelayHost: preferredRelayHost,
+      defaultRelays: env.DEFAULT_RELAYS,
+      indexerRelays: env.INDEXER_RELAYS,
+    })
+
+    createSelectedRelaysText = formatSelectedRelays(relays)
   }
 
   $: if (flow === "create") {
@@ -113,8 +137,19 @@
     }
   }
 
-  const applyRecommendedRelay = () => {
-    createRelayHost = preferredRelayHost
+  const applyRelayPreset = (preset: GuidedRelayPreset) => {
+    createRelayPreset = preset
+
+    if (preset === "custom") return
+
+    createSelectedRelaysText = formatSelectedRelays(
+      getRelayPresetValues({
+        preset,
+        recommendedRelayHost: preferredRelayHost,
+        defaultRelays: env.DEFAULT_RELAYS,
+        indexerRelays: env.INDEXER_RELAYS,
+      }),
+    )
   }
 
   const onCreate = async () => {
@@ -135,6 +170,7 @@
     trackGroupTelemetry("group_setup_create_attempt", {
       privacy: createPrivacy,
       relayHost: createRelayHost,
+      relayCount: createSelectedRelays.length,
       hasManualAddress: Boolean(createGroupIdOverride.trim()),
       requested_transport_mode: createRequestedTransport.requestedMode,
       transport_mode_source: createRequestedTransport.source,
@@ -332,32 +368,54 @@
 
     <div class="mt-3 grid gap-2 sm:grid-cols-2">
       <Input placeholder="Room name (e.g. ops)" bind:value={createRoomName} />
-      <Input placeholder="Relay host (e.g. relay.example)" bind:value={createRelayHost} />
-      <button class="btn sm:col-span-2" type="button" on:click={applyRecommendedRelay}>
-        Use recommended relay ({preferredRelayHost})
-      </button>
+      <div class="sm:col-span-2">
+        <label class="mb-1 block text-sm font-semibold text-neutral-100" for="relay-preset">
+          Relay preset
+        </label>
+        <select
+          id="relay-preset"
+          class="w-full rounded border border-neutral-700 bg-neutral-950 px-3 py-2 text-sm text-neutral-100"
+          bind:value={createRelayPreset}
+          on:change={() => applyRelayPreset(createRelayPreset)}>
+          {#each GUIDED_RELAY_PRESET_OPTIONS as option}
+            <option value={option.id}>{option.label}</option>
+          {/each}
+        </select>
+        <div class="mt-1 text-xs text-neutral-400">
+          {GUIDED_RELAY_PRESET_OPTIONS.find(option => option.id === createRelayPreset)?.description}
+        </div>
+      </div>
+      <div class="sm:col-span-2">
+        <label class="mb-1 block text-sm font-semibold text-neutral-100" for="selected-relays">
+          Selected relays
+        </label>
+        <textarea
+          id="selected-relays"
+          class="min-h-24 w-full rounded border border-neutral-700 bg-neutral-950 px-3 py-2 text-sm text-neutral-100"
+          placeholder="One relay per line (e.g. wss://relay.example)"
+          bind:value={createSelectedRelaysText} />
+        <div class="mt-1 text-xs text-neutral-400">
+          Primary relay host for group address: <strong
+            >{createRelayHost || preferredRelayHost}</strong>
+        </div>
+      </div>
       <div
         class="rounded border border-neutral-700 px-3 py-2 text-sm text-neutral-300 sm:col-span-2">
-        <div class="mb-2 font-semibold text-neutral-100">Privacy level</div>
+        <div class="mb-2 font-semibold text-neutral-100">Security Mode</div>
         <p class="mb-2 text-xs text-neutral-400">
-          Choose based on three things: security level, reliability trade-off, and PQC usage. Each
-          option below states the transport/encryption path used and whether PQC is preferred.
+          Choose a mode based on security level, relay compatibility trade-off, encryption path, and
+          PQC usage.
         </p>
-        <div class="space-y-2">
-          {#each GUIDED_PRIVACY_OPTIONS as option}
-            <label class="flex cursor-pointer items-start gap-2">
-              <input
-                type="radio"
-                name="guided-privacy"
-                value={option.id}
-                checked={createPrivacy === option.id}
-                on:change={() => (createPrivacy = option.id)} />
-              <span>
-                <span class="block text-neutral-100">{option.label}</span>
-                <span class="block text-neutral-400">{option.description}</span>
-              </span>
-            </label>
-          {/each}
+        <select
+          class="w-full rounded border border-neutral-700 bg-neutral-950 px-3 py-2 text-sm text-neutral-100"
+          bind:value={createPrivacy}>
+          <option value="standard">Balanced security (recommended)</option>
+          <option value="private">Higher security (PQC preferred)</option>
+          <option value="fallback-friendly">Maximum compatibility (lowest security)</option>
+        </select>
+        <div class="mt-2 rounded border border-neutral-700 px-3 py-2 text-sm text-neutral-300">
+          <div class="font-semibold text-neutral-100">{securityStatus.badge}</div>
+          <div class="mt-1 text-neutral-400">{securityStatus.hint}</div>
         </div>
       </div>
       <Input class="sm:col-span-2" placeholder="Optional room title" bind:value={createTitle} />
@@ -372,11 +430,6 @@
         Group address preview: <strong>{createGroupId}</strong>
       </div>
     {/if}
-
-    <div class="mt-3 rounded border border-neutral-700 px-3 py-2 text-sm text-neutral-300">
-      <div class="font-semibold text-neutral-100">Security status: {securityStatus.badge}</div>
-      <div class="mt-1 text-neutral-400">{securityStatus.hint}</div>
-    </div>
 
     <details class="mt-3 rounded border border-neutral-700 px-3 py-2 text-sm text-neutral-300">
       <summary class="cursor-pointer">Advanced: set group address manually</summary>

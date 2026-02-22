@@ -1,5 +1,9 @@
 import {describe, expect, it} from "vitest"
 import {
+  formatSelectedRelays,
+  getPrimaryRelayHostFromSelectedRelays,
+  getRelayPresetValues,
+  parseSelectedRelays,
   GUIDED_PRIVACY_OPTIONS,
   getGuidedSecurityStatus,
   getRecommendedRelayHost,
@@ -53,5 +57,36 @@ describe("app/groups guided-create-options", () => {
     expect(status.hint).toContain("compatibility transport")
     expect(status.hint).toContain("upgrades to secure transport")
     expect(status.hint).toContain("balanced reliability and security")
+  })
+
+  it("parses selected relays and removes duplicates", () => {
+    const relays = parseSelectedRelays("wss://relay.one\nrelay.one\nrelay.two")
+
+    expect(relays).toEqual(["wss://relay.one", "wss://relay.two"])
+    expect(formatSelectedRelays(relays)).toContain("wss://relay.one")
+  })
+
+  it("derives primary relay host from selected relays", () => {
+    expect(getPrimaryRelayHostFromSelectedRelays("wss://relay.example\nwss://relay.two")).toBe(
+      "relay.example",
+    )
+  })
+
+  it("builds navcom and public relay presets", () => {
+    const navcom = getRelayPresetValues({
+      preset: "navcom",
+      recommendedRelayHost: "relay.navcom.local",
+      defaultRelays: ["wss://relay.default.one"],
+      indexerRelays: ["wss://relay.public.one"],
+    })
+    const publicRelays = getRelayPresetValues({
+      preset: "public",
+      recommendedRelayHost: "relay.navcom.local",
+      defaultRelays: ["wss://relay.default.one"],
+      indexerRelays: ["wss://relay.public.one"],
+    })
+
+    expect(navcom[0]).toBe("wss://relay.navcom.local")
+    expect(publicRelays).toEqual(["wss://relay.public.one"])
   })
 })
