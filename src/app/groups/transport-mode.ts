@@ -16,7 +16,7 @@ const isSupportedMode = (value: unknown): value is GroupTransportModeId =>
   value === "baseline-nip29" || value === "secure-nip-ee"
 
 const fromPrivacy = (privacy: GuidedPrivacyLevel | undefined): GroupTransportModeId => {
-  if (privacy === "private") {
+  if (privacy === "secure" || privacy === "max") {
     return "secure-nip-ee"
   }
 

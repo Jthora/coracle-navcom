@@ -18,7 +18,7 @@ export type RelayAccessPackageInput = {
   groupAddress: string
   relays: string[]
   checks: RelayCapabilityCheck[]
-  securityMode: "standard" | "private" | "fallback-friendly"
+  securityMode: "auto" | "basic" | "secure" | "max"
   requestedTransportMode: string
 }
 
@@ -49,19 +49,23 @@ const getFallbackExpectation = ({
   securityMode: RelayAccessPackageInput["securityMode"]
   requestedTransportMode: string
 }) => {
-  if (securityMode === "private") {
-    return "High (Secure-first): request secure transport first. If unavailable, fallback to baseline may occur and reduces security guarantees."
+  if (securityMode === "max") {
+    return "Max (Post Quantum Cryptography): secure transport requested with Navcom PQC-targeted posture. PQC runtime path requires compatible client/signer behavior."
   }
 
-  if (securityMode === "fallback-friendly") {
-    return "Low (Compatibility-first): baseline relay behavior is expected. In current create/join flow this uses the same baseline transport request as Medium."
+  if (securityMode === "secure") {
+    return "Secure (Common Encryption): secure transport requested first. Fallback to baseline may occur when secure path is unavailable."
+  }
+
+  if (securityMode === "basic") {
+    return "Basic (Open Group): baseline relay behavior (NIP-29 lane) is expected."
   }
 
   if (requestedTransportMode === "secure-nip-ee") {
-    return "High (Secure-first): secure transport requested."
+    return "Secure lane requested."
   }
 
-  return "Medium (Auto): baseline transport requested for reliability across mixed relays."
+  return "Auto (Compatibility First): baseline transport requested for reliability across mixed relays."
 }
 
 export const buildRelayAccessPackageText = ({

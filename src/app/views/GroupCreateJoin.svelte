@@ -68,7 +68,7 @@
   let createMissingCredentialWarnings: string[] = []
   let createAccessPackageText = ""
   let createRoomName = ""
-  let createPrivacy: GuidedPrivacyLevel = "standard"
+  let createPrivacy: GuidedPrivacyLevel = "auto"
   let createGroupIdOverride = ""
   let createTitle = ""
   let createDescription = ""
@@ -617,6 +617,85 @@
     return "border-neutral-600 text-neutral-300"
   }
 
+  const getRelayConfidenceLabel = (check: RelayCapabilityCheck) => {
+    if (check.status === "ready") {
+      return check.supportsNip29 ? "Advertised" : "Observed Working"
+    }
+
+    if (check.status === "auth-required") {
+      return "Auth Needed"
+    }
+
+    if (check.status === "unreachable") {
+      return "Unreachable"
+    }
+
+    if (check.status === "not-advertised") {
+      return "Not Advertised"
+    }
+
+    return "Unknown"
+  }
+
+  const getRelayConfidenceClass = (check: RelayCapabilityCheck) => {
+    if (check.status === "ready") return "border-emerald-500 text-emerald-300"
+    if (check.status === "auth-required") return "border-amber-500 text-amber-300"
+    if (check.status === "unreachable") return "border-warning text-warning"
+    if (check.status === "not-advertised") return "border-neutral-600 text-neutral-300"
+
+    return "border-neutral-600 text-neutral-300"
+  }
+
+  const getRelayRuntimeProof = (
+    check: RelayCapabilityCheck,
+    relayConfirmed = false,
+  ): {label: string; detail: string; tone: "good" | "warn" | "neutral"} => {
+    if (check.status === "unreachable") {
+      return {
+        label: "Failed",
+        detail: "Could not reach relay, so runtime behavior could not be verified.",
+        tone: "warn",
+      }
+    }
+
+    if (check.status === "auth-required" && relayConfirmed) {
+      return {
+        label: "Auth Confirmed",
+        detail: "Relay challenge/response auth completed for this session.",
+        tone: "good",
+      }
+    }
+
+    if (check.status === "ready") {
+      return {
+        label: "Preflight Passed",
+        detail: "Metadata probe succeeded. Publish/subscribe proof is still runtime-dependent.",
+        tone: "neutral",
+      }
+    }
+
+    if (check.status === "auth-required") {
+      return {
+        label: "Pending Auth",
+        detail: "Relay requires auth before write proof can be established.",
+        tone: "warn",
+      }
+    }
+
+    return {
+      label: "Unverified",
+      detail: "Capability advertisement only. Runtime publish/subscribe proof not yet confirmed.",
+      tone: "neutral",
+    }
+  }
+
+  const getRuntimeProofClass = (tone: "good" | "warn" | "neutral") => {
+    if (tone === "good") return "border-emerald-500 text-emerald-300"
+    if (tone === "warn") return "border-warning text-warning"
+
+    return "border-neutral-600 text-neutral-300"
+  }
+
   const getCapabilitySignalLabel = (value?: boolean | null) => {
     if (value === true) return "yes"
     if (value === false) return "no"
@@ -1131,6 +1210,21 @@
                   {/if}
                 </div>
                 <div class="mt-1 text-neutral-400">{check.details}</div>
+                <div class="mt-2 rounded border border-neutral-700 px-2 py-2 text-[11px]">
+                  {@const proof = getRelayRuntimeProof(check, isCreateRelayConfirmed(check.relay))}
+                  <div class="flex flex-wrap items-center gap-2">
+                    <span class="text-neutral-500">Confidence</span>
+                    <span
+                      class={`rounded border px-2 py-0.5 ${getRelayConfidenceClass(check)}`}
+                      >{getRelayConfidenceLabel(check)}</span>
+                  </div>
+                  <div class="mt-2 flex flex-wrap items-center gap-2">
+                    <span class="text-neutral-500">Runtime proof</span>
+                    <span class={`rounded border px-2 py-0.5 ${getRuntimeProofClass(proof.tone)}`}
+                      >{proof.label}</span>
+                  </div>
+                  <div class="mt-1 text-neutral-400">{proof.detail}</div>
+                </div>
                 <div class="mt-2 flex flex-wrap items-center gap-1">
                   <span class="text-[10px] uppercase tracking-[0.08em] text-neutral-500"
                     >Capabilities</span>
@@ -1197,14 +1291,15 @@
         <select
           class="w-full rounded border border-neutral-700 bg-neutral-950 px-3 py-2 text-sm text-neutral-100"
           bind:value={createPrivacy}>
-          <option value="standard">Medium (Auto)</option>
-          <option value="private">High (Secure-first)</option>
-          <option value="fallback-friendly">Low (Compatibility-first)</option>
+          <option value="auto">Auto (Compatibility First)</option>
+          <option value="basic">Basic (Open Group)</option>
+          <option value="secure">Secure (Common Encryption)</option>
+          <option value="max">Max (Post Quantum Cryptography)</option>
         </select>
         <div class="mt-2 rounded border border-neutral-700 px-3 py-2 text-xs text-neutral-400">
           Compatibility mode means <strong>baseline-nip29</strong> transport with broad relay/device
-          interoperability priority. It is not fluff; it is the baseline path. In current create/join,
-          Medium and Low both request baseline transport, while High requests secure transport first.
+          interoperability priority. In current create/join implementation: Auto and Basic request
+          baseline transport, while Secure and Max request secure transport first.
         </div>
         <div class="mt-2 rounded border border-neutral-700 px-3 py-2 text-sm text-neutral-300">
           <div class="font-semibold text-neutral-100">{securityStatus.badge}</div>
@@ -1319,6 +1414,20 @@
                 {/if}
               </div>
               <div class="mt-1 text-neutral-400">{check.details}</div>
+              <div class="mt-2 rounded border border-neutral-700 px-2 py-2 text-[11px]">
+                {@const proof = getRelayRuntimeProof(check, isJoinRelayConfirmed(check.relay))}
+                <div class="flex flex-wrap items-center gap-2">
+                  <span class="text-neutral-500">Confidence</span>
+                  <span class={`rounded border px-2 py-0.5 ${getRelayConfidenceClass(check)}`}
+                    >{getRelayConfidenceLabel(check)}</span>
+                </div>
+                <div class="mt-2 flex flex-wrap items-center gap-2">
+                  <span class="text-neutral-500">Runtime proof</span>
+                  <span class={`rounded border px-2 py-0.5 ${getRuntimeProofClass(proof.tone)}`}
+                    >{proof.label}</span>
+                </div>
+                <div class="mt-1 text-neutral-400">{proof.detail}</div>
+              </div>
               <div class="mt-2 flex flex-wrap items-center gap-1">
                 <span class="text-[10px] uppercase tracking-[0.08em] text-neutral-500"
                   >Capabilities</span>

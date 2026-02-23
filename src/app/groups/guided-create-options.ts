@@ -1,6 +1,6 @@
 import {parseGroupAddressResult} from "src/domain/group-id"
 
-export type GuidedPrivacyLevel = "standard" | "private" | "fallback-friendly"
+export type GuidedPrivacyLevel = "auto" | "basic" | "secure" | "max"
 export type GuidedRelayPreset = "navcom" | "public" | "custom"
 
 export const GUIDED_RELAY_PRESET_OPTIONS: Array<{
@@ -31,22 +31,28 @@ export const GUIDED_PRIVACY_OPTIONS: Array<{
   description: string
 }> = [
   {
-    id: "standard",
-    label: "Medium (Auto)",
+    id: "auto",
+    label: "Auto (Compatibility First)",
     description:
-      "Requests baseline transport (baseline-nip29). Best default for mixed relays. Works with widest compatibility while still allowing secure-aware clients and relay checks.",
+      "Uses baseline lane by default (NIP-29) for widest interoperability. May move to secure-capable behavior based on runtime compatibility.",
   },
   {
-    id: "private",
-    label: "High (Secure-first)",
+    id: "basic",
+    label: "Basic (Open Group)",
     description:
-      "Requests secure transport (secure-nip-ee) first. If secure path is unavailable, flow may fall back to baseline depending on capability/policy. Use when stronger transport is required.",
+      "Uses baseline lane (NIP-29) for open/interoperable group operations. Group privacy depends on relay policy and message path, not this label alone.",
   },
   {
-    id: "fallback-friendly",
-    label: "Low (Compatibility-first)",
+    id: "secure",
+    label: "Secure (Common Encryption)",
     description:
-      "Requests baseline transport and prioritizes interoperability wording for legacy/public relays. Today this is operationally the same transport request as Medium during create/join.",
+      "Requests secure lane (secure-nip-ee) with compatibility fallback as needed. Intended for common encrypted group messaging paths.",
+  },
+  {
+    id: "max",
+    label: "Max (Post Quantum Cryptography)",
+    description:
+      "Requests secure lane and targets Navcom PQC path (NIP-104+PQC label in Navcom context). PQC depends on compatible client/signer/runtime; not all relays advertise this explicitly.",
   },
 ]
 
@@ -132,22 +138,29 @@ export const getRelayPresetValues = ({
 }
 
 export const getGuidedSecurityStatus = (privacy: GuidedPrivacyLevel) => {
-  if (privacy === "private") {
+  if (privacy === "max") {
     return {
-      badge: "High (Secure-first)",
-      hint: "Secure transport is requested first (secure-nip-ee). If the secure lane is unavailable, fallback to baseline can occur based on runtime capability and policy.",
+      badge: "Max (Post Quantum Cryptography)",
+      hint: "Lane target: NIP-104+PQC (Navcom terminology) over secure transport. Current request mode is secure-nip-ee; PQC depends on compatible runtime path.",
     }
   }
 
-  if (privacy === "fallback-friendly") {
+  if (privacy === "secure") {
     return {
-      badge: "Low (Compatibility-first)",
-      hint: "Baseline transport (baseline-nip29) with compatibility-first posture for mixed/legacy relays. Same transport request as Medium in current create/join flow.",
+      badge: "Secure (Common Encryption)",
+      hint: "Lane target: secure-nip-ee (NIP-EE lane). Falls back to NIP-29 baseline when secure path is unavailable.",
+    }
+  }
+
+  if (privacy === "basic") {
+    return {
+      badge: "Basic (Open Group)",
+      hint: "Lane target: baseline-nip29 (NIP-29). Optimized for open/interoperable group operation.",
     }
   }
 
   return {
-    badge: "Medium (Auto)",
-    hint: "Baseline transport (baseline-nip29) optimized for reliability across public/mixed relays while retaining secure capability signaling and checks.",
+    badge: "Auto (Compatibility First)",
+    hint: "Lane target: baseline-nip29 (NIP-29) by default; may use secure-compatible path when available.",
   }
 }
