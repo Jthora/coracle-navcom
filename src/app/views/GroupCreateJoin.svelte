@@ -1211,7 +1211,6 @@
                 </div>
                 <div class="mt-1 text-neutral-400">{check.details}</div>
                 <div class="mt-2 rounded border border-neutral-700 px-2 py-2 text-[11px]">
-                  {@const proof = getRelayRuntimeProof(check, isCreateRelayConfirmed(check.relay))}
                   <div class="flex flex-wrap items-center gap-2">
                     <span class="text-neutral-500">Confidence</span>
                     <span
@@ -1220,10 +1219,13 @@
                   </div>
                   <div class="mt-2 flex flex-wrap items-center gap-2">
                     <span class="text-neutral-500">Runtime proof</span>
-                    <span class={`rounded border px-2 py-0.5 ${getRuntimeProofClass(proof.tone)}`}
-                      >{proof.label}</span>
+                    <span
+                      class={`rounded border px-2 py-0.5 ${getRuntimeProofClass(getRelayRuntimeProof(check, isCreateRelayConfirmed(check.relay)).tone)}`}
+                      >{getRelayRuntimeProof(check, isCreateRelayConfirmed(check.relay)).label}</span>
                   </div>
-                  <div class="mt-1 text-neutral-400">{proof.detail}</div>
+                  <div class="mt-1 text-neutral-400">
+                    {getRelayRuntimeProof(check, isCreateRelayConfirmed(check.relay)).detail}
+                  </div>
                 </div>
                 <div class="mt-2 flex flex-wrap items-center gap-1">
                   <span class="text-[10px] uppercase tracking-[0.08em] text-neutral-500"
@@ -1415,7 +1417,6 @@
               </div>
               <div class="mt-1 text-neutral-400">{check.details}</div>
               <div class="mt-2 rounded border border-neutral-700 px-2 py-2 text-[11px]">
-                {@const proof = getRelayRuntimeProof(check, isJoinRelayConfirmed(check.relay))}
                 <div class="flex flex-wrap items-center gap-2">
                   <span class="text-neutral-500">Confidence</span>
                   <span class={`rounded border px-2 py-0.5 ${getRelayConfidenceClass(check)}`}
@@ -1423,10 +1424,13 @@
                 </div>
                 <div class="mt-2 flex flex-wrap items-center gap-2">
                   <span class="text-neutral-500">Runtime proof</span>
-                  <span class={`rounded border px-2 py-0.5 ${getRuntimeProofClass(proof.tone)}`}
-                    >{proof.label}</span>
+                  <span
+                    class={`rounded border px-2 py-0.5 ${getRuntimeProofClass(getRelayRuntimeProof(check, isJoinRelayConfirmed(check.relay)).tone)}`}
+                    >{getRelayRuntimeProof(check, isJoinRelayConfirmed(check.relay)).label}</span>
                 </div>
-                <div class="mt-1 text-neutral-400">{proof.detail}</div>
+                <div class="mt-1 text-neutral-400">
+                  {getRelayRuntimeProof(check, isJoinRelayConfirmed(check.relay)).detail}
+                </div>
               </div>
               <div class="mt-2 flex flex-wrap items-center gap-1">
                 <span class="text-[10px] uppercase tracking-[0.08em] text-neutral-500"
