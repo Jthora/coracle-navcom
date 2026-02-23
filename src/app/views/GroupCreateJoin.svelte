@@ -23,6 +23,7 @@
   import {
     GUIDED_RELAY_PRESET_OPTIONS,
     getGuidedSecurityStatus,
+    getGuidedSecurityTechnicalProfile,
     getPrimaryRelayHostFromSelectedRelays,
     getRecommendedRelayHost,
     getRelayPresetValues,
@@ -35,8 +36,6 @@
     attemptRelayChallengeAuth,
     checkRelayCapabilities,
     getRelayAuthConfirmedMap,
-    hasViableRelayPath,
-    refreshRelayAuthSessions,
     RELAY_AUTH_SESSION_TTL_MS_DEFAULT,
     type RelayAuthLifecycleSession,
     type RelayCapabilityCheck,
@@ -47,7 +46,40 @@
     getRelayAuthMethodIndicator,
     summarizeMissingRelayCredentials,
   } from "src/app/groups/relay-auth-ux"
+  import {
+    resolveGuidedSetupBlockReason,
+    shouldAllowCapabilityFallback,
+    toGuidedSetupBlockMessage,
+  } from "src/app/groups/create-join-policy"
+  import {
+    getCapabilitySignalClass,
+    getCapabilitySignalLabel,
+    getChecklistStatusClass,
+    getRelayAuthMethodBadgeClass,
+    getRelayAuthStatusClass,
+    getRelayAuthStatusLabel,
+    getRelayCheckCounts,
+    getRelayConfidenceClass,
+    getRelayConfidenceLabel,
+    getRelayRuntimeProof,
+    getRelayStatusBadgeClass,
+    getRuntimeProofClass,
+  } from "src/app/groups/create-join-view-helpers"
+  import {getMaxDiagnosticsToneClass, getMaxModeDiagnostics} from "src/app/groups/max-diagnostics"
+  import {buildGuidedBlockTelemetryProps} from "src/app/groups/create-join-block-telemetry"
+  import {
+    getRelaySession,
+    hasRelayViabilityBlocker,
+    isRelayConfirmed,
+    resolveRelayAuthBlockerState,
+  } from "src/app/groups/create-join-relay-session"
+  import {
+    emitRelayChecksCompletedTelemetry,
+    emitRelayChecksFailedTelemetry,
+    emitRelayChecksStartedTelemetry,
+  } from "src/app/groups/create-join-relay-check-telemetry"
   import {resolveRequestedTransportMode} from "src/app/groups/transport-mode"
+  import {isSecurePilotEnabled} from "src/engine/group-transport-secure"
   import {copyToClipboard} from "src/util/html"
 
   export let groupId = ""
@@ -113,6 +145,12 @@
   $: joinAddressParsed = parseGroupAddressResult(joinGroupAddress)
   $: joinAddressValid = joinAddressParsed.ok
   $: securityStatus = getGuidedSecurityStatus(createPrivacy)
+  $: securityTechnical = getGuidedSecurityTechnicalProfile(createPrivacy)
+  $: createMaxDiagnostics = getMaxModeDiagnostics({
+    privacy: createPrivacy,
+    relayChecks: createRelayChecks,
+    securePilotEnabled: isSecurePilotEnabled(),
+  })
   $: createRequestedTransport = resolveRequestedTransportMode({
     flow: "create",
     privacy: createPrivacy,
@@ -225,7 +263,10 @@
 
   const hasCreateRelayAuthBlocker = () => {
     const previousSessions = createRelayAuthSessions
-    const refreshedSessions = refreshRelayAuthSessions({sessions: createRelayAuthSessions})
+    const {refreshedSessions, hasAuthBlocker} = resolveRelayAuthBlockerState({
+      checks: createRelayChecks,
+      sessions: createRelayAuthSessions,
+    })
 
     createRelayAuthSessions = refreshedSessions
     emitRelayAuthExpiryTelemetry({
@@ -234,16 +275,15 @@
       nextSessions: refreshedSessions,
     })
 
-    const confirmed = getRelayAuthConfirmedMap({sessions: refreshedSessions})
-
-    return createRelayChecks.some(
-      check => check.status === "auth-required" && !confirmed[check.relay],
-    )
+    return hasAuthBlocker
   }
 
   const hasJoinRelayAuthBlocker = () => {
     const previousSessions = joinRelayAuthSessions
-    const refreshedSessions = refreshRelayAuthSessions({sessions: joinRelayAuthSessions})
+    const {refreshedSessions, hasAuthBlocker} = resolveRelayAuthBlockerState({
+      checks: joinRelayChecks,
+      sessions: joinRelayAuthSessions,
+    })
 
     joinRelayAuthSessions = refreshedSessions
     emitRelayAuthExpiryTelemetry({
@@ -252,88 +292,48 @@
       nextSessions: refreshedSessions,
     })
 
-    const confirmed = getRelayAuthConfirmedMap({sessions: refreshedSessions})
-
-    return joinRelayChecks.some(
-      check => check.status === "auth-required" && !confirmed[check.relay],
-    )
+    return hasAuthBlocker
   }
 
   const hasCreateRelayViabilityBlocker = () =>
-    !hasViableRelayPath({
+    hasRelayViabilityBlocker({
       checks: createRelayChecks,
-      authConfirmed: getRelayAuthConfirmedMap({sessions: createRelayAuthSessions}),
+      sessions: createRelayAuthSessions,
       selectedRelays: createSelectedRelays,
     })
 
   const hasJoinRelayViabilityBlocker = () =>
-    !hasViableRelayPath({
+    hasRelayViabilityBlocker({
       checks: joinRelayChecks,
-      authConfirmed: getRelayAuthConfirmedMap({sessions: joinRelayAuthSessions}),
+      sessions: joinRelayAuthSessions,
       selectedRelays: joinSelectedRelays,
     })
 
+  const getCreateMissingCredentials = () =>
+    summarizeMissingRelayCredentials({
+      checks: createRelayChecks,
+      authConfirmed: getRelayAuthConfirmedMap({sessions: createRelayAuthSessions}),
+      hasSigner: Boolean($signer?.sign),
+    })
+
+  const getJoinMissingCredentials = () =>
+    summarizeMissingRelayCredentials({
+      checks: joinRelayChecks,
+      authConfirmed: getRelayAuthConfirmedMap({sessions: joinRelayAuthSessions}),
+      hasSigner: Boolean($signer?.sign),
+    })
+
   const getCreateRelaySession = (relay: string): RelayAuthLifecycleSession =>
-    createRelayAuthSessions[relay] || {status: "idle"}
+    getRelaySession({sessions: createRelayAuthSessions, relay})
 
   const getJoinRelaySession = (relay: string): RelayAuthLifecycleSession =>
-    joinRelayAuthSessions[relay] || {status: "idle"}
+    getRelaySession({sessions: joinRelayAuthSessions, relay})
 
   const isCreateRelayConfirmed = (relay: string) =>
-    Boolean(getRelayAuthConfirmedMap({sessions: createRelayAuthSessions})[relay])
+    isRelayConfirmed({sessions: createRelayAuthSessions, relay})
 
   const isJoinRelayConfirmed = (relay: string) =>
-    Boolean(getRelayAuthConfirmedMap({sessions: joinRelayAuthSessions})[relay])
-
-  const getRelayAuthStatusClass = (status: RelayAuthLifecycleSession["status"]) => {
-    if (status === "authenticated") return "border-emerald-500 text-emerald-300"
-    if (status === "expired") return "border-amber-500 text-amber-300"
-    if (status === "failed") return "border-warning text-warning"
-
-    return "border-neutral-600 text-neutral-300"
-  }
-
-  const getRelayAuthStatusLabel = (status: RelayAuthLifecycleSession["status"]) => {
-    if (status === "authenticated") return "authenticated"
-    if (status === "authenticating") return "authenticating"
-    if (status === "expired") return "expired"
-    if (status === "failed") return "failed"
-
-    return "not-authenticated"
-  }
-
-  const getRelayAuthMethodBadgeClass = (tone: "neutral" | "warning" | "danger") => {
-    if (tone === "warning") return "border-amber-500 text-amber-300"
-    if (tone === "danger") return "border-warning text-warning"
-
-    return "border-neutral-600 text-neutral-300"
-  }
-
-  const getRelayCheckCounts = (checks: RelayCapabilityCheck[]) => {
-    const readyCount = checks.filter(check => check.status === "ready").length
-    const authRequiredCount = checks.filter(check => check.status === "auth-required").length
-    const unreachableCount = checks.filter(check => check.status === "unreachable").length
-    const notAdvertisedCount = checks.filter(check => check.status === "not-advertised").length
-    const unknownCount = checks.filter(check => check.status === "unknown").length
-
-    return {
-      readyCount,
-      authRequiredCount,
-      unreachableCount,
-      notAdvertisedCount,
-      unknownCount,
-    }
-  }
-
-  const getRelayChecksResult = (checks: RelayCapabilityCheck[]) => {
-    const {authRequiredCount, unreachableCount, unknownCount} = getRelayCheckCounts(checks)
-
-    if (unreachableCount > 0 || unknownCount > 0 || authRequiredCount > 0) {
-      return "warning"
-    }
-
-    return "success"
-  }
+    isRelayConfirmed({sessions: joinRelayAuthSessions, relay})
 
   const emitRelayAuthExpiryTelemetry = ({
     flow,
@@ -368,28 +368,17 @@
 
     createRelayChecksRunning = true
     const startedAt = Date.now()
-    trackGroupTelemetry("group_setup_relay_checks_started", {
-      flow: "create",
-      relay_count: createSelectedRelays.length,
-    })
+    emitRelayChecksStartedTelemetry({flow: "create", relayCount: createSelectedRelays.length})
 
     try {
       createRelayChecks = await checkRelayCapabilities(createSelectedRelays)
       createRelayChecksAt = Date.now()
 
-      const {readyCount, authRequiredCount, unreachableCount, notAdvertisedCount} =
-        getRelayCheckCounts(createRelayChecks)
-
-      trackGroupTelemetry("group_setup_relay_checks_completed", {
+      const {authRequiredCount} = emitRelayChecksCompletedTelemetry({
         flow: "create",
-        relay_count: createSelectedRelays.length,
-        ready_count: readyCount,
-        auth_required_count: authRequiredCount,
-        unreachable_count: unreachableCount,
-        not_advertised_count: notAdvertisedCount,
-        no_groups_count: notAdvertisedCount,
-        elapsed_ms: Math.max(0, Date.now() - startedAt),
-        result: getRelayChecksResult(createRelayChecks),
+        relayCount: createSelectedRelays.length,
+        relayChecks: createRelayChecks,
+        startedAt,
       })
 
       if (authRequiredCount > 0) {
@@ -398,11 +387,10 @@
         showInfo("Relay capability checks completed.")
       }
     } catch {
-      trackGroupTelemetry("group_setup_relay_check_failed", {
+      emitRelayChecksFailedTelemetry({
         flow: "create",
-        relay_count: createSelectedRelays.length,
-        elapsed_ms: Math.max(0, Date.now() - startedAt),
-        result: "error",
+        relayCount: createSelectedRelays.length,
+        startedAt,
       })
       showWarning("Relay capability checks failed. Verify relay URLs and retry.")
     } finally {
@@ -419,28 +407,17 @@
 
     joinRelayChecksRunning = true
     const startedAt = Date.now()
-    trackGroupTelemetry("group_setup_relay_checks_started", {
-      flow: "join",
-      relay_count: joinSelectedRelays.length,
-    })
+    emitRelayChecksStartedTelemetry({flow: "join", relayCount: joinSelectedRelays.length})
 
     try {
       joinRelayChecks = await checkRelayCapabilities(joinSelectedRelays)
       joinRelayChecksAt = Date.now()
 
-      const {readyCount, authRequiredCount, unreachableCount, notAdvertisedCount} =
-        getRelayCheckCounts(joinRelayChecks)
-
-      trackGroupTelemetry("group_setup_relay_checks_completed", {
+      const {authRequiredCount} = emitRelayChecksCompletedTelemetry({
         flow: "join",
-        relay_count: joinSelectedRelays.length,
-        ready_count: readyCount,
-        auth_required_count: authRequiredCount,
-        unreachable_count: unreachableCount,
-        not_advertised_count: notAdvertisedCount,
-        no_groups_count: notAdvertisedCount,
-        elapsed_ms: Math.max(0, Date.now() - startedAt),
-        result: getRelayChecksResult(joinRelayChecks),
+        relayCount: joinSelectedRelays.length,
+        relayChecks: joinRelayChecks,
+        startedAt,
       })
 
       if (authRequiredCount > 0) {
@@ -449,11 +426,10 @@
         showInfo("Relay capability checks completed.")
       }
     } catch {
-      trackGroupTelemetry("group_setup_relay_check_failed", {
+      emitRelayChecksFailedTelemetry({
         flow: "join",
-        relay_count: joinSelectedRelays.length,
-        elapsed_ms: Math.max(0, Date.now() - startedAt),
-        result: "error",
+        relayCount: joinSelectedRelays.length,
+        startedAt,
       })
       showWarning("Relay capability checks failed. Verify relay URLs and retry.")
     } finally {
@@ -609,110 +585,6 @@
     }
   }
 
-  const getRelayStatusBadgeClass = (status: RelayCapabilityCheck["status"]) => {
-    if (status === "ready") return "border-emerald-500 text-emerald-300"
-    if (status === "auth-required") return "border-amber-500 text-amber-300"
-    if (status === "not-advertised") return "border-neutral-600 text-neutral-300"
-
-    return "border-neutral-600 text-neutral-300"
-  }
-
-  const getRelayConfidenceLabel = (check: RelayCapabilityCheck) => {
-    if (check.status === "ready") {
-      return check.supportsNip29 ? "Advertised" : "Observed Working"
-    }
-
-    if (check.status === "auth-required") {
-      return "Auth Needed"
-    }
-
-    if (check.status === "unreachable") {
-      return "Unreachable"
-    }
-
-    if (check.status === "not-advertised") {
-      return "Not Advertised"
-    }
-
-    return "Unknown"
-  }
-
-  const getRelayConfidenceClass = (check: RelayCapabilityCheck) => {
-    if (check.status === "ready") return "border-emerald-500 text-emerald-300"
-    if (check.status === "auth-required") return "border-amber-500 text-amber-300"
-    if (check.status === "unreachable") return "border-warning text-warning"
-    if (check.status === "not-advertised") return "border-neutral-600 text-neutral-300"
-
-    return "border-neutral-600 text-neutral-300"
-  }
-
-  const getRelayRuntimeProof = (
-    check: RelayCapabilityCheck,
-    relayConfirmed = false,
-  ): {label: string; detail: string; tone: "good" | "warn" | "neutral"} => {
-    if (check.status === "unreachable") {
-      return {
-        label: "Failed",
-        detail: "Could not reach relay, so runtime behavior could not be verified.",
-        tone: "warn",
-      }
-    }
-
-    if (check.status === "auth-required" && relayConfirmed) {
-      return {
-        label: "Auth Confirmed",
-        detail: "Relay challenge/response auth completed for this session.",
-        tone: "good",
-      }
-    }
-
-    if (check.status === "ready") {
-      return {
-        label: "Preflight Passed",
-        detail: "Metadata probe succeeded. Publish/subscribe proof is still runtime-dependent.",
-        tone: "neutral",
-      }
-    }
-
-    if (check.status === "auth-required") {
-      return {
-        label: "Pending Auth",
-        detail: "Relay requires auth before write proof can be established.",
-        tone: "warn",
-      }
-    }
-
-    return {
-      label: "Unverified",
-      detail: "Capability advertisement only. Runtime publish/subscribe proof not yet confirmed.",
-      tone: "neutral",
-    }
-  }
-
-  const getRuntimeProofClass = (tone: "good" | "warn" | "neutral") => {
-    if (tone === "good") return "border-emerald-500 text-emerald-300"
-    if (tone === "warn") return "border-warning text-warning"
-
-    return "border-neutral-600 text-neutral-300"
-  }
-
-  const getCapabilitySignalLabel = (value?: boolean | null) => {
-    if (value === true) return "yes"
-    if (value === false) return "no"
-
-    return "unknown"
-  }
-
-  const getCapabilitySignalClass = (value?: boolean | null) => {
-    if (value === true) return "border-emerald-500 text-emerald-300"
-    if (value === false) return "border-warning text-warning"
-
-    return "border-neutral-600 text-neutral-300"
-  }
-
-  const getChecklistStatusClass = (done: boolean) =>
-    done ? "border-emerald-500 text-emerald-300" : "border-warning text-warning"
-
   const onCopyCreateAccessPackage = async () => {
     if (!createAccessPackageText) {
       showWarning("Complete group address and relay selection before copying access package.")
@@ -758,60 +630,40 @@
   }
 
   const onCreate = async () => {
-    if (hasCreateRelayViabilityBlocker()) {
+    const hasRelayViabilityBlocker = hasCreateRelayViabilityBlocker()
+    const hasRelayAuthRequirementBlocker = hasRelayViabilityBlocker
+      ? false
+      : hasCreateRelayAuthBlocker()
+    const missingCredentials = getCreateMissingCredentials()
+    const blockReason = resolveGuidedSetupBlockReason({
+      missionTier,
+      privacy: createPrivacy,
+      relayChecks: createRelayChecks,
+      securePilotEnabled: isSecurePilotEnabled(),
+      hasRelayViabilityBlocker,
+      hasRelayAuthBlocker: hasRelayAuthRequirementBlocker,
+      missingCredentials,
+    })
+
+    if (blockReason) {
+      const message = toGuidedSetupBlockMessage(blockReason)
       const counts = getRelayCheckCounts(createRelayChecks)
 
-      trackGroupTelemetry("group_setup_blocked_by_relay_requirements", {
-        flow: "create",
-        block_reason: "viability",
-        relay_count: createSelectedRelays.length,
-        ready_count: counts.readyCount,
-        auth_required_count: counts.authRequiredCount,
-        unreachable_count: counts.unreachableCount,
-        not_advertised_count: counts.notAdvertisedCount,
-        no_groups_count: counts.notAdvertisedCount,
-        result: "error",
-      })
-      createError =
-        "No viable relay path is available. Run relay checks, authenticate required relays, or update the selected relay list."
-      showWarning("Resolve relay viability issues before creating the group.")
-
-      return
-    }
-
-    if (hasCreateRelayAuthBlocker()) {
-      const counts = getRelayCheckCounts(createRelayChecks)
-      const missingCredentials = summarizeMissingRelayCredentials({
-        checks: createRelayChecks,
-        authConfirmed: getRelayAuthConfirmedMap({sessions: createRelayAuthSessions}),
-        hasSigner: Boolean($signer?.sign),
-      })
-
-      trackGroupTelemetry("group_setup_blocked_by_relay_requirements", {
-        flow: "create",
-        block_reason: "auth-required",
-        relay_count: createSelectedRelays.length,
-        ready_count: counts.readyCount,
-        auth_required_count: counts.authRequiredCount,
-        unreachable_count: counts.unreachableCount,
-        not_advertised_count: counts.notAdvertisedCount,
-        no_groups_count: counts.notAdvertisedCount,
-        missing_signer_count: missingCredentials.missingSignerRelays.length,
-        unknown_auth_method_count: missingCredentials.unknownMethodRelays.length,
-        result: "error",
-      })
-
-      if (missingCredentials.missingSignerRelays.length > 0) {
-        createError =
-          "At least one relay requires challenge/response authentication, but no signer is available. Unlock a signer, then retry."
-      } else if (missingCredentials.unknownMethodRelays.length > 0) {
-        createError =
-          "At least one relay requires a relay-specific authentication method that is not advertised. Provide relay credentials or switch relays."
-      } else {
-        createError =
-          "At least one relay requires challenge/response authentication. Authenticate required relays, then retry."
-      }
-      showWarning("Authenticate required relays before creating the group.")
+      trackGroupTelemetry(
+        "group_setup_blocked_by_relay_requirements",
+        buildGuidedBlockTelemetryProps({
+          flow: "create",
+          blockReason,
+          securityMode: createPrivacy,
+          requestedTransportMode: createRequestedTransport.requestedMode,
+          missionTier,
+          relayCount: createSelectedRelays.length,
+          relayCounts: counts,
+          missingCredentials,
+        }),
+      )
+      createError = message
+      showWarning(message)
 
       return
     }
@@ -852,7 +704,11 @@
         },
         "admin",
         1,
-        {requestedMode: createRequestedTransport.requestedMode},
+        {
+          requestedMode: createRequestedTransport.requestedMode,
+          allowCapabilityFallback: shouldAllowCapabilityFallback(createPrivacy),
+          missionTier: missionTier === null ? undefined : missionTier,
+        },
       )
 
       const message = getGroupCreateRecoveryMessage(result)
@@ -895,60 +751,40 @@
   }
 
   const onJoin = async () => {
-    if (hasJoinRelayViabilityBlocker()) {
+    const hasRelayViabilityBlocker = hasJoinRelayViabilityBlocker()
+    const hasRelayAuthRequirementBlocker = hasRelayViabilityBlocker
+      ? false
+      : hasJoinRelayAuthBlocker()
+    const missingCredentials = getJoinMissingCredentials()
+    const blockReason = resolveGuidedSetupBlockReason({
+      missionTier,
+      privacy: createPrivacy,
+      relayChecks: joinRelayChecks,
+      securePilotEnabled: isSecurePilotEnabled(),
+      hasRelayViabilityBlocker,
+      hasRelayAuthBlocker: hasRelayAuthRequirementBlocker,
+      missingCredentials,
+    })
+
+    if (blockReason) {
+      const message = toGuidedSetupBlockMessage(blockReason)
       const counts = getRelayCheckCounts(joinRelayChecks)
 
-      trackGroupTelemetry("group_setup_blocked_by_relay_requirements", {
-        flow: "join",
-        block_reason: "viability",
-        relay_count: joinSelectedRelays.length,
-        ready_count: counts.readyCount,
-        auth_required_count: counts.authRequiredCount,
-        unreachable_count: counts.unreachableCount,
-        not_advertised_count: counts.notAdvertisedCount,
-        no_groups_count: counts.notAdvertisedCount,
-        result: "error",
-      })
-      joinError =
-        "No viable relay path is available. Run relay checks, authenticate required relays, or update the selected relay list."
-      showWarning("Resolve relay viability issues before joining.")
-
-      return
-    }
-
-    if (hasJoinRelayAuthBlocker()) {
-      const counts = getRelayCheckCounts(joinRelayChecks)
-      const missingCredentials = summarizeMissingRelayCredentials({
-        checks: joinRelayChecks,
-        authConfirmed: getRelayAuthConfirmedMap({sessions: joinRelayAuthSessions}),
-        hasSigner: Boolean($signer?.sign),
-      })
-
-      trackGroupTelemetry("group_setup_blocked_by_relay_requirements", {
-        flow: "join",
-        block_reason: "auth-required",
-        relay_count: joinSelectedRelays.length,
-        ready_count: counts.readyCount,
-        auth_required_count: counts.authRequiredCount,
-        unreachable_count: counts.unreachableCount,
-        not_advertised_count: counts.notAdvertisedCount,
-        no_groups_count: counts.notAdvertisedCount,
-        missing_signer_count: missingCredentials.missingSignerRelays.length,
-        unknown_auth_method_count: missingCredentials.unknownMethodRelays.length,
-        result: "error",
-      })
-
-      if (missingCredentials.missingSignerRelays.length > 0) {
-        joinError =
-          "At least one relay requires challenge/response authentication, but no signer is available. Unlock a signer, then retry."
-      } else if (missingCredentials.unknownMethodRelays.length > 0) {
-        joinError =
-          "At least one relay requires a relay-specific authentication method that is not advertised. Provide relay credentials or switch relays."
-      } else {
-        joinError =
-          "At least one relay requires challenge/response authentication. Authenticate required relays, then retry."
-      }
-      showWarning("Authenticate required relays before joining.")
+      trackGroupTelemetry(
+        "group_setup_blocked_by_relay_requirements",
+        buildGuidedBlockTelemetryProps({
+          flow: "join",
+          blockReason,
+          securityMode: createPrivacy,
+          requestedTransportMode: joinRequestedTransport.requestedMode,
+          missionTier,
+          relayCount: joinSelectedRelays.length,
+          relayCounts: counts,
+          missingCredentials,
+        }),
+      )
+      joinError = message
+      showWarning(message)
 
       return
     }
@@ -985,6 +821,8 @@
     try {
       await publishGroupJoin({groupId: parsed.value.canonicalId}, "member", {
         requestedMode: joinRequestedTransport.requestedMode,
+        allowCapabilityFallback: shouldAllowCapabilityFallback(createPrivacy),
+        missionTier: missionTier === null ? undefined : missionTier,
       })
       setupCompleted = true
       trackGroupTelemetry("group_setup_join_result", {result: "success"})
@@ -1090,7 +928,8 @@
     </div>
 
     <div class="mt-3 grid gap-2 sm:grid-cols-2">
-      <div class="rounded border border-neutral-700 px-3 py-2 text-sm text-neutral-300 sm:col-span-2">
+      <div
+        class="rounded border border-neutral-700 px-3 py-2 text-sm text-neutral-300 sm:col-span-2">
         <div class="mb-2 font-semibold text-neutral-100">Group details</div>
         <div class="space-y-3">
           <div>
@@ -1106,9 +945,7 @@
             <Input id="room-title" placeholder="Group title" bind:value={createTitle} />
           </div>
           <div>
-            <label
-              class="mb-1 block text-sm font-semibold text-neutral-100"
-              for="room-description">
+            <label class="mb-1 block text-sm font-semibold text-neutral-100" for="room-description">
               Group Description <span class="italic text-neutral-400">(optional)</span>
             </label>
             <Input
@@ -1213,15 +1050,15 @@
                 <div class="mt-2 rounded border border-neutral-700 px-2 py-2 text-[11px]">
                   <div class="flex flex-wrap items-center gap-2">
                     <span class="text-neutral-500">Confidence</span>
-                    <span
-                      class={`rounded border px-2 py-0.5 ${getRelayConfidenceClass(check)}`}
+                    <span class={`rounded border px-2 py-0.5 ${getRelayConfidenceClass(check)}`}
                       >{getRelayConfidenceLabel(check)}</span>
                   </div>
                   <div class="mt-2 flex flex-wrap items-center gap-2">
                     <span class="text-neutral-500">Runtime proof</span>
                     <span
                       class={`rounded border px-2 py-0.5 ${getRuntimeProofClass(getRelayRuntimeProof(check, isCreateRelayConfirmed(check.relay)).tone)}`}
-                      >{getRelayRuntimeProof(check, isCreateRelayConfirmed(check.relay)).label}</span>
+                      >{getRelayRuntimeProof(check, isCreateRelayConfirmed(check.relay))
+                        .label}</span>
                   </div>
                   <div class="mt-1 text-neutral-400">
                     {getRelayRuntimeProof(check, isCreateRelayConfirmed(check.relay)).detail}
@@ -1287,9 +1124,7 @@
       <div
         class="rounded border border-neutral-700 px-3 py-2 text-sm text-neutral-300 sm:col-span-2">
         <div class="mb-2 font-semibold text-neutral-100">Security Mode</div>
-        <p class="mb-2 text-xs text-neutral-400">
-          Choose a mode by requested transport behavior.
-        </p>
+        <p class="mb-2 text-xs text-neutral-400">Choose a mode by requested transport behavior.</p>
         <select
           class="w-full rounded border border-neutral-700 bg-neutral-950 px-3 py-2 text-sm text-neutral-100"
           bind:value={createPrivacy}>
@@ -1298,15 +1133,50 @@
           <option value="secure">Secure (Common Encryption)</option>
           <option value="max">Max (Post Quantum Cryptography)</option>
         </select>
-        <div class="mt-2 rounded border border-neutral-700 px-3 py-2 text-xs text-neutral-400">
-          Compatibility mode means <strong>baseline-nip29</strong> transport with broad relay/device
-          interoperability priority. In current create/join implementation: Auto and Basic request
-          baseline transport, while Secure and Max request secure transport first.
-        </div>
         <div class="mt-2 rounded border border-neutral-700 px-3 py-2 text-sm text-neutral-300">
           <div class="font-semibold text-neutral-100">{securityStatus.badge}</div>
           <div class="mt-1 text-neutral-400">{securityStatus.hint}</div>
         </div>
+        <div class="mt-2 rounded border border-neutral-700 px-3 py-2 text-xs text-neutral-300">
+          <div class="mb-1 font-semibold text-neutral-100">Security Details</div>
+          <div class="space-y-1 text-neutral-400">
+            <div>
+              <strong class="text-neutral-200">Protocol:</strong>
+              {securityTechnical.protocol}
+            </div>
+            <div><strong class="text-neutral-200">NIP:</strong> {securityTechnical.nipLabel}</div>
+            <div>
+              <strong class="text-neutral-200">Encryption:</strong>
+              {securityTechnical.encryption}
+            </div>
+            <div><strong class="text-neutral-200">Note:</strong> {securityTechnical.note}</div>
+          </div>
+        </div>
+        {#if createMaxDiagnostics}
+          <div class="mt-2 rounded border border-neutral-700 px-3 py-2 text-xs text-neutral-300">
+            <div class="mb-2 flex items-center gap-2">
+              <span class="font-semibold text-neutral-100">Max Diagnostics</span>
+              <span
+                class={`rounded border px-2 py-0.5 ${getMaxDiagnosticsToneClass(createMaxDiagnostics.state)}`}
+                >{createMaxDiagnostics.label}</span>
+              {#if createMaxDiagnostics.reason}
+                <span class="rounded border border-neutral-700 px-2 py-0.5 text-neutral-400"
+                  >{createMaxDiagnostics.reason}</span>
+              {/if}
+            </div>
+            <div class="text-neutral-400">{createMaxDiagnostics.detail}</div>
+            <div class="mt-2 space-y-1">
+              {#each createMaxDiagnostics.checklist as item, i (`max-check-${i}`)}
+                <div class="flex items-center gap-2">
+                  <span
+                    class={`rounded border px-2 py-0.5 ${item.done ? "border-emerald-500 text-emerald-300" : "border-warning text-warning"}`}
+                    >{item.done ? "ok" : "required"}</span>
+                  <span class="text-neutral-300">{item.label}</span>
+                </div>
+              {/each}
+            </div>
+          </div>
+        {/if}
       </div>
     </div>
 

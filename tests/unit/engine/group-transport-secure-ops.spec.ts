@@ -8,10 +8,13 @@ import {
   parseSecureGroupSendInputResult,
   parseSecureGroupSubscribeInput,
   reconcileSecureGroupEvents,
+  sendSecureGroupMessage,
 } from "../../../src/engine/group-transport-secure-ops"
 import {
+  prepareSecureGroupKeyUse,
   getSecureGroupKeyState,
   resetSecureGroupKeyLifecycle,
+  setSecureGroupKeyStatus,
 } from "../../../src/engine/group-key-lifecycle"
 import {
   clearSecureGroupEpochState,
@@ -148,6 +151,8 @@ describe("engine/group-transport-secure-ops", () => {
   })
 
   it("rejects reconcile when secure wraps include removed members", async () => {
+    const epoch = ensureSecureGroupEpochState("ops", {at: 1739836800})
+
     const projection = {
       group: {id: "ops"},
       members: {
@@ -173,7 +178,7 @@ describe("engine/group-transport-secure-ops", () => {
           created_at: 1739836801,
           tags: [
             ["h", "ops"],
-            ["epoch", ensureSecureGroupEpochState("ops").epochId],
+            ["epoch", epoch.epochId],
             ["p", "a".repeat(64)],
           ],
           content: "{}",
@@ -185,10 +190,16 @@ describe("engine/group-transport-secure-ops", () => {
     expect(result).toMatchObject({
       ok: false,
       code: "GROUP_TRANSPORT_VALIDATION_FAILED",
+      retryable: false,
     })
+    expect(ensureSecureGroupEpochState("ops").sequence).toBe(epoch.sequence)
+    expect(projection.members["a".repeat(64)]?.status).toBe("removed")
+    expect(projection.sourceEvents).toEqual([])
   })
 
   it("rejects reconcile when secure group message content envelope is invalid", async () => {
+    const epoch = ensureSecureGroupEpochState("ops", {at: 1739836800})
+
     const projection = {
       group: {id: "ops"},
       members: {},
@@ -207,7 +218,7 @@ describe("engine/group-transport-secure-ops", () => {
           created_at: 1739836801,
           tags: [
             ["h", "ops"],
-            ["epoch", ensureSecureGroupEpochState("ops").epochId],
+            ["epoch", epoch.epochId],
             ["p", "a".repeat(64)],
           ],
           content: "not-a-secure-envelope",
@@ -219,7 +230,67 @@ describe("engine/group-transport-secure-ops", () => {
     expect(result).toMatchObject({
       ok: false,
       code: "GROUP_TRANSPORT_VALIDATION_FAILED",
+      retryable: false,
     })
+    expect(ensureSecureGroupEpochState("ops").sequence).toBe(epoch.sequence)
+    expect(projection.sourceEvents).toEqual([])
+  })
+
+  it("fails closed without key-state mutation when strict tier policy blocks secure send", async () => {
+    expect(getSecureGroupKeyState("ops")).toBeNull()
+
+    const blocked = await sendSecureGroupMessage({
+      groupId: "ops",
+      content: "blocked by policy",
+      recipients: ["a".repeat(64)],
+      missionTier: 2,
+      requestedMode: "baseline-nip29",
+      resolvedMode: "baseline-nip29",
+      allowTier2Override: false,
+      downgradeConfirmed: false,
+    })
+
+    expect(blocked).toMatchObject({
+      ok: false,
+      code: "GROUP_TRANSPORT_CAPABILITY_BLOCKED",
+      retryable: false,
+    })
+    expect(getSecureGroupKeyState("ops")).toBeNull()
+  })
+
+  it("returns retryable epoch validation failure for irreparable missing epoch tag", async () => {
+    const projection = {
+      group: {id: "ops"},
+      members: {},
+      audit: [],
+      sourceEvents: [],
+    }
+
+    const result = await reconcileSecureGroupEvents({
+      groupId: "ops",
+      localState: projection,
+      remoteEvents: [
+        {
+          id: "epoch-missing-1",
+          pubkey: "f".repeat(64),
+          kind: GROUP_KINDS.NIP_EE.GROUP_EVENT,
+          created_at: 1739836801,
+          tags: [
+            ["h", "ops"],
+            ["p", "a".repeat(64)],
+          ],
+          content: "not-a-secure-envelope",
+          sig: "s".repeat(128),
+        },
+      ],
+    })
+
+    expect(result).toMatchObject({
+      ok: false,
+      code: "GROUP_TRANSPORT_VALIDATION_FAILED",
+      retryable: true,
+    })
+    expect(projection.sourceEvents).toEqual([])
   })
 
   it("repairs local epoch state and retries validation when incoming epoch is newer", async () => {
@@ -268,5 +339,75 @@ describe("engine/group-transport-secure-ops", () => {
       expect(result.ok).toBe(true)
       expect(ensureSecureGroupEpochState("ops").sequence).toBe(2)
     }
+  })
+
+  it("fails closed after epoch repair when incoming secure payload is corrupted", async () => {
+    const projection = {
+      group: {id: "ops"},
+      members: {},
+      audit: [],
+      sourceEvents: [],
+    }
+
+    const epochOne = ensureSecureGroupEpochState("ops", {at: 1739836800})
+
+    const result = await reconcileSecureGroupEvents({
+      groupId: "ops",
+      localState: projection,
+      remoteEvents: [
+        {
+          id: "epoch-forward-bad-content-1",
+          pubkey: "f".repeat(64),
+          kind: GROUP_KINDS.NIP_EE.GROUP_EVENT,
+          created_at: 1739836801,
+          tags: [
+            ["h", "ops"],
+            ["epoch", "epoch:ops:2:1739836801"],
+            ["p", "a".repeat(64)],
+          ],
+          content: "corrupted-envelope",
+          sig: "s".repeat(128),
+        },
+      ],
+    })
+
+    expect(epochOne.sequence).toBe(1)
+    expect(result).toMatchObject({
+      ok: false,
+      code: "GROUP_TRANSPORT_VALIDATION_FAILED",
+      retryable: false,
+    })
+    expect(ensureSecureGroupEpochState("ops").sequence).toBe(2)
+    expect(projection.sourceEvents).toEqual([])
+  })
+
+  it("blocks secure send when group key lifecycle state is revoked", async () => {
+    ensureSecureGroupEpochState("ops", {at: 1739836800})
+
+    const keyPrep = prepareSecureGroupKeyUse({groupId: "ops", action: "send", now: 1739836800})
+
+    expect(keyPrep.ok).toBe(true)
+
+    setSecureGroupKeyStatus("ops", "revoked", 1739836801)
+
+    const blocked = await sendSecureGroupMessage({
+      groupId: "ops",
+      content: "second message",
+      recipients: ["a".repeat(64)],
+      requestedMode: "secure-nip-ee",
+      resolvedMode: "secure-nip-ee",
+    })
+
+    expect(blocked).toMatchObject({
+      ok: false,
+      code: "GROUP_TRANSPORT_CAPABILITY_BLOCKED",
+      retryable: false,
+    })
+
+    if (!blocked.ok) {
+      expect(blocked.message).toContain("revoked")
+    }
+
+    expect(getSecureGroupKeyState("ops")?.status).toBe("revoked")
   })
 })

@@ -190,6 +190,107 @@ describe("app/groups relay-capability", () => {
     expect(result.details).toContain("after retries")
   })
 
+  it("uses Cypress relay capability fixture override when provided", async () => {
+    ;(window as any).Cypress = {}
+    ;(window as any).__groupRelayCapabilityFixture = {
+      "wss://relay.navcom.app": {
+        status: "ready",
+        supportsNip104: true,
+        supportsNipEeSignal: true,
+        supportsNavcomBaseline: true,
+        isNavcomDefaultRelay: true,
+        details: "fixture-ready",
+      },
+    }
+
+    const fetchMock = vi.fn(async () => {
+      throw new Error("should not be called when fixture is active")
+    }) as unknown as typeof fetch
+
+    const [result] = await checkRelayCapabilities(["wss://relay.navcom.app"], fetchMock)
+
+    expect(result.status).toBe("ready")
+    expect(result.supportsNip104).toBe(true)
+    expect(result.supportsNipEeSignal).toBe(true)
+    expect(result.isNavcomDefaultRelay).toBe(true)
+    expect(result.details).toBe("fixture-ready")
+    expect(fetchMock).not.toHaveBeenCalled()
+
+    delete (window as any).__groupRelayCapabilityFixture
+    delete (window as any).Cypress
+  })
+
+  it("ignores malformed Cypress fixture maps and falls back to probe path", async () => {
+    clearRelayCapabilityCache()
+    ;(window as any).Cypress = {}
+    ;(window as any).__groupRelayCapabilityFixture = "invalid-fixture"
+
+    const fetchMock = vi.fn(async () => {
+      return {
+        ok: true,
+        json: async () => ({supported_nips: [29]}),
+      } as Response
+    }) as unknown as typeof fetch
+
+    const [result] = await checkRelayCapabilities(["wss://relay.probe"], fetchMock)
+
+    expect(result.status).toBe("ready")
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+
+    delete (window as any).__groupRelayCapabilityFixture
+    delete (window as any).Cypress
+  })
+
+  it("uses default fixture shape when relay fixture entry is missing", async () => {
+    clearRelayCapabilityCache()
+    ;(window as any).Cypress = {}
+    ;(window as any).__groupRelayCapabilityFixture = {
+      "wss://relay.other": {
+        status: "auth-required",
+      },
+    }
+
+    const fetchMock = vi.fn(async () => {
+      throw new Error("probe path should not run when Cypress fixture is active")
+    }) as unknown as typeof fetch
+
+    const [result] = await checkRelayCapabilities(["wss://relay.missing"], fetchMock)
+
+    expect(result.relay).toBe("wss://relay.missing")
+    expect(result.status).toBe("ready")
+    expect(result.supportsGroups).toBe(true)
+    expect(result.supportsNip29).toBe(true)
+    expect(result.supportsNip104).toBe(true)
+    expect(fetchMock).not.toHaveBeenCalled()
+
+    delete (window as any).__groupRelayCapabilityFixture
+    delete (window as any).Cypress
+  })
+
+  it("falls back to real probe path when fixture mode is disabled", async () => {
+    clearRelayCapabilityCache()
+    delete (window as any).Cypress
+    ;(window as any).__groupRelayCapabilityFixture = {
+      "wss://relay.disabled": {
+        status: "auth-required",
+      },
+    }
+
+    const fetchMock = vi.fn(async () => {
+      return {
+        ok: true,
+        json: async () => ({supported_nips: [1]}),
+      } as Response
+    }) as unknown as typeof fetch
+
+    const [result] = await checkRelayCapabilities(["wss://relay.disabled"], fetchMock)
+
+    expect(result.status).toBe("not-advertised")
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+
+    delete (window as any).__groupRelayCapabilityFixture
+  })
+
   it("attempts relay challenge auth and returns success when socket auth reaches ok", async () => {
     const attemptAuth = vi.fn(async () => {})
     const socket = {

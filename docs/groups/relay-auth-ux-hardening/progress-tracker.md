@@ -102,3 +102,7 @@ Priority `P2` (Completion + scale)
 - `3.0` depends on stable `2.1/2.2` auth states.
 - `4.0` should consume final relay/auth state model from `2.x` and viability rules from `1.3`.
 - `5.x` validation should expand after `2.1 + 1.3` land to avoid test churn.
+
+## Related Execution Plans
+
+- Security Modes implementation plan: `docs/groups/upgrade/19-security-modes-implementation-delivery-plan.md`

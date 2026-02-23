@@ -14,32 +14,31 @@ describe("app/groups guided-create-options", () => {
     expect(GUIDED_PRIVACY_OPTIONS).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          id: "private",
-          label: "Higher security (PQC preferred)",
+          id: "secure",
+          label: "Secure (Common Encryption)",
         }),
         expect.objectContaining({
-          id: "fallback-friendly",
-          label: "Maximum compatibility (lowest security)",
+          id: "max",
+          label: "Max (Post Quantum Cryptography)",
         }),
       ]),
     )
   })
 
-  it("describes secure-first and fallback behavior for private mode", () => {
-    const status = getGuidedSecurityStatus("private")
+  it("describes secure lane behavior for secure mode", () => {
+    const status = getGuidedSecurityStatus("secure")
 
-    expect(status.badge).toBe("Higher security (PQC preferred)")
-    expect(status.hint).toContain("secure transport first")
-    expect(status.hint).toContain("PQC-capable path")
-    expect(status.hint).toContain("fall back to compatibility")
+    expect(status.badge).toBe("Secure (Common Encryption)")
+    expect(status.hint).toContain("secure-nip-ee")
+    expect(status.hint).toContain("does not allow capability fallback")
   })
 
-  it("returns compatibility guidance for fallback-friendly mode", () => {
-    const status = getGuidedSecurityStatus("fallback-friendly")
+  it("returns compatibility guidance for auto mode", () => {
+    const status = getGuidedSecurityStatus("auto")
 
-    expect(status.badge).toBe("Maximum compatibility")
-    expect(status.hint).toContain("widest support")
-    expect(status.hint).toContain("lower security")
+    expect(status.badge).toBe("Auto (Compatibility First)")
+    expect(status.hint).toContain("baseline-nip29")
+    expect(status.hint).toContain("capability fallback")
   })
 
   it("extracts relay host from valid group id", () => {
@@ -50,13 +49,12 @@ describe("app/groups guided-create-options", () => {
     expect(getRecommendedRelayHost("not-a-valid-group-id")).toBe("relay.example")
   })
 
-  it("returns balanced defaults for standard privacy mode", () => {
-    const status = getGuidedSecurityStatus("standard")
+  it("returns interoperability defaults for basic mode", () => {
+    const status = getGuidedSecurityStatus("basic")
 
-    expect(status.badge).toBe("Balanced security")
-    expect(status.hint).toContain("compatibility transport")
-    expect(status.hint).toContain("upgrades to secure transport")
-    expect(status.hint).toContain("balanced reliability and security")
+    expect(status.badge).toBe("Basic (Open Group)")
+    expect(status.hint).toContain("baseline-nip29")
+    expect(status.hint).toContain("open/interoperable")
   })
 
   it("parses selected relays and removes duplicates", () => {

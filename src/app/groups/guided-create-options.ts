@@ -34,7 +34,7 @@ export const GUIDED_PRIVACY_OPTIONS: Array<{
     id: "auto",
     label: "Auto (Compatibility First)",
     description:
-      "Uses baseline lane by default (NIP-29) for widest interoperability. May move to secure-capable behavior based on runtime compatibility.",
+      "Uses NIP-29 by default for widest interoperability and allows runtime fallback behavior.",
   },
   {
     id: "basic",
@@ -46,13 +46,13 @@ export const GUIDED_PRIVACY_OPTIONS: Array<{
     id: "secure",
     label: "Secure (Common Encryption)",
     description:
-      "Requests secure lane (secure-nip-ee) with compatibility fallback as needed. Intended for common encrypted group messaging paths.",
+      "Requests secure-nip-ee. Does not allow capability fallback in guided create/join.",
   },
   {
     id: "max",
     label: "Max (Post Quantum Cryptography)",
     description:
-      "Requests secure lane and targets Navcom PQC path (NIP-104+PQC label in Navcom context). PQC depends on compatible client/signer/runtime; not all relays advertise this explicitly.",
+      "Requests secure-nip-ee with Navcom PQC-targeted runtime posture. Does not allow capability fallback in guided create/join.",
   },
 ]
 
@@ -141,26 +141,64 @@ export const getGuidedSecurityStatus = (privacy: GuidedPrivacyLevel) => {
   if (privacy === "max") {
     return {
       badge: "Max (Post Quantum Cryptography)",
-      hint: "Lane target: NIP-104+PQC (Navcom terminology) over secure transport. Current request mode is secure-nip-ee; PQC depends on compatible runtime path.",
+      hint: "NIP-104+PQC (Navcom terminology) over secure transport. Current request mode is secure-nip-ee; PQC depends on compatible runtime path.",
     }
   }
 
   if (privacy === "secure") {
     return {
       badge: "Secure (Common Encryption)",
-      hint: "Lane target: secure-nip-ee (NIP-EE lane). Falls back to NIP-29 baseline when secure path is unavailable.",
+      hint: "secure-nip-ee requested (NIP-EE lane). Guided create/join does not allow capability fallback in this mode.",
     }
   }
 
   if (privacy === "basic") {
     return {
       badge: "Basic (Open Group)",
-      hint: "Lane target: baseline-nip29 (NIP-29). Optimized for open/interoperable group operation.",
+      hint: "baseline-nip29 requested (NIP-29). Optimized for open/interoperable group operation.",
     }
   }
 
   return {
     badge: "Auto (Compatibility First)",
-    hint: "Lane target: baseline-nip29 (NIP-29) by default; may use secure-compatible path when available.",
+    hint: "baseline-nip29 by default (NIP-29), with capability fallback allowed when secure path is unavailable.",
+  }
+}
+
+export const getGuidedSecurityTechnicalProfile = (privacy: GuidedPrivacyLevel) => {
+  if (privacy === "max") {
+    return {
+      protocol: "Requested mode: secure-nip-ee (Navcom secure lane).",
+      nipLabel: "NIP profile: NIP-EE runtime lane; Navcom labels this as NIP-104+PQC posture.",
+      encryption:
+        "Group payload path uses wrapped secure sends plus group-epoch envelope (alg: group-epoch-aead-v1).",
+      note: "PQC enforcement depends on compatible client/signer/runtime path; not guaranteed by relay advertisement alone.",
+    }
+  }
+
+  if (privacy === "secure") {
+    return {
+      protocol: "Requested mode: secure-nip-ee.",
+      nipLabel: "NIP profile: NIP-EE runtime lane.",
+      encryption:
+        "Group payload path uses wrapped secure sends plus group-epoch envelope (alg: group-epoch-aead-v1).",
+      note: "Guided create/join does not allow capability fallback in this mode.",
+    }
+  }
+
+  if (privacy === "basic") {
+    return {
+      protocol: "Requested mode: baseline-nip29.",
+      nipLabel: "NIP profile: NIP-29 group control/events.",
+      encryption: "No protocol-enforced end-to-end encryption guarantee at baseline lane.",
+      note: "Relay policy may still restrict read/write, but baseline lane is interoperability-first.",
+    }
+  }
+
+  return {
+    protocol: "Requested mode: baseline-nip29 (default).",
+    nipLabel: "NIP profile: starts on NIP-29; can fallback/adjust by capability in Auto mode.",
+    encryption: "No protocol-enforced end-to-end encryption guarantee at baseline lane.",
+    note: "Auto is the only guided mode that allows capability fallback.",
   }
 }

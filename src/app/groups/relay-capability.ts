@@ -1,5 +1,6 @@
 import {AuthStatus, Pool} from "@welshman/net"
 import type {SignedEvent, StampedEvent} from "@welshman/util"
+import {resolveRelayCapabilityFixture} from "src/app/groups/relay-capability-fixture"
 
 export type RelayCapabilityStatus =
   | "ready"
@@ -206,9 +207,7 @@ const toLowercaseTokens = (value: unknown): string[] => {
 
   if (!Array.isArray(value)) return []
 
-  return value
-    .filter(item => typeof item === "string")
-    .map(item => item.toLowerCase())
+  return value.filter(item => typeof item === "string").map(item => item.toLowerCase())
 }
 
 const resolveNipEeSignal = (input: RelayInfoLike): boolean | null => {
@@ -260,9 +259,7 @@ const buildCapabilityDetailSuffix = ({
       ? "Navcom baseline advertised."
       : "Navcom baseline is not fully advertised; fallback/interoperability may still work."
 
-  const defaultRelayHint = isDefaultRelay
-    ? " relay.navcom.app is the default Navcom relay."
-    : ""
+  const defaultRelayHint = isDefaultRelay ? " relay.navcom.app is the default Navcom relay." : ""
 
   return `Capability signals: NIP-29 ${supportsNip29 ? "yes" : "no"}, NIP-42 ${supportsNip42 ? "yes" : "no"}, NIP-104 ${supportsNip104 ? "yes" : "no"}, NIP-EE signal ${nipEeLabel}. ${baselineHint} NIP-104-PQC is client-side and may operate without explicit relay advertisement.${defaultRelayHint}`
 }
@@ -458,8 +455,15 @@ export const checkRelayCapabilities = async (
   relays: string[],
   fetchImpl: typeof fetch = fetch,
   options: RelayProbeOptions = {},
-): Promise<RelayCapabilityCheck[]> =>
-  Promise.all((relays || []).map(relay => checkRelayCapability(relay, fetchImpl, options)))
+): Promise<RelayCapabilityCheck[]> => {
+  const fixture = resolveRelayCapabilityFixture(relays || [])
+
+  if (fixture) {
+    return fixture
+  }
+
+  return Promise.all((relays || []).map(relay => checkRelayCapability(relay, fetchImpl, options)))
+}
 
 const defaultGetSocket = (relay: string) => Pool.get().get(relay) as unknown as RelaySocketLike
 

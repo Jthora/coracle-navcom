@@ -1,0 +1,33 @@
+{
+  "spec": "groups-fallback-flow",
+  "test": "groups fallback compatibility flow runs create→join→chat flow in compatibility fallback lane",
+  "capturedAt": "2026-02-23T11:32:17.092Z",
+  "eventCount": 3,
+  "events": [
+    {
+      "event": "groups_secure_rotation_replay_bootstrap",
+      "props": {
+        "loaded_jobs": 0,
+        "resumed_failed": 0,
+        "deferred_failed": 0,
+        "reconciled_failed": 0,
+        "exhausted_failed": 0,
+        "already_pending": 0,
+        "completed_jobs": 0
+      }
+    },
+    {
+      "event": "group_setup_started",
+      "props": {
+        "mode": "guided",
+        "entry_point": "groups_create",
+        "room_context_present": false,
+        "fallback_reason": "none"
+      }
+    },
+    {
+      "event": "pageview",
+      "props": {}
+    }
+  ]
+}

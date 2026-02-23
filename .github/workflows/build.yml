@@ -42,3 +42,235 @@ jobs:
 
     - name: Build
       run: ./build-in-production.sh
+
+    - name: Groups mode matrix unit gate
+      if: matrix.node-version == '22.x'
+      shell: bash
+      run: |
+        set -euo pipefail
+        start_epoch=$(date +%s)
+        pnpm groups:test:unit:mode-matrix
+        elapsed=$(( $(date +%s) - start_epoch ))
+        budget=120
+
+        if [ "$elapsed" -gt "$budget" ]; then
+          echo "::warning::Groups mode matrix unit gate runtime ${elapsed}s exceeded budget ${budget}s"
+        fi
+
+    - name: Groups flaky budget gate
+      if: matrix.node-version == '22.x'
+      shell: bash
+      run: pnpm groups:test:flaky:budget
+
+    - name: Groups UI matrix and strict-negative gate
+      if: matrix.node-version == '22.x'
+      shell: bash
+      run: |
+        set -euo pipefail
+        start_epoch=$(date +%s)
+        pnpm dev >/tmp/vite-dev-ui-gates.log 2>&1 &
+        DEV_PID=$!
+
+        cleanup() {
+          kill "$DEV_PID" >/dev/null 2>&1 || true
+        }
+        trap cleanup EXIT
+
+        for i in {1..60}; do
+          if curl -sf http://localhost:5173 >/dev/null; then
+            break
+          fi
+          sleep 2
+        done
+
+        if ! curl -sf http://localhost:5173 >/dev/null; then
+          cat /tmp/vite-dev-ui-gates.log
+          echo "Vite dev server failed to start on http://localhost:5173"
+          exit 1
+        fi
+
+        pnpm groups:test:ui:gates
+
+        elapsed=$(( $(date +%s) - start_epoch ))
+        budget=300
+
+        if [ "$elapsed" -gt "$budget" ]; then
+          echo "::warning::Groups UI matrix + strict-negative gate runtime ${elapsed}s exceeded budget ${budget}s"
+        fi
+
+    - name: Groups max smoke gate
+      if: matrix.node-version == '22.x'
+      shell: bash
+      run: |
+        set -euo pipefail
+        start_epoch=$(date +%s)
+        pnpm dev >/tmp/vite-dev.log 2>&1 &
+        DEV_PID=$!
+
+        cleanup() {
+          kill "$DEV_PID" >/dev/null 2>&1 || true
+        }
+        trap cleanup EXIT
+
+        for i in {1..60}; do
+          if curl -sf http://localhost:5173 >/dev/null; then
+            break
+          fi
+          sleep 2
+        done
+
+        if ! curl -sf http://localhost:5173 >/dev/null; then
+          cat /tmp/vite-dev.log
+          echo "Vite dev server failed to start on http://localhost:5173"
+          exit 1
+        fi
+
+        run_smoke_with_retry() {
+          local smoke_cmd="$1"
+          local attempt=1
+
+          until [ "$attempt" -gt 2 ]; do
+            if eval "$smoke_cmd"; then
+              return 0
+            fi
+
+            if [ "$attempt" -eq 2 ]; then
+              echo "Smoke gate failed after retry: $smoke_cmd"
+              return 1
+            fi
+
+            echo "Smoke gate failed on attempt $attempt; retrying once in 5s..."
+            attempt=$((attempt + 1))
+            sleep 5
+          done
+        }
+
+        run_smoke_with_retry "pnpm groups:test:smoke:max"
+
+        elapsed=$(( $(date +%s) - start_epoch ))
+        budget=180
+
+        if [ "$elapsed" -gt "$budget" ]; then
+          echo "::warning::Groups max smoke gate runtime ${elapsed}s exceeded budget ${budget}s"
+        fi
+
+    - name: Groups secure smoke gate
+      if: matrix.node-version == '22.x'
+      shell: bash
+      run: |
+        set -euo pipefail
+        start_epoch=$(date +%s)
+        pnpm dev >/tmp/vite-dev-secure.log 2>&1 &
+        DEV_PID=$!
+
+        cleanup() {
+          kill "$DEV_PID" >/dev/null 2>&1 || true
+        }
+        trap cleanup EXIT
+
+        for i in {1..60}; do
+          if curl -sf http://localhost:5173 >/dev/null; then
+            break
+          fi
+          sleep 2
+        done
+
+        if ! curl -sf http://localhost:5173 >/dev/null; then
+          cat /tmp/vite-dev-secure.log
+          echo "Vite dev server failed to start on http://localhost:5173"
+          exit 1
+        fi
+
+        run_smoke_with_retry() {
+          local smoke_cmd="$1"
+          local attempt=1
+
+          until [ "$attempt" -gt 2 ]; do
+            if eval "$smoke_cmd"; then
+              return 0
+            fi
+
+            if [ "$attempt" -eq 2 ]; then
+              echo "Smoke gate failed after retry: $smoke_cmd"
+              return 1
+            fi
+
+            echo "Smoke gate failed on attempt $attempt; retrying once in 5s..."
+            attempt=$((attempt + 1))
+            sleep 5
+          done
+        }
+
+        run_smoke_with_retry "pnpm groups:test:smoke:secure"
+
+        elapsed=$(( $(date +%s) - start_epoch ))
+        budget=180
+
+        if [ "$elapsed" -gt "$budget" ]; then
+          echo "::warning::Groups secure smoke gate runtime ${elapsed}s exceeded budget ${budget}s"
+        fi
+
+    - name: Groups fallback smoke gate
+      if: matrix.node-version == '22.x'
+      shell: bash
+      run: |
+        set -euo pipefail
+        start_epoch=$(date +%s)
+        pnpm dev >/tmp/vite-dev-fallback.log 2>&1 &
+        DEV_PID=$!
+
+        cleanup() {
+          kill "$DEV_PID" >/dev/null 2>&1 || true
+        }
+        trap cleanup EXIT
+
+        for i in {1..60}; do
+          if curl -sf http://localhost:5173 >/dev/null; then
+            break
+          fi
+          sleep 2
+        done
+
+        if ! curl -sf http://localhost:5173 >/dev/null; then
+          cat /tmp/vite-dev-fallback.log
+          echo "Vite dev server failed to start on http://localhost:5173"
+          exit 1
+        fi
+
+        run_smoke_with_retry() {
+          local smoke_cmd="$1"
+          local attempt=1
+
+          until [ "$attempt" -gt 2 ]; do
+            if eval "$smoke_cmd"; then
+              return 0
+            fi
+
+            if [ "$attempt" -eq 2 ]; then
+              echo "Smoke gate failed after retry: $smoke_cmd"
+              return 1
+            fi
+
+            echo "Smoke gate failed on attempt $attempt; retrying once in 5s..."
+            attempt=$((attempt + 1))
+            sleep 5
+          done
+        }
+
+        run_smoke_with_retry "pnpm groups:test:smoke:fallback"
+
+        elapsed=$(( $(date +%s) - start_epoch ))
+        budget=180
+
+        if [ "$elapsed" -gt "$budget" ]; then
+          echo "::warning::Groups fallback smoke gate runtime ${elapsed}s exceeded budget ${budget}s"
+        fi
+
+    - name: Upload groups smoke telemetry artifacts
+      if: always() && matrix.node-version == '22.x'
+      uses: actions/upload-artifact@v4
+      with:
+        name: groups-smoke-telemetry-${{ github.run_id }}-${{ github.run_attempt }}
+        path: cypress/artifacts/group-telemetry
+        if-no-files-found: warn
+        retention-days: 14

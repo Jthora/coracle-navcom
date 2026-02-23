@@ -64,8 +64,16 @@ export const publishGroupCreate = async (
   actorRole: GroupMemberRole = "admin",
   {
     requestedMode,
+    allowCapabilityFallback,
+    missionTier,
+    downgradeConfirmed,
+    allowTier2Override,
   }: {
     requestedMode?: GroupTransportModeId
+    allowCapabilityFallback?: boolean
+    missionTier?: 0 | 1 | 2
+    downgradeConfirmed?: boolean
+    allowTier2Override?: boolean
   } = {},
 ) => {
   ensureAllowed(actorRole, "create")
@@ -73,7 +81,15 @@ export const publishGroupCreate = async (
   return dispatchGroupTransportAction(
     "create",
     {groupId, title, description, picture},
-    {actorRole, requestedMode, diagnostics: createGroupCommandTransportDiagnostics()},
+    {
+      actorRole,
+      requestedMode,
+      allowCapabilityFallback,
+      missionTier,
+      downgradeConfirmed,
+      allowTier2Override,
+      diagnostics: createGroupCommandTransportDiagnostics(),
+    },
   )
 }
 
@@ -87,13 +103,25 @@ export const publishGroupCreateWithAck = async (
   actorRole: GroupMemberRole = "admin",
   {
     requestedMode,
+    allowCapabilityFallback,
+    missionTier,
+    downgradeConfirmed,
+    allowTier2Override,
   }: {
     requestedMode?: GroupTransportModeId
+    allowCapabilityFallback?: boolean
+    missionTier?: 0 | 1 | 2
+    downgradeConfirmed?: boolean
+    allowTier2Override?: boolean
   } = {},
 ): Promise<GroupCommandOutcome<unknown>> => {
   try {
     const value = await publishGroupCreate({groupId, title, description, picture}, actorRole, {
       requestedMode,
+      allowCapabilityFallback,
+      missionTier,
+      downgradeConfirmed,
+      allowTier2Override,
     })
 
     return {
@@ -112,12 +140,27 @@ export const publishGroupCreateWithRecovery = async (
   retries = 1,
   {
     requestedMode,
+    allowCapabilityFallback,
+    missionTier,
+    downgradeConfirmed,
+    allowTier2Override,
   }: {
     requestedMode?: GroupTransportModeId
+    allowCapabilityFallback?: boolean
+    missionTier?: 0 | 1 | 2
+    downgradeConfirmed?: boolean
+    allowTier2Override?: boolean
   } = {},
 ) =>
   withGroupCommandRetry(
-    () => publishGroupCreateWithAck(params, actorRole, {requestedMode}),
+    () =>
+      publishGroupCreateWithAck(params, actorRole, {
+        requestedMode,
+        allowCapabilityFallback,
+        missionTier,
+        downgradeConfirmed,
+        allowTier2Override,
+      }),
     retries,
   )
 
@@ -140,8 +183,16 @@ export const publishGroupJoin = async (
   actorRole: GroupMemberRole = "member",
   {
     requestedMode,
+    allowCapabilityFallback,
+    missionTier,
+    downgradeConfirmed,
+    allowTier2Override,
   }: {
     requestedMode?: GroupTransportModeId
+    allowCapabilityFallback?: boolean
+    missionTier?: 0 | 1 | 2
+    downgradeConfirmed?: boolean
+    allowTier2Override?: boolean
   } = {},
 ) => {
   ensureAllowed(actorRole, "join")
@@ -149,7 +200,15 @@ export const publishGroupJoin = async (
   return dispatchGroupTransportAction(
     "join",
     {groupId, memberPubkey, reason},
-    {actorRole, requestedMode, diagnostics: createGroupCommandTransportDiagnostics()},
+    {
+      actorRole,
+      requestedMode,
+      allowCapabilityFallback,
+      missionTier,
+      downgradeConfirmed,
+      allowTier2Override,
+      diagnostics: createGroupCommandTransportDiagnostics(),
+    },
   )
 }
 

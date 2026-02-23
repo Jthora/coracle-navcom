@@ -50,11 +50,11 @@ const getFallbackExpectation = ({
   requestedTransportMode: string
 }) => {
   if (securityMode === "max") {
-    return "Max (Post Quantum Cryptography): secure transport requested with Navcom PQC-targeted posture. PQC runtime path requires compatible client/signer behavior."
+    return "Max (Post Quantum Cryptography): secure transport requested with Navcom PQC-targeted posture. Guided create/join does not allow capability fallback in this mode."
   }
 
   if (securityMode === "secure") {
-    return "Secure (Common Encryption): secure transport requested first. Fallback to baseline may occur when secure path is unavailable."
+    return "Secure (Common Encryption): secure transport requested first. Guided create/join does not allow capability fallback in this mode."
   }
 
   if (securityMode === "basic") {

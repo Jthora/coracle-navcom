@@ -71,6 +71,23 @@ describe("engine/group-transport-secure", () => {
     })
   })
 
+  it("returns validation failure for malformed secure control payload", async () => {
+    setSecurePilotEnabled(true)
+
+    const result = await securePilotGroupTransport.publishControlAction({
+      action: "join",
+      payload: {groupId: "ops", memberPubkey: ""},
+      actorRole: "member",
+      requestedMode: "secure-nip-ee",
+      createdAt: 100,
+    })
+
+    expect(result).toMatchObject({
+      ok: false,
+      code: "GROUP_TRANSPORT_VALIDATION_FAILED",
+    })
+  })
+
   it("returns deterministic validation message for invalid secure recipient pubkey", async () => {
     setSecurePilotEnabled(true)
 

@@ -10,6 +10,7 @@ import {
   sendSecureGroupMessage,
   subscribeSecureGroupEvents,
 } from "src/engine/group-transport-secure-ops"
+import {publishSecureControlAction as publishSecureControlActionDispatch} from "src/engine/group-transport-secure-control"
 
 let securePilotEnabled = false
 
@@ -44,19 +45,16 @@ const canOperate = ({requestedMode, capabilitySnapshot}: GroupTransportCanOperat
   return {ok: true}
 }
 
-const unsupported = (op: string) =>
-  errTransportResult(
-    "GROUP_TRANSPORT_UNSUPPORTED",
-    `Secure pilot adapter does not implement ${op} yet.`,
-    false,
-  )
-
 export const securePilotGroupTransport: GroupTransport = {
   getModeId: () => "secure-nip-ee",
   start: () => {},
   stop: () => {},
   canOperate,
-  publishControlAction: async () => unsupported("publishControlAction"),
+  publishControlAction: async request => {
+    if (!securePilotEnabled) return secureDisabledResult()
+
+    return publishSecureControlActionDispatch(request)
+  },
   sendMessage: async input => {
     if (!securePilotEnabled) return secureDisabledResult()
 

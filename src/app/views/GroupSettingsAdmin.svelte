@@ -41,6 +41,7 @@
     isGroupPolicyDraftValid,
     type GroupMissionTier,
   } from "src/app/groups/policy"
+  import type {GuidedPrivacyLevel} from "src/app/groups/guided-create-options"
   import {getSecureCapabilityGateMessage} from "src/app/groups/capability-gate"
   import {
     createDefaultRoomRelayPolicy,
@@ -71,11 +72,20 @@
   $: hasVisibleAdminActions = hasAnyVisibleAdminAction(adminUi)
 
   let policy = createDefaultGroupPolicyDraft()
+  let policySecurityMode: GuidedPrivacyLevel = "basic"
   $: policyNotices = evaluateGroupPolicyDraft(policy)
   $: policyValid = isGroupPolicyDraftValid(policy)
-  $: secureCapabilityWarning = getSecureCapabilityGateMessage({preferredMode: policy.preferredMode})
+  $: policySecurityMode = policy.preferredMode === "secure-nip-ee" ? "secure" : "basic"
+  $: secureCapabilityWarning = getSecureCapabilityGateMessage({
+    preferredMode: policy.preferredMode,
+    securityMode: policySecurityMode,
+  })
   $: policySummary = asGroupPolicySummary(policy)
-  $: securityState = getProjectionSecurityState(projection, Boolean(secureCapabilityWarning))
+  $: securityState = getProjectionSecurityState(
+    projection,
+    Boolean(secureCapabilityWarning),
+    policySecurityMode,
+  )
   $: adminSection =
     typeof window !== "undefined" && window.location.pathname.endsWith("/moderation")
       ? ("moderation" as GroupBreadcrumbSection)

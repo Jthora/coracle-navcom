@@ -10,6 +10,20 @@ describe("app/groups security-state", () => {
       label: "Secure transport active",
     })
     expect(state.hint).toContain("Secure pilot transport is active")
+    expect(state.hint).not.toContain("fallback may be used")
+  })
+
+  it("returns strict secure label for secure transport when secure mode is selected", () => {
+    const state = resolveGroupSecurityState({
+      transportMode: "secure-nip-ee",
+      securityMode: "secure",
+    })
+
+    expect(state).toMatchObject({
+      state: "secure-active",
+      label: "Secure mode active",
+    })
+    expect(state.hint).toContain("Secure mode is active")
   })
 
   it("returns explicit compatibility label for baseline transport", () => {
@@ -41,6 +55,21 @@ describe("app/groups security-state", () => {
     expect(blocked.hint).toContain("room policy and relay capabilities")
   })
 
+  it("uses strict degradation hints for strict mode", () => {
+    const fallback = resolveGroupSecurityState({
+      transportMode: "secure-nip-ee",
+      hasDowngradeSignal: true,
+      securityMode: "max",
+    })
+
+    expect(fallback).toMatchObject({
+      state: "fallback-active",
+      label: "Strict mode degraded",
+    })
+    expect(fallback.hint).toContain("Max mode was requested")
+    expect(fallback.hint).toContain("Compatibility fallback remains blocked")
+  })
+
   it("provides explicit compatibility fallback while projection is loading", () => {
     const state = getProjectionSecurityState(undefined)
 
@@ -49,6 +78,16 @@ describe("app/groups security-state", () => {
       label: "Compatibility transport active",
       hint: "Security state unavailable until group data loads.",
     })
+  })
+
+  it("provides strict loading hint while projection is unavailable", () => {
+    const state = getProjectionSecurityState(undefined, false, "max")
+
+    expect(state).toMatchObject({
+      state: "compatibility-active",
+      label: "Compatibility transport active",
+    })
+    expect(state.hint).toContain("Max mode requested")
   })
 
   it("returns fallback-active when projection exists with downgrade signal", () => {

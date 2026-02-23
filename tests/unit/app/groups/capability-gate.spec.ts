@@ -16,6 +16,17 @@ describe("app/groups capability-gate", () => {
     const warning = getSecureCapabilityGateMessage({preferredMode: "secure-nip-ee"})
 
     expect(typeof warning).toBe("string")
+    expect(warning).toContain("Strict mode remains blocked")
+  })
+
+  it("returns auto-compatible warning when secure pilot disabled in auto mode", () => {
+    const warning = getSecureCapabilityGateMessage({
+      preferredMode: "secure-nip-ee",
+      securityMode: "auto",
+    })
+
+    expect(typeof warning).toBe("string")
+    expect(warning).toContain("Auto mode can continue with compatibility transport")
   })
 
   it("returns readiness mismatch warning with capability reason context", () => {
@@ -33,6 +44,24 @@ describe("app/groups capability-gate", () => {
       throw new Error("Expected mismatch warning")
     }
 
-    expect(warning).toContain("Secure capability mismatch")
+    expect(warning).toContain("Strict mode remains blocked")
+  })
+
+  it("returns strict max mismatch wording when max mode is selected", () => {
+    setSecurePilotEnabled(true)
+
+    const warning = getSecureCapabilityGateMessage({
+      preferredMode: "secure-nip-ee",
+      securityMode: "max",
+      capabilitySnapshot: {
+        readiness: "R2",
+      },
+    })
+
+    if (warning === null) {
+      throw new Error("Expected max mismatch warning")
+    }
+
+    expect(warning).toContain("Max requirements not met")
   })
 })

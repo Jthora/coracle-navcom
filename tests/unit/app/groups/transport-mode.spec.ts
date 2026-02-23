@@ -3,18 +3,23 @@ import {resolveRequestedTransportMode} from "src/app/groups/transport-mode"
 
 describe("app/groups transport-mode", () => {
   it("maps guided create privacy to requested transport mode", () => {
-    expect(resolveRequestedTransportMode({flow: "create", privacy: "private"})).toEqual({
+    expect(resolveRequestedTransportMode({flow: "create", privacy: "secure"})).toEqual({
       requestedMode: "secure-nip-ee",
       source: "guided-privacy",
     })
 
-    expect(resolveRequestedTransportMode({flow: "create", privacy: "standard"})).toEqual({
+    expect(resolveRequestedTransportMode({flow: "create", privacy: "basic"})).toEqual({
       requestedMode: "baseline-nip29",
       source: "guided-privacy",
     })
 
-    expect(resolveRequestedTransportMode({flow: "create", privacy: "fallback-friendly"})).toEqual({
+    expect(resolveRequestedTransportMode({flow: "create", privacy: "auto"})).toEqual({
       requestedMode: "baseline-nip29",
+      source: "guided-privacy",
+    })
+
+    expect(resolveRequestedTransportMode({flow: "create", privacy: "max"})).toEqual({
+      requestedMode: "secure-nip-ee",
       source: "guided-privacy",
     })
   })
@@ -23,7 +28,7 @@ describe("app/groups transport-mode", () => {
     expect(
       resolveRequestedTransportMode({
         flow: "join",
-        privacy: "standard",
+        privacy: "basic",
         invitePreferredMode: "secure-nip-ee",
       }),
     ).toEqual({
@@ -34,7 +39,7 @@ describe("app/groups transport-mode", () => {
     expect(
       resolveRequestedTransportMode({
         flow: "join",
-        privacy: "private",
+        privacy: "secure",
         invitePreferredMode: "baseline-nip29",
       }),
     ).toEqual({
