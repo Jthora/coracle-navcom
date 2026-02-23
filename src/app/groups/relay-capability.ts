@@ -4,7 +4,7 @@ import type {SignedEvent, StampedEvent} from "@welshman/util"
 export type RelayCapabilityStatus =
   | "ready"
   | "auth-required"
-  | "no-groups"
+  | "not-advertised"
   | "unknown"
   | "unreachable"
 
@@ -315,11 +315,11 @@ export const evaluateRelayCapabilityFromInfo = (
   if (!supportsGroups) {
     return {
       ...capabilitySignals,
-      status: "no-groups",
+      status: "not-advertised",
       supportsGroups,
       authRequired,
       challengeResponseAuth,
-      details: `Relay does not advertise NIP-29 group support. Some relays may still interoperate, but behavior is not guaranteed. ${capabilityDetailSuffix}`,
+      details: `Relay does not advertise NIP-29 group support. This is an advertisement signal, not a hard failure; some relays still interoperate. ${capabilityDetailSuffix}`,
     }
   }
 
@@ -547,10 +547,12 @@ export const hasViableRelayPath = ({
     return selectedRelays.length > 0
   }
 
-  return checks.some(
-    check =>
-      check.status === "ready" || (check.status === "auth-required" && authConfirmed[check.relay]),
-  )
+  return checks.some(check => {
+    if (check.status === "unreachable") return false
+    if (check.status === "auth-required") return Boolean(authConfirmed[check.relay])
+
+    return true
+  })
 }
 
 export const refreshRelayAuthSessions = ({

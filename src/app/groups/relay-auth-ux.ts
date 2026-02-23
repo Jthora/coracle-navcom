@@ -50,18 +50,18 @@ const getFallbackExpectation = ({
   requestedTransportMode: string
 }) => {
   if (securityMode === "private") {
-    return "Prefer secure transport (PQC path). If unavailable, fallback may reduce security guarantees."
+    return "High (Secure-first): request secure transport first. If unavailable, fallback to baseline may occur and reduces security guarantees."
   }
 
   if (securityMode === "fallback-friendly") {
-    return "Compatibility-first mode. Baseline relay behavior is expected."
+    return "Low (Compatibility-first): baseline relay behavior is expected. In current create/join flow this uses the same baseline transport request as Medium."
   }
 
   if (requestedTransportMode === "secure-nip-ee") {
-    return "Balanced mode with secure transport preferred when available."
+    return "High (Secure-first): secure transport requested."
   }
 
-  return "Balanced mode with compatibility fallback allowed if secure transport is unavailable."
+  return "Medium (Auto): baseline transport requested for reliability across mixed relays."
 }
 
 export const buildRelayAccessPackageText = ({
@@ -131,11 +131,14 @@ export const buildReceiverSetupChecklist = ({
   const hasViableRelayPath =
     (checks || []).length === 0
       ? hasRelaySelection
-      : (checks || []).some(
-          check =>
-            check.status === "ready" ||
-            (check.status === "auth-required" && authConfirmed[check.relay]),
-        )
+      : (checks || []).some(check => {
+          if (check.status === "unreachable") return false
+          if (check.status === "auth-required") {
+            return Boolean(authConfirmed[check.relay])
+          }
+
+          return true
+        })
 
   const addressDone = groupAddressValid && hasAddress
   const relaySelectionDone = hasRelaySelection
@@ -187,7 +190,7 @@ export const buildReceiverSetupChecklist = ({
   }
 
   if (!relayChecksDone) {
-    blockingReasons.push("Run relay capability checks to verify relay support.")
+    blockingReasons.push("Run relay capability checks to verify relay reachability and auth needs.")
   }
 
   if (!relayAuthDone) {

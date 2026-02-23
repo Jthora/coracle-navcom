@@ -32,21 +32,21 @@ export const GUIDED_PRIVACY_OPTIONS: Array<{
 }> = [
   {
     id: "standard",
-    label: "Balanced security (recommended)",
+    label: "Medium (Auto)",
     description:
-      "Security: Medium. Trade-off: balanced reliability and stronger transport when available. Encryption: compatibility transport by default, auto-upgrades to secure transport when available. PQC: opportunistic.",
+      "Requests baseline transport (baseline-nip29). Best default for mixed relays. Works with widest compatibility while still allowing secure-aware clients and relay checks.",
   },
   {
     id: "private",
-    label: "Higher security (PQC preferred)",
+    label: "High (Secure-first)",
     description:
-      "Security: Higher. Trade-off: stronger transport preference with possible fallback on unsupported relays. Encryption: secure transport preferred with compatibility fallback. PQC: yes, preferred when available.",
+      "Requests secure transport (secure-nip-ee) first. If secure path is unavailable, flow may fall back to baseline depending on capability/policy. Use when stronger transport is required.",
   },
   {
     id: "fallback-friendly",
-    label: "Maximum compatibility (lowest security)",
+    label: "Low (Compatibility-first)",
     description:
-      "Security: Lower. Trade-off: highest relay/device compatibility over stronger transport. Encryption: compatibility transport path. PQC: no by default.",
+      "Requests baseline transport and prioritizes interoperability wording for legacy/public relays. Today this is operationally the same transport request as Medium during create/join.",
   },
 ]
 
@@ -134,20 +134,20 @@ export const getRelayPresetValues = ({
 export const getGuidedSecurityStatus = (privacy: GuidedPrivacyLevel) => {
   if (privacy === "private") {
     return {
-      badge: "Higher security (PQC preferred)",
-      hint: "Uses secure transport first and prefers PQC-capable path when available. Trade-off: may fall back to compatibility on unsupported relays.",
+      badge: "High (Secure-first)",
+      hint: "Secure transport is requested first (secure-nip-ee). If the secure lane is unavailable, fallback to baseline can occur based on runtime capability and policy.",
     }
   }
 
   if (privacy === "fallback-friendly") {
     return {
-      badge: "Maximum compatibility",
-      hint: "Uses compatibility transport for widest support. Trade-off: lower security than PQC-preferred mode.",
+      badge: "Low (Compatibility-first)",
+      hint: "Baseline transport (baseline-nip29) with compatibility-first posture for mixed/legacy relays. Same transport request as Medium in current create/join flow.",
     }
   }
 
   return {
-    badge: "Balanced security",
-    hint: "Starts in compatibility transport and upgrades to secure transport when available. Trade-off: balanced reliability and security.",
+    badge: "Medium (Auto)",
+    hint: "Baseline transport (baseline-nip29) optimized for reliability across public/mixed relays while retaining secure capability signaling and checks.",
   }
 }

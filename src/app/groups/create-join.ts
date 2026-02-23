@@ -6,7 +6,13 @@ export type GroupPolicyPrompt = {
 }
 
 export const buildCreatePolicyPrompts = (groupId: string): GroupPolicyPrompt[] => {
-  const parsed = parseGroupAddressResult(groupId)
+  const token = (groupId || "").trim()
+
+  if (!token) {
+    return []
+  }
+
+  const parsed = parseGroupAddressResult(token)
 
   if (!parsed.ok) {
     return [{level: "warning", message: "Use a valid group address before creating."}]

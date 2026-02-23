@@ -95,15 +95,14 @@
   $: createRelayHost = getPrimaryRelayHostFromSelectedRelays(createSelectedRelaysText)
   $: createGroupId = buildRelayGroupAddress(createRelayHost, createRoomName)
   $: createPrompts = buildCreatePolicyPrompts(createGroupIdOverride || createGroupId)
-  $: createWarnings = [
+  $: createRoomWarnings = [
     createRoomName && createGroupId && !createGroupId.endsWith(createRoomName.toLowerCase())
-      ? "Room name is normalized to a relay-safe slug."
+      ? "Group name is normalized to a relay-safe slug."
       : "",
+  ].filter(Boolean)
+  $: createRelayWarnings = [
     createSelectedRelays.length === 0
       ? "Add at least one relay in Selected Relays to create the group."
-      : "",
-    createSelectedRelays.length > 1
-      ? "Primary relay host is derived from the first selected relay address."
       : "",
     createRelayHost && !createRelayHost.includes(".")
       ? "Primary relay host looks incomplete; use a full relay address when possible."
@@ -314,23 +313,22 @@
     const readyCount = checks.filter(check => check.status === "ready").length
     const authRequiredCount = checks.filter(check => check.status === "auth-required").length
     const unreachableCount = checks.filter(check => check.status === "unreachable").length
-    const noGroupsCount = checks.filter(check => check.status === "no-groups").length
+    const notAdvertisedCount = checks.filter(check => check.status === "not-advertised").length
     const unknownCount = checks.filter(check => check.status === "unknown").length
 
     return {
       readyCount,
       authRequiredCount,
       unreachableCount,
-      noGroupsCount,
+      notAdvertisedCount,
       unknownCount,
     }
   }
 
   const getRelayChecksResult = (checks: RelayCapabilityCheck[]) => {
-    const {authRequiredCount, unreachableCount, noGroupsCount, unknownCount} =
-      getRelayCheckCounts(checks)
+    const {authRequiredCount, unreachableCount, unknownCount} = getRelayCheckCounts(checks)
 
-    if (unreachableCount > 0 || noGroupsCount > 0 || unknownCount > 0 || authRequiredCount > 0) {
+    if (unreachableCount > 0 || unknownCount > 0 || authRequiredCount > 0) {
       return "warning"
     }
 
@@ -379,7 +377,7 @@
       createRelayChecks = await checkRelayCapabilities(createSelectedRelays)
       createRelayChecksAt = Date.now()
 
-      const {readyCount, authRequiredCount, unreachableCount, noGroupsCount} =
+      const {readyCount, authRequiredCount, unreachableCount, notAdvertisedCount} =
         getRelayCheckCounts(createRelayChecks)
 
       trackGroupTelemetry("group_setup_relay_checks_completed", {
@@ -388,7 +386,8 @@
         ready_count: readyCount,
         auth_required_count: authRequiredCount,
         unreachable_count: unreachableCount,
-        no_groups_count: noGroupsCount,
+        not_advertised_count: notAdvertisedCount,
+        no_groups_count: notAdvertisedCount,
         elapsed_ms: Math.max(0, Date.now() - startedAt),
         result: getRelayChecksResult(createRelayChecks),
       })
@@ -429,7 +428,7 @@
       joinRelayChecks = await checkRelayCapabilities(joinSelectedRelays)
       joinRelayChecksAt = Date.now()
 
-      const {readyCount, authRequiredCount, unreachableCount, noGroupsCount} =
+      const {readyCount, authRequiredCount, unreachableCount, notAdvertisedCount} =
         getRelayCheckCounts(joinRelayChecks)
 
       trackGroupTelemetry("group_setup_relay_checks_completed", {
@@ -438,7 +437,8 @@
         ready_count: readyCount,
         auth_required_count: authRequiredCount,
         unreachable_count: unreachableCount,
-        no_groups_count: noGroupsCount,
+        not_advertised_count: notAdvertisedCount,
+        no_groups_count: notAdvertisedCount,
         elapsed_ms: Math.max(0, Date.now() - startedAt),
         result: getRelayChecksResult(joinRelayChecks),
       })
@@ -612,7 +612,7 @@
   const getRelayStatusBadgeClass = (status: RelayCapabilityCheck["status"]) => {
     if (status === "ready") return "border-emerald-500 text-emerald-300"
     if (status === "auth-required") return "border-amber-500 text-amber-300"
-    if (status === "no-groups") return "border-warning text-warning"
+    if (status === "not-advertised") return "border-neutral-600 text-neutral-300"
 
     return "border-neutral-600 text-neutral-300"
   }
@@ -689,7 +689,8 @@
         ready_count: counts.readyCount,
         auth_required_count: counts.authRequiredCount,
         unreachable_count: counts.unreachableCount,
-        no_groups_count: counts.noGroupsCount,
+        not_advertised_count: counts.notAdvertisedCount,
+        no_groups_count: counts.notAdvertisedCount,
         result: "error",
       })
       createError =
@@ -714,7 +715,8 @@
         ready_count: counts.readyCount,
         auth_required_count: counts.authRequiredCount,
         unreachable_count: counts.unreachableCount,
-        no_groups_count: counts.noGroupsCount,
+        not_advertised_count: counts.notAdvertisedCount,
+        no_groups_count: counts.notAdvertisedCount,
         missing_signer_count: missingCredentials.missingSignerRelays.length,
         unknown_auth_method_count: missingCredentials.unknownMethodRelays.length,
         result: "error",
@@ -824,7 +826,8 @@
         ready_count: counts.readyCount,
         auth_required_count: counts.authRequiredCount,
         unreachable_count: counts.unreachableCount,
-        no_groups_count: counts.noGroupsCount,
+        not_advertised_count: counts.notAdvertisedCount,
+        no_groups_count: counts.notAdvertisedCount,
         result: "error",
       })
       joinError =
@@ -849,7 +852,8 @@
         ready_count: counts.readyCount,
         auth_required_count: counts.authRequiredCount,
         unreachable_count: counts.unreachableCount,
-        no_groups_count: counts.noGroupsCount,
+        not_advertised_count: counts.notAdvertisedCount,
+        no_groups_count: counts.notAdvertisedCount,
         missing_signer_count: missingCredentials.missingSignerRelays.length,
         unknown_auth_method_count: missingCredentials.unknownMethodRelays.length,
         result: "error",
@@ -987,7 +991,7 @@
       class:btn-accent={flow === "create"}
       type="button"
       on:click={() => goToFlow("create")}>
-      <i class="fa-solid fa-plus" /> Create a room
+      <i class="fa-solid fa-plus" /> Create a group
     </button>
     <button
       class="btn"
@@ -1007,7 +1011,56 @@
     </div>
 
     <div class="mt-3 grid gap-2 sm:grid-cols-2">
-      <Input placeholder="Room name (e.g. ops)" bind:value={createRoomName} />
+      <div class="rounded border border-neutral-700 px-3 py-2 text-sm text-neutral-300 sm:col-span-2">
+        <div class="mb-2 font-semibold text-neutral-100">Group details</div>
+        <div class="space-y-3">
+          <div>
+            <label class="mb-1 block text-sm font-semibold text-neutral-100" for="room-name">
+              Group Name
+            </label>
+            <Input id="room-name" placeholder="e.g. ops" bind:value={createRoomName} />
+          </div>
+          <div>
+            <label class="mb-1 block text-sm font-semibold text-neutral-100" for="room-title">
+              Group Title <span class="italic text-neutral-400">(optional)</span>
+            </label>
+            <Input id="room-title" placeholder="Group title" bind:value={createTitle} />
+          </div>
+          <div>
+            <label
+              class="mb-1 block text-sm font-semibold text-neutral-100"
+              for="room-description">
+              Group Description <span class="italic text-neutral-400">(optional)</span>
+            </label>
+            <Input
+              id="room-description"
+              placeholder="Group description"
+              bind:value={createDescription} />
+          </div>
+          <details class="rounded border border-neutral-700 px-3 py-2 text-sm text-neutral-300">
+            <summary class="cursor-pointer">Advanced: override group address manually</summary>
+            <div class="mt-2">
+              <Input
+                placeholder="Group address (e.g. relay.example'ops)"
+                bind:value={createGroupIdOverride} />
+              <p class="mt-2 text-xs text-neutral-400">
+                Use this only when you need a specific canonical address (for migration,
+                compatibility, or pre-agreed naming). Otherwise Group Name-derived address is
+                preferred.
+              </p>
+            </div>
+          </details>
+          {#if createRoomWarnings.length > 0}
+            <div class="space-y-2">
+              {#each createRoomWarnings as warning, i (`create-room-warning-${i}`)}
+                <div class="rounded border border-neutral-700 px-3 py-2 text-neutral-300">
+                  {warning}
+                </div>
+              {/each}
+            </div>
+          {/if}
+        </div>
+      </div>
       <div class="sm:col-span-2">
         <label class="mb-1 block text-sm font-semibold text-neutral-100" for="relay-preset">
           Relay preset
@@ -1038,6 +1091,11 @@
           Primary relay host for group address: <strong
             >{createRelayHost || preferredRelayHost}</strong>
         </div>
+        {#if createSelectedRelays.length > 1}
+          <div class="mt-1 text-xs text-neutral-400">
+            Primary relay host is derived from the first selected relay address.
+          </div>
+        {/if}
         <div class="mt-2 flex items-center gap-2">
           <button
             class="btn"
@@ -1120,31 +1178,39 @@
             {/each}
           </div>
         {/if}
+        {#if createRelayWarnings.length > 0}
+          <div class="mt-2 space-y-2">
+            {#each createRelayWarnings as warning, i (`create-relay-warning-${i}`)}
+              <div class="rounded border border-neutral-700 px-3 py-2 text-neutral-300">
+                {warning}
+              </div>
+            {/each}
+          </div>
+        {/if}
       </div>
       <div
         class="rounded border border-neutral-700 px-3 py-2 text-sm text-neutral-300 sm:col-span-2">
         <div class="mb-2 font-semibold text-neutral-100">Security Mode</div>
         <p class="mb-2 text-xs text-neutral-400">
-          Choose a mode based on security level, relay compatibility trade-off, encryption path, and
-          PQC usage.
+          Choose a mode by requested transport behavior.
         </p>
         <select
           class="w-full rounded border border-neutral-700 bg-neutral-950 px-3 py-2 text-sm text-neutral-100"
           bind:value={createPrivacy}>
-          <option value="standard">Balanced security (recommended)</option>
-          <option value="private">Higher security (PQC preferred)</option>
-          <option value="fallback-friendly">Maximum compatibility (lowest security)</option>
+          <option value="standard">Medium (Auto)</option>
+          <option value="private">High (Secure-first)</option>
+          <option value="fallback-friendly">Low (Compatibility-first)</option>
         </select>
+        <div class="mt-2 rounded border border-neutral-700 px-3 py-2 text-xs text-neutral-400">
+          Compatibility mode means <strong>baseline-nip29</strong> transport with broad relay/device
+          interoperability priority. It is not fluff; it is the baseline path. In current create/join,
+          Medium and Low both request baseline transport, while High requests secure transport first.
+        </div>
         <div class="mt-2 rounded border border-neutral-700 px-3 py-2 text-sm text-neutral-300">
           <div class="font-semibold text-neutral-100">{securityStatus.badge}</div>
           <div class="mt-1 text-neutral-400">{securityStatus.hint}</div>
         </div>
       </div>
-      <Input class="sm:col-span-2" placeholder="Optional room title" bind:value={createTitle} />
-      <Input
-        class="sm:col-span-2"
-        placeholder="Optional description"
-        bind:value={createDescription} />
     </div>
 
     {#if createGroupId}
@@ -1172,15 +1238,6 @@
       </div>
     {/if}
 
-    <details class="mt-3 rounded border border-neutral-700 px-3 py-2 text-sm text-neutral-300">
-      <summary class="cursor-pointer">Advanced: set group address manually</summary>
-      <div class="mt-2">
-        <Input
-          placeholder="Group address (e.g. relay.example'ops)"
-          bind:value={createGroupIdOverride} />
-      </div>
-    </details>
-
     {#if createError}
       <div class="mt-3 rounded border border-warning px-3 py-2 text-sm text-warning">
         {createError}
@@ -1194,9 +1251,6 @@
           class:text-warning={prompt.level === "warning"}>
           {prompt.message}
         </div>
-      {/each}
-      {#each createWarnings as warning, i (`create-warning-${i}`)}
-        <div class="rounded border border-neutral-700 px-3 py-2 text-neutral-300">{warning}</div>
       {/each}
     </div>
 

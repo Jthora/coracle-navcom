@@ -113,10 +113,10 @@ describe("app/groups relay-capability", () => {
     expect(result.details).toContain("relay.navcom.app is the default Navcom relay")
   })
 
-  it("marks relay no-groups when NIP-29 is missing", () => {
+  it("marks relay not-advertised when NIP-29 is missing", () => {
     const result = evaluateRelayCapabilityFromInfo({supported_nips: [1, 42]})
 
-    expect(result.status).toBe("no-groups")
+    expect(result.status).toBe("not-advertised")
     expect(result.supportsGroups).toBe(false)
   })
 
@@ -250,7 +250,7 @@ describe("app/groups relay-capability", () => {
         checks: [
           {
             relay: "wss://relay.bad",
-            status: "no-groups",
+            status: "not-advertised",
             supportsGroups: false,
             authRequired: false,
             challengeResponseAuth: false,
@@ -259,6 +259,25 @@ describe("app/groups relay-capability", () => {
         ],
         authConfirmed: {},
         selectedRelays: ["wss://relay.bad"],
+      }),
+    ).toBe(true)
+  })
+
+  it("treats unreachable-only relay sets as non-viable", () => {
+    expect(
+      hasViableRelayPath({
+        checks: [
+          {
+            relay: "wss://relay.down",
+            status: "unreachable",
+            supportsGroups: null,
+            authRequired: null,
+            challengeResponseAuth: null,
+            details: "down",
+          },
+        ],
+        authConfirmed: {},
+        selectedRelays: ["wss://relay.down"],
       }),
     ).toBe(false)
   })
