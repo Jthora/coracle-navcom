@@ -12,18 +12,13 @@ export type MaxDiagnostics = {
   state: MaxDiagnosticsState
   label: string
   detail: string
+  warning: string
   reason?: MaxPreconditionBlockReason | "STRICT_REQUIRES_SECURE_PILOT"
   checklist: Array<{label: string; done: boolean}>
 }
 
-const hasMaxSignal = (checks: RelayCapabilityCheck[]) =>
-  checks.some(check => check.supportsNipEeSignal === true && check.supportsNip104 === true)
-
-const hasNavcomDefaultRelaySignal = (checks: RelayCapabilityCheck[]) =>
-  checks.some(check => check.isNavcomDefaultRelay === true)
-
-const hasNonNavcomRelaySignal = (checks: RelayCapabilityCheck[]) =>
-  checks.some(check => check.isNavcomDefaultRelay === false)
+const MAX_EXPERIMENTAL_WARNING =
+  "⚠️ PQC security is experimental. There are no mainstream NIPs yet for PQC encrypted group chats. Relays may still support functionality, but only Navcom clients will currently handle this encryption protocol properly."
 
 export const getMaxModeDiagnostics = ({
   privacy,
@@ -38,28 +33,15 @@ export const getMaxModeDiagnostics = ({
     return null
   }
 
-  const checklist = [
-    {label: "Secure pilot enabled", done: securePilotEnabled},
-    {label: "At least one relay advertises NIP-104 + NIP-EE", done: hasMaxSignal(relayChecks)},
-    {label: "Navcom default relay included", done: hasNavcomDefaultRelaySignal(relayChecks)},
-    {label: "Only Navcom relays selected", done: !hasNonNavcomRelaySignal(relayChecks)},
-  ]
+  const checklist = [{label: "Secure pilot enabled", done: securePilotEnabled}]
 
   if (!securePilotEnabled) {
     return {
       state: "blocked",
       label: "Max blocked",
       detail: "Secure pilot is disabled. Enable secure pilot before using Max mode.",
+      warning: MAX_EXPERIMENTAL_WARNING,
       reason: "STRICT_REQUIRES_SECURE_PILOT",
-      checklist,
-    }
-  }
-
-  if (relayChecks.length === 0) {
-    return {
-      state: "pending",
-      label: "Max pending checks",
-      detail: "Run relay capability checks to evaluate Max mode preconditions.",
       checklist,
     }
   }
@@ -71,6 +53,7 @@ export const getMaxModeDiagnostics = ({
       state: "blocked",
       label: "Max blocked",
       detail: toMaxPreconditionBlockMessage(reason),
+      warning: MAX_EXPERIMENTAL_WARNING,
       reason,
       checklist,
     }
@@ -79,7 +62,8 @@ export const getMaxModeDiagnostics = ({
   return {
     state: "active",
     label: "Max ready",
-    detail: "Max preconditions passed for current relay selection.",
+    detail: "Max mode is enabled for experimental client-side PQC group messaging.",
+    warning: MAX_EXPERIMENTAL_WARNING,
     checklist,
   }
 }

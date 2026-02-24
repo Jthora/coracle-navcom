@@ -50,11 +50,11 @@ export const getStrictModeCapabilityBlockReason = ({
     return "STRICT_REQUIRES_SECURE_PILOT"
   }
 
-  if (relayChecks.length === 0) {
+  if (relayChecks.length === 0 && privacy !== "max") {
     return "STRICT_REQUIRES_RELAY_CHECKS"
   }
 
-  if (!relayChecks.some(hasSecureSignal)) {
+  if (privacy !== "max" && !relayChecks.some(hasSecureSignal)) {
     return "STRICT_REQUIRES_NIP_EE_SIGNAL"
   }
 

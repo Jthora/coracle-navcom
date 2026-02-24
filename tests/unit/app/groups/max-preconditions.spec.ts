@@ -5,7 +5,7 @@ import {
 } from "src/app/groups/max-preconditions"
 
 describe("app/groups max-preconditions", () => {
-  it("blocks when nip104 + secure signal is missing", () => {
+  it("does not block when nip104 + secure signal is missing", () => {
     const reason = evaluateMaxPreconditions({
       relayChecks: [
         {
@@ -21,10 +21,10 @@ describe("app/groups max-preconditions", () => {
       ],
     })
 
-    expect(reason).toBe("MAX_REQUIRES_NIP104_SIGNAL")
+    expect(reason).toBeNull()
   })
 
-  it("enforces navcom default relay requirement when navcom signal is known", () => {
+  it("does not require navcom default relay inclusion", () => {
     const reason = evaluateMaxPreconditions({
       relayChecks: [
         {
@@ -42,10 +42,10 @@ describe("app/groups max-preconditions", () => {
       ],
     })
 
-    expect(reason).toBe("MAX_REQUIRES_NAVCOM_DEFAULT_RELAY")
+    expect(reason).toBeNull()
   })
 
-  it("enforces navcom-only relay policy", () => {
+  it("does not block mixed relay sets", () => {
     const reason = evaluateMaxPreconditions({
       relayChecks: [
         {
@@ -75,7 +75,7 @@ describe("app/groups max-preconditions", () => {
       ],
     })
 
-    expect(reason).toBe("MAX_REQUIRES_NAVCOM_ONLY_RELAYS")
+    expect(reason).toBeNull()
   })
 
   it("passes when navcom-only max prerequisites are satisfied", () => {

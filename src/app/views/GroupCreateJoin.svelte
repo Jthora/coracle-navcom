@@ -1165,6 +1165,9 @@
               {/if}
             </div>
             <div class="text-neutral-400">{createMaxDiagnostics.detail}</div>
+            <div class="mt-2 rounded border border-warning px-3 py-2 text-xs text-warning">
+              {createMaxDiagnostics.warning}
+            </div>
             <div class="mt-2 space-y-1">
               {#each createMaxDiagnostics.checklist as item, i (`max-check-${i}`)}
                 <div class="flex items-center gap-2">

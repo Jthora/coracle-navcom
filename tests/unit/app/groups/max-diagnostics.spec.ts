@@ -23,9 +23,10 @@ describe("app/groups max-diagnostics", () => {
       state: "blocked",
       reason: "STRICT_REQUIRES_SECURE_PILOT",
     })
+    expect(diagnostics?.warning).toContain("⚠️")
   })
 
-  it("returns pending diagnostics when relay checks are missing", () => {
+  it("returns active diagnostics when relay checks are missing", () => {
     const diagnostics = getMaxModeDiagnostics({
       privacy: "max",
       relayChecks: [],
@@ -33,9 +34,10 @@ describe("app/groups max-diagnostics", () => {
     })
 
     expect(diagnostics).toMatchObject({
-      state: "pending",
-      label: "Max pending checks",
+      state: "active",
+      label: "Max ready",
     })
+    expect(diagnostics?.warning).toContain("⚠️")
   })
 
   it("returns active diagnostics when max prerequisites pass", () => {

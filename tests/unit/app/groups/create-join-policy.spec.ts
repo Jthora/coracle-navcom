@@ -36,7 +36,7 @@ describe("app/groups create-join-policy", () => {
     expect(toStrictModeCapabilityBlockMessage(reason!)).toContain("Enable secure pilot")
   })
 
-  it("blocks max mode when nip-104 signal is missing", () => {
+  it("does not block max mode when nip-104 signal is missing", () => {
     const reason = getStrictModeCapabilityBlockReason({
       privacy: "max",
       relayChecks: [
@@ -49,10 +49,10 @@ describe("app/groups create-join-policy", () => {
       securePilotEnabled: true,
     })
 
-    expect(reason).toBe("MAX_REQUIRES_NIP104_SIGNAL")
+    expect(reason).toBeNull()
   })
 
-  it("blocks max mode when relays violate navcom-only constraints", () => {
+  it("does not block max mode when relays violate navcom-only constraints", () => {
     const reason = getStrictModeCapabilityBlockReason({
       privacy: "max",
       relayChecks: [
@@ -84,8 +84,7 @@ describe("app/groups create-join-policy", () => {
       securePilotEnabled: true,
     })
 
-    expect(reason).toBe("MAX_REQUIRES_NAVCOM_ONLY_RELAYS")
-    expect(toStrictModeCapabilityBlockMessage(reason!)).toContain("Navcom-only")
+    expect(reason).toBeNull()
   })
 
   it("returns deterministic invite policy block reason for tier 2 non-strict mode", () => {
@@ -218,7 +217,7 @@ describe("app/groups create-join-policy", () => {
         hasRelayAuthBlocker: false,
         missingCredentials: noMissingCredentials,
       }),
-    ).toBe("MAX_REQUIRES_NIP104_SIGNAL")
+    ).toBeNull()
   })
 
   it("returns guided setup message by reason family", () => {

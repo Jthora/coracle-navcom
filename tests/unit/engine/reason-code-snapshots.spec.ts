@@ -146,7 +146,7 @@ describe("engine reason-code snapshots", () => {
     expect(outcomes).toMatchInlineSnapshot(`
       {
         "inviteTier2NonStrict": "INVITE_TIER2_REQUIRES_STRICT_MODE",
-        "maxMissingNip104Signal": "MAX_REQUIRES_NIP104_SIGNAL",
+        "maxMissingNip104Signal": null,
         "relayAuthDefaultChallenge": "RELAY_REQUIRES_AUTH_CHALLENGE",
         "relayAuthUnknownMethod": "RELAY_REQUIRES_RELAY_SPECIFIC_CREDENTIAL",
         "relayViabilityBlocked": "RELAY_REQUIRES_VIABLE_PATH",

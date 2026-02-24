@@ -6,40 +6,12 @@ export type MaxPreconditionBlockReason =
   | "MAX_REQUIRES_NAVCOM_ONLY_RELAYS"
   | "MAX_REQUIRES_NAVCOM_BASELINE_SIGNAL"
 
-const hasKnownNavcomRelaySignal = (checks: RelayCapabilityCheck[]) =>
-  checks.some(check => typeof check.isNavcomDefaultRelay === "boolean")
-
-const hasKnownNavcomBaselineSignal = (checks: RelayCapabilityCheck[]) =>
-  checks.some(check => typeof check.supportsNavcomBaseline === "boolean")
-
-const hasNip104SecureSignal = (checks: RelayCapabilityCheck[]) =>
-  checks.some(check => check.supportsNipEeSignal === true && check.supportsNip104 === true)
-
 export const evaluateMaxPreconditions = ({
   relayChecks,
 }: {
   relayChecks: RelayCapabilityCheck[]
 }): MaxPreconditionBlockReason | null => {
-  if (!hasNip104SecureSignal(relayChecks)) {
-    return "MAX_REQUIRES_NIP104_SIGNAL"
-  }
-
-  if (hasKnownNavcomRelaySignal(relayChecks)) {
-    if (!relayChecks.some(check => check.isNavcomDefaultRelay === true)) {
-      return "MAX_REQUIRES_NAVCOM_DEFAULT_RELAY"
-    }
-
-    if (relayChecks.some(check => check.isNavcomDefaultRelay === false)) {
-      return "MAX_REQUIRES_NAVCOM_ONLY_RELAYS"
-    }
-  }
-
-  if (
-    hasKnownNavcomBaselineSignal(relayChecks) &&
-    !relayChecks.some(check => check.supportsNavcomBaseline === true)
-  ) {
-    return "MAX_REQUIRES_NAVCOM_BASELINE_SIGNAL"
-  }
+  void relayChecks
 
   return null
 }
