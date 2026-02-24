@@ -17,6 +17,8 @@
   import FlexColumn from "src/partials/FlexColumn.svelte"
   import Heading from "src/partials/Heading.svelte"
   import Subheading from "src/partials/Subheading.svelte"
+  import {showWarning} from "src/partials/Toast.svelte"
+  import {reportGroupError} from "src/app/groups/error-reporting"
   import {updateIn} from "src/util/misc"
   import {onMount} from "svelte"
 
@@ -90,8 +92,20 @@
     if (!autoJoinTarget || autoJoinTriggered) return
 
     autoJoinTriggered = true
-    onOpenDestination(autoJoinTarget, true)
-    window.location.assign(getDestinationPath(autoJoinTarget))
+    try {
+      onOpenDestination(autoJoinTarget, true)
+      window.location.assign(getDestinationPath(autoJoinTarget))
+    } catch (error) {
+      const reported = reportGroupError({
+        context: "invite-accept",
+        error,
+        flow: "invite",
+        groupId: autoJoinTarget.groupId,
+        source: "InviteAccept.onMount.autojoin",
+      })
+
+      showWarning(reported.userMessage)
+    }
   })
 </script>
 

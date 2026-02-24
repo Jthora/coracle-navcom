@@ -3,6 +3,7 @@ import {
   validateGroupTransportIntent,
   type GroupTransportIntent,
 } from "src/engine/group-transport-intent"
+import {GROUP_ENGINE_ERROR_CODE, createGroupEngineError} from "src/domain/group-engine-error"
 import {baselineGroupTransport} from "src/engine/group-transport-baseline"
 import {securePilotGroupTransport} from "src/engine/group-transport-secure"
 import type {GroupMemberRole} from "src/domain/group"
@@ -55,9 +56,15 @@ export const dispatchGroupTransportIntent = async (
   const validation = validateGroupTransportIntent(intent)
 
   if ("message" in validation) {
-    const {message} = validation
-
-    throw new Error(message)
+    throw createGroupEngineError({
+      code: GROUP_ENGINE_ERROR_CODE.INVALID_INPUT,
+      message: validation.message,
+      retryable: false,
+      details: {
+        stage: "intent-validation",
+        reason: validation.reason,
+      },
+    })
   }
 
   const requestedAdapter = available.find(adapter => adapter.getModeId() === intent.requestedMode)
@@ -73,9 +80,16 @@ export const dispatchGroupTransportIntent = async (
       reason: requestedGate.reason,
     })
 
-    throw new Error(
-      `Capability gate blocked requested mode '${intent.requestedMode}': ${requestedGate.reason || "unavailable"}`,
-    )
+    throw createGroupEngineError({
+      code: GROUP_ENGINE_ERROR_CODE.CAPABILITY_BLOCKED,
+      message: `Capability gate blocked requested mode '${intent.requestedMode}': ${requestedGate.reason || "unavailable"}`,
+      retryable: false,
+      details: {
+        stage: "capability-gate",
+        requestedMode: intent.requestedMode,
+        reason: requestedGate.reason,
+      },
+    })
   }
 
   const resolved = resolveGroupTransportAdapter(intent, available, capabilitySnapshot)
@@ -108,7 +122,15 @@ export const dispatchGroupTransportIntent = async (
       reason: tierPolicy.reason,
     })
 
-    throw new Error(tierPolicy.reason)
+    throw createGroupEngineError({
+      code: GROUP_ENGINE_ERROR_CODE.POLICY_BLOCKED,
+      message: tierPolicy.reason,
+      retryable: false,
+      details: {
+        stage: "tier-policy",
+        missionTier,
+      },
+    })
   }
 
   if (tierPolicy.overrideAuditEvent) {
@@ -121,7 +143,19 @@ export const dispatchGroupTransportIntent = async (
   const result = await resolved.publishControlAction(intent)
 
   if ("message" in result) {
-    throw new Error(result.message)
+    throw createGroupEngineError({
+      code:
+        result.code === "GROUP_TRANSPORT_CAPABILITY_BLOCKED"
+          ? GROUP_ENGINE_ERROR_CODE.CAPABILITY_BLOCKED
+          : result.code === "GROUP_TRANSPORT_VALIDATION_FAILED"
+            ? GROUP_ENGINE_ERROR_CODE.INVALID_INPUT
+            : result.code === "GROUP_TRANSPORT_UNSUPPORTED"
+              ? GROUP_ENGINE_ERROR_CODE.ADAPTER_UNSUPPORTED
+              : GROUP_ENGINE_ERROR_CODE.DISPATCH_FAILED,
+      message: result.message,
+      retryable: result.retryable,
+      details: result.details,
+    })
   }
 
   return result.value
@@ -205,7 +239,12 @@ export const dispatchGroupTransportMessage = async (
   const normalizedContent = request.content.trim()
 
   if (!normalizedGroupId || !normalizedContent) {
-    throw new Error("Group transport message requires non-empty groupId and content.")
+    throw createGroupEngineError({
+      code: GROUP_ENGINE_ERROR_CODE.INVALID_INPUT,
+      message: "Group transport message requires non-empty groupId and content.",
+      retryable: false,
+      details: {stage: "message-validation"},
+    })
   }
 
   const normalizedRequest: GroupTransportMessageRequest = {
@@ -229,9 +268,16 @@ export const dispatchGroupTransportMessage = async (
       reason: requestedGate.reason,
     })
 
-    throw new Error(
-      `Capability gate blocked requested mode '${normalizedRequest.requestedMode}': ${requestedGate.reason || "unavailable"}`,
-    )
+    throw createGroupEngineError({
+      code: GROUP_ENGINE_ERROR_CODE.CAPABILITY_BLOCKED,
+      message: `Capability gate blocked requested mode '${normalizedRequest.requestedMode}': ${requestedGate.reason || "unavailable"}`,
+      retryable: false,
+      details: {
+        stage: "capability-gate",
+        requestedMode: normalizedRequest.requestedMode,
+        reason: requestedGate.reason,
+      },
+    })
   }
 
   const resolved = resolveGroupMessageTransportAdapter(
@@ -269,7 +315,15 @@ export const dispatchGroupTransportMessage = async (
       reason: tierPolicy.reason,
     })
 
-    throw new Error(tierPolicy.reason)
+    throw createGroupEngineError({
+      code: GROUP_ENGINE_ERROR_CODE.POLICY_BLOCKED,
+      message: tierPolicy.reason,
+      retryable: false,
+      details: {
+        stage: "tier-policy",
+        missionTier,
+      },
+    })
   }
 
   if (tierPolicy.overrideAuditEvent) {
@@ -280,7 +334,15 @@ export const dispatchGroupTransportMessage = async (
   }
 
   if (!resolved.sendMessage) {
-    throw new Error(`Transport adapter '${resolved.getModeId()}' does not implement sendMessage.`)
+    throw createGroupEngineError({
+      code: GROUP_ENGINE_ERROR_CODE.ADAPTER_UNSUPPORTED,
+      message: `Transport adapter '${resolved.getModeId()}' does not implement sendMessage.`,
+      retryable: false,
+      details: {
+        stage: "adapter-contract",
+        adapterId: resolved.getModeId(),
+      },
+    })
   }
 
   const result = await resolved.sendMessage({
@@ -292,7 +354,19 @@ export const dispatchGroupTransportMessage = async (
   })
 
   if ("message" in result) {
-    throw new Error(result.message)
+    throw createGroupEngineError({
+      code:
+        result.code === "GROUP_TRANSPORT_CAPABILITY_BLOCKED"
+          ? GROUP_ENGINE_ERROR_CODE.CAPABILITY_BLOCKED
+          : result.code === "GROUP_TRANSPORT_VALIDATION_FAILED"
+            ? GROUP_ENGINE_ERROR_CODE.INVALID_INPUT
+            : result.code === "GROUP_TRANSPORT_UNSUPPORTED"
+              ? GROUP_ENGINE_ERROR_CODE.ADAPTER_UNSUPPORTED
+              : GROUP_ENGINE_ERROR_CODE.DISPATCH_FAILED,
+      message: result.message,
+      retryable: result.retryable,
+      details: result.details,
+    })
   }
 
   return result.value

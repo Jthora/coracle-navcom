@@ -1,3 +1,5 @@
+import {reportGroupError} from "src/app/groups/error-reporting"
+
 export type RelayRole = "read" | "write" | "read-write"
 export type RelayHealth = "healthy" | "limited" | "unreachable" | "unknown"
 
@@ -129,6 +131,15 @@ export const loadRoomRelayPolicy = (groupId: string): RoomRelayPolicy => {
     const parsed = JSON.parse(raw) as RoomRelayPolicy
 
     if (!parsed || parsed.groupId !== groupId || !Array.isArray(parsed.relays)) {
+      reportGroupError({
+        context: "relay-policy-load",
+        error: new Error("Relay policy shape invalid; defaults applied."),
+        flow: "create",
+        groupId,
+        source: "relay-policy",
+        dedupeKey: `relay-policy-load:shape:${groupId}`,
+      })
+
       return createDefaultRoomRelayPolicy(groupId)
     }
 
@@ -145,6 +156,15 @@ export const loadRoomRelayPolicy = (groupId: string): RoomRelayPolicy => {
       ),
     }
   } catch (error) {
+    reportGroupError({
+      context: "relay-policy-load",
+      error,
+      flow: "create",
+      groupId,
+      source: "relay-policy",
+      dedupeKey: `relay-policy-load:parse:${groupId}`,
+    })
+
     return createDefaultRoomRelayPolicy(groupId)
   }
 }

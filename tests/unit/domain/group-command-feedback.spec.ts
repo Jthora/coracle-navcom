@@ -6,6 +6,7 @@ import {
   toGroupCommandUiMessage,
   withGroupCommandRetry,
 } from "src/domain/group-command-feedback"
+import {GROUP_ENGINE_ERROR_CODE, createGroupEngineError} from "src/domain/group-engine-error"
 
 describe("group-command-feedback", () => {
   it("normalizes command ack payloads", () => {
@@ -54,6 +55,38 @@ describe("group-command-feedback", () => {
     expect(toGroupCommandUiMessage(GROUP_COMMAND_REASON.INVALID_INPUT)).toBe(
       "Group input is invalid. Review fields and try again.",
     )
+  })
+
+  it("maps typed engine errors to deterministic command reasons", () => {
+    const typedPolicy = mapGroupCommandError(
+      createGroupEngineError({
+        code: GROUP_ENGINE_ERROR_CODE.POLICY_BLOCKED,
+        message: "Tier policy blocked: Tier 2 override requires explicit confirmation.",
+        retryable: false,
+        details: {stage: "tier-policy"},
+      }),
+    )
+
+    const typedDispatch = mapGroupCommandError(
+      createGroupEngineError({
+        code: GROUP_ENGINE_ERROR_CODE.DISPATCH_FAILED,
+        message: "Failed to publish secure control action.",
+        retryable: true,
+      }),
+    )
+
+    expect(typedPolicy.ok).toBe(false)
+    if (!typedPolicy.ok) {
+      expect(typedPolicy.reason).toBe(GROUP_COMMAND_REASON.POLICY_BLOCKED)
+      expect(typedPolicy.retryable).toBe(false)
+      expect(typedPolicy.details).toEqual({stage: "tier-policy"})
+    }
+
+    expect(typedDispatch.ok).toBe(false)
+    if (!typedDispatch.ok) {
+      expect(typedDispatch.reason).toBe(GROUP_COMMAND_REASON.PUBLISH_FAILED)
+      expect(typedDispatch.retryable).toBe(true)
+    }
   })
 
   it("retries retryable outcomes", async () => {

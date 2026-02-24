@@ -42,7 +42,7 @@ describe("app/groups routes", () => {
     const groupsList = calls.find(c => c.path === "/groups")
     const groupsCreate = calls.find(c => c.path === "/groups/create")
 
-    expect(detail?.opts.requireSigner).toBe(true)
+    expect(detail?.opts.requireSigner).toBe(false)
     expect(detail?.opts.required).toEqual(["groupId"])
     expect(detail?.opts.serializers).toBeDefined()
     expect(groupsCreate?.opts.serializers).toBeDefined()

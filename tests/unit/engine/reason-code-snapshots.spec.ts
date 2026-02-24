@@ -1,5 +1,6 @@
 import {describe, expect, it} from "vitest"
 import {GROUP_COMMAND_REASON} from "../../../src/domain/group-command-feedback"
+import {GROUP_ENGINE_ERROR_CODE} from "../../../src/domain/group-engine-error"
 import {GROUP_SECURE_CONTROL_REASON} from "../../../src/engine/group-transport-secure-control"
 import {GROUP_SECURE_SEND_INPUT_REASON} from "../../../src/engine/group-transport-secure-input"
 import {GROUP_TRANSPORT_INTENT_REASON} from "../../../src/engine/group-transport-intent"
@@ -23,6 +24,7 @@ describe("engine reason-code snapshots", () => {
   it("locks engine reason-code enums", () => {
     expect({
       command: Object.values(GROUP_COMMAND_REASON),
+      engine: Object.values(GROUP_ENGINE_ERROR_CODE),
       secureControl: Object.values(GROUP_SECURE_CONTROL_REASON),
       secureSendInput: Object.values(GROUP_SECURE_SEND_INPUT_REASON),
       transportIntent: Object.values(GROUP_TRANSPORT_INTENT_REASON),
@@ -35,6 +37,14 @@ describe("engine reason-code snapshots", () => {
           "GROUP_COMMAND_POLICY_BLOCKED",
           "GROUP_COMMAND_PUBLISH_FAILED",
           "GROUP_COMMAND_UNKNOWN",
+        ],
+        "engine": [
+          "GROUP_ENGINE_PERMISSION_DENIED",
+          "GROUP_ENGINE_INVALID_INPUT",
+          "GROUP_ENGINE_CAPABILITY_BLOCKED",
+          "GROUP_ENGINE_POLICY_BLOCKED",
+          "GROUP_ENGINE_ADAPTER_UNSUPPORTED",
+          "GROUP_ENGINE_DISPATCH_FAILED",
         ],
         "secureControl": [
           "GROUP_SECURE_CONTROL_INVALID_SHAPE",

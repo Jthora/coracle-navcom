@@ -78,6 +78,7 @@
     emitRelayChecksFailedTelemetry,
     emitRelayChecksStartedTelemetry,
   } from "src/app/groups/create-join-relay-check-telemetry"
+  import {reportGroupError} from "src/app/groups/error-reporting"
   import {resolveRequestedTransportMode} from "src/app/groups/transport-mode"
   import {isSecurePilotEnabled} from "src/engine/group-transport-secure"
   import {copyToClipboard} from "src/util/html"
@@ -386,13 +387,19 @@
       } else {
         showInfo("Relay capability checks completed.")
       }
-    } catch {
+    } catch (error) {
       emitRelayChecksFailedTelemetry({
         flow: "create",
         relayCount: createSelectedRelays.length,
         startedAt,
       })
-      showWarning("Relay capability checks failed. Verify relay URLs and retry.")
+      const reported = reportGroupError({
+        context: "relay-check-create",
+        error,
+        flow: "create",
+        source: "GroupCreateJoin.runCreateRelayChecks",
+      })
+      showWarning(`${reported.userMessage} Verify relay URLs and retry.`)
     } finally {
       createRelayChecksRunning = false
     }
@@ -425,13 +432,19 @@
       } else {
         showInfo("Relay capability checks completed.")
       }
-    } catch {
+    } catch (error) {
       emitRelayChecksFailedTelemetry({
         flow: "join",
         relayCount: joinSelectedRelays.length,
         startedAt,
       })
-      showWarning("Relay capability checks failed. Verify relay URLs and retry.")
+      const reported = reportGroupError({
+        context: "relay-check-join",
+        error,
+        flow: "join",
+        source: "GroupCreateJoin.runJoinRelayChecks",
+      })
+      showWarning(`${reported.userMessage} Verify relay URLs and retry.`)
     } finally {
       joinRelayChecksRunning = false
     }
@@ -506,6 +519,14 @@
         }
         showWarning(result.reason)
       }
+    } catch (error) {
+      const reported = reportGroupError({
+        context: "relay-auth-create",
+        error,
+        flow: "create",
+        source: "GroupCreateJoin.confirmCreateRelayAuth",
+      })
+      showWarning(reported.userMessage)
     } finally {
       createRelayAuthPending = {...createRelayAuthPending, [relay]: false}
     }
@@ -580,6 +601,14 @@
         }
         showWarning(result.reason)
       }
+    } catch (error) {
+      const reported = reportGroupError({
+        context: "relay-auth-join",
+        error,
+        flow: "join",
+        source: "GroupCreateJoin.confirmJoinRelayAuth",
+      })
+      showWarning(reported.userMessage)
     } finally {
       joinRelayAuthPending = {...joinRelayAuthPending, [relay]: false}
     }
@@ -615,7 +644,13 @@
       })
 
       showInfo("Access package copied to clipboard.")
-    } catch {
+    } catch (error) {
+      const reported = reportGroupError({
+        context: "share-package",
+        error,
+        flow: "create",
+        source: "GroupCreateJoin.onCopyCreateAccessPackage",
+      })
       trackGroupTelemetry("group_setup_share_package_created", {
         flow: "create",
         relay_count: createSelectedRelays.length,
@@ -625,7 +660,7 @@
         requested_transport_mode: createRequestedTransport.requestedMode,
         result: "error",
       })
-      showWarning("Unable to copy access package. Copy manually from preview.")
+      showWarning(`${reported.userMessage} Copy manually from preview.`)
     }
   }
 
@@ -738,13 +773,20 @@
         showWarning(message)
       }
     } catch (error) {
+      const reported = reportGroupError({
+        context: "create",
+        error,
+        flow: "create",
+        groupId: createTarget.canonicalId,
+        source: "GroupCreateJoin.onCreate",
+      })
       trackGroupTelemetry("group_setup_create_result", {
         result: "error",
         privacy: createPrivacy,
         mode: "guided",
       })
-      createError = "Group create failed. Check relay details and retry."
-      showWarning("Group create failed. Please retry.")
+      createError = reported.userMessage
+      showWarning(reported.userMessage)
     } finally {
       pendingCreate = false
     }
@@ -839,10 +881,16 @@
       showInfo("Join request submitted.")
       router.at(`groups/${encodeURIComponent(parsed.value.canonicalId)}/chat`).push()
     } catch (error) {
+      const reported = reportGroupError({
+        context: "join",
+        error,
+        flow: "join",
+        groupId: parsed.value.canonicalId,
+        source: "GroupCreateJoin.onJoin",
+      })
       trackGroupTelemetry("group_setup_join_result", {result: "error"})
-      joinError =
-        "Unable to submit join request. Confirm the address and relay reachability, then retry."
-      showWarning("Unable to submit join request.")
+      joinError = reported.userMessage
+      showWarning(reported.userMessage)
     } finally {
       pendingJoin = false
     }

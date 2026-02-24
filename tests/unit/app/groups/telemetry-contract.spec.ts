@@ -1,6 +1,11 @@
 import {beforeEach, describe, expect, it, vi} from "vitest"
 import {trackGroupTelemetry, clearGroupTelemetryDedupe} from "../../../../src/app/groups/telemetry"
 import {buildGuidedBlockTelemetryProps} from "../../../../src/app/groups/create-join-block-telemetry"
+import {reportGroupError} from "../../../../src/app/groups/error-reporting"
+import {
+  GROUP_ENGINE_ERROR_CODE,
+  createGroupEngineError,
+} from "../../../../src/domain/group-engine-error"
 
 describe("app/groups telemetry contract schema", () => {
   beforeEach(() => {
@@ -101,5 +106,37 @@ describe("app/groups guided block telemetry contract", () => {
     expect(props.missing_signer_count).toBe(1)
     expect(props.unknown_auth_method_count).toBe(1)
     expect(props.result).toBe("error")
+  })
+})
+
+describe("app/groups error-report telemetry contract", () => {
+  beforeEach(() => {
+    clearGroupTelemetryDedupe()
+    ;(window as any).plausible = vi.fn()
+  })
+
+  it("emits required canonical fields for group_error_reported", () => {
+    reportGroupError({
+      context: "group-send",
+      error: createGroupEngineError({
+        code: GROUP_ENGINE_ERROR_CODE.DISPATCH_FAILED,
+        message: "dispatch failed",
+        retryable: true,
+      }),
+      flow: "chat",
+      groupId: "relay.example'ops",
+      source: "telemetry-contract",
+    })
+
+    const [event, payload] = (window as any).plausible.mock.calls[0]
+    const props = payload.props as Record<string, unknown>
+
+    expect(event).toBe("group_error_reported")
+    expect(props.context).toBe("group-send")
+    expect(props.error_code).toBe("GROUP_ERROR_DISPATCH_FAILED")
+    expect(props.retryable).toBe(true)
+    expect(props.result).toBe("error")
+    expect(props.flow).toBe("chat")
+    expect(props.group_id_present).toBe(true)
   })
 })

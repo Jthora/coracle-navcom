@@ -36,6 +36,7 @@ export type GroupTelemetryEvent =
   | "group_setup_join_attempt"
   | "group_setup_create_result"
   | "group_setup_join_result"
+  | "group_error_reported"
   | "group_expert_mode_changed"
   | "relay_policy_saved"
   | "relay_policy_save_failed"

@@ -20,6 +20,7 @@
     toGroupInvitePayload,
     type InviteGroupDraft,
   } from "src/app/invite/create"
+  import {reportGroupError} from "src/app/groups/error-reporting"
   import {toSpliced} from "src/util/misc"
   import {onMount} from "svelte"
 
@@ -103,16 +104,27 @@
       return
     }
 
-    const params = buildInviteQueryParams({
-      people: includePeople ? pubkeys : [],
-      relays: includeRelays ? relays.map(({url, claim}) => ({url, claim})) : [],
-      group: includeGroup ? group : undefined,
-    })
+    try {
+      const params = buildInviteQueryParams({
+        people: includePeople ? pubkeys : [],
+        relays: includeRelays ? relays.map(({url, claim}) => ({url, claim})) : [],
+        group: includeGroup ? group : undefined,
+      })
 
-    router
-      .at("qrcode")
-      .of(window.origin + "/invite?" + params.toString())
-      .open()
+      router
+        .at("qrcode")
+        .of(window.origin + "/invite?" + params.toString())
+        .open()
+    } catch (error) {
+      const reported = reportGroupError({
+        context: "invite-create",
+        error,
+        flow: "invite",
+        source: "InviteCreate.onSubmit",
+      })
+
+      showWarning(reported.userMessage)
+    }
   }
 
   onMount(() => {

@@ -21,6 +21,7 @@
     getAbsoluteGroupJoinPrefillHref,
     getGroupInviteCreateHref,
   } from "src/app/groups/invite-share"
+  import {reportGroupError} from "src/app/groups/error-reporting"
   import {classifyGroupEventKind} from "src/domain/group-kinds"
   import {publishGroupMessage, setChecked} from "src/engine"
 
@@ -96,7 +97,14 @@
       showWarning("Sharing is unavailable on this device. Open Invite to generate a QR link.")
       inviteCue = "Next: open Invite to generate a QR or link, then share it."
     } catch (error) {
-      showWarning("Unable to share invite. Open Invite to continue.")
+      const reported = reportGroupError({
+        context: "invite-share",
+        error,
+        flow: "invite",
+        groupId,
+        source: "GroupConversation.onShareInvite",
+      })
+      showWarning(reported.userMessage)
       inviteCue = "Next: open Invite to continue with link or QR sharing."
     }
   }
@@ -218,6 +226,13 @@
       })
       draft = ""
     } catch (error) {
+      const reported = reportGroupError({
+        context: "group-send",
+        error,
+        flow: "chat",
+        groupId,
+        source: "GroupConversation.onSend",
+      })
       const fallbackPlan = getRelayFallbackPlan(loadRoomRelayPolicy(groupId))
 
       if (fallbackPlan.primary) {
@@ -241,10 +256,10 @@
 
       if (fallbackPlan.fallbacks.length > 0) {
         showWarning(
-          `${error instanceof Error ? error.message : "Unable to send group message."} Retry will use backup relays in order: ${fallbackPlan.fallbacks.join(" → ")}.`,
+          `${reported.userMessage} Retry will use backup relays in order: ${fallbackPlan.fallbacks.join(" → ")}.`,
         )
       } else {
-        showWarning(error instanceof Error ? error.message : "Unable to send group message.")
+        showWarning(reported.userMessage)
       }
     } finally {
       downgradeBanner = getGroupDowngradeBannerMessage(groupId)

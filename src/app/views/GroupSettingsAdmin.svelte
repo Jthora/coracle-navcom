@@ -59,6 +59,7 @@
     type GroupModerationReasonCode,
     validateModerationDraft,
   } from "src/app/groups/moderation-composer"
+  import {reportGroupError} from "src/app/groups/error-reporting"
 
   export let groupId: string
 
@@ -237,7 +238,15 @@
       )
       showInfo("Group settings update submitted.")
     } catch (error) {
-      showWarning("Unable to submit group settings update.")
+      const reported = reportGroupError({
+        context: "group-admin-save-policy",
+        error,
+        flow: "create",
+        groupId,
+        source: "group-settings-admin",
+      })
+
+      showWarning(reported.userMessage)
     }
   }
 
@@ -267,7 +276,15 @@
       showInfo("Member update submitted.")
       memberReason = ""
     } catch (error) {
-      showWarning("Unable to submit member update.")
+      const reported = reportGroupError({
+        context: "group-admin-put-member",
+        error,
+        flow: "create",
+        groupId,
+        source: "group-settings-admin",
+      })
+
+      showWarning(reported.userMessage)
     }
   }
 
@@ -310,7 +327,15 @@
       removeReason = ""
       destructiveConfirmInput = ""
     } catch (error) {
-      showWarning("Unable to submit member removal.")
+      const reported = reportGroupError({
+        context: "group-admin-remove-member",
+        error,
+        flow: "create",
+        groupId,
+        source: "group-settings-admin",
+      })
+
+      showWarning(reported.userMessage)
     }
   }
 
@@ -373,7 +398,15 @@
         targetPubkey: "",
       }
     } catch (error) {
-      showWarning("Unable to submit moderation action.")
+      const reported = reportGroupError({
+        context: "group-admin-moderation-submit",
+        error,
+        flow: "create",
+        groupId,
+        source: "group-settings-admin",
+      })
+
+      showWarning(reported.userMessage)
     }
   }
 

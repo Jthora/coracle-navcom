@@ -8,6 +8,7 @@ import {
   type GroupCommandOutcome,
 } from "src/domain/group-command-feedback"
 import type {GroupMemberRole} from "src/domain/group"
+import {GROUP_ENGINE_ERROR_CODE, createGroupEngineError} from "src/domain/group-engine-error"
 import {dispatchGroupTransportAction} from "src/engine/group-transport"
 import {dispatchGroupTransportMessage} from "src/engine/group-transport"
 import type {GroupTransportModeId} from "src/engine/group-transport-contracts"
@@ -50,7 +51,15 @@ const ensureAllowed = (
   action: Parameters<typeof canPerformGroupControlAction>[1],
 ) => {
   if (!canPerformGroupControlAction(actorRole, action)) {
-    throw new Error(`Permission denied for action: ${action}`)
+    throw createGroupEngineError({
+      code: GROUP_ENGINE_ERROR_CODE.PERMISSION_DENIED,
+      message: `Permission denied for action: ${action}`,
+      retryable: false,
+      details: {
+        actorRole,
+        action,
+      },
+    })
   }
 }
 
@@ -373,11 +382,25 @@ export const publishGroupMessage = async ({
   const normalizedContent = content.trim()
 
   if (!normalizedGroupId) {
-    throw new Error("Invalid group address.")
+    throw createGroupEngineError({
+      code: GROUP_ENGINE_ERROR_CODE.INVALID_INPUT,
+      message: "Invalid group address.",
+      retryable: false,
+      details: {
+        field: "groupId",
+      },
+    })
   }
 
   if (!normalizedContent) {
-    throw new Error("Message content cannot be empty.")
+    throw createGroupEngineError({
+      code: GROUP_ENGINE_ERROR_CODE.INVALID_INPUT,
+      message: "Message content cannot be empty.",
+      retryable: false,
+      details: {
+        field: "content",
+      },
+    })
   }
 
   return dispatchGroupTransportMessage(

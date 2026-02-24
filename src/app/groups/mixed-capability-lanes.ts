@@ -3,6 +3,7 @@ import {
   runGroupCapabilityProbe,
   type GroupRelayCapabilities,
 } from "src/domain/group-capability-probe"
+import {reportGroupError} from "src/app/groups/error-reporting"
 import {dispatchGroupTransportAction} from "src/engine/group-transport"
 import {okTransportResult, type GroupTransport} from "src/engine/group-transport-contracts"
 
@@ -137,9 +138,19 @@ export const simulateMixedCapabilityLane = async ({
       telemetry,
     }
   } catch (error) {
+    const reported = reportGroupError({
+      context: "mixed-capability-simulation",
+      error,
+      flow: "create",
+      groupId: "relay.example'ops",
+      source: "mixed-capability-lanes",
+      dedupeKey: "mixed-capability-simulation:blocked",
+      minIntervalMs: 5_000,
+    })
+
     return {
       status: "blocked",
-      error: error instanceof Error ? error.message : "unknown",
+      error: reported.message,
       capabilityReadiness: probe.readiness,
       capabilityReasons: mapCapabilityReasonsToUi(probe.reasons),
       telemetry,

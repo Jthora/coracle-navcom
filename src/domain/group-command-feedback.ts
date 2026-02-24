@@ -1,3 +1,5 @@
+import {GROUP_ENGINE_ERROR_CODE, isGroupEngineError} from "src/domain/group-engine-error"
+
 export const GROUP_COMMAND_REASON = {
   PERMISSION_DENIED: "GROUP_COMMAND_PERMISSION_DENIED",
   INVALID_INPUT: "GROUP_COMMAND_INVALID_INPUT",
@@ -69,6 +71,61 @@ export const normalizeGroupCommandAck = (result: unknown): GroupCommandAck => {
 }
 
 export const mapGroupCommandError = (error: unknown): GroupCommandOutcome<never> => {
+  if (isGroupEngineError(error)) {
+    if (error.code === GROUP_ENGINE_ERROR_CODE.PERMISSION_DENIED) {
+      return {
+        ok: false,
+        reason: GROUP_COMMAND_REASON.PERMISSION_DENIED,
+        message: error.message,
+        retryable: error.retryable,
+        details: error.details,
+      }
+    }
+
+    if (error.code === GROUP_ENGINE_ERROR_CODE.INVALID_INPUT) {
+      return {
+        ok: false,
+        reason: GROUP_COMMAND_REASON.INVALID_INPUT,
+        message: error.message,
+        retryable: error.retryable,
+        details: error.details,
+      }
+    }
+
+    if (error.code === GROUP_ENGINE_ERROR_CODE.CAPABILITY_BLOCKED) {
+      return {
+        ok: false,
+        reason: GROUP_COMMAND_REASON.CAPABILITY_BLOCKED,
+        message: error.message,
+        retryable: error.retryable,
+        details: error.details,
+      }
+    }
+
+    if (error.code === GROUP_ENGINE_ERROR_CODE.POLICY_BLOCKED) {
+      return {
+        ok: false,
+        reason: GROUP_COMMAND_REASON.POLICY_BLOCKED,
+        message: error.message,
+        retryable: error.retryable,
+        details: error.details,
+      }
+    }
+
+    if (
+      error.code === GROUP_ENGINE_ERROR_CODE.DISPATCH_FAILED ||
+      error.code === GROUP_ENGINE_ERROR_CODE.ADAPTER_UNSUPPORTED
+    ) {
+      return {
+        ok: false,
+        reason: GROUP_COMMAND_REASON.PUBLISH_FAILED,
+        message: error.message,
+        retryable: error.retryable,
+        details: error.details,
+      }
+    }
+  }
+
   const message = error instanceof Error ? error.message : "Unknown command failure"
 
   if (message.toLowerCase().includes("permission denied")) {
