@@ -44,6 +44,9 @@ import type {AppSyncOpts} from "@welshman/app"
 import {noteKinds, reactionKinds} from "src/util/nostr"
 import {CUSTOM_LIST_KINDS} from "src/domain"
 import {env, myRequest, myLoad, userSettings} from "src/engine/state"
+import {enterLoaderStatus, exitLoaderStatus, updateLoaderStatus} from "src/app/status/loader-status"
+
+let relayBatchOperationCount = 0
 
 // Utils
 
@@ -81,17 +84,32 @@ export const pullConservatively = ({relays, filters}: AppSyncOpts) => {
 
 export const loadAll = (feed, {onEvent}: {onEvent: (e: TrustedEvent) => void}) => {
   const loading = writable(true)
+  const operationId = `relay-batch:${++relayBatchOperationCount}`
 
-  const onExhausted = () => loading.set(false)
+  const onExhausted = () => {
+    loading.set(false)
+    exitLoaderStatus(operationId)
+  }
 
-  const promise = new Promise<void>(async resolve => {
+  enterLoaderStatus("relay.fetch.batch.next", operationId)
+
+  const promise = new Promise<void>(async (resolve, reject) => {
     const ctrl = makeFeedController({feed, onEvent, onExhausted})
+    let batchCount = 0
 
-    while (get(loading)) {
-      await ctrl.load(100)
+    try {
+      while (get(loading)) {
+        await ctrl.load(100)
+        batchCount += 1
+        updateLoaderStatus(operationId, {detail: `Received ${batchCount} event batches.`})
+      }
+
+      resolve()
+    } catch (error) {
+      reject(error)
+    } finally {
+      exitLoaderStatus(operationId)
     }
-
-    resolve()
   })
 
   return {promise, loading, stop: onExhausted}
@@ -103,6 +121,7 @@ export type DeriveEventOptions = {
 
 export const deriveEvent = (idOrAddress: string, {relays = []}: DeriveEventOptions = {}) => {
   let attempted = false
+  const operationId = `relay-lookup:${idOrAddress}`
 
   const router = Router.get()
   const filters = getIdFilters([idOrAddress])
@@ -122,9 +141,22 @@ export const deriveEvent = (idOrAddress: string, {relays = []}: DeriveEventOptio
           .limit(Math.max(relays.length, userSettings.get().relay_limit))
           .policy(addMaximalFallbacks)
 
-        attempted = true
+        const selectedRelays = scenario.getUrls()
 
-        myLoad({skipCache: true, relays: scenario.getUrls(), filters})
+        attempted = true
+        enterLoaderStatus("relay.fetch.lookup.start", operationId, {
+          relayCount: selectedRelays.length,
+        })
+
+        void Promise.resolve(myLoad({skipCache: true, relays: selectedRelays, filters})).finally(
+          () => {
+            exitLoaderStatus(operationId)
+          },
+        )
+      }
+
+      if (attempted && events.length > 0) {
+        exitLoaderStatus(operationId)
       }
 
       return events[0]

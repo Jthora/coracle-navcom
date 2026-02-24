@@ -115,6 +115,7 @@
     startCacheMetric,
   } from "src/engine"
   import {makeFeed} from "src/domain"
+  import {enterLoaderStatus, exitLoaderStatus} from "src/app/status/loader-status"
 
   type LeafletLike = typeof import("leaflet")
 
@@ -153,7 +154,9 @@
   const eventById = new Map<string, GeointMarker>()
   const REFRESH_INTERVAL_MS = 10000
   const SETTLE_LOAD_MS = 1800
+  const INTEL_MAP_OPERATION = "intel-map"
   let refreshSize = 120
+  let initialFeedSettled = false
 
   const settleFeedLoading = () => {
     if (settleLoadingTimer) {
@@ -169,6 +172,10 @@
   const requestFeedLoad = (size = refreshSize) => {
     if (!ctrl) {
       return
+    }
+
+    if (!initialFeedSettled) {
+      enterLoaderStatus("intel.map.feed.fetch", INTEL_MAP_OPERATION)
     }
 
     feedLoading = true
@@ -381,6 +388,12 @@
         lastEventAt = event.created_at
         feedLoading = false
         refreshMarkers(event)
+
+        if (!initialFeedSettled) {
+          enterLoaderStatus("intel.map.feed.settle", INTEL_MAP_OPERATION)
+          initialFeedSettled = true
+          exitLoaderStatus(INTEL_MAP_OPERATION)
+        }
       },
       onExhausted: () => {
         exhausted = true
@@ -389,6 +402,12 @@
           eventCount: markers.length,
           exhausted: true,
         })
+
+        if (!initialFeedSettled) {
+          enterLoaderStatus("intel.map.feed.settle", INTEL_MAP_OPERATION)
+          initialFeedSettled = true
+          exitLoaderStatus(INTEL_MAP_OPERATION)
+        }
       },
     })
 
@@ -410,14 +429,18 @@
   onMount(async () => {
     try {
       document.title = "GEOINT Nav Map"
+      enterLoaderStatus("intel.map.module", INTEL_MAP_OPERATION)
       await initLeaflet()
+      enterLoaderStatus("intel.map.init", INTEL_MAP_OPERATION)
       initMap()
       subscribe()
+      enterLoaderStatus("intel.map.feed.fetch", INTEL_MAP_OPERATION)
       connected = true
       window.addEventListener("resize", handleResize)
       handleResize()
     } catch (error) {
       loadError = error instanceof Error ? error.message : "Failed to load GEOINT map"
+      exitLoaderStatus(INTEL_MAP_OPERATION)
     }
   })
 
@@ -447,6 +470,8 @@
       map = null
       markerLayer = null
     }
+
+    exitLoaderStatus(INTEL_MAP_OPERATION)
   })
 </script>
 

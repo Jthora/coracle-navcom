@@ -9,6 +9,7 @@ import {classifyGroupEventKind} from "src/domain/group-kinds"
 import {GROUP_KINDS} from "src/domain/group-kinds"
 import {checked, myRequest} from "src/engine/state"
 import {selectGroupListItems} from "src/domain/group-selectors"
+import {enterLoaderStatus, exitLoaderStatus} from "src/app/status/loader-status"
 
 export const groupProjections = writable<Map<string, GroupProjection>>(new Map())
 
@@ -40,6 +41,7 @@ const groupEvents = deriveEvents({
 
 let hydrationStarted = false
 let stopHydration: null | (() => void) = null
+const GROUP_HYDRATION_OPERATION = "groups-hydration"
 
 export const groupSummaries = derived([groupProjections, pubkey], ([$groupProjections, $pubkey]) =>
   selectGroupListItems($groupProjections, {currentPubkey: $pubkey || null}),
@@ -120,11 +122,22 @@ export const ensureGroupsHydrated = () => {
   const relays = Router.get().ForUser().policy(addMaximalFallbacks).getUrls()
 
   if (relays.length > 0) {
+    enterLoaderStatus("groups.hydrate.request", GROUP_HYDRATION_OPERATION, {
+      relayCount: relays.length,
+    })
+
     myRequest({
       relays,
       autoClose: true,
       filters: [{kinds: groupKinds, limit: 1000}],
+      onClose: () => {
+        enterLoaderStatus("groups.hydrate.apply", GROUP_HYDRATION_OPERATION)
+        exitLoaderStatus(GROUP_HYDRATION_OPERATION)
+      },
     })
+  } else {
+    enterLoaderStatus("groups.hydrate.apply", GROUP_HYDRATION_OPERATION)
+    exitLoaderStatus(GROUP_HYDRATION_OPERATION)
   }
 
   return stopHydration
@@ -134,6 +147,7 @@ export const stopGroupsHydration = () => {
   stopHydration?.()
   stopHydration = null
   hydrationStarted = false
+  exitLoaderStatus(GROUP_HYDRATION_OPERATION)
 }
 
 export const resetGroupsState = () => {

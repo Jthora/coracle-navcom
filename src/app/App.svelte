@@ -29,6 +29,8 @@
   import Nav from "src/app/Nav.svelte"
   import MainStatusBar from "src/app/MainStatusBar.svelte"
   import ForegroundButtons from "src/app/ForegroundButtons.svelte"
+  import LoaderStatusBanner from "src/app/shared/LoaderStatusBanner.svelte"
+  import {enterLoaderStatus, exitLoaderStatus} from "src/app/status/loader-status"
   import Bech32Entity from "src/app/views/Bech32Entity.svelte"
   import ChannelCreate from "src/app/views/ChannelCreate.svelte"
   import ChannelsDetail from "src/app/views/ChannelsDetail.svelte"
@@ -426,35 +428,34 @@
 
   // App data boostrap and relay meta fetching
 
-  let initPending = true
+  const APP_BOOTSTRAP_OPERATION = "app-bootstrap"
 
+  enterLoaderStatus("app.bootstrap.engine", APP_BOOTSTRAP_OPERATION)
   ready
     .then(async () => {
       // Our stores are throttled by 300, so wait until they're populated
       // before loading app data
+      enterLoaderStatus("app.bootstrap.store-settle", APP_BOOTSTRAP_OPERATION)
       await sleep(350)
 
       if ($session) {
+        enterLoaderStatus("app.bootstrap.user-data", APP_BOOTSTRAP_OPERATION)
         loadUserData()
+      } else {
+        enterLoaderStatus("app.bootstrap.readonly", APP_BOOTSTRAP_OPERATION)
       }
     })
     .catch(e => {
       console.error("engine init failed", e)
     })
     .finally(() => {
-      initPending = false
+      exitLoaderStatus(APP_BOOTSTRAP_OPERATION)
     })
 </script>
 
 <div class="text-neutral-100">
   <Routes />
-  {#if initPending}
-    <div class="pointer-events-none fixed inset-0 flex items-start justify-center p-4">
-      <div class="bg-neutral-900/80 rounded px-3 py-2 text-sm text-neutral-200 shadow-lg">
-        Loading app…
-      </div>
-    </div>
-  {/if}
+  <LoaderStatusBanner />
   {#key $pubkey}
     <ForegroundButtons />
     <Nav />

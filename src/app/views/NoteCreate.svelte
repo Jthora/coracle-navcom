@@ -33,6 +33,7 @@
   import {defaultGeointState} from "src/app/util/geoint"
   import type {GeointState} from "src/app/util/geoint"
   import {shapePostForSubmit} from "src/app/util/post-assembly"
+  import {enterLoaderStatus, exitLoaderStatus} from "src/app/status/loader-status"
   import {
     assemblePreviewData,
     ensureDefaultTypedDraft,
@@ -52,6 +53,7 @@
   const wordCount = writable(0)
   const charCount = writable(0)
   const SHIPYARD_PUBKEY = "5f13f66425c39afa13afd82870952e10d584cebd87f9d02f00ccd871aaaae9eb"
+  const POST_SUBMIT_OPERATION = "post-submit"
   const nsecWarning = writable(null)
   let selectedType: NoteCreateType = "default"
   let geointState: GeointState = defaultGeointState()
@@ -99,190 +101,212 @@
     // prevent sending before media are uploaded
     if ($uploading || publishing) return
 
-    sizeWarning = null
-    sizeBlocked = null
-    geoError = null
-    geohashWarning = null
+    enterLoaderStatus("post.submit.validate", POST_SUBMIT_OPERATION)
 
-    const baseText = editor.getText({blockSeparator: "\n"}).trim()
+    try {
+      sizeWarning = null
+      sizeBlocked = null
+      geoError = null
+      geohashWarning = null
 
-    if (selectedType === "default" && !baseText) return showWarning("Please provide a description.")
+      const baseText = editor.getText({blockSeparator: "\n"}).trim()
 
-    if (!skipNsecWarning && baseText.match(/\bnsec1.+/)) return nsecWarning.set(true)
+      if (selectedType === "default" && !baseText)
+        return showWarning("Please provide a description.")
 
-    const tags = [...normalizeEditorTags(editor.storage.nostr.getEditorTags()), ...getClientTags()]
+      if (!skipNsecWarning && baseText.match(/\bnsec1.+/)) return nsecWarning.set(true)
 
-    if (!tags.some(t => t[0] === "client")) {
-      tags.push(["client", "navcom"])
-    }
+      const tags = [
+        ...normalizeEditorTags(editor.storage.nostr.getEditorTags()),
+        ...getClientTags(),
+      ]
 
-    if (options.warning) {
-      tags.push(["content-warning", options.warning])
-    }
-
-    if (options.expiration) {
-      tags.push(["expiration", String(dateToSeconds(options.expiration))])
-    }
-
-    if (quote) {
-      tags.push(tagPubkey(quote.pubkey))
-    }
-
-    const shaped = shapePostForSubmit({
-      type: selectedType,
-      baseText,
-      tags,
-      geointState,
-    })
-
-    geohashWarning = shaped.geohashWarning ?? null
-    sizeWarning = shaped.sizeWarning ?? null
-
-    if (shaped.error) {
-      if (selectedType === "geoint") {
-        geoError = shaped.error
+      if (!tags.some(t => t[0] === "client")) {
+        tags.push(["client", "navcom"])
       }
 
-      return showWarning(shaped.error)
-    }
+      if (options.warning) {
+        tags.push(["content-warning", options.warning])
+      }
 
-    if (shaped.sizeBlocked) {
-      sizeBlocked = shaped.sizeBlocked
+      if (options.expiration) {
+        tags.push(["expiration", String(dateToSeconds(options.expiration))])
+      }
 
-      return showWarning(shaped.sizeBlocked)
-    }
+      if (quote) {
+        tags.push(tagPubkey(quote.pubkey))
+      }
 
-    if (sizeWarning) {
-      showWarning(sizeWarning)
-    }
-
-    const created_at = options.publish_at ? dateToSeconds(options.publish_at) : now()
-    const ownedEvent = own(
-      makeEvent(1, {content: shaped.content ?? "", tags: shaped.tags, created_at}),
-      $session.pubkey,
-    )
-
-    let hashedEvent = hash(ownedEvent)
-
-    if (options.pow_difficulty) {
-      publishing = "pow"
-
-      pow?.worker.terminate()
-      pow = makePow(ownedEvent, options.pow_difficulty)
-
-      hashedEvent = await pow.result
-    }
-
-    publishing = "signing"
-
-    const signedEvent = await sign(hashedEvent, options)
-    const ACTIVE_DRAFT_KEY = typedDraftKey(selectedType)
-
-    const relays =
-      options.relays?.length > 0
-        ? options.relays
-        : Router.get().PublishEvent(signedEvent).policy(addMinimalFallbacks).getUrls()
-
-    let thunk: Thunk
-
-    router.clearModals()
-    drafts.delete(ACTIVE_DRAFT_KEY)
-
-    if (selectedType === "geoint") {
-      drafts.delete(geoDraftKey(selectedType))
-    }
-
-    if (options.publish_at) {
-      const dvmContent = await $signer.nip04.encrypt(
-        SHIPYARD_PUBKEY,
-        JSON.stringify([
-          ["i", JSON.stringify(signedEvent), "text"],
-          ["param", "relays", ...relays],
-        ]),
+      enterLoaderStatus(
+        selectedType === "geoint" ? "post.submit.shape-geoint" : "post.submit.shape-default",
+        POST_SUBMIT_OPERATION,
       )
 
-      const dvmEvent = await sign(
-        makeEvent(DVM_REQUEST_PUBLISH_SCHEDULE, {
-          content: dvmContent,
-          tags: [["p", SHIPYARD_PUBKEY], ["encrypted"]],
-        }),
-      )
-
-      thunk = publishThunk({
-        event: dvmEvent,
-        relays: env.DVM_RELAYS,
-        delay: $userSettings.send_delay,
+      const shaped = shapePostForSubmit({
+        type: selectedType,
+        baseText,
+        tags,
+        geointState,
       })
 
-      const abortController = new AbortController()
+      geohashWarning = shaped.geohashWarning ?? null
+      sizeWarning = shaped.sizeWarning ?? null
 
-      await request({
-        relays: env.DVM_RELAYS,
-        signal: AbortSignal.any([abortController.signal, AbortSignal.timeout(30_000)]),
-        filters: [{kinds: [dvmEvent.kind + 1000, 7000], since: now() - 30, "#e": [dvmEvent.id]}],
-        onEvent: (event: TrustedEvent, url: string) => {
-          if (event.kind === 7000) {
-            $signer.nip04.decrypt(SHIPYARD_PUBKEY, event.content).then(data => {
-              try {
-                data = JSON.parse(data)[0]
-                showInfo(data[2] || "Your note is " + data[1] + "!")
-              } catch (e) {
-                warn(e)
-              }
-            })
-          } else {
-            abortController.abort()
-          }
-        },
-      })
-    } else {
-      router.clearModals()
-
-      thunk = publishThunk({relays, event: signedEvent, delay: $userSettings.send_delay})
-    }
-
-    trackFirstPostAfterOnboarding(thunk)
-
-    new Promise<void>(resolve => {
-      thunk.subscribe(t => {
-        if (thunkIsComplete(t)) {
-          resolve()
+      if (shaped.error) {
+        if (selectedType === "geoint") {
+          geoError = shaped.error
         }
-      })
-    }).then(() => {
-      charCount.set(0)
-      wordCount.set(0)
-    })
 
-    let aborted = false
+        return showWarning(shaped.error)
+      }
 
-    if ($userSettings.send_delay > 0) {
-      await showToast({
-        type: "delay",
-        timeout: $userSettings.send_delay / 1000,
-        onCancel: () => {
-          aborted = true
-          abortThunk(thunk)
-          router.at("notes/create").open()
-          drafts.set(ACTIVE_DRAFT_KEY, editor.getJSON())
+      if (shaped.sizeBlocked) {
+        sizeBlocked = shaped.sizeBlocked
 
-          if (selectedType === "geoint") {
-            drafts.set(geoDraftKey(selectedType), geointState)
-          }
-        },
-      })
-    }
+        return showWarning(shaped.sizeBlocked)
+      }
 
-    if (!aborted) {
-      showPublishInfo(thunk)
-      broadcastUserRelays(relays)
+      if (sizeWarning) {
+        showWarning(sizeWarning)
+      }
+
+      const created_at = options.publish_at ? dateToSeconds(options.publish_at) : now()
+      const ownedEvent = own(
+        makeEvent(1, {content: shaped.content ?? "", tags: shaped.tags, created_at}),
+        $session.pubkey,
+      )
+
+      let hashedEvent = hash(ownedEvent)
+
+      if (options.pow_difficulty) {
+        publishing = "pow"
+        enterLoaderStatus("post.submit.pow", POST_SUBMIT_OPERATION)
+
+        pow?.worker.terminate()
+        pow = makePow(ownedEvent, options.pow_difficulty)
+
+        hashedEvent = await pow.result
+      }
+
+      publishing = "signing"
+      enterLoaderStatus("post.submit.sign", POST_SUBMIT_OPERATION)
+
+      const signedEvent = await sign(hashedEvent, options)
+      const ACTIVE_DRAFT_KEY = typedDraftKey(selectedType)
+
+      enterLoaderStatus("post.submit.relay-select", POST_SUBMIT_OPERATION)
+      const relays =
+        options.relays?.length > 0
+          ? options.relays
+          : Router.get().PublishEvent(signedEvent).policy(addMinimalFallbacks).getUrls()
+
+      let thunk: Thunk
+
+      router.clearModals()
+      drafts.delete(ACTIVE_DRAFT_KEY)
 
       if (selectedType === "geoint") {
-        geointState = defaultGeointState()
+        drafts.delete(geoDraftKey(selectedType))
       }
-    }
 
-    publishing = null
+      if (options.publish_at) {
+        enterLoaderStatus("post.submit.publish", POST_SUBMIT_OPERATION)
+
+        const dvmContent = await $signer.nip04.encrypt(
+          SHIPYARD_PUBKEY,
+          JSON.stringify([
+            ["i", JSON.stringify(signedEvent), "text"],
+            ["param", "relays", ...relays],
+          ]),
+        )
+
+        const dvmEvent = await sign(
+          makeEvent(DVM_REQUEST_PUBLISH_SCHEDULE, {
+            content: dvmContent,
+            tags: [["p", SHIPYARD_PUBKEY], ["encrypted"]],
+          }),
+        )
+
+        thunk = publishThunk({
+          event: dvmEvent,
+          relays: env.DVM_RELAYS,
+          delay: $userSettings.send_delay,
+        })
+
+        const abortController = new AbortController()
+
+        await request({
+          relays: env.DVM_RELAYS,
+          signal: AbortSignal.any([abortController.signal, AbortSignal.timeout(30_000)]),
+          filters: [{kinds: [dvmEvent.kind + 1000, 7000], since: now() - 30, "#e": [dvmEvent.id]}],
+          onEvent: (event: TrustedEvent, url: string) => {
+            if (event.kind === 7000) {
+              $signer.nip04.decrypt(SHIPYARD_PUBKEY, event.content).then(data => {
+                try {
+                  data = JSON.parse(data)[0]
+                  showInfo(data[2] || "Your note is " + data[1] + "!")
+                } catch (e) {
+                  warn(e)
+                }
+              })
+            } else {
+              abortController.abort()
+            }
+          },
+        })
+      } else {
+        router.clearModals()
+
+        enterLoaderStatus("post.submit.publish", POST_SUBMIT_OPERATION)
+        thunk = publishThunk({relays, event: signedEvent, delay: $userSettings.send_delay})
+      }
+
+      trackFirstPostAfterOnboarding(thunk)
+
+      new Promise<void>(resolve => {
+        thunk.subscribe(t => {
+          if (thunkIsComplete(t)) {
+            resolve()
+          }
+        })
+      }).then(() => {
+        charCount.set(0)
+        wordCount.set(0)
+      })
+
+      let aborted = false
+
+      if ($userSettings.send_delay > 0) {
+        enterLoaderStatus("post.submit.delayed-window", POST_SUBMIT_OPERATION)
+        await showToast({
+          type: "delay",
+          timeout: $userSettings.send_delay / 1000,
+          onCancel: () => {
+            aborted = true
+            abortThunk(thunk)
+            router.at("notes/create").open()
+            drafts.set(ACTIVE_DRAFT_KEY, editor.getJSON())
+
+            if (selectedType === "geoint") {
+              drafts.set(geoDraftKey(selectedType), geointState)
+            }
+          },
+        })
+      }
+
+      if (!aborted) {
+        showPublishInfo(thunk)
+        broadcastUserRelays(relays)
+
+        if (selectedType === "geoint") {
+          geointState = defaultGeointState()
+        }
+      }
+
+      publishing = null
+    } finally {
+      exitLoaderStatus(POST_SUBMIT_OPERATION)
+    }
   }
 
   const togglePreview = () => {
@@ -411,6 +435,12 @@
     anonymous: false,
     publish_at: null,
     pow_difficulty: $userSettings.pow_difficulty,
+  }
+
+  $: if ($uploading) {
+    enterLoaderStatus("post.submit.wait-upload", POST_SUBMIT_OPERATION)
+  } else if (!publishing) {
+    exitLoaderStatus(POST_SUBMIT_OPERATION)
   }
 
   onMount(() => {
