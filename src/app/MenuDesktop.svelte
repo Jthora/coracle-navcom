@@ -127,6 +127,7 @@
   <Link
     external
     class="mb-4 mt-4 flex w-full items-center justify-center px-6"
+    target="_self"
     href="https://navcom.app">
     <div class="flex w-full flex-col items-center">
       <img
