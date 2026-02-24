@@ -392,7 +392,7 @@
     geohashWarning = null
   }
 
-  const hasValidGeo = () => {
+  function hasValidGeo() {
     if (isValidGeoState(geointState)) {
       return true
     }
