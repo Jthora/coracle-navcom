@@ -108,7 +108,9 @@ export const createFeedDataStream = ({
 
   return {
     load: size => ctrl.load(size),
-    abort: () => {},
+    abort: () => {
+      ;(ctrl as any).abort?.()
+    },
   }
 }
 

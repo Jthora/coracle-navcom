@@ -1,3 +1,5 @@
+import {mlKemKeygen, bytesToBase64} from "src/engine/pqc/crypto-provider"
+
 export const PQC_KEY_SCHEMA_VERSION = 1 as const
 export const DEFAULT_PQC_KEY_ROTATION_TTL_SECONDS = 60 * 60 * 24 * 90
 export const DEFAULT_PQC_KEY_STALE_AFTER_SECONDS = 60 * 60 * 24
@@ -151,6 +153,37 @@ export const validatePqcKeyPublicationRecord = (
   }
 
   return {ok: true, value: record}
+}
+
+/**
+ * Generate a fresh ML-KEM-768 keypair for PQC key publication.
+ * Returns a PqcKeyPublicationRecord-shaped object with real key material.
+ */
+export const generatePqcKeyPair = ({
+  userPubkey,
+  deviceHint,
+  ttlSeconds = DEFAULT_PQC_KEY_ROTATION_TTL_SECONDS,
+}: {
+  userPubkey: string
+  deviceHint?: string
+  ttlSeconds?: number
+}): {record: PqcKeyPublicationRecord; secretKey: Uint8Array} => {
+  const {publicKey, secretKey} = mlKemKeygen()
+  const now = Math.floor(Date.now() / 1000)
+
+  const record: PqcKeyPublicationRecord = {
+    schema: PQC_KEY_SCHEMA_VERSION,
+    user_pubkey: userPubkey,
+    pq_alg: "mlkem768",
+    pq_pub: bytesToBase64(publicKey),
+    key_id: `mlkem768-${now}-${userPubkey.slice(0, 8)}`,
+    created_at: now,
+    expires_at: now + ttlSeconds,
+    status: "active",
+    ...(deviceHint ? {device_hint: deviceHint} : {}),
+  }
+
+  return {record, secretKey}
 }
 
 export const selectPreferredActivePqcKey = (

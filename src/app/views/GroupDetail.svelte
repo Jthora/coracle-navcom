@@ -16,7 +16,7 @@
   $: detail = projection ? buildGroupDetailViewModel(projection) : null
   $: securityState = getProjectionSecurityState(projection)
   $: section = getGroupRouteSection(window.location.pathname)
-  $: document.title = detail ? `${detail.title} · Groups` : "Group · Groups"
+  $: document.title = detail ? `${detail.title} · Groups | NavCom` : "Groups | NavCom"
   $: breadcrumbs = buildGroupBreadcrumbItems({
     section,
     groupId,

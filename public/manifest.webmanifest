@@ -1,4 +1,12 @@
 {
+  "name": "NavCom",
+  "short_name": "NavCom",
+  "description": "Decentralized operations and intelligence platform. Sovereign comms, GEOINT posting, tiered security, and post-quantum encryption on the Nostr protocol.",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#22d3ee",
+  "background_color": "#050608",
+  "categories": ["social", "communication", "security"],
   "icons": [
     {
       "src": "../icons/icon-48.webp",

@@ -4,6 +4,7 @@ import {uniq} from "@welshman/lib"
 import {makeEvent} from "@welshman/util"
 import type {TrustedEvent} from "@welshman/util"
 import {GROUP_KINDS} from "src/domain/group-kinds"
+import type {GroupProjection} from "src/domain/group"
 import {myRequest, getClientTags} from "src/engine/state"
 import {prepareSecureGroupKeyUse} from "src/engine/group-key-lifecycle"
 import {
@@ -28,6 +29,8 @@ import {
   scheduleSecureGroupMembershipTriggeredRotation,
 } from "src/engine/group-key-rotation-service"
 import {applyGroupTransportProjectionEvents} from "src/engine/group-transport-projection"
+import {retrieveKey} from "src/engine/keys/secure-store"
+import {deriveEpochContentKey} from "src/engine/pqc/epoch-key-manager"
 import {
   errTransportResult,
   okTransportResult,
@@ -38,14 +41,8 @@ import {
 import {evaluateSecureGroupSendTierPolicy} from "src/engine/group-transport-secure-tier"
 import {
   buildSecureSubscribeFilters,
-  parseSecureGroupSendInput,
-  parseSecureGroupSendInputResult,
-  parseSecureGroupSubscribeInput,
-  type GroupSecureSendInputReason,
-  type ParseSecureGroupSendInputResult,
   type SecureGroupSendInput,
   type SecureGroupSubscribeInput,
-  GROUP_SECURE_SEND_INPUT_REASON,
 } from "src/engine/group-transport-secure-input"
 export {
   buildSecureSubscribeFilters,
@@ -58,6 +55,26 @@ export {
   type SecureGroupSubscribeInput,
   GROUP_SECURE_SEND_INPUT_REASON,
 } from "src/engine/group-transport-secure-input"
+
+/**
+ * Resolve a derived epoch content key from secure storage.
+ * Loads the group's PQC master secret from IndexedDB, then HKDF-derives the
+ * AES-GCM-256 content key for the given epoch.
+ *
+ * @param groupId  - group identifier
+ * @param epochId  - epoch identifier
+ * @param passphrase - passphrase for unwrapping the master secret
+ * @returns 32-byte epoch content key, or null if unavailable
+ */
+export const resolveEpochKey = async (
+  groupId: string,
+  epochId: string,
+  passphrase: string,
+): Promise<Uint8Array | null> => {
+  const masterKey = await retrieveKey(`pqc-group-master:${groupId}`, passphrase)
+  if (!masterKey) return null
+  return deriveEpochContentKey(masterKey, groupId, epochId)
+}
 
 export const sendSecureGroupMessage = async (
   input: SecureGroupSendInput,
@@ -101,7 +118,9 @@ export const sendSecureGroupMessage = async (
       recipients: uniq(input.recipients.concat(senderPubkey).filter(Boolean)),
       senderPubkey,
       projection:
-        input.localState && typeof input.localState === "object" ? (input.localState as any) : null,
+        input.localState && typeof input.localState === "object"
+          ? (input.localState as GroupProjection)
+          : null,
     })
 
     if (recipientResolution.eligibleRecipients.length === 0) {
@@ -112,17 +131,28 @@ export const sendSecureGroupMessage = async (
       )
     }
 
-    const encodedContent = encodeSecureGroupEpochContent({
+    if (!input.epochKeyBytes) {
+      return errTransportResult(
+        "GROUP_TRANSPORT_VALIDATION_FAILED",
+        "Epoch key bytes are required for secure group send.",
+        false,
+      )
+    }
+
+    const encodedContent = await encodeSecureGroupEpochContent({
       groupId: input.groupId,
       epochId: epochState.epochId,
       plaintext: input.content,
       senderPubkey,
       recipients: recipientResolution.eligibleRecipients,
+      epochKeyBytes: input.epochKeyBytes,
     })
 
     if (encodedContent.ok === false) {
       return errTransportResult("GROUP_TRANSPORT_VALIDATION_FAILED", encodedContent.message, false)
     }
+
+    const extraTags = Array.isArray(input.extraTags) ? input.extraTags : []
 
     const result = await sendWrapped({
       delay: input.delay || 0,
@@ -140,6 +170,7 @@ export const sendSecureGroupMessage = async (
               senderPubkey,
             }),
             ...getClientTags(),
+            ...extraTags,
           ],
         }),
       }),
@@ -219,15 +250,17 @@ const findInvalidEpochValidation = ({
     .map(event => validateGroupMessageEpochForReceive({event, expectedEpochId}))
     .find(result => !result.ok)
 
-const findInvalidContentValidation = ({
+const findInvalidContentValidation = async ({
   events,
   expectedEpochId,
+  epochKeyBytes,
 }: {
   events: TrustedEvent[]
   expectedEpochId: string
-}) =>
-  events
-    .map(event =>
+  epochKeyBytes: Uint8Array
+}) => {
+  const results = await Promise.all(
+    events.map(event =>
       validateAndDecryptSecureGroupEventContent({
         event: {
           id: event.id,
@@ -235,18 +268,24 @@ const findInvalidContentValidation = ({
           content: event.content,
         },
         expectedEpochId,
+        epochKeyBytes,
       }),
-    )
-    .find(result => !result.ok)
+    ),
+  )
+
+  return results.find(result => !result.ok)
+}
 
 export const reconcileSecureGroupEvents = async ({
   groupId,
   remoteEvents,
   localState,
+  epochKeyBytes,
 }: {
   groupId: string
   remoteEvents: unknown[]
   localState?: unknown
+  epochKeyBytes?: Uint8Array
 }): Promise<GroupTransportResult<unknown>> => {
   const epochState = ensureSecureGroupEpochState(groupId)
 
@@ -274,7 +313,7 @@ export const reconcileSecureGroupEvents = async ({
     )
   }
 
-  const projection = localState as any
+  const projection = localState as GroupProjection
 
   if (projection?.group?.id !== groupId) {
     return errTransportResult(
@@ -327,10 +366,13 @@ export const reconcileSecureGroupEvents = async ({
     )
   }
 
-  const invalidContentEvent = findInvalidContentValidation({
-    events: trustedEvents,
-    expectedEpochId,
-  })
+  const invalidContentEvent = epochKeyBytes
+    ? await findInvalidContentValidation({
+        events: trustedEvents,
+        expectedEpochId,
+        epochKeyBytes,
+      })
+    : undefined
 
   if (invalidContentEvent && invalidContentEvent.ok === false) {
     const reason =

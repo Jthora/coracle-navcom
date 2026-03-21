@@ -1,6 +1,6 @@
 <script lang="ts">
   import MenuMobile from "src/app/MenuMobile.svelte"
-  import MenuDesktop from "src/app/MenuDesktop.svelte"
+  import ChannelSidebar from "src/app/views/ChannelSidebar.svelte"
 
   let innerWidth = 0
 </script>
@@ -10,5 +10,9 @@
 {#if innerWidth < 1024}
   <MenuMobile />
 {:else}
-  <MenuDesktop />
+  <div class="top-sai left-sai bottom-sai fixed z-nav flex w-72 flex-col">
+    <div class="flex-1 overflow-hidden border-r border-neutral-700 bg-neutral-900">
+      <ChannelSidebar />
+    </div>
+  </div>
 {/if}

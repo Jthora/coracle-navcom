@@ -11,7 +11,7 @@
   const keypairUrl = "https://www.cloudflare.com/learning/ssl/how-does-public-key-encryption-work/"
   const getBunkerUrl = () => ($signer.signer as Nip46Signer).broker.getBunkerUrl()
 
-  document.title = "Keys"
+  document.title = "Keys | NavCom"
 </script>
 
 <FlexColumn xl>

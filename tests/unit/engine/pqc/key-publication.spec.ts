@@ -3,11 +3,17 @@ import {
   DEFAULT_PQC_KEY_ROTATION_TTL_SECONDS,
   DEFAULT_PQC_KEY_STALE_AFTER_SECONDS,
   PQC_KEY_SCHEMA_VERSION,
+  generatePqcKeyPair,
   getPqcKeyFreshness,
   getPqcKeyFreshnessState,
   selectPreferredActivePqcKey,
   validatePqcKeyPublicationRecord,
 } from "../../../../src/engine/pqc/key-publication"
+import {
+  mlKemEncapsulate,
+  mlKemDecapsulate,
+  base64ToBytes,
+} from "../../../../src/engine/pqc/crypto-provider"
 
 const now = 1739836800
 
@@ -105,5 +111,39 @@ describe("engine/pqc/key-publication", () => {
       lastValidatedAt: now,
     })
     expect(expired).toBe("expired")
+  })
+
+  it("generates a real ML-KEM-768 keypair with valid record", () => {
+    const {record, secretKey} = generatePqcKeyPair({
+      userPubkey: "a".repeat(64),
+      deviceHint: "test-device",
+    })
+
+    expect(record.pq_alg).toBe("mlkem768")
+    expect(record.status).toBe("active")
+    expect(record.schema).toBe(PQC_KEY_SCHEMA_VERSION)
+    expect(record.device_hint).toBe("test-device")
+    expect(secretKey.length).toBe(2400) // ML-KEM-768 secret key size
+
+    // The published public key should be real ML-KEM material
+    const pubKeyBytes = base64ToBytes(record.pq_pub)
+    expect(pubKeyBytes.length).toBe(1184) // ML-KEM-768 public key size
+  })
+
+  it("generated keypair can encapsulate and decapsulate", () => {
+    const {record, secretKey} = generatePqcKeyPair({userPubkey: "b".repeat(64)})
+    const pubKeyBytes = base64ToBytes(record.pq_pub)
+
+    const {cipherText, sharedSecret: ss1} = mlKemEncapsulate(pubKeyBytes)
+    const ss2 = mlKemDecapsulate(cipherText, secretKey)
+
+    expect(Array.from(ss1)).toEqual(Array.from(ss2))
+    expect(ss1.length).toBe(32)
+  })
+
+  it("generated record passes validation", () => {
+    const {record} = generatePqcKeyPair({userPubkey: "c".repeat(64)})
+    const result = validatePqcKeyPublicationRecord(record, {requireActive: true})
+    expect(result.ok).toBe(true)
   })
 })

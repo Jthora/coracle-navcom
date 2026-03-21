@@ -30,13 +30,16 @@ export const deriveExpectedRecipientPubkeys = ({
   return recipients
 }
 
-export const resolveMessagePlaintext = ({
+export const resolveMessagePlaintext = async ({
   event,
   decryptedContent,
   policyMode,
   allowLegacyFallback,
   enableFallbackHistory,
   localPubkey,
+  recipientSecretKey,
+  recipientPubkey,
+  senderPubkey,
 }: {
   event: TrustedEvent
   decryptedContent: string
@@ -44,6 +47,9 @@ export const resolveMessagePlaintext = ({
   allowLegacyFallback: boolean
   enableFallbackHistory?: boolean
   localPubkey?: string
+  recipientSecretKey?: Uint8Array
+  recipientPubkey?: string
+  senderPubkey?: string
 }) => {
   const expectedRecipientPubkeys = deriveExpectedRecipientPubkeys({
     tags: event.tags,
@@ -51,11 +57,14 @@ export const resolveMessagePlaintext = ({
   })
   const expectedRecipientPubkey = expectedRecipientPubkeys[0]
 
-  const resolved = resolveDmReceiveContent({
+  const resolved = await resolveDmReceiveContent({
     tags: event.tags,
     decryptedContent,
     policyMode,
     allowLegacyFallback,
+    recipientSecretKey: recipientSecretKey || new Uint8Array(0),
+    recipientPubkey: recipientPubkey || "",
+    senderPubkey: senderPubkey || "",
     expectedSenderPubkey: normalizePubkey(event.pubkey),
     expectedRecipientPubkey,
     expectedRecipientPubkeys,

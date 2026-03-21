@@ -8,3 +8,6 @@ Disallow: /
 # Allow all other crawlers
 User-agent: *
 Allow: /
+
+# Sitemap
+Sitemap: https://navcom.app/sitemap.xml

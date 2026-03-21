@@ -63,7 +63,7 @@
     ...$userSettings.muted_words,
   ])
 
-  document.title = "Content Preferences"
+  document.title = "Content Preferences | NavCom"
 </script>
 
 <form on:submit|preventDefault={submit}>

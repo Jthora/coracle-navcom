@@ -4,18 +4,26 @@ import {
   buildDmPqcEnvelope,
 } from "../../../../src/engine/pqc/dm-envelope"
 import {validatePqcEnvelope} from "../../../../src/engine/pqc/envelope-validation"
+import {mlKemKeygen} from "../../../../src/engine/pqc/crypto-provider"
 
 describe("engine/pqc/dm-envelope", () => {
-  it("builds a valid hybrid envelope payload", () => {
-    const result = buildDmPqcEnvelope({
+  it("builds a valid hybrid envelope payload", async () => {
+    const r1Keys = mlKemKeygen()
+    const r2Keys = mlKemKeygen()
+    const recipientPqPublicKeys = new Map<string, Uint8Array>([
+      ["r1", r1Keys.publicKey],
+      ["r2", r2Keys.publicKey],
+    ])
+
+    const result = await buildDmPqcEnvelope({
       plaintext: "hello",
       senderPubkey: "sender",
       recipients: ["r2", "r1"],
       mode: "hybrid",
       algorithm: "hybrid-mlkem768+x25519-aead-v1",
+      recipientPqPublicKeys,
       createdAt: 1739836800,
       messageId: "msg-1",
-      nonceSeed: "seed",
     })
 
     expect(result.ok).toBe(true)
@@ -29,13 +37,17 @@ describe("engine/pqc/dm-envelope", () => {
     }
   })
 
-  it("includes compatibility metadata for classical fallback", () => {
-    const result = buildDmPqcEnvelope({
+  it("includes compatibility metadata for classical fallback", async () => {
+    const r1Keys = mlKemKeygen()
+    const recipientPqPublicKeys = new Map<string, Uint8Array>([["r1", r1Keys.publicKey]])
+
+    const result = await buildDmPqcEnvelope({
       plaintext: "hello",
       senderPubkey: "sender",
       recipients: ["r1"],
       mode: "classical",
       algorithm: "classical-x25519-aead-v1",
+      recipientPqPublicKeys,
       fallbackReasonCode: "NEGOTIATION_NO_CAPS",
       createdAt: 1739836800,
       messageId: "msg-2",
@@ -49,13 +61,14 @@ describe("engine/pqc/dm-envelope", () => {
     }
   })
 
-  it("fails when recipients are missing", () => {
-    const result = buildDmPqcEnvelope({
+  it("fails when recipients are missing", async () => {
+    const result = await buildDmPqcEnvelope({
       plaintext: "hello",
       senderPubkey: "sender",
       recipients: [],
       mode: "hybrid",
       algorithm: "hybrid-mlkem768+x25519-aead-v1",
+      recipientPqPublicKeys: new Map(),
     })
 
     expect(result).toMatchObject({

@@ -1,3 +1,5 @@
+export * from "src/engine/pqc/crypto-provider"
+export * from "src/engine/pqc/epoch-key-manager"
 export * from "src/engine/pqc/envelope-contracts"
 export * from "src/engine/pqc/envelope-validation"
 export * from "src/engine/pqc/dm-envelope"

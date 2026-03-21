@@ -154,7 +154,9 @@ const loadPersistedLifecycleStates = (
   } catch {
     try {
       storage.removeItem(storageKey)
-    } catch {}
+    } catch {
+      /* noop */
+    }
 
     return []
   }
@@ -182,7 +184,9 @@ export const createGroupKeyLifecycleRegistry = (
           states: Array.from(byKey.values()),
         }),
       )
-    } catch {}
+    } catch {
+      /* noop */
+    }
   }
 
   for (const state of loadPersistedLifecycleStates(storage, storageKey)) {

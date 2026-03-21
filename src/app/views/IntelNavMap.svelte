@@ -90,6 +90,8 @@
   import {onDestroy, onMount} from "svelte"
   import NavMapStatusBar from "src/app/views/NavMapStatusBar.svelte"
   import NavMapToolBar from "src/app/views/NavMapToolBar.svelte"
+  import {mapTileSet} from "src/app/navcom-mode"
+  import type {TileSetId} from "src/app/navcom-mode"
   import type {TrustedEvent} from "@welshman/util"
   import {
     isKindFeed,
@@ -145,6 +147,7 @@
   let map: any = null
   let markerLayer: any = null
   let markerBounds: any = null
+  let tileLayer: any = null
   let ctrl: ReturnType<typeof createFeedDataStream> | null = null
   let refreshTimer: ReturnType<typeof setInterval> | null = null
   let settleLoadingTimer: ReturnType<typeof setTimeout> | null = null
@@ -155,6 +158,34 @@
   const REFRESH_INTERVAL_MS = 10000
   const SETTLE_LOAD_MS = 1800
   const INTEL_MAP_OPERATION = "intel-map"
+
+  const TILE_URLS: Record<TileSetId, {url: string; attribution: string}> = {
+    street: {
+      url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+      attribution: "&copy; OpenStreetMap contributors",
+    },
+    satellite: {
+      url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+      attribution: "&copy; Esri",
+    },
+    terrain: {
+      url: "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
+      attribution: "&copy; OpenTopoMap contributors",
+    },
+  }
+
+  function switchTileSet(id: TileSetId) {
+    if (!leaflet || !map) return
+    if (tileLayer) map.removeLayer(tileLayer)
+    const ts = TILE_URLS[id]
+    tileLayer = leaflet.tileLayer(ts.url, {attribution: ts.attribution, maxZoom: 19}).addTo(map)
+  }
+
+  // React to tile set changes
+  const unsubTileSet = mapTileSet.subscribe(id => {
+    if (map && leaflet) switchTileSet(id)
+  })
+
   let refreshSize = 120
   let initialFeedSettled = false
 
@@ -257,12 +288,10 @@
 
     map.setView(mapCenter, mapZoom)
 
-    leaflet
-      .tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: "&copy; OpenStreetMap contributors",
-        maxZoom: 19,
-      })
-      .addTo(map)
+    // Use persisted tile set (defaults to street/OSM)
+    const currentTileSet = mapTileSet as any
+    const tsId: TileSetId = currentTileSet.get?.() ?? "street"
+    switchTileSet(tsId)
 
     markerLayer = leaflet.layerGroup().addTo(map)
   }
@@ -428,7 +457,7 @@
 
   onMount(async () => {
     try {
-      document.title = "GEOINT Nav Map"
+      document.title = "GEOINT Nav Map | NavCom"
       enterLoaderStatus("intel.map.module", INTEL_MAP_OPERATION)
       await initLeaflet()
       enterLoaderStatus("intel.map.init", INTEL_MAP_OPERATION)
@@ -455,6 +484,7 @@
     abortController.abort()
     ctrl?.abort()
     ctrl = null
+    unsubTileSet()
     if (refreshTimer) {
       clearInterval(refreshTimer)
       refreshTimer = null

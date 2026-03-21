@@ -185,5 +185,9 @@
   {/if}
   <Link class="btn btn-accent" href="/">Done</Link>
 {:else}
-  <Onboarding invite={{people, relays, groups: parsedGroups, parsedRelays}} />
+  <Onboarding
+    invite={{people, relays, groups: parsedGroups, parsedRelays}}
+    returnTo={parsedGroups.length === 1
+      ? `/groups/${encodeURIComponent(parsedGroups[0].groupId)}/chat`
+      : null} />
 {/if}

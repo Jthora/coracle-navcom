@@ -35,7 +35,7 @@
   $: url = normalizeRelayUrl(url)
   $: rating = getAvgRating($reviews)
 
-  document.title = displayRelayUrl(url)
+  document.title = `${displayRelayUrl(url)} | NavCom`
 </script>
 
 <div class="panel flex flex-col gap-2 p-4">

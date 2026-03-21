@@ -19,7 +19,7 @@
   const isIntelFeed = topics?.length === 1 && topics[0] === intelTag
 
   $: initialFeed = hasTopicPreset ? feed : $defaultFeed
-  document.title = "Feeds"
+  document.title = "Feeds | NavCom"
 </script>
 
 {#if hasTopicPreset && !isOpsFeed && !isIntelFeed && !hideTopicChrome}

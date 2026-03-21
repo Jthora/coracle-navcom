@@ -14,6 +14,8 @@ export type SecureGroupSendInput = {
   resolvedMode?: string
   downgradeConfirmed?: boolean
   allowTier2Override?: boolean
+  epochKeyBytes?: Uint8Array
+  extraTags?: string[][]
 }
 
 export type SecureGroupSubscribeInput = {

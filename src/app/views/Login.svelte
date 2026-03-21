@@ -47,7 +47,7 @@
     }
   })
 
-  document.title = "Log In"
+  document.title = "Log In | NavCom"
 </script>
 
 <div>

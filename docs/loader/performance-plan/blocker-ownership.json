@@ -1,0 +1,20 @@
+{
+  "default": {
+    "owner": "App Team",
+    "eta": "TBD"
+  },
+  "blockers": {
+    "completeness": {
+      "owner": "App Team",
+      "eta": "After completing the 50-run baseline capture target"
+    },
+    "telemetry-usefulness": {
+      "owner": "Frontend Platform",
+      "eta": "After capturing missing diagnostic evidence from next capture cycle"
+    },
+    "issue-review": {
+      "owner": "Frontend Platform",
+      "eta": "After completeness and usefulness blockers clear"
+    }
+  }
+}

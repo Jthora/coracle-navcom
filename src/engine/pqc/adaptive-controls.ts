@@ -126,8 +126,7 @@ export const resolveAdaptiveBehaviorDecision = (
   const used = Math.max(0, Math.floor(input.autoFallbacksUsed || 0))
   const budget = Math.max(0, limits.compatibilityAutoFallbackBudget)
   const remainingAutoFallbacks = Math.max(0, budget - used)
-  const requiresUserConfirmation =
-    limits.requireUserConfirmation && !Boolean(input.userConfirmedDowngrade)
+  const requiresUserConfirmation = limits.requireUserConfirmation && !input.userConfirmedDowngrade
 
   const canAutoFallback =
     input.allowClassicalFallback && !requiresUserConfirmation && remainingAutoFallbacks > 0

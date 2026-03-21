@@ -45,7 +45,7 @@
 
   const markAllChannelsRead = () => setChecked("channels/*", now())
 
-  document.title = "Direct Messages"
+  document.title = "Direct Messages | NavCom"
 </script>
 
 <FlexColumn bind:element>

@@ -26,11 +26,14 @@
   import ChatEnable from "src/app/views/ChatEnable.svelte"
   import Menu from "src/app/Menu.svelte"
   import Routes from "src/app/Routes.svelte"
+  import ErrorBoundary from "src/app/ErrorBoundary.svelte"
   import Nav from "src/app/Nav.svelte"
+  import ModeTabBar from "src/app/views/ModeTabBar.svelte"
   import MainStatusBar from "src/app/MainStatusBar.svelte"
   import ForegroundButtons from "src/app/ForegroundButtons.svelte"
   import LoaderStatusBanner from "src/app/shared/LoaderStatusBanner.svelte"
   import {enterLoaderStatus, exitLoaderStatus} from "src/app/status/loader-status"
+  import {announcement, announcementPriority, skipToMain} from "src/partials/accessibility"
   import Bech32Entity from "src/app/views/Bech32Entity.svelte"
   import ChannelCreate from "src/app/views/ChannelCreate.svelte"
   import ChannelsDetail from "src/app/views/ChannelsDetail.svelte"
@@ -62,8 +65,10 @@
   import Search from "src/app/views/Search.svelte"
   import ThreadDetail from "src/app/views/ThreadDetail.svelte"
   import Zap from "src/app/views/Zap.svelte"
-  import {onMount} from "svelte"
+  import {onMount, onDestroy} from "svelte"
   import {logUsage} from "src/app/state"
+  import {setMode} from "src/app/navcom-mode"
+  import type {NavComMode} from "src/app/navcom-mode"
   import {
     router,
     asChannelId,
@@ -428,6 +433,21 @@
 
   // App data boostrap and relay meta fetching
 
+  // NavCom mode keyboard shortcuts: Ctrl/Cmd+1=comms, Ctrl/Cmd+2=map, Ctrl/Cmd+3=ops
+  const modeKeys: Record<string, NavComMode> = {"1": "comms", "2": "map", "3": "ops"}
+
+  function handleModeShortcut(e: KeyboardEvent) {
+    if (!(e.ctrlKey || e.metaKey)) return
+    const mode = modeKeys[e.key]
+    if (mode) {
+      e.preventDefault()
+      setMode(mode)
+    }
+  }
+
+  window.addEventListener("keydown", handleModeShortcut)
+  onDestroy(() => window.removeEventListener("keydown", handleModeShortcut))
+
   const APP_BOOTSTRAP_OPERATION = "app-bootstrap"
 
   enterLoaderStatus("app.bootstrap.engine", APP_BOOTSTRAP_OPERATION)
@@ -454,11 +474,30 @@
 </script>
 
 <div class="text-neutral-100">
-  <Routes />
+  <!-- Accessibility: Skip-to-content link (appears on Tab) -->
+  <a class="sr-only focus:not-sr-only" href="#main-content" on:click|preventDefault={skipToMain}>
+    Skip to content
+  </a>
+
+  <!-- Accessibility: Global ARIA live region for screen reader announcements -->
+  <div aria-live={$announcementPriority} aria-atomic="true" class="sr-only" role="status">
+    {$announcement}
+  </div>
+
+  <ErrorBoundary>
+    <main id="main-content" tabindex="-1" aria-label="Main content">
+      <Routes />
+    </main>
+  </ErrorBoundary>
   <LoaderStatusBanner />
   {#key $pubkey}
     <ForegroundButtons />
-    <Nav />
+    <nav aria-label="Main navigation">
+      <Nav />
+    </nav>
+    <nav aria-label="Mode navigation">
+      <ModeTabBar />
+    </nav>
     <Menu />
     <MainStatusBar />
     <BackupReminder />

@@ -18,6 +18,7 @@
   import PersonAbout from "src/app/shared/PersonAbout.svelte"
   import {router} from "src/app/util/router"
   import Popover from "src/partials/Popover.svelte"
+  import PqcBadge from "src/app/shared/PqcBadge.svelte"
   import {getChannelIdFromEvent, listenForMessages, setChecked} from "src/engine"
 
   export let pubkeys
@@ -64,7 +65,7 @@
     setChecked("channels/" + channelId)
   })
 
-  document.title = `Direct Messages`
+  document.title = `Direct Messages | NavCom`
 </script>
 
 <Channel {pubkeys} {channelId} messages={$messages}>
@@ -87,6 +88,7 @@
         </div>
         {#if pubkeys.length === 1}
           <PersonAbout truncate pubkey={pubkeys[0]} />
+          <PqcBadge peerPubkey={pubkeys[0]} />
         {/if}
       </div>
     </div>

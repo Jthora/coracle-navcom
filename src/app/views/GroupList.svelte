@@ -31,7 +31,7 @@
 
   onMount(() => {
     ensureGroupsHydrated()
-    document.title = "Groups"
+    document.title = "Groups | NavCom"
   })
 </script>
 
@@ -123,9 +123,7 @@
   {:else}
     <div class="panel p-6 text-center text-neutral-200">
       <p>No groups available yet.</p>
-      <p class="mt-2 text-sm text-neutral-400">
-        Join from invite or create a group to begin.
-      </p>
+      <p class="mt-2 text-sm text-neutral-400">Join from invite or create a group to begin.</p>
     </div>
   {/each}
 {/if}

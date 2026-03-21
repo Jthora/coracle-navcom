@@ -2,6 +2,15 @@ import {validatePqcEnvelope} from "src/engine/pqc/envelope-validation"
 import {pqcEnvelopeModes, type PqcEnvelopeMode} from "src/engine/pqc/envelope-contracts"
 import type {EnvelopeValidationErrorCode} from "src/engine/pqc/envelope-contracts"
 import type {PqcPolicyMode} from "src/engine/pqc/negotiation"
+import {
+  aesGcmDecrypt,
+  importAesGcmKey,
+  hkdfDeriveKey,
+  base64ToBytes,
+  bytesToString,
+  stringToBytes,
+  mlKemDecapsulate,
+} from "src/engine/pqc/crypto-provider"
 
 export const DM_SECURE_UNDECRYPTABLE_PLACEHOLDER = "Secure message unavailable."
 
@@ -32,6 +41,9 @@ export type ResolveDmReceiveContentInput = {
   tags: string[][]
   decryptedContent: string
   policyMode: PqcPolicyMode
+  recipientSecretKey: Uint8Array
+  recipientPubkey: string
+  senderPubkey: string
   allowLegacyFallback?: boolean
   expectedSenderPubkey?: string
   expectedRecipientPubkey?: string
@@ -179,18 +191,24 @@ export const getPqcEnvelopeModeFromTags = (tags: string[][]): PqcEnvelopeMode | 
   return mode as PqcEnvelopeMode
 }
 
-export const parseDmPqcEnvelopeContent = (
+export const parseDmPqcEnvelopeContent = async (
   content: string,
   {
+    recipientSecretKey,
+    recipientPubkey,
+    senderPubkey,
     expectedSenderPubkey,
     expectedRecipientPubkey,
     expectedRecipientPubkeys,
   }: {
+    recipientSecretKey: Uint8Array
+    recipientPubkey: string
+    senderPubkey: string
     expectedSenderPubkey?: string
     expectedRecipientPubkey?: string
     expectedRecipientPubkeys?: string[]
-  } = {},
-): DmEnvelopeParseResult => {
+  },
+): Promise<DmEnvelopeParseResult> => {
   try {
     const parsed = JSON.parse(content)
     const validation = validatePqcEnvelope(parsed, {strict: true, enforceCanonicalKeyOrder: true})
@@ -220,9 +238,41 @@ export const parseDmPqcEnvelopeContent = (
       }
     }
 
+    // Find the recipient entry for this user
+    const recipientEntry = validation.value.recipients.find(r => r.pk_ref === recipientPubkey)
+    if (!recipientEntry || !recipientEntry.wrapped_cek || !recipientEntry.wrap_nonce) {
+      return {
+        ok: false,
+        reason: "DM_ENVELOPE_RECIPIENT_WRAP_INVALID",
+        details: "No matching recipient entry with wrapped CEK found.",
+      }
+    }
+
+    // ML-KEM-768 decapsulate to recover shared secret
+    const kemCt = base64ToBytes(recipientEntry.kem_ct)
+    const kemSs = mlKemDecapsulate(kemCt, recipientSecretKey)
+
+    // Derive the wrapping key from KEM shared secret via HKDF
+    const salt = stringToBytes(`navcom-pqc-dm:${senderPubkey}:${recipientPubkey}`)
+    const info = stringToBytes(`dm-cek-wrap:${validation.value.msg_id}`)
+    const wrapKey = await hkdfDeriveKey(kemSs, salt, info, 32)
+
+    // Unwrap the CEK
+    const wrapNonce = base64ToBytes(recipientEntry.wrap_nonce)
+    const wrappedCek = base64ToBytes(recipientEntry.wrapped_cek)
+    const wrapKeyObj = await importAesGcmKey(wrapKey)
+    const cek = await aesGcmDecrypt(wrappedCek, wrapKeyObj, wrapNonce)
+
+    // Decrypt the content with the CEK
+    const nonce = base64ToBytes(validation.value.nonce)
+    const ciphertext = base64ToBytes(validation.value.ct)
+    const ad = base64ToBytes(validation.value.ad)
+    const cekKey = await importAesGcmKey(cek)
+    const plaintextBytes = await aesGcmDecrypt(ciphertext, cekKey, nonce, ad)
+
     return {
       ok: true,
-      plaintext: decodeBase64Utf8(validation.value.ct),
+      plaintext: bytesToString(plaintextBytes),
       reason: "DM_ENVELOPE_PARSE_OK",
     }
   } catch (error) {
@@ -234,22 +284,28 @@ export const parseDmPqcEnvelopeContent = (
   }
 }
 
-export const resolveDmReceiveContent = ({
+export const resolveDmReceiveContent = async ({
   tags,
   decryptedContent,
   policyMode,
+  recipientSecretKey,
+  recipientPubkey,
+  senderPubkey,
   allowLegacyFallback = true,
   expectedSenderPubkey,
   expectedRecipientPubkey,
   expectedRecipientPubkeys,
-}: ResolveDmReceiveContentInput): ResolveDmReceiveContentResult => {
+}: ResolveDmReceiveContentInput): Promise<ResolveDmReceiveContentResult> => {
   const mode = getPqcEnvelopeModeFromTags(tags)
 
   if (!mode) {
     return {content: decryptedContent, usedLegacyFallback: false}
   }
 
-  const parsed = parseDmPqcEnvelopeContent(decryptedContent, {
+  const parsed = await parseDmPqcEnvelopeContent(decryptedContent, {
+    recipientSecretKey,
+    recipientPubkey,
+    senderPubkey,
     expectedSenderPubkey,
     expectedRecipientPubkey,
     expectedRecipientPubkeys,

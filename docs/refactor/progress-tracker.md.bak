@@ -1,0 +1,192 @@
+# NavCom Refactor — Progress Tracker
+
+> Track completion status across all 30 implementation specs.
+
+**Last updated**: 2026-03-20  
+**Branch**: `feat/real-pqc-crypto` (PQC engine) / `main` (everything else)
+
+---
+
+## Status Key
+
+| Symbol | Meaning |
+|--------|---------|
+| ⬜ | Not started |
+| 🟡 | In progress |
+| ✅ | Complete |
+| 🔒 | Blocked (dependency not met) |
+| ❌ | Cancelled / descoped |
+
+---
+
+## Phase 0 — Foundation
+
+| # | Task | Priority | Effort | Depends | Status | Checks | Notes |
+|---|------|----------|--------|---------|--------|--------|-------|
+| 00-01 | [Design System Fixes](00-foundation/01-design-system-fixes.md) | Do first | LOW (1–2 days) | — | ⬜ | 0/5 | Delete unused fonts, fix CSS bugs, extract hardcoded rgba() |
+| 00-02 | [Error Boundary](00-foundation/02-error-boundary.md) | Do first | LOW (½ day) | — | ⬜ | 0/5 | Global crash recovery wrapper |
+| 00-03 | [Route Loading Safety](00-foundation/03-route-loading.md) | Do first | LOW (½ day) | — | ⬜ | 0/5 | Timeout + dedup for lazy routes |
+| 00-04 | [E2E Test Scaffold](00-foundation/04-e2e-test-scaffold.md) | Do first | MEDIUM (2–3 days) | — | ⬜ | 0/4 | 5 critical-path Cypress tests |
+
+**Phase 0 progress**: 0/4 tasks complete — 0/19 checks passing
+
+---
+
+## Phase 1 — Two-Mode Architecture
+
+| # | Task | Priority | Effort | Depends | Status | Checks | Notes |
+|---|------|----------|--------|---------|--------|--------|-------|
+| 01-01 | [Mode Store & Routing](01-two-mode-architecture/01-mode-store-routing.md) | CRITICAL | LOW (~100 lines) | — | ⬜ | 0/4 | NavComMode store, mode-driven viewport |
+| 01-02 | [Channel Sidebar](01-two-mode-architecture/02-channel-sidebar.md) | CRITICAL | MEDIUM (~200 lines) | 01-01 | 🔒 | 0/7 | Replaces MenuDesktop/MenuMobile |
+| 01-03 | [Comms View](01-two-mode-architecture/03-comms-view.md) | CRITICAL | LOW-MED (~100 lines) | 01-01, 01-02 | 🔒 | 0/7 | Signal-like default mode |
+| 01-04 | [Map View](01-two-mode-architecture/04-map-view.md) | HIGH | MEDIUM (~350 lines) | 01-01, 01-02 | 🔒 | 0/8 | Full-screen map + CommsDrawer |
+| 01-05 | [Ops Dashboard](01-two-mode-architecture/05-ops-dashboard.md) | HIGH | MEDIUM (~250 lines) | 01-01, 01-02 | 🔒 | 0/8 | 3 panels: map thumb, status, activity |
+| 01-06 | [Status Bar](01-two-mode-architecture/06-status-bar.md) | MEDIUM | LOW (~80 lines) | 01-01 | 🔒 | 0/6 | Connection + alert indicators |
+| 01-07 | [Mode Tab Bar](01-two-mode-architecture/07-mode-tab-bar.md) | CRITICAL | LOW (~50 lines) | 01-01 | 🔒 | 0/6 | Bottom tab navigation (Chat/Map/Ops) |
+| 01-08 | [Enrollment Flow](01-two-mode-architecture/08-enrollment-flow.md) | HIGH | MEDIUM (~150 lines) | 01-03 | 🔒 | 0/6 | 1-screen setup, invite context preserved |
+
+**Phase 1 progress**: 0/8 tasks complete — 0/52 checks passing
+
+---
+
+## Phase 2 — Crypto Integration
+
+| # | Task | Priority | Effort | Depends | Status | Checks | Notes |
+|---|------|----------|--------|---------|--------|--------|-------|
+| 02-01 | [Message Path Wiring](02-crypto-integration/01-message-path-wiring.md) | CRITICAL | MEDIUM | — | ⬜ | 0/6 | Wire PQC into send/receive, compose with NIP-59 wrapping |
+| 02-02 | [Key Generation UI](02-crypto-integration/02-key-generation-ui.md) | HIGH | MEDIUM | 02-01 | 🔒 | 0/7 | Generate/publish PQC keys (kind 10051, NIP-EE experimental) |
+| 02-03 | [Encryption Indicators](02-crypto-integration/03-encryption-indicators.md) | MEDIUM | LOW | 02-01, 01-02 | 🔒 | 0/3 | Per-channel tier display |
+
+**Phase 2 progress**: 0/3 tasks complete — 0/16 checks passing
+
+---
+
+## Phase 3 — Structured Communications
+
+| # | Task | Priority | Effort | Depends | Status | Checks | Notes |
+|---|------|----------|--------|---------|--------|--------|-------|
+| 03-01 | [Message Type System](03-structured-comms/01-message-type-system.md) | HIGH | MEDIUM | 01-03 | 🔒 | 0/8 | CHECK-IN, ALERT, SITREP, SPOTREP (kind 445 + NavCom tags) |
+| 03-02 | [Report Templates](03-structured-comms/02-report-templates.md) | MEDIUM | MEDIUM | 03-01 | 🔒 | 0/7 | Simplified SITREP/SPOTREP forms, NIP-92 photo attachment |
+| 03-03 | [Marker ↔ Message Linking](03-structured-comms/03-marker-message-linking.md) | HIGH | MEDIUM | 01-04, 03-01 | 🔒 | 0/7 | Bi-directional map ↔ comms linking |
+
+**Phase 3 progress**: 0/3 tasks complete — 0/22 checks passing
+
+---
+
+## Phase 4 — Map Enhancements
+
+| # | Task | Priority | Effort | Depends | Status | Checks | Notes |
+|---|------|----------|--------|---------|--------|--------|-------|
+| 04-01 | [Layer Controls](04-map-enhancements/01-layer-controls.md) | MEDIUM | LOW-MED | 01-04, 03-03 | 🔒 | 0/6 | Togglable data layers + tile selection |
+| 04-02 | [Clustering & Temporal](04-map-enhancements/02-clustering-temporal.md) | MEDIUM | LOW-MED | 01-04, 03-03 | 🔒 | 0/3 | leaflet.markercluster + time filter |
+| 04-03 | [Draw Tools](04-map-enhancements/03-draw-tools.md) | LOW | MEDIUM | 01-04, 04-01 | 🔒 | 0/7 | Point/line/polygon drawing (kind 445 + geojson tags) |
+
+**Phase 4 progress**: 0/3 tasks complete — 0/16 checks passing
+
+---
+
+## Phase 5 — Scale & Hardening
+
+| # | Task | Priority | Effort | Depends | Status | Checks | Notes |
+|---|------|----------|--------|---------|--------|--------|-------|
+| 05-01 | [List Virtualization](05-scale-hardening/01-list-virtualization.md) | CRITICAL at scale | MEDIUM | 01-03 | 🔒 | 0/4 | @tanstack/svelte-virtual for messages/members |
+| 05-02 | [State Management Audit](05-scale-hardening/02-state-management.md) | HIGH | HIGH | — | ⬜ | 0/5 | Inventory → categorize → normalize → enforce cleanup |
+| 05-03 | [Offline Queue](05-scale-hardening/03-offline-queue.md) | MEDIUM | HIGH | 02-01 | 🔒 | 0/8 | IndexedDB outbox + background sync |
+| 05-04 | [Relay Validation](05-scale-hardening/04-relay-validation.md) | HIGH | LOW-MED | — | ⬜ | 0/7 | URL validation + allowlist/denylist + NIP-65 policy |
+| 05-05 | [Key Storage Security](05-scale-hardening/05-key-storage.md) | CRITICAL | HIGH | 02-02, 01-08 | 🔒 | 0/7 | WebCrypto wrapping, NIP-46 remote signing |
+| 05-06 | [Accessibility](05-scale-hardening/06-accessibility.md) | HIGH | HIGH | 00-01, 01-* | 🔒 | 0/9 | WCAG 2.1 AA remediation |
+
+**Phase 5 progress**: 0/6 tasks complete — 0/40 checks passing
+
+---
+
+## Phase 6 — Future Capabilities
+
+| # | Task | Priority | Effort | Depends | Status | Checks | Notes |
+|---|------|----------|--------|---------|--------|--------|-------|
+| 06-01 | [i18n](06-future/01-i18n.md) | LOW→HIGH | HIGH | 01-* | 🔒 | 0/6 | String extraction + svelte-i18n |
+| 06-02 | [Mesh Networking](06-future/02-mesh-networking.md) | ASPIRATIONAL | VERY HIGH | 05-03, 02-01, 05-05 | 🔒 | 0/8 | Local relay discovery → Meshtastic → P2P |
+| 06-03 | [Chain of Trust](06-future/03-chain-of-trust.md) | MEDIUM | HIGH | 05-05, 02-01, 02-02 | 🔒 | 0/3 | Custom delegation protocol (NIP-26 deprecated) |
+
+**Phase 6 progress**: 0/3 tasks complete — 0/17 checks passing
+
+---
+
+## Summary
+
+| Phase | Tasks | Complete | In Progress | Blocked | Checks Passing |
+|-------|-------|----------|-------------|---------|----------------|
+| 0 — Foundation | 4 | 0 | 0 | 0 | 0/19 |
+| 1 — Two-Mode Architecture | 8 | 0 | 0 | 7 | 0/52 |
+| 2 — Crypto Integration | 3 | 0 | 0 | 2 | 0/16 |
+| 3 — Structured Comms | 3 | 0 | 0 | 3 | 0/22 |
+| 4 — Map Enhancements | 3 | 0 | 0 | 3 | 0/16 |
+| 5 — Scale & Hardening | 6 | 0 | 0 | 4 | 0/40 |
+| 6 — Future | 3 | 0 | 0 | 3 | 0/17 |
+| **Total** | **30** | **0** | **0** | **22** | **0/182** |
+
+---
+
+## Unblocked Work (Can Start Now)
+
+These tasks have no dependencies and can begin immediately:
+
+| # | Task | Priority | Effort |
+|---|------|----------|--------|
+| 00-01 | Design System Fixes | Do first | LOW |
+| 00-02 | Error Boundary | Do first | LOW |
+| 00-03 | Route Loading Safety | Do first | LOW |
+| 00-04 | E2E Test Scaffold | Do first | MEDIUM |
+| 01-01 | Mode Store & Routing | CRITICAL | LOW |
+| 02-01 | Message Path Wiring (PQC) | CRITICAL | MEDIUM |
+| 05-02 | State Management Audit | HIGH | HIGH |
+| 05-04 | Relay Validation | HIGH | LOW-MED |
+
+---
+
+## Critical Path
+
+The longest dependency chain to NavCom's core identity:
+
+```
+00-01 Design System ──→ (unblocks 05-06 Accessibility)
+00-04 E2E Tests    ──→ (safety net for everything)
+
+01-01 Mode Store   ──→ 01-02 Sidebar ──→ 01-03 Comms View ──→ 03-01 Message Types
+                    ╰→ 01-07 Tab Bar                        ╰→ 05-01 Virtualization
+                    ╰→ 01-04 Map View ──→ 03-03 Linking ──→ 04-01 Layers
+
+02-01 PQC Wiring   ──→ 02-02 Key UI ──→ 05-05 Key Storage ──→ 06-03 Trust
+                    ╰→ 05-03 Offline Queue                    ╰→ 06-02 Mesh
+```
+
+**Shortest path to "NavCom feels like NavCom"**: 01-01 → 01-07 → 01-02 → 01-03 (4 tasks, ~450 lines)
+
+**Shortest path to "real encryption"**: 02-01 → 02-02 (2 tasks, already have 556 tests passing)
+
+---
+
+## Completed Work (Prior Phases)
+
+These items were completed before this tracker was created:
+
+| Item | Branch | Status |
+|------|--------|--------|
+| PQC crypto engine (ML-KEM-768 + AES-GCM-256) | `feat/real-pqc-crypto` | ✅ 556 tests passing |
+| SEO: llms.txt, sitemap.xml, humans.txt, meta/JSON-LD | `main` | ✅ |
+| 8 analysis documents (vision, gap, transmutation, synthesis, critique, two-modes, design system, future risks) | `main` / docs/ | ✅ |
+| 30 refactor spec documents + NIP inventory | `main` / docs/refactor/ | ✅ |
+| NIP coverage audit & corrections | `main` / docs/refactor/ | ✅ |
+
+---
+
+## Changelog
+
+| Date | Change |
+|------|--------|
+| 2026-03-20 | Initial tracker created with all 30 tasks at ⬜/🔒 status |
+| 2026-03-20 | NIP coverage corrections applied across 10 docs, NIP inventory created |
+
+---
+
+*Update this file as tasks are started and completed. Change ⬜→🟡 when starting, 🟡→✅ when all verification checks pass. Update the check counts as individual checks are verified. Change 🔒→⬜ when dependencies are met.*

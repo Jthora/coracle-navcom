@@ -127,7 +127,7 @@
       .getUrls(),
   })
 
-  document.title = displayProfileByPubkey(pubkey)
+  document.title = `${displayProfileByPubkey(pubkey)} | NavCom`
 </script>
 
 <div>

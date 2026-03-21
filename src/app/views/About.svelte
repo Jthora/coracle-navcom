@@ -15,7 +15,7 @@
 
   loadPubkeys([env.PLATFORM_PUBKEY])
 
-  document.title = "About"
+  document.title = "About | NavCom"
 </script>
 
 <FlexColumn class="gap-8">
@@ -61,8 +61,7 @@
     <p class="flex justify-center gap-4">
       <Popover triggerType="mouseenter">
         <div slot="trigger">
-          <Link external href="https://navcom.app"
-            ><i class="fa fa-code-branch" /></Link>
+          <Link external href="https://navcom.app"><i class="fa fa-code-branch" /></Link>
         </div>
         <div slot="tooltip">Source Code</div>
       </Popover>

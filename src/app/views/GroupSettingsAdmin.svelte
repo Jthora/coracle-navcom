@@ -411,8 +411,8 @@
   }
 
   $: document.title = projection
-    ? `${projection.group.title || projection.group.id} · ${adminSectionTitle}`
-    : "Group Admin"
+    ? `${projection.group.title || projection.group.id} · ${adminSectionTitle} | NavCom`
+    : "Group Admin | NavCom"
 
   $: if (projection) {
     uiMode = getGroupAdminMode(groupId)

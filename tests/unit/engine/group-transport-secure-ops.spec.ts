@@ -1,6 +1,7 @@
 import {beforeEach, describe, expect, it} from "vitest"
 import {GROUP_KINDS} from "../../../src/domain/group-kinds"
 import {encodeSecureGroupEpochContent} from "../../../src/engine/group-epoch-content"
+import {randomBytes} from "../../../src/engine/pqc/crypto-provider"
 import {
   GROUP_SECURE_SEND_INPUT_REASON,
   buildSecureSubscribeFilters,
@@ -199,6 +200,7 @@ describe("engine/group-transport-secure-ops", () => {
 
   it("rejects reconcile when secure group message content envelope is invalid", async () => {
     const epoch = ensureSecureGroupEpochState("ops", {at: 1739836800})
+    const epochKey = randomBytes(32)
 
     const projection = {
       group: {id: "ops"},
@@ -210,6 +212,7 @@ describe("engine/group-transport-secure-ops", () => {
     const result = await reconcileSecureGroupEvents({
       groupId: "ops",
       localState: projection,
+      epochKeyBytes: epochKey,
       remoteEvents: [
         {
           id: "bad-content-1",
@@ -303,12 +306,15 @@ describe("engine/group-transport-secure-ops", () => {
 
     const epochOne = ensureSecureGroupEpochState("ops", {at: 1739836800})
 
-    const encoded = encodeSecureGroupEpochContent({
+    const epochKey = randomBytes(32)
+
+    const encoded = await encodeSecureGroupEpochContent({
       groupId: "ops",
       epochId: "epoch:ops:2:1739836801",
       plaintext: "hello secure group",
       senderPubkey: "f".repeat(64),
       recipients: ["a".repeat(64)],
+      epochKeyBytes: epochKey,
       createdAt: 1739836801,
     })
 
@@ -350,10 +356,12 @@ describe("engine/group-transport-secure-ops", () => {
     }
 
     const epochOne = ensureSecureGroupEpochState("ops", {at: 1739836800})
+    const epochKey = randomBytes(32)
 
     const result = await reconcileSecureGroupEvents({
       groupId: "ops",
       localState: projection,
+      epochKeyBytes: epochKey,
       remoteEvents: [
         {
           id: "epoch-forward-bad-content-1",

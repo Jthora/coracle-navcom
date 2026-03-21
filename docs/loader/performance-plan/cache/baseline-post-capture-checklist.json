@@ -1,0 +1,40 @@
+{
+  "generatedAt": "2026-02-25T04:47:30.312Z",
+  "pass": false,
+  "source": {
+    "captureStatus": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/loader/performance-plan/cache/baseline-capture-status.json",
+    "completeness": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/loader/performance-plan/cache/baseline-completeness.json",
+    "usefulness": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/loader/performance-plan/cache/baseline-telemetry-usefulness.json",
+    "issueReview": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/loader/performance-plan/cache/baseline-issue-review.json"
+  },
+  "checks": [
+    {
+      "id": "capture-target",
+      "title": "Capture required run volume",
+      "pass": false,
+      "detail": "Progress 0/50 runs.",
+      "action": "Use `pnpm benchmark:loader:baseline:capture-next` and continue capture loops."
+    },
+    {
+      "id": "completeness-gate",
+      "title": "Pass completeness gate",
+      "pass": false,
+      "detail": "Completeness issues: 5.",
+      "action": "Re-run `pnpm benchmark:loader:baseline:validate-completeness` after additional runs."
+    },
+    {
+      "id": "usefulness-gate",
+      "title": "Pass telemetry usefulness gate",
+      "pass": false,
+      "detail": "Checklist: 5/6.",
+      "action": "Review failed checklist items in baseline-telemetry-usefulness.md and capture missing evidence."
+    },
+    {
+      "id": "issue-review",
+      "title": "Clear consolidated issue-review blockers",
+      "pass": false,
+      "detail": "Blockers: 2 (completeness, telemetry-usefulness).",
+      "action": "Run `pnpm benchmark:loader:baseline:refresh-and-sync` and resolve active blockers."
+    }
+  ]
+}

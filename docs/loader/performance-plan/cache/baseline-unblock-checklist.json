@@ -1,0 +1,56 @@
+{
+  "generatedAt": "2026-02-25T04:47:35.647Z",
+  "pass": false,
+  "source": {
+    "issueReview": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/loader/performance-plan/cache/baseline-issue-review.json",
+    "postCaptureChecklist": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/loader/performance-plan/cache/baseline-post-capture-checklist.json",
+    "closure": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/loader/performance-plan/cache/baseline-stage2-closure.json",
+    "usefulness": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/loader/performance-plan/cache/baseline-telemetry-usefulness.json",
+    "ownerMap": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/loader/performance-plan/blocker-ownership.json"
+  },
+  "maxItems": 5,
+  "maxPerBlocker": 1,
+  "totalActions": 9,
+  "actions": [
+    {
+      "source": "post-capture-checklist",
+      "id": "capture-target",
+      "blockerType": "completeness",
+      "title": "Capture required run volume",
+      "detail": "Progress 0/50 runs.",
+      "action": "Use `pnpm benchmark:loader:baseline:capture-next` and continue capture loops.",
+      "owner": "App Team",
+      "eta": "After completing the 50-run baseline capture target"
+    },
+    {
+      "source": "closure",
+      "id": "post-capture-checklist",
+      "blockerType": "post-capture-checklist",
+      "title": "Post-capture checklist",
+      "detail": "4 checks failing (capture-target, completeness-gate, usefulness-gate, issue-review).",
+      "action": "Execute failed post-capture checklist actions, then re-run refresh-and-sync.",
+      "owner": "App Team",
+      "eta": "TBD"
+    },
+    {
+      "source": "closure",
+      "id": "telemetry-usefulness",
+      "blockerType": "telemetry-usefulness",
+      "title": "Telemetry usefulness",
+      "detail": "Granularity evidence gap (2.2.2.1.3): runs=0, missing-slices=network/reduction/render, unknown-rate=0%, no classified delay signatures.",
+      "action": "Close telemetry granularity gap (2.2.2.1.3): capture baseline runs with `pnpm benchmark:loader:baseline:capture-next`; record network/reduction/render delay slice evidence; capture at least one classified delay signature (network/reduction/render).",
+      "owner": "Frontend Platform",
+      "eta": "After capturing missing diagnostic evidence from next capture cycle"
+    },
+    {
+      "source": "closure",
+      "id": "issue-review",
+      "blockerType": "issue-review",
+      "title": "Issue review",
+      "detail": "2 blockers active (completeness, telemetry-usefulness).",
+      "action": "Resolve active gate failures, then re-run refresh-and-sync to clear issue-review blockers.",
+      "owner": "Frontend Platform",
+      "eta": "After completeness and usefulness blockers clear"
+    }
+  ]
+}

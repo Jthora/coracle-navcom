@@ -1,5 +1,18 @@
+import {
+  aesGcmEncrypt,
+  aesGcmDecrypt,
+  importAesGcmKey,
+  randomNonce,
+  bytesToBase64,
+  base64ToBytes,
+  stringToBytes,
+  bytesToString,
+} from "src/engine/pqc/crypto-provider"
+
 export const GROUP_EPOCH_CONTENT_VERSION = 1 as const
-export const GROUP_EPOCH_CONTENT_ALGORITHM = "group-epoch-aead-v1"
+export const GROUP_EPOCH_CONTENT_VERSION_PQ = 2 as const
+export const GROUP_EPOCH_CONTENT_ALGORITHM = "aes-256-gcm"
+export const GROUP_EPOCH_CONTENT_ALGORITHM_PQ = "ml-kem-768-hkdf-aes256-gcm"
 
 export type SecureGroupEpochContentEnvelope = {
   v: typeof GROUP_EPOCH_CONTENT_VERSION
@@ -12,10 +25,25 @@ export type SecureGroupEpochContentEnvelope = {
   ts: number
 }
 
+export type SecureGroupEpochContentEnvelopePQ = {
+  v: typeof GROUP_EPOCH_CONTENT_VERSION_PQ
+  mode: "group-epoch-pq-v1"
+  alg: typeof GROUP_EPOCH_CONTENT_ALGORITHM_PQ
+  epoch_id: string
+  nonce: string
+  ad: string
+  ct: string
+  ts: number
+}
+
+export type AnySecureGroupEpochContentEnvelope =
+  | SecureGroupEpochContentEnvelope
+  | SecureGroupEpochContentEnvelopePQ
+
 export type SecureGroupEpochContentEncodeResult =
   | {
       ok: true
-      envelope: SecureGroupEpochContentEnvelope
+      envelope: AnySecureGroupEpochContentEnvelope
       content: string
     }
   | {
@@ -28,7 +56,7 @@ export type SecureGroupEpochContentDecodeResult =
   | {
       ok: true
       plaintext: string
-      envelope: SecureGroupEpochContentEnvelope
+      envelope: AnySecureGroupEpochContentEnvelope
     }
   | {
       ok: false
@@ -36,34 +64,20 @@ export type SecureGroupEpochContentDecodeResult =
       message: string
     }
 
-const encodeUtf8Base64 = (value: string) => {
-  if (typeof btoa === "function") {
-    return btoa(value)
-  }
-
-  return Buffer.from(value, "utf8").toString("base64")
-}
-
-const decodeUtf8Base64 = (value: string) => {
-  if (typeof atob === "function") {
-    return atob(value)
-  }
-
-  return Buffer.from(value, "base64").toString("utf8")
-}
-
 const buildAssociatedData = ({
   groupId,
   epochId,
   senderPubkey,
   recipients,
   createdAt,
+  pqDerived = false,
 }: {
   groupId: string
   epochId: string
   senderPubkey: string
   recipients: string[]
   createdAt: number
+  pqDerived?: boolean
 }) =>
   JSON.stringify({
     group_id: groupId,
@@ -71,16 +85,18 @@ const buildAssociatedData = ({
     sender: senderPubkey,
     recipients: [...recipients].sort(),
     created_at: createdAt,
-    envelope_version: GROUP_EPOCH_CONTENT_VERSION,
-    algorithm: GROUP_EPOCH_CONTENT_ALGORITHM,
+    envelope_version: pqDerived ? GROUP_EPOCH_CONTENT_VERSION_PQ : GROUP_EPOCH_CONTENT_VERSION,
+    algorithm: pqDerived ? GROUP_EPOCH_CONTENT_ALGORITHM_PQ : GROUP_EPOCH_CONTENT_ALGORITHM,
   })
 
-export const encodeSecureGroupEpochContent = ({
+export const encodeSecureGroupEpochContent = async ({
   groupId,
   epochId,
   plaintext,
   senderPubkey,
   recipients,
+  epochKeyBytes,
+  pqDerived = false,
   createdAt = Math.floor(Date.now() / 1000),
 }: {
   groupId: string
@@ -88,8 +104,10 @@ export const encodeSecureGroupEpochContent = ({
   plaintext: string
   senderPubkey: string
   recipients: string[]
+  epochKeyBytes: Uint8Array
+  pqDerived?: boolean
   createdAt?: number
-}): SecureGroupEpochContentEncodeResult => {
+}): Promise<SecureGroupEpochContentEncodeResult> => {
   if (!groupId || !epochId) {
     return {
       ok: false,
@@ -107,27 +125,42 @@ export const encodeSecureGroupEpochContent = ({
   }
 
   try {
-    const nonce = encodeUtf8Base64(`${groupId}:${epochId}:${createdAt}`)
-    const ad = encodeUtf8Base64(
-      buildAssociatedData({
-        groupId,
-        epochId,
-        senderPubkey,
-        recipients,
-        createdAt,
-      }),
-    )
+    const nonce = randomNonce()
+    const adString = buildAssociatedData({
+      groupId,
+      epochId,
+      senderPubkey,
+      recipients,
+      createdAt,
+      pqDerived,
+    })
+    const adBytes = stringToBytes(adString)
 
-    const envelope: SecureGroupEpochContentEnvelope = {
-      v: GROUP_EPOCH_CONTENT_VERSION,
-      mode: "group-epoch-v1",
-      alg: GROUP_EPOCH_CONTENT_ALGORITHM,
-      epoch_id: epochId,
-      nonce,
-      ad,
-      ct: encodeUtf8Base64(plaintext),
-      ts: createdAt,
-    }
+    const key = await importAesGcmKey(epochKeyBytes)
+    const plaintextBytes = stringToBytes(plaintext)
+    const ciphertextBytes = await aesGcmEncrypt(plaintextBytes, key, nonce, adBytes)
+
+    const envelope: AnySecureGroupEpochContentEnvelope = pqDerived
+      ? {
+          v: GROUP_EPOCH_CONTENT_VERSION_PQ,
+          mode: "group-epoch-pq-v1",
+          alg: GROUP_EPOCH_CONTENT_ALGORITHM_PQ,
+          epoch_id: epochId,
+          nonce: bytesToBase64(nonce),
+          ad: bytesToBase64(adBytes),
+          ct: bytesToBase64(ciphertextBytes),
+          ts: createdAt,
+        }
+      : {
+          v: GROUP_EPOCH_CONTENT_VERSION,
+          mode: "group-epoch-v1",
+          alg: GROUP_EPOCH_CONTENT_ALGORITHM,
+          epoch_id: epochId,
+          nonce: bytesToBase64(nonce),
+          ad: bytesToBase64(adBytes),
+          ct: bytesToBase64(ciphertextBytes),
+          ts: createdAt,
+        }
 
     return {
       ok: true,
@@ -146,28 +179,44 @@ export const encodeSecureGroupEpochContent = ({
   }
 }
 
-const isEnvelope = (value: unknown): value is SecureGroupEpochContentEnvelope => {
+const isEnvelope = (value: unknown): value is AnySecureGroupEpochContentEnvelope => {
   if (!value || typeof value !== "object") {
     return false
   }
 
   const candidate = value as Record<string, unknown>
-
-  return (
-    candidate.v === GROUP_EPOCH_CONTENT_VERSION &&
-    candidate.mode === "group-epoch-v1" &&
-    candidate.alg === GROUP_EPOCH_CONTENT_ALGORITHM &&
+  const hasCommonFields =
     typeof candidate.epoch_id === "string" &&
     typeof candidate.nonce === "string" &&
     typeof candidate.ad === "string" &&
     typeof candidate.ct === "string" &&
     typeof candidate.ts === "number"
-  )
+
+  if (!hasCommonFields) return false
+
+  if (
+    candidate.v === GROUP_EPOCH_CONTENT_VERSION &&
+    candidate.mode === "group-epoch-v1" &&
+    candidate.alg === GROUP_EPOCH_CONTENT_ALGORITHM
+  ) {
+    return true
+  }
+
+  if (
+    candidate.v === GROUP_EPOCH_CONTENT_VERSION_PQ &&
+    candidate.mode === "group-epoch-pq-v1" &&
+    candidate.alg === GROUP_EPOCH_CONTENT_ALGORITHM_PQ
+  ) {
+    return true
+  }
+
+  return false
 }
 
-export const decodeSecureGroupEpochContent = (
+export const decodeSecureGroupEpochContent = async (
   content: string,
-): SecureGroupEpochContentDecodeResult => {
+  epochKeyBytes: Uint8Array,
+): Promise<SecureGroupEpochContentDecodeResult> => {
   try {
     const parsed = JSON.parse(content)
 
@@ -179,10 +228,17 @@ export const decodeSecureGroupEpochContent = (
       }
     }
 
+    const key = await importAesGcmKey(epochKeyBytes)
+    const nonce = base64ToBytes(parsed.nonce)
+    const ciphertext = base64ToBytes(parsed.ct)
+    const ad = base64ToBytes(parsed.ad)
+
+    const plaintextBytes = await aesGcmDecrypt(ciphertext, key, nonce, ad)
+
     return {
       ok: true,
       envelope: parsed,
-      plaintext: decodeUtf8Base64(parsed.ct),
+      plaintext: bytesToString(plaintextBytes),
     }
   } catch (error) {
     return {

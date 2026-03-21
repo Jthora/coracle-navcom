@@ -18,6 +18,7 @@
   import WorkEstimate from "src/partials/WorkEstimate.svelte"
   import SearchSelect from "src/partials/SearchSelect.svelte"
   import {env, userSettings, publishSettings} from "src/engine"
+  import PqcKeySettings from "src/app/views/PqcKeySettings.svelte"
 
   const initialBlossomServers = getTagValues("server", getListTags($userBlossomServerList))
 
@@ -44,7 +45,7 @@
 
   let blossomServers = Array.from(initialBlossomServers)
 
-  document.title = "Settings"
+  document.title = "Settings | NavCom"
 </script>
 
 <form on:submit|preventDefault={submit}>
@@ -156,6 +157,9 @@
         with troubleshooting, and allows other people to find out about {appName}.
       </p>
     </FieldInline>
+  </div>
+  <div class="mt-8">
+    <PqcKeySettings />
   </div>
   <Footer>
     <Button class="btn flex-grow" type="submit">Save</Button>

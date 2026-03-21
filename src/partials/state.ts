@@ -49,15 +49,20 @@ theme.subscribe(value => {
 
 export const toggleTheme = () => theme.update(t => (t === "dark" ? "light" : "dark"))
 
-export const themeColors = derived(theme, $theme =>
-  fromPairs(
-    Object.entries($theme === "dark" ? DARK_THEME : LIGHT_THEME).flatMap(([k, v]) => [
+export const themeColors = derived(theme, $theme => {
+  const colors = $theme === "dark" ? DARK_THEME : LIGHT_THEME
+  const accent = colors["accent"] || "#22d3ee"
+  const accentRgb = parseHex(accent)
+
+  return fromPairs([
+    ...Object.entries(colors).flatMap(([k, v]) => [
       [k, v],
       [`${k}-l`, adjustBrightness(v, 10)],
       [`${k}-d`, adjustBrightness(v, -10)],
     ]),
-  ),
-)
+    ["accent-rgb", accentRgb.join(", ")],
+  ])
+})
 
 export const themeVariables = derived(themeColors, $colors =>
   Object.entries($colors)

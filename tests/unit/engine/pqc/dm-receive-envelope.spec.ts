@@ -13,6 +13,12 @@ import {
   parseDmPqcEnvelopeContent,
   resolveDmReceiveContent,
 } from "../../../../src/engine/pqc/dm-receive-envelope"
+import {mlKemKeygen, randomBytes} from "../../../../src/engine/pqc/crypto-provider"
+
+// Shared key material for tests that need build+parse roundtrips
+const peerKeys = mlKemKeygen()
+const senderKeys = mlKemKeygen()
+const dummySecretKey = randomBytes(32) // For tests that don't need real decryption
 
 describe("engine/pqc/dm-receive-envelope", () => {
   it("detects envelope mode tag from dm event tags", () => {
@@ -21,22 +27,27 @@ describe("engine/pqc/dm-receive-envelope", () => {
     expect(getPqcEnvelopeModeFromTags([["pqc", "size-fallback"]])).toBeNull()
   })
 
-  it("parses a valid envelope and decodes plaintext", () => {
-    const built = buildDmPqcEnvelope({
+  it("parses a valid envelope and decodes plaintext", async () => {
+    const recipientPqPublicKeys = new Map<string, Uint8Array>([["peer", peerKeys.publicKey]])
+
+    const built = await buildDmPqcEnvelope({
       plaintext: "hello secure world",
       senderPubkey: "sender",
       recipients: ["peer"],
       mode: "hybrid",
       algorithm: "hybrid-mlkem768+x25519-aead-v1",
+      recipientPqPublicKeys,
       createdAt: 1739836800,
       messageId: "msg-parse-1",
-      nonceSeed: "seed",
     })
 
     expect(built.ok).toBe(true)
 
     if (built.ok) {
-      const parsed = parseDmPqcEnvelopeContent(built.content, {
+      const parsed = await parseDmPqcEnvelopeContent(built.content, {
+        recipientSecretKey: peerKeys.secretKey,
+        recipientPubkey: "peer",
+        senderPubkey: "sender",
         expectedSenderPubkey: "sender",
         expectedRecipientPubkey: "peer",
       })
@@ -49,22 +60,27 @@ describe("engine/pqc/dm-receive-envelope", () => {
     }
   })
 
-  it("fails parsing when associated-data sender binding does not match event context", () => {
-    const built = buildDmPqcEnvelope({
+  it("fails parsing when associated-data sender binding does not match event context", async () => {
+    const recipientPqPublicKeys = new Map<string, Uint8Array>([["peer", peerKeys.publicKey]])
+
+    const built = await buildDmPqcEnvelope({
       plaintext: "hello secure world",
       senderPubkey: "sender",
       recipients: ["peer"],
       mode: "hybrid",
       algorithm: "hybrid-mlkem768+x25519-aead-v1",
+      recipientPqPublicKeys,
       createdAt: 1739836800,
       messageId: "msg-parse-2",
-      nonceSeed: "seed",
     })
 
     expect(built.ok).toBe(true)
 
     if (built.ok) {
-      const parsed = parseDmPqcEnvelopeContent(built.content, {
+      const parsed = await parseDmPqcEnvelopeContent(built.content, {
+        recipientSecretKey: peerKeys.secretKey,
+        recipientPubkey: "peer",
+        senderPubkey: "sender",
         expectedSenderPubkey: "different-sender",
         expectedRecipientPubkey: "peer",
       })
@@ -76,22 +92,32 @@ describe("engine/pqc/dm-receive-envelope", () => {
     }
   })
 
-  it("accepts parse when any provided expected recipient candidate matches associated data", () => {
-    const built = buildDmPqcEnvelope({
+  it("accepts parse when any provided expected recipient candidate matches associated data", async () => {
+    const peerAKeys = mlKemKeygen()
+    const peerBKeys = mlKemKeygen()
+    const recipientPqPublicKeys = new Map<string, Uint8Array>([
+      ["peer-a", peerAKeys.publicKey],
+      ["peer-b", peerBKeys.publicKey],
+    ])
+
+    const built = await buildDmPqcEnvelope({
       plaintext: "hello candidate binding",
       senderPubkey: "sender",
       recipients: ["peer-a", "peer-b"],
       mode: "hybrid",
       algorithm: "hybrid-mlkem768+x25519-aead-v1",
+      recipientPqPublicKeys,
       createdAt: 1739836800,
       messageId: "msg-parse-candidates",
-      nonceSeed: "seed",
     })
 
     expect(built.ok).toBe(true)
 
     if (built.ok) {
-      const parsed = parseDmPqcEnvelopeContent(built.content, {
+      const parsed = await parseDmPqcEnvelopeContent(built.content, {
+        recipientSecretKey: peerBKeys.secretKey,
+        recipientPubkey: "peer-b",
+        senderPubkey: "sender",
         expectedSenderPubkey: "sender",
         expectedRecipientPubkeys: ["peer-z", "peer-b"],
       })
@@ -104,8 +130,12 @@ describe("engine/pqc/dm-receive-envelope", () => {
     }
   })
 
-  it("maps invalid envelope json to a stable parse reason", () => {
-    const parsed = parseDmPqcEnvelopeContent("{not-json")
+  it("maps invalid envelope json to a stable parse reason", async () => {
+    const parsed = await parseDmPqcEnvelopeContent("{not-json", {
+      recipientSecretKey: dummySecretKey,
+      recipientPubkey: "peer",
+      senderPubkey: "sender",
+    })
 
     expect(parsed.ok).toBe(false)
     if (!parsed.ok) {
@@ -113,12 +143,15 @@ describe("engine/pqc/dm-receive-envelope", () => {
     }
   })
 
-  it("falls back to legacy content in compatibility mode when parse fails", () => {
-    const resolved = resolveDmReceiveContent({
+  it("falls back to legacy content in compatibility mode when parse fails", async () => {
+    const resolved = await resolveDmReceiveContent({
       tags: [["pqc", "hybrid"]],
       decryptedContent: "not a valid envelope",
       policyMode: "compatibility",
       allowLegacyFallback: true,
+      recipientSecretKey: dummySecretKey,
+      recipientPubkey: "peer",
+      senderPubkey: "sender",
     })
 
     expect(resolved.content).toBe("not a valid envelope")
@@ -126,12 +159,15 @@ describe("engine/pqc/dm-receive-envelope", () => {
     expect(resolved.reason).toBe("DM_ENVELOPE_PARSE_JSON_INVALID")
   })
 
-  it("fails closed with placeholder in strict mode when parse fails", () => {
-    const resolved = resolveDmReceiveContent({
+  it("fails closed with placeholder in strict mode when parse fails", async () => {
+    const resolved = await resolveDmReceiveContent({
       tags: [["pqc", "hybrid"]],
       decryptedContent: "not a valid envelope",
       policyMode: "strict",
       allowLegacyFallback: true,
+      recipientSecretKey: dummySecretKey,
+      recipientPubkey: "peer",
+      senderPubkey: "sender",
     })
 
     expect(resolved.content).toBe(DM_SECURE_UNDECRYPTABLE_PLACEHOLDER)
@@ -182,9 +218,13 @@ describe("engine/pqc/dm-receive-envelope", () => {
     },
   ])(
     "maps validation errors to stable parse reason codes: $label",
-    ({envelope, expectedReason}) => {
+    async ({envelope, expectedReason}) => {
       const content = JSON.stringify(envelope)
-      const parsed = parseDmPqcEnvelopeContent(content)
+      const parsed = await parseDmPqcEnvelopeContent(content, {
+        recipientSecretKey: dummySecretKey,
+        recipientPubkey: "peer",
+        senderPubkey: "sender",
+      })
 
       expect(parsed.ok).toBe(false)
       if (!parsed.ok) {

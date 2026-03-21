@@ -148,7 +148,7 @@
     }
   })
 
-  document.title = "Relays"
+  document.title = "Relays | NavCom"
 </script>
 
 <FlexColumn bind:element>

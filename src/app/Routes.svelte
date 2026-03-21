@@ -8,15 +8,23 @@
   import {menuIsOpen} from "src/app/state"
   import {buildRouteRecoveryRedirectContext} from "src/app/groups/route-recovery"
   import {router} from "src/app/util/router"
+  import {navcomMode} from "src/app/navcom-mode"
+  import CommsView from "src/app/views/CommsView.svelte"
+  import MapView from "src/app/views/MapView.svelte"
+  import OpsView from "src/app/views/OpsView.svelte"
+  import StatusBar from "src/app/views/StatusBar.svelte"
 
   const {current, page, modals} = router
   const fullBleedPaths = new Set(["/intel/map"])
+  const modePaths = new Set(["/"])
 
   let prevPage
   let isCurrentFullBleed = false
+  let isModePage = false
 
   $: {
     isCurrentFullBleed = Boolean($page && fullBleedPaths.has($page.path))
+    isModePage = Boolean($page && modePaths.has($page.path))
   }
 
   $: {
@@ -104,28 +112,50 @@
     id="page"
     class={cx("m-sai scroll-container relative text-neutral-100 lg:pl-72 lg:pt-16", {
       "pointer-events-none": $menuIsOpen,
-      "overflow-auto": !isCurrentFullBleed,
-      "overflow-hidden": isCurrentFullBleed,
-      "pb-32": !isCurrentFullBleed,
-      "pb-0": isCurrentFullBleed,
+      "overflow-auto": !isCurrentFullBleed && !($navcomMode === "map" && isModePage),
+      "overflow-hidden": isCurrentFullBleed || ($navcomMode === "map" && isModePage),
+      "pb-32": !isCurrentFullBleed && !($navcomMode === "map" && isModePage),
+      "pb-0": isCurrentFullBleed || ($navcomMode === "map" && isModePage),
     })}>
+    <StatusBar />
     {#if $page}
-      {@const {route} = router.getMatch($page.path)}
-      {@const isFullBleed = fullBleedPaths.has($page.path)}
-      {#key router.getKey($page)}
-        {#if isFullBleed}
-          <div
-            class="h-[calc(100dvh-8rem)] w-full lg:h-[calc(100dvh-4rem-var(--main-status-height))]">
-            <LazyRouteHost {route} props={router.getProps($page)} />
-          </div>
-        {:else}
+      {#if isModePage}
+        {#if $navcomMode === "comms"}
           <div class="m-auto w-full max-w-2xl">
             <div class="flex max-w-2xl flex-grow flex-col gap-4 p-4">
-              <LazyRouteHost {route} props={router.getProps($page)} />
+              <CommsView />
+            </div>
+          </div>
+        {:else if $navcomMode === "map"}
+          <div
+            class="h-[calc(100dvh-8rem)] w-full lg:h-[calc(100dvh-4rem-var(--main-status-height))]">
+            <MapView />
+          </div>
+        {:else if $navcomMode === "ops"}
+          <div class="m-auto w-full max-w-4xl">
+            <div class="flex max-w-4xl flex-grow flex-col gap-4 p-4">
+              <OpsView />
             </div>
           </div>
         {/if}
-      {/key}
+      {:else}
+        {@const {route} = router.getMatch($page.path)}
+        {@const isFullBleed = fullBleedPaths.has($page.path)}
+        {#key router.getKey($page)}
+          {#if isFullBleed}
+            <div
+              class="h-[calc(100dvh-8rem)] w-full lg:h-[calc(100dvh-4rem-var(--main-status-height))]">
+              <LazyRouteHost {route} props={router.getProps($page)} />
+            </div>
+          {:else}
+            <div class="m-auto w-full max-w-2xl">
+              <div class="flex max-w-2xl flex-grow flex-col gap-4 p-4">
+                <LazyRouteHost {route} props={router.getProps($page)} />
+              </div>
+            </div>
+          {/if}
+        {/key}
+      {/if}
     {/if}
   </div>
 {/key}

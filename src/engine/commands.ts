@@ -48,6 +48,9 @@ import {buildDmPqcEnvelope} from "src/engine/pqc/dm-envelope"
 import {recordPqcDmFallback} from "src/engine/pqc/dm-fallback-history"
 import {resolveDmSendPolicy} from "src/engine/pqc/dm-send-policy"
 import {runDmPayloadSizePreflight} from "src/engine/pqc/dm-size-preflight"
+import {ensureOwnPqcKey, resolvePeerPqPublicKey} from "src/engine/pqc/pq-key-lifecycle"
+import {enqueue as enqueueOffline} from "src/engine/offline/outbox"
+import {registerSendMessage} from "src/engine/offline/queue-drain"
 import {stripExifData} from "src/util/html"
 import {appDataKeys} from "src/util/nostr"
 import {get} from "svelte/store"
@@ -250,7 +253,16 @@ export const joinRelay = async (url: string, claim?: string) => {
 
 // Messages
 
-export const sendMessage = (channelId: string, content: string, delay: number) => {
+// Flag to prevent queue-drain re-sends from being re-queued
+let _sendingFromQueue = false
+
+export const sendMessage = async (channelId: string, content: string, delay: number) => {
+  // If offline and not draining the queue, enqueue for later
+  if (!_sendingFromQueue && typeof navigator !== "undefined" && !navigator.onLine) {
+    await enqueueOffline(channelId, content)
+    return
+  }
+
   const senderPubkey = pubkey.get()
   const recipients = uniq(channelId.split(",").concat(senderPubkey))
   const dmRecipients = remove(senderPubkey, recipients)
@@ -286,12 +298,30 @@ export const sendMessage = (channelId: string, content: string, delay: number) =
   if (getSetting("pqc_dm_enabled") === true) {
     const envelopeMode = preflight.mode === "hybrid" ? "hybrid" : "classical"
 
-    const envelope = buildDmPqcEnvelope({
+    // Ensure our own PQ key is published so peers can reply with PQC
+    await ensureOwnPqcKey()
+
+    // Resolve each recipient's PQ public key
+    const recipientPqPublicKeys = new Map<string, Uint8Array>()
+    if (envelopeMode === "hybrid") {
+      const resolutions = await Promise.all(
+        dmRecipients.map(async r => {
+          const pk = await resolvePeerPqPublicKey(r)
+          return [r, pk] as const
+        }),
+      )
+      for (const [r, pk] of resolutions) {
+        if (pk) recipientPqPublicKeys.set(r, pk)
+      }
+    }
+
+    const envelope = await buildDmPqcEnvelope({
       plaintext: content,
       senderPubkey,
       recipients: dmRecipients,
       mode: envelopeMode,
       algorithm: envelopeMode === "hybrid" ? preferredHybridAlg : "classical-x25519-aead-v1",
+      recipientPqPublicKeys,
       fallbackReasonCode: fallbackReason,
     })
 
@@ -436,3 +466,13 @@ export const payInvoice = async (invoice: string) => {
       .then(() => getWebLn().sendPayment(invoice))
   }
 }
+
+// Register sendMessage for offline queue drain (wrapper prevents re-queuing)
+registerSendMessage(async (channelId, content, delay) => {
+  _sendingFromQueue = true
+  try {
+    return await sendMessage(channelId, content, delay)
+  } finally {
+    _sendingFromQueue = false
+  }
+})

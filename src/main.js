@@ -1,5 +1,6 @@
 import "src/app.css"
 import "@capacitor-community/safe-area"
+import {initI18n} from "src/locales"
 import {loginWithNip01, loginWithNip46, nip46Perms} from "@welshman/app"
 import {Nip46Broker} from "@welshman/signer"
 import {makeSecret} from "@welshman/util"
@@ -7,6 +8,7 @@ import {App as CapacitorApp} from "@capacitor/app"
 import {nsecDecode} from "src/util/nostr"
 import {router} from "src/app/util"
 import {initializeSecurePilotRuntime} from "src/app/groups/secure-pilot-bootstrap"
+import {installLoaderBenchmarkRuntime} from "src/app/loader-benchmark/runtime"
 import App from "src/app/App.svelte"
 import {installPrompt} from "src/partials/state"
 import {env} from "src/engine"
@@ -106,6 +108,11 @@ Promise.resolve(
 ).catch(() => {
   // backButton is only available in native contexts
 })
+
+installLoaderBenchmarkRuntime()
+
+// Initialize internationalization before first render
+initI18n()
 
 export default new App({
   target: document.getElementById("app"),

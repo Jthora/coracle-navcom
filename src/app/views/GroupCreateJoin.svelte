@@ -934,7 +934,7 @@
     })
   })
 
-  $: document.title = flow === "join" ? "Join Group" : "Create Group"
+  $: document.title = flow === "join" ? "Join Group | NavCom" : "Create Group | NavCom"
   $: breadcrumbSection =
     flow === "join"
       ? ("join-room" as GroupBreadcrumbSection)

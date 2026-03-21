@@ -28,7 +28,7 @@
   let innerWidth = 0
   let element = null
 
-  document.title = "Notifications"
+  document.title = "Notifications | NavCom"
 
   onMount(() => {
     loadNotifications()

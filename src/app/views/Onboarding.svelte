@@ -1,7 +1,7 @@
 <script lang="ts">
   import {onMount} from "svelte"
   import {get} from "svelte/store"
-  import {RelayMode, getRelaysFromList, makeSecret} from "@welshman/util"
+  import {RelayMode, getRelaysFromList, makeSecret, isShareableRelayUrl} from "@welshman/util"
   import {
     userRelayList,
     loginWithNip01,
@@ -9,7 +9,6 @@
     loginWithNip55,
     setProfile,
     pubkey,
-    publishThunk,
     tagPubkey,
   } from "@welshman/app"
   import {Capacitor} from "@capacitor/core"
@@ -132,6 +131,34 @@
     trackOnboarding("onboarding_step_completed", {step: stage})
 
     hasNip07 = Boolean(getNip07())
+
+    // NavCom: if arriving from an invite and no key yet, auto-generate managed key
+    // to skip the key ceremony screen. User lands on profile screen directly.
+    if (returnTo && invite && !get(pubkey) && stage === "start") {
+      try {
+        const secret = makeSecret()
+        loginWithNip01(secret)
+        boot()
+        setPathState("managed", false)
+
+        // Auto-configure relays from invite hints if available
+        if (invite.parsedRelays?.length > 0) {
+          const inviteRelayUrls = invite.parsedRelays
+            .map((r: {url: string}) => r.url)
+            .filter((u: string) => u && isShareableRelayUrl(u))
+          if (inviteRelayUrls.length > 0) {
+            setOutboxPolicies(inviteRelayUrls)
+            relaysApplied = true
+          }
+        }
+
+        stage = "profile"
+        setOnboardingStage("profile")
+        trackOnboarding("onboarding_path_selected", {path: "managed", auto: true})
+      } catch (e) {
+        console.error("Auto-keygen for invite flow failed, falling back to manual", e)
+      }
+    }
 
     const loadNip55 = async () => {
       if (Capacitor.isNativePlatform()) {
@@ -428,11 +455,27 @@
   }
 
   const exit = () => {
+    // Defer key backup reminder — prompt 24h after setup
+    try {
+      if (!localStorage.getItem("key-backup-reminded")) {
+        localStorage.setItem(
+          "key-backup-reminded",
+          JSON.stringify({
+            dismissed: false,
+            setupAt: Date.now(),
+          }),
+        )
+      }
+    } catch {
+      /* localStorage unavailable */
+    }
+
     const target = normalizedReturnTo()
     if (target) {
       router.go({path: target})
     } else {
-      router.at("notes").push()
+      // NavCom default: land in Comms Mode, not /notes
+      router.at("/").push()
     }
   }
 </script>

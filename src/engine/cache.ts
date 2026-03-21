@@ -1,4 +1,4 @@
-import {writable} from "svelte/store"
+import {get, writable} from "svelte/store"
 
 export type QuerySurface = "feed" | "map" | "notifications" | "thread" | "groups"
 
@@ -19,7 +19,16 @@ export type CachePolicy = {
   allowStale: boolean
 }
 
-export type CacheMetricPhase = "query_start" | "first_event" | "query_exhausted"
+export type CacheMetricPhase =
+  | "query_start"
+  | "first_event"
+  | "first_10_rendered"
+  | "query_exhausted"
+  | "reducer_start"
+  | "reducer_end"
+
+type SpanStartPhase = "query_start" | "reducer_start"
+type SpanEndPhase = Exclude<CacheMetricPhase, SpanStartPhase>
 
 export type CacheMetric = {
   phase: CacheMetricPhase
@@ -109,11 +118,21 @@ export const getCachePolicy = (surface: QuerySurface): CachePolicy => ({...cache
 
 export const cacheMetrics = writable<CacheMetric[]>([])
 
+export const getCacheMetricsSnapshot = (): CacheMetric[] =>
+  get(cacheMetrics).map(metric => ({
+    ...metric,
+    details: metric.details ? {...metric.details} : undefined,
+  }))
+
+export const clearCacheMetrics = () => {
+  cacheMetrics.set([])
+}
+
 const now = () => (typeof performance !== "undefined" ? performance.now() : Date.now())
 
 export const startCacheMetric = (
   key: QueryKey,
-  phase: Exclude<CacheMetricPhase, "first_event" | "query_exhausted">,
+  phase: SpanStartPhase,
   details?: Record<string, unknown>,
 ) => {
   const keyString = queryKeyToString(key)
@@ -136,7 +155,7 @@ export const startCacheMetric = (
 
   const startedAt = now()
 
-  return (nextPhase: "first_event" | "query_exhausted", payload: Partial<CacheMetric> = {}) => {
+  return (nextPhase: SpanEndPhase, payload: Partial<CacheMetric> = {}) => {
     const elapsedMs = Math.round(now() - startedAt)
 
     cacheMetrics.update(metrics => {

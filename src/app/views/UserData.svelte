@@ -21,7 +21,7 @@
   let element
   let limit = 50
 
-  document.title = "Data"
+  document.title = "Data | NavCom"
 
   onMount(() => {
     const scroller = createScroller(loadMore, {element})

@@ -24,15 +24,216 @@
   import {reportGroupError} from "src/app/groups/error-reporting"
   import {classifyGroupEventKind} from "src/domain/group-kinds"
   import {publishGroupMessage, setChecked} from "src/engine"
+  import MessageTypeSelector from "src/app/views/MessageTypeSelector.svelte"
+  import CheckInCard from "src/app/views/CheckInCard.svelte"
+  import AlertCard from "src/app/views/AlertCard.svelte"
+  import SitrepCard from "src/app/views/SitrepCard.svelte"
+  import SpotrepCard from "src/app/views/SpotrepCard.svelte"
+  import SitrepForm from "src/app/views/SitrepForm.svelte"
+  import SpotrepForm from "src/app/views/SpotrepForm.svelte"
+  import {composeDrafts, selectedMarkerId, selectedMessageId} from "src/app/navcom-mode"
+  import {outboxStatus, getChannelQueue, refreshOutboxStatus} from "src/engine/offline/queue-status"
+  import VirtualList from "src/app/shared/VirtualList.svelte"
 
   export let groupId: string
 
-  let draft = ""
+  type NavComMessageType = "message" | "check-in" | "alert" | "sitrep" | "spotrep"
+
+  // Draft persistence: restore from composeDrafts store (localStorage-synced)
+  let draft = $composeDrafts[groupId] || ""
   let pendingSend = false
   let downgradeBanner: string | null = null
   let inviteCue: string | null = null
   let didTrackSecurityShown = false
   let previousSecurityState: GroupSecurityState | "unknown" | null = null
+  let selectedType: NavComMessageType = "message"
+  let alertPriority: "low" | "medium" | "high" = "medium"
+  const setAlertPriority = (val: string) => {
+    alertPriority = val as "low" | "medium" | "high"
+  }
+  let showSitrepForm = false
+  let showSpotrepForm = false
+
+  // Progressive disclosure: show type selector after N messages sent
+  const MSG_COUNT_KEY = "compose-message-count"
+  const PHASE_A_THRESHOLD = 10
+  const PHASE_B_THRESHOLD = 30
+
+  function getSentCount(): number {
+    try {
+      return parseInt(localStorage.getItem(MSG_COUNT_KEY) || "0", 10) || 0
+    } catch {
+      return 0
+    }
+  }
+
+  function incrementSentCount(): void {
+    try {
+      localStorage.setItem(MSG_COUNT_KEY, String(getSentCount() + 1))
+    } catch {
+      /* localStorage unavailable */
+    }
+  }
+
+  let sentCount = getSentCount()
+  $: showTypeSelector = sentCount >= PHASE_A_THRESHOLD
+  $: showAdvancedTypes = sentCount >= PHASE_B_THRESHOLD
+
+  // Persist draft to composeDrafts store on every change
+  $: if (draft) {
+    $composeDrafts = {...$composeDrafts, [groupId]: draft}
+  } else if ($composeDrafts[groupId]) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const {[groupId]: _, ...rest} = $composeDrafts
+    $composeDrafts = rest
+  }
+
+  function getMessageType(event: {tags: string[][]}): string | null {
+    const tag = event.tags.find(t => t[0] === "msg-type")
+    return tag ? tag[1] : null
+  }
+
+  /** Check if a message has geo-location data (for marker-message linking) */
+  function isGeoTagged(event: {tags: string[][]}): boolean {
+    return event.tags.some(t => t[0] === "location" || t[0] === "g")
+  }
+
+  /** Handle hover on a geo-tagged message → highlight its marker on the map */
+  function onMessageHover(messageId: string) {
+    selectedMarkerId.set(messageId)
+  }
+
+  function onMessageLeave() {
+    selectedMarkerId.set(null)
+  }
+
+  /** Scroll to and highlight a message when selected from the map */
+  $: if ($selectedMessageId) {
+    const el = document.getElementById(`msg-${$selectedMessageId}`)
+    if (el) {
+      el.scrollIntoView({behavior: "smooth", block: "center"})
+      el.classList.add("ring-2", "ring-accent")
+      setTimeout(() => {
+        el.classList.remove("ring-2", "ring-accent")
+        selectedMessageId.set(null)
+      }, 2000)
+    }
+  }
+
+  // Minimal geohash encoder (base32, 6 chars ≈ ±610m)
+  function simpleGeohash(lat: number, lng: number, precision: number): string {
+    const base32 = "0123456789bcdefghjkmnpqrstuvwxyz"
+    let minLat = -90,
+      maxLat = 90,
+      minLng = -180,
+      maxLng = 180
+    let hash = "",
+      bits = 0,
+      ch = 0,
+      isEven = true
+    while (hash.length < precision) {
+      if (isEven) {
+        const mid = (minLng + maxLng) / 2
+        if (lng >= mid) {
+          ch |= 1 << (4 - bits)
+          minLng = mid
+        } else {
+          maxLng = mid
+        }
+      } else {
+        const mid = (minLat + maxLat) / 2
+        if (lat >= mid) {
+          ch |= 1 << (4 - bits)
+          minLat = mid
+        } else {
+          maxLat = mid
+        }
+      }
+      isEven = !isEven
+      if (++bits === 5) {
+        hash += base32[ch]
+        bits = 0
+        ch = 0
+      }
+    }
+    return hash
+  }
+
+  function onTypeSelect(event: CustomEvent<NavComMessageType>) {
+    selectedType = event.detail
+    if (selectedType === "sitrep") {
+      showSitrepForm = true
+      selectedType = "message" // reset selector
+    } else if (selectedType === "spotrep") {
+      showSpotrepForm = true
+      selectedType = "message"
+    } else if (selectedType === "check-in") {
+      draft = draft || ""
+    }
+  }
+
+  async function handleSitrepSubmit(
+    e: CustomEvent<{content: string; severity: string; location: string | null}>,
+  ) {
+    const {content, severity, location} = e.detail
+    const extraTags: string[][] = [
+      ["msg-type", "sitrep"],
+      ["severity", severity],
+    ]
+    if (location) {
+      extraTags.push(["location", location])
+      const parts = location.split(",")
+      if (parts.length === 2) {
+        const lat = parseFloat(parts[0])
+        const lng = parseFloat(parts[1])
+        if (!isNaN(lat) && !isNaN(lng)) {
+          extraTags.push(["g", simpleGeohash(lat, lng, 6)])
+        }
+      }
+    }
+    try {
+      await publishGroupMessage({groupId, content, extraTags})
+      incrementSentCount()
+      sentCount = getSentCount()
+      showSitrepForm = false
+      showInfo("SITREP sent.")
+    } catch (err) {
+      showWarning("Failed to send SITREP.")
+    }
+  }
+
+  async function handleSpotrepSubmit(
+    e: CustomEvent<{content: string; location: string; photoUrl: string | null}>,
+  ) {
+    const {content, location, photoUrl} = e.detail
+    const extraTags: string[][] = [
+      ["msg-type", "spotrep"],
+      ["location", location],
+    ]
+    const parts = location.split(",")
+    if (parts.length === 2) {
+      const lat = parseFloat(parts[0])
+      const lng = parseFloat(parts[1])
+      if (!isNaN(lat) && !isNaN(lng)) {
+        extraTags.push(["g", simpleGeohash(lat, lng, 6)])
+      }
+    }
+    // NIP-92 imeta for photo attachment
+    let finalContent = content
+    if (photoUrl) {
+      finalContent = `${content} ${photoUrl}`
+      extraTags.push(["imeta", `url ${photoUrl}`, "m image/jpeg"])
+    }
+    try {
+      await publishGroupMessage({groupId, content: finalContent, extraTags})
+      incrementSentCount()
+      sentCount = getSentCount()
+      showSpotrepForm = false
+      showInfo("SPOTREP sent.")
+    } catch (err) {
+      showWarning("Failed to send SPOTREP.")
+    }
+  }
 
   $: projection = $groupProjections.get(groupId)
   $: securityState = getProjectionSecurityState(projection, Boolean(downgradeBanner))
@@ -56,7 +257,10 @@
     groupTitle: projection?.group.title || groupId,
   })
 
-  $: document.title = projection ? `${groupTitle} · Group Chat` : "Group Chat"
+  $: document.title = projection ? `${groupTitle} · Group Chat | NavCom` : "Group Chat | NavCom"
+
+  // Offline queue: show pending/failed messages for this channel
+  $: queuedForChannel = getChannelQueue($outboxStatus, groupId)
 
   const baseRoute = () => `/groups/${encodeURIComponent(groupId)}`
   const inviteCreateHref = () => getGroupInviteCreateHref(groupId)
@@ -116,6 +320,7 @@
 
   onMount(() => {
     ensureGroupsHydrated()
+    refreshOutboxStatus()
     downgradeBanner = getGroupDowngradeBannerMessage(groupId)
     markGroupRead()
     trackGroupTelemetry("group_chat_opened", {
@@ -179,17 +384,44 @@
   const onSend = async () => {
     const content = draft.trim()
 
-    if (!content) {
+    if (!content && selectedType === "message") {
       showWarning("Enter a message before sending.")
-
       return
     }
 
     if (!$signer) {
       showWarning("Sign in to send group messages.")
-
       return
     }
+
+    // Build extraTags based on selected message type
+    const extraTags: string[][] = []
+
+    if (selectedType !== "message") {
+      extraTags.push(["msg-type", selectedType])
+    }
+
+    if (selectedType === "alert") {
+      extraTags.push(["priority", alertPriority])
+    }
+
+    // Auto-attach geolocation for check-in
+    if (selectedType === "check-in" && typeof navigator !== "undefined" && navigator.geolocation) {
+      try {
+        const pos = await new Promise<GeolocationPosition>((resolve, reject) =>
+          navigator.geolocation.getCurrentPosition(resolve, reject, {timeout: 5000}),
+        )
+        const lat = pos.coords.latitude
+        const lng = pos.coords.longitude
+        extraTags.push(["location", `${lat},${lng}`])
+        // Simple geohash from lat/lng (6 chars ≈ ±610m precision)
+        extraTags.push(["g", simpleGeohash(lat, lng, 6)])
+      } catch {
+        // Location unavailable; send without it
+      }
+    }
+
+    const sendContent = selectedType === "check-in" && !content ? "Check-in" : content
 
     const isFirstMessageAttempt = messages.length === 0
 
@@ -207,10 +439,11 @@
     try {
       await publishGroupMessage({
         groupId,
-        content,
+        content: sendContent,
         requestedMode: projection?.group?.transportMode || "baseline-nip29",
         recipients: activeRecipients,
         localState: projection,
+        extraTags: extraTags.length > 0 ? extraTags : undefined,
       })
 
       if (isFirstMessageAttempt) {
@@ -222,9 +455,12 @@
 
       trackGroupTelemetry("group_send_success", {
         messageLengthBucket:
-          content.length < 80 ? "short" : content.length < 240 ? "medium" : "long",
+          sendContent.length < 80 ? "short" : sendContent.length < 240 ? "medium" : "long",
       })
       draft = ""
+      selectedType = "message"
+      incrementSentCount()
+      sentCount = getSentCount()
     } catch (error) {
       const reported = reportGroupError({
         context: "group-send",
@@ -318,30 +554,198 @@
 
   <div class="panel p-4">
     <h3 class="text-sm uppercase tracking-[0.08em] text-neutral-300">Conversation</h3>
-    <div class="mt-3 space-y-2">
-      {#each messages as message (message.id)}
-        <div class="rounded border border-neutral-700 px-3 py-2 text-sm text-neutral-300">
-          <div class="flex items-center justify-between gap-2 text-xs text-neutral-400">
-            <span class="font-mono">{asShortKey(message.pubkey)}</span>
-            <span>{formatTimestamp(message.created_at)}</span>
+    {#if messages.length > 50}
+      <!-- Virtualized rendering for large message lists -->
+      <div class="mt-3">
+        <VirtualList
+          count={messages.length}
+          estimateSize={72}
+          overscan={8}
+          reverse={true}
+          containerClass="h-[60vh] max-h-[600px]">
+          <div slot="default" let:index>
+            {@const message = messages[index]}
+            {@const msgType = getMessageType(message)}
+            {@const geoTagged = isGeoTagged(message)}
+            <div
+              id="msg-{message.id}"
+              class="pb-2 transition-shadow duration-300"
+              on:mouseenter={() => geoTagged && onMessageHover(message.id)}
+              on:mouseleave={() => geoTagged && onMessageLeave()}>
+              {#if msgType === "check-in"}
+                <CheckInCard {message} />
+              {:else if msgType === "alert"}
+                <AlertCard {message} />
+              {:else if msgType === "sitrep"}
+                <SitrepCard {message} />
+              {:else if msgType === "spotrep"}
+                <SpotrepCard {message} />
+              {:else}
+                <div class="rounded border border-neutral-700 px-3 py-2 text-sm text-neutral-300">
+                  <div class="flex items-center justify-between gap-2 text-xs text-neutral-400">
+                    <span class="font-mono">{asShortKey(message.pubkey)}</span>
+                    <span>{formatTimestamp(message.created_at)}</span>
+                  </div>
+                  <div class="mt-1 whitespace-pre-wrap break-words text-neutral-100">
+                    {message.content}
+                  </div>
+                  {#if geoTagged}
+                    <div class="mt-1 text-xs text-neutral-500">📍 Geo-tagged</div>
+                  {/if}
+                </div>
+              {/if}
+            </div>
           </div>
-          <div class="mt-1 whitespace-pre-wrap break-words text-neutral-100">{message.content}</div>
+        </VirtualList>
+      </div>
+    {:else}
+      <div class="mt-3 space-y-2">
+        {#each messages as message (message.id)}
+          {@const msgType = getMessageType(message)}
+          {@const geoTagged = isGeoTagged(message)}
+          <div
+            id="msg-{message.id}"
+            class="transition-shadow duration-300"
+            on:mouseenter={() => geoTagged && onMessageHover(message.id)}
+            on:mouseleave={() => geoTagged && onMessageLeave()}>
+            {#if msgType === "check-in"}
+              <CheckInCard {message} />
+            {:else if msgType === "alert"}
+              <AlertCard {message} />
+            {:else if msgType === "sitrep"}
+              <SitrepCard {message} />
+            {:else if msgType === "spotrep"}
+              <SpotrepCard {message} />
+            {:else}
+              <div class="rounded border border-neutral-700 px-3 py-2 text-sm text-neutral-300">
+                <div class="flex items-center justify-between gap-2 text-xs text-neutral-400">
+                  <span class="font-mono">{asShortKey(message.pubkey)}</span>
+                  <span>{formatTimestamp(message.created_at)}</span>
+                </div>
+                <div class="mt-1 whitespace-pre-wrap break-words text-neutral-100">
+                  {message.content}
+                </div>
+                {#if geoTagged}
+                  <div class="mt-1 text-xs text-neutral-500">📍 Geo-tagged</div>
+                {/if}
+              </div>
+            {/if}
+          </div>
+        {:else}
+          <p class="text-sm text-neutral-400">No messages yet. Send the first group message.</p>
+        {/each}
+      </div>
+    {/if}
+
+    <!-- Queued/failed messages from offline outbox -->
+    <div class="mt-2 space-y-2">
+      {#each queuedForChannel as queued (queued.id)}
+        <div
+          class="rounded border px-3 py-2 text-sm {queued.status === 'failed'
+            ? 'border-red-700/50 bg-red-900/10'
+            : 'bg-neutral-800/50 border-neutral-600'}">
+          <div class="flex items-center justify-between gap-2 text-xs text-neutral-400">
+            <span class="font-mono">You</span>
+            <span class="flex items-center gap-1">
+              {#if queued.status === "queued"}
+                <span title="Queued — will send when online">⏳</span>
+              {:else if queued.status === "sending"}
+                <span title="Sending..." class="animate-pulse">⏳</span>
+              {:else if queued.status === "failed"}
+                <span title="Failed after {queued.retryCount} retries">⚠️</span>
+              {/if}
+            </span>
+          </div>
+          <div class="mt-1 whitespace-pre-wrap break-words text-neutral-300">{queued.content}</div>
+          {#if queued.status === "failed"}
+            <button
+              type="button"
+              class="text-red-400 hover:text-red-300 mt-1 text-xs"
+              on:click={() => refreshOutboxStatus()}>
+              Tap to retry
+            </button>
+          {/if}
         </div>
-      {:else}
-        <p class="text-sm text-neutral-400">No messages yet. Send the first group message.</p>
       {/each}
     </div>
   </div>
 
   <div class="panel p-4">
     <h3 class="text-sm uppercase tracking-[0.08em] text-neutral-300">Send Message</h3>
+
+    {#if selectedType === "check-in"}
+      <div
+        class="bg-green-900/20 text-green-400 mt-2 flex items-center gap-2 rounded px-3 py-1.5 text-xs">
+        <span>📍 CHECK-IN</span>
+        <button
+          type="button"
+          class="ml-auto text-neutral-400 hover:text-neutral-200"
+          on:click={() => (selectedType = "message")}>✕</button>
+      </div>
+    {:else if selectedType === "alert"}
+      <div class="bg-red-900/20 mt-2 rounded px-3 py-1.5 text-xs">
+        <div class="text-red-400 flex items-center gap-2">
+          <span>🚨 ALERT</span>
+          <div class="ml-2 flex gap-1">
+            {#each ["low", "medium", "high"] as p}
+              <button
+                type="button"
+                class="rounded px-2 py-0.5 text-xs {alertPriority === p
+                  ? 'bg-neutral-600 text-neutral-100'
+                  : 'text-neutral-400 hover:text-neutral-200'}"
+                on:click={() => setAlertPriority(p)}>
+                {p.charAt(0).toUpperCase() + p.slice(1)}
+              </button>
+            {/each}
+          </div>
+          <button
+            type="button"
+            class="ml-auto text-neutral-400 hover:text-neutral-200"
+            on:click={() => (selectedType = "message")}>✕</button>
+        </div>
+      </div>
+    {/if}
+
     <div class="mt-3 space-y-3">
-      <Input placeholder="Type a message" bind:value={draft} disabled={pendingSend} />
+      <div class="flex items-center gap-2">
+        {#if showTypeSelector}
+          <MessageTypeSelector showAdvanced={showAdvancedTypes} on:select={onTypeSelect} />
+        {/if}
+        <div class="flex-1">
+          <Input
+            placeholder={selectedType === "check-in"
+              ? "Optional note..."
+              : selectedType === "alert"
+                ? "What's happening?"
+                : "Type a message"}
+            bind:value={draft}
+            disabled={pendingSend} />
+        </div>
+      </div>
       <div class="flex justify-end">
         <button class="btn btn-accent" type="button" on:click={onSend} disabled={pendingSend}>
-          {pendingSend ? "Sending…" : "Send"}
+          {pendingSend
+            ? "Sending…"
+            : selectedType === "check-in"
+              ? "📍 Check In"
+              : selectedType === "alert"
+                ? "🚨 Send Alert"
+                : "Send"}
         </button>
       </div>
     </div>
   </div>
+
+  <!-- Report form overlays -->
+  {#if showSitrepForm}
+    <div class="z-50 fixed inset-0 flex items-center justify-center bg-black/60">
+      <SitrepForm on:submit={handleSitrepSubmit} on:cancel={() => (showSitrepForm = false)} />
+    </div>
+  {/if}
+
+  {#if showSpotrepForm}
+    <div class="z-50 fixed inset-0 flex items-center justify-center bg-black/60">
+      <SpotrepForm on:submit={handleSpotrepSubmit} on:cancel={() => (showSpotrepForm = false)} />
+    </div>
+  {/if}
 {/if}

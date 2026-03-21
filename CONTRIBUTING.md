@@ -80,6 +80,17 @@ We welcome pull requests. To ensure your pull request is accepted, please follow
 - Set your pull request up to merge into the `dev` branch of the upstream repo.
 - Make sure your pull request passes all checks and follows code style. You can autoformat, lint, and check types using the scripts in package.json. More broadly, code style is generally procedural, with some functional paradigms, using objects mostly as singletons with an initialization step. Try to use (but not over-use) svelte stores and the welshman library when possible.
 
+#### NavCom Component Checklist
+
+When creating or modifying NavCom Svelte components, ensure:
+
+- [ ] All user-visible strings extracted to locale files
+- [ ] Strings use `$t("key.path")` from `svelte-i18n`
+- [ ] Pluralization uses ICU MessageFormat: `{count, plural, one {# item} other {# items}}`
+- [ ] Interpolation uses `{values: {varName}}` syntax
+- [ ] Accessibility: interactive elements have `aria-label` or visible labels
+- [ ] All manual `store.subscribe()` calls have `onDestroy()` cleanup
+
 #### Bounties
 
 Issues labeled `bounty` are subject to a payout _upon completion_. A bounty's full amount may not be paid out if a PR is not complete, or requires significant cleanup after merge, or if requirements change. Please work on bounties in close communication with the project's maintainers to avoid wasting time. The bounty amount is listed in the issue.
