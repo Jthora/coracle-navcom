@@ -8,7 +8,7 @@
 
 <FlexColumn>
   {#if urls.length === 0}
-    <div class="panel p-6 text-center text-neutral-200">No relays found</div>
+    <div class="panel p-6 text-center text-nc-text">No relays found</div>
   {:else}
     <FlexColumn small>
       {#each uniq(urls) as url (url)}

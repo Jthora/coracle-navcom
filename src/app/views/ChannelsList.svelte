@@ -71,7 +71,7 @@
           <div slot="trigger">
             <i
               class="fa fa-bell cursor-pointer"
-              class:text-neutral-600={!$hasNewMessages}
+              class:text-nc-text-muted={!$hasNewMessages}
               on:click={markAllChannelsRead} />
           </div>
           <div slot="tooltip">Mark all as read</div>
@@ -82,6 +82,6 @@
   {#each tabChannels.slice(0, limit) as channel (channel.id)}
     <ChannelsListItem {channel} />
   {:else}
-    <div class="panel p-6 text-center text-neutral-200">No messages found.</div>
+    <div class="panel p-6 text-center text-nc-text">No messages found.</div>
   {/each}
 </FlexColumn>

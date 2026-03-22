@@ -60,7 +60,7 @@
         on:external={onExternal}
         on:extension={onExtension}
         on:signerApp={e => onSignerApp(e.detail.app)} />
-      <div class="mt-4 flex justify-between text-sm text-neutral-400">
+      <div class="mt-4 flex justify-between text-sm text-nc-text-muted">
         <div>Managed is fastest. Advanced options remain available.</div>
         <div class="flex gap-2">
           <Button class="btn btn-low whitespace-normal text-center" on:click={onBackToStart}>
@@ -70,8 +70,8 @@
             Skip for now
           </Button>
           <Popover triggerType="mouseenter">
-            <span slot="trigger" class="text-neutral-300"><i class="fa fa-info-circle" /></span>
-            <div slot="tooltip" class="max-w-xs text-sm text-neutral-100">
+            <span slot="trigger" class="text-nc-text"><i class="fa fa-info-circle" /></span>
+            <div slot="tooltip" class="max-w-xs text-sm text-nc-text">
               Skips picking a key right now and moves to profile. You’ll still need a key before
               finishing, so choose one of the options when you’re ready.
             </div>
@@ -97,13 +97,13 @@
       {#each ["start", "key", "profile", "done"] as s}
         <div
           class="h-2 w-2 rounded-full"
-          class:bg-neutral-300={s === currentStage}
-          class:bg-neutral-500={s !== currentStage} />
+          class:bg-nc-text={s === currentStage}
+          class:bg-nc-shell-border={s !== currentStage} />
       {/each}
     </div>
     <Popover triggerType="mouseenter">
-      <span slot="trigger" class="text-neutral-300"><i class="fa fa-info-circle" /></span>
-      <div slot="tooltip" class="max-w-xs text-sm text-neutral-100">
+      <span slot="trigger" class="text-nc-text"><i class="fa fa-info-circle" /></span>
+      <div slot="tooltip" class="max-w-xs text-sm text-nc-text">
         These dots show your progress through the four steps. You can go back, but some steps (like
         choosing a key) must be completed before finishing.
       </div>

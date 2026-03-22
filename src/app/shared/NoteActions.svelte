@@ -240,7 +240,7 @@
 <button
   tabindex="-1"
   type="button"
-  class="flex w-full justify-between text-neutral-100"
+  class="flex w-full justify-between text-nc-text"
   on:click|stopPropagation>
   <div class="flex gap-8 text-sm">
     <button
@@ -292,7 +292,7 @@
         </button>
         <div slot="tooltip" class="max-h-[300px] min-w-[180px] overflow-auto">
           <Menu>
-            <MenuItem inert class="bg-neutral-900">Open with:</MenuItem>
+            <MenuItem inert class="bg-nc-shell-deep">Open with:</MenuItem>
             {#each handlers as handler}
               <MenuItem
                 class="flex h-12 items-center justify-between gap-2"
@@ -316,7 +316,7 @@
       <Popover triggerType="mouseenter">
         <div
           slot="trigger"
-          class="flex h-6 items-center gap-1 rounded bg-neutral-800 px-2 text-xs text-neutral-100 transition-colors dark:bg-neutral-600 dark:hover:bg-neutral-500">
+          class="bg-nc-shell-bg flex h-6 items-center gap-1 rounded px-2 text-xs text-nc-text transition-colors hover:bg-nc-shell-border">
           <i class="fa fa-hammer text-accent" />
           <span>{pow}</span>
         </div>
@@ -325,14 +325,14 @@
     {/if}
     {#if !event.sig}
       <div
-        class="staatliches flex h-6 items-center gap-1 rounded bg-neutral-800 px-2 text-neutral-100 transition-colors dark:bg-neutral-600 dark:hover:bg-neutral-500">
+        class="staatliches bg-nc-shell-bg flex h-6 items-center gap-1 rounded px-2 text-nc-text transition-colors hover:bg-nc-shell-border">
         <i class="fa fa-lock text-xs sm:text-accent" />
         <span class="hidden sm:inline">Encrypted</span>
       </div>
     {/if}
     {#if $seenOn.size > 0}
       <div
-        class="staatliches hidden cursor-pointer rounded bg-neutral-800 px-2 text-neutral-100 transition-colors hover:bg-neutral-700 dark:bg-neutral-600 dark:hover:bg-neutral-500 sm:block"
+        class="staatliches bg-nc-shell-bg hidden cursor-pointer rounded px-2 text-nc-text transition-colors hover:bg-nc-input sm:block"
         on:click={() => setView("info")}>
         <span class="text-accent">{$seenOn.size}</span>
         {pluralize($seenOn.size, "relay")}

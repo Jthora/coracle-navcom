@@ -20,6 +20,7 @@
   import SearchSelect from "src/partials/SearchSelect.svelte"
   import {env, userSettings, publishSettings} from "src/engine"
   import PqcKeySettings from "src/app/views/PqcKeySettings.svelte"
+  import ThemeControls from "src/app/shared/ThemeControls.svelte"
 
   const initialBlossomServers = getTagValues("server", getListTags($userBlossomServerList))
 
@@ -160,9 +161,15 @@
     </FieldInline>
   </div>
   <div class="mt-8">
+    <Field label="Theme">
+      <p slot="info">Customize NavCom's visual atmosphere. Mix Shell, Surface, and Accent palettes.</p>
+      <ThemeControls />
+    </Field>
+  </div>
+  <div class="mt-8">
     <PqcKeySettings />
   </div>
-  <div class="mt-6 text-center text-sm text-neutral-500">
+  <div class="mt-6 text-center text-sm text-nc-text-muted">
     NavCom v{__APP_VERSION__}
   </div>
   <Footer>

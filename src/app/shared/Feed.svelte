@@ -333,7 +333,7 @@
           <p class="text-xl">Enjoying Navcom?</p>
           <div class="flex gap-2">
             <Button
-              class="hidden text-neutral-400 opacity-0 transition-all group-hover:opacity-100 sm:visible"
+              class="hidden text-nc-text-muted opacity-0 transition-all group-hover:opacity-100 sm:visible"
               on:click={() => promptDismissed.set(now())}>
               Dismiss
             </Button>

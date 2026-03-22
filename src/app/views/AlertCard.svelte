@@ -31,10 +31,10 @@
   <div class="flex items-center gap-2 text-xs font-semibold {label}">
     <span>🚨 ALERT — {priority.toUpperCase()} PRIORITY</span>
   </div>
-  <div class="mt-1 flex items-center gap-2 text-xs text-neutral-400">
+  <div class="mt-1 flex items-center gap-2 text-xs text-nc-text-muted">
     <span class="font-mono">{asShortKey(message.pubkey)}</span>
     <span>•</span>
     <span>{formatTimestamp(message.created_at)}</span>
   </div>
-  <div class="mt-1 whitespace-pre-wrap break-words text-neutral-100">{message.content}</div>
+  <div class="mt-1 whitespace-pre-wrap break-words text-nc-text">{message.content}</div>
 </div>

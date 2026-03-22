@@ -29,14 +29,14 @@
 </script>
 
 <div
-  class="z-30 bg-neutral-900/95 absolute right-3 top-3 w-56 rounded-xl border border-neutral-700 shadow-xl backdrop-blur-sm"
+  class="z-30 bg-nc-shell-deep/95 absolute right-3 top-3 w-56 rounded-xl border border-nc-shell-border shadow-xl backdrop-blur-sm"
   role="dialog"
   aria-label={$t("map.layerPanel.aria")}>
-  <header class="flex items-center justify-between border-b border-neutral-700 px-3 py-2">
-    <span class="text-xs font-semibold uppercase tracking-wider text-neutral-400"
+  <header class="flex items-center justify-between border-b border-nc-shell-border px-3 py-2">
+    <span class="text-xs font-semibold uppercase tracking-wider text-nc-text-muted"
       >{$t("map.layerPanel.heading")}</span>
     <button
-      class="text-neutral-400 transition-colors hover:text-neutral-200"
+      class="text-nc-text-muted transition-colors hover:text-nc-text"
       on:click={() => dispatch("close")}
       aria-label={$t("map.layerPanel.close.aria")}>
       <i class="fa fa-xmark text-sm" />
@@ -44,59 +44,59 @@
   </header>
 
   <div class="space-y-1 px-3 py-2">
-    <label class="flex cursor-pointer items-center gap-2 py-1 text-sm text-neutral-200">
+    <label class="flex cursor-pointer items-center gap-2 py-1 text-sm text-nc-text">
       <input
         type="checkbox"
         checked={$mapLayers.checkIns}
         on:change={() => toggleLayer("checkIns")}
         class="accent-green-500" />
-      <span style="color:#22c55e">📍</span>
+      <span class="text-green-500">📍</span>
       {$t("map.layer.checkIns")}
     </label>
-    <label class="flex cursor-pointer items-center gap-2 py-1 text-sm text-neutral-200">
+    <label class="flex cursor-pointer items-center gap-2 py-1 text-sm text-nc-text">
       <input
         type="checkbox"
         checked={$mapLayers.alerts}
         on:change={() => toggleLayer("alerts")}
         class="accent-red-500" />
-      <span style="color:#ef4444">🚨</span>
+      <span class="text-red-500">🚨</span>
       {$t("map.layer.alerts")}
     </label>
-    <label class="flex cursor-pointer items-center gap-2 py-1 text-sm text-neutral-200">
+    <label class="flex cursor-pointer items-center gap-2 py-1 text-sm text-nc-text">
       <input
         type="checkbox"
         checked={$mapLayers.spotreps}
         on:change={() => toggleLayer("spotreps")}
         class="accent-cyan-500" />
-      <span style="color:#22d3ee">📌</span>
+      <span class="text-cyan-500">📌</span>
       {$t("map.layer.spotreps")}
     </label>
-    <label class="flex cursor-pointer items-center gap-2 py-1 text-sm text-neutral-200">
+    <label class="flex cursor-pointer items-center gap-2 py-1 text-sm text-nc-text">
       <input
         type="checkbox"
         checked={$mapLayers.sitreps}
         on:change={() => toggleLayer("sitreps")}
         class="accent-amber-500" />
-      <span style="color:#f59e0b">📋</span>
+      <span class="text-amber-500">📋</span>
       {$t("map.layer.sitreps")}
     </label>
-    <label class="flex cursor-pointer items-center gap-2 py-1 text-sm text-neutral-200">
+    <label class="flex cursor-pointer items-center gap-2 py-1 text-sm text-nc-text">
       <input
         type="checkbox"
         checked={$mapLayers.memberPositions}
         on:change={() => toggleLayer("memberPositions")}
         class="accent-neutral-400" />
-      <i class="fa fa-users w-4 text-center text-xs text-neutral-400" />
+      <i class="fa fa-users w-4 text-center text-xs text-nc-text-muted" />
       {$t("map.layer.members")}
     </label>
   </div>
 
-  <div class="border-t border-neutral-700 px-3 py-2">
-    <p class="mb-1 text-[10px] uppercase tracking-wider text-neutral-500">
+  <div class="border-t border-nc-shell-border px-3 py-2">
+    <p class="mb-1 text-[10px] uppercase tracking-wider text-nc-text-muted">
       {$t("map.layerPanel.baseMap")}
     </p>
     {#each tileSets as ts (ts.id)}
-      <label class="flex cursor-pointer items-center gap-2 py-0.5 text-sm text-neutral-200">
+      <label class="flex cursor-pointer items-center gap-2 py-0.5 text-sm text-nc-text">
         <input
           type="radio"
           name="tileset"
@@ -109,8 +109,8 @@
     {/each}
   </div>
 
-  <div class="border-t border-neutral-700 px-3 py-2">
-    <p class="mb-1 text-[10px] uppercase tracking-wider text-neutral-500">
+  <div class="border-t border-nc-shell-border px-3 py-2">
+    <p class="mb-1 text-[10px] uppercase tracking-wider text-nc-text-muted">
       {$t("map.layerPanel.timeRange")}
     </p>
     <div class="flex flex-wrap gap-1">
@@ -119,7 +119,7 @@
           class="rounded-md px-2 py-0.5 text-xs transition-colors
             {$mapTimeRange === tr.id
             ? 'bg-accent font-semibold text-neutral-900'
-            : 'bg-neutral-800 text-neutral-300 hover:bg-neutral-700'}"
+            : 'bg-nc-shell-border text-nc-text hover:bg-nc-shell-border/70'}"
           on:click={() => mapTimeRange.set(tr.id)}>
           {$t(tr.labelKey)}
         </button>
@@ -127,7 +127,7 @@
     </div>
   </div>
 
-  <div class="border-t border-neutral-700 px-3 py-2">
+  <div class="border-t border-nc-shell-border px-3 py-2">
     <MapDrawTools on:submit={e => dispatch("drawSubmit", e.detail)} on:close />
   </div>
 </div>

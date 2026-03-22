@@ -49,7 +49,7 @@
     </div>
   {/if}
   {#if $relay?.description}
-    <p class="text-neutral-200">{$relay?.description}</p>
+    <p class="text-nc-text">{$relay?.description}</p>
   {/if}
   <Tabs class="mt-2" {tabs} {activeTab} {setActiveTab} />
 </div>

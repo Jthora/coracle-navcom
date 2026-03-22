@@ -12,7 +12,7 @@
 <div
   class={cx(
     $$props.class,
-    `flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-neutral-800 bg-cover bg-center`,
+    `flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-nc-shell-bg bg-cover bg-center`,
   )}>
   <svg
     class="h-full w-1/2"

@@ -55,7 +55,7 @@
         <Button
           stopPropagation
           on:click={goToDetail}
-          class="whitespace-nowrap text-end text-neutral-100">
+          class="whitespace-nowrap text-end text-nc-text">
           {formatTimestamp(event.created_at)}
         </Button>
       </div>
@@ -63,13 +63,13 @@
     <div class="flex flex-col gap-2">
       <div class="flex gap-2">
         {#if showReply}
-          <small class="text-neutral-100">
+          <small class="text-nc-text">
             <i class="fa fa-code-merge" />
             <Button stopPropagation class="underline" on:click={goToParent}>View Parent</Button>
           </small>
         {/if}
         {#if showRoot}
-          <small class="text-neutral-100">
+          <small class="text-nc-text">
             <i class="fa fa-code-pull-request" />
             <Button stopPropagation class="underline" on:click={goToThread}>View Thread</Button>
           </small>

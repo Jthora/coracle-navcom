@@ -40,8 +40,8 @@
 {#if hasError}
   <div class="flex h-full w-full items-center justify-center p-8">
     <div class="panel flex max-w-md flex-col gap-4 p-6 text-center">
-      <div class="text-xl font-semibold text-neutral-100">Something went wrong</div>
-      <div class="text-sm text-neutral-400">{errorMessage}</div>
+      <div class="text-xl font-semibold text-nc-text">Something went wrong</div>
+      <div class="text-sm text-nc-text-muted">{errorMessage}</div>
       <div class="flex justify-center gap-3 pt-2">
         <button class="btn" on:click={tryAgain}>Try Again</button>
         <button class="btn btn-accent" on:click={reloadApp}>Reload App</button>

@@ -214,15 +214,15 @@
   on:keydown={handleOverlayKeydown}
   tabindex="-1">
   <div
-    class="h-full max-h-full w-full overflow-y-auto rounded-2xl bg-neutral-900 p-4 shadow-xl md:h-auto md:max-h-[90vh] md:max-w-xl">
+    class="h-full max-h-full w-full overflow-y-auto rounded-2xl bg-nc-shell-deep p-4 shadow-xl md:h-auto md:max-h-[90vh] md:max-w-xl">
     <div class="flex items-center justify-between pb-2">
       <div>
         <p class="text-lg font-semibold">GEOINT Location</p>
-        <p class="text-sm text-neutral-300">Coordinates are public. Share responsibly.</p>
+        <p class="text-sm text-nc-text">Coordinates are public. Share responsibly.</p>
       </div>
       <button
         type="button"
-        class="flex h-11 w-11 items-center justify-center text-neutral-300 md:h-auto md:w-auto"
+        class="flex h-11 w-11 items-center justify-center text-nc-text md:h-auto md:w-auto"
         on:click={handleCancel}
         aria-label="Close geo modal">
         <i class="fa fa-times" />
@@ -231,7 +231,7 @@
 
     <div class="mb-2 flex flex-wrap items-center justify-between gap-2">
       <div class="flex items-center gap-2">
-        <span class="text-sm font-semibold text-neutral-200">Coordinates</span>
+        <span class="text-sm font-semibold text-nc-text">Coordinates</span>
         {#if mapPicked}
           <span class="bg-emerald-600/30 text-emerald-100 rounded-full px-2 py-1 text-xs">
             Set from map
@@ -241,7 +241,7 @@
       <div class="flex items-center gap-2">
         <button
           type="button"
-          class="rounded border border-neutral-600 p-3 text-white hover:border-neutral-400 md:p-2"
+          class="rounded border border-nc-shell-border p-3 text-nc-text hover:border-nc-shell-border md:p-2"
           aria-label="Pick location on map"
           on:click={() => (showMapPicker = true)}>
           <i class="fa fa-map" />
@@ -251,10 +251,10 @@
 
     <div class="grid gap-3 md:grid-cols-2">
       <label class="flex flex-col gap-1">
-        <span class="text-sm text-neutral-200">Latitude *</span>
+        <span class="text-sm text-nc-text">Latitude *</span>
         <input
           id="geo-modal-lat"
-          class="flex-1 rounded border border-neutral-700 bg-neutral-800 p-2 text-white"
+          class="bg-nc-shell-bg flex-1 rounded border border-nc-shell-border p-2 text-nc-text"
           type="number"
           step="0.000001"
           bind:value={lat}
@@ -263,9 +263,9 @@
       </label>
 
       <label class="flex flex-col gap-1">
-        <span class="text-sm text-neutral-200">Longitude *</span>
+        <span class="text-sm text-nc-text">Longitude *</span>
         <input
-          class="rounded border border-neutral-700 bg-neutral-800 p-2 text-white"
+          class="bg-nc-shell-bg rounded border border-nc-shell-border p-2 text-nc-text"
           type="number"
           step="0.000001"
           bind:value={lon}
@@ -274,9 +274,9 @@
       </label>
 
       <label class="flex flex-col gap-1">
-        <span class="text-sm text-neutral-200">Altitude (optional)</span>
+        <span class="text-sm text-nc-text">Altitude (optional)</span>
         <input
-          class="rounded border border-neutral-700 bg-neutral-800 p-2 text-white"
+          class="bg-nc-shell-bg rounded border border-nc-shell-border p-2 text-nc-text"
           type="number"
           step="0.1"
           bind:value={alt}
@@ -284,18 +284,18 @@
       </label>
 
       <label class="flex flex-col gap-1">
-        <span class="text-sm text-neutral-200">Subtype</span>
+        <span class="text-sm text-nc-text">Subtype</span>
         <input
-          class="rounded border border-neutral-700 bg-neutral-800 p-2 text-white"
+          class="bg-nc-shell-bg rounded border border-nc-shell-border p-2 text-nc-text"
           type="text"
           bind:value={subtype}
           placeholder="report / sighting / event" />
       </label>
 
       <label class="flex flex-col gap-1">
-        <span class="text-sm text-neutral-200">Confidence (0-100)</span>
+        <span class="text-sm text-nc-text">Confidence (0-100)</span>
         <input
-          class="rounded border border-neutral-700 bg-neutral-800 p-2 text-white"
+          class="bg-nc-shell-bg rounded border border-nc-shell-border p-2 text-nc-text"
           type="number"
           min="0"
           max="100"
@@ -305,24 +305,24 @@
       </label>
 
       <label class="flex flex-col gap-1">
-        <span class="text-sm text-neutral-200">Timestamp (ISO)</span>
+        <span class="text-sm text-nc-text">Timestamp (ISO)</span>
         <input
-          class="rounded border border-neutral-700 bg-neutral-800 p-2 text-white"
+          class="bg-nc-shell-bg rounded border border-nc-shell-border p-2 text-nc-text"
           type="text"
           bind:value={timestamp}
           placeholder={new Date().toISOString()} />
       </label>
 
-      <div class="text-xs text-neutral-400 md:col-span-2">
+      <div class="text-xs text-nc-text-muted md:col-span-2">
         Choose a location on the map with the draggable pin, type coordinates manually, or leave
         them blank to use your current position. Typed values apply automatically.
       </div>
     </div>
 
     <label class="mt-3 flex flex-col gap-1">
-      <span class="text-sm text-neutral-200">Additional JSON (optional)</span>
+      <span class="text-sm text-nc-text">Additional JSON (optional)</span>
       <textarea
-        class="min-h-[96px] rounded border border-neutral-700 bg-neutral-800 p-2 text-white"
+        class="bg-nc-shell-bg min-h-[96px] rounded border border-nc-shell-border p-2 text-nc-text"
         bind:value={additionalRaw}
         placeholder={additionalPlaceholder} />
     </label>
@@ -335,22 +335,22 @@
     {/if}
 
     <div
-      class="sticky bottom-0 mt-4 flex flex-wrap justify-end gap-2 bg-neutral-900 pb-[calc(env(safe-area-inset-bottom)+0.25rem)] pt-2 md:static md:bg-transparent md:pb-0 md:pt-0">
+      class="sticky bottom-0 mt-4 flex flex-wrap justify-end gap-2 bg-nc-shell-deep pb-[calc(env(safe-area-inset-bottom)+0.25rem)] pt-2 md:static md:bg-transparent md:pb-0 md:pt-0">
       <button
         type="button"
-        class="rounded border border-neutral-600 px-4 py-2 text-sm"
+        class="rounded border border-nc-shell-border px-4 py-2 text-sm"
         on:click={handleClear}>
         Clear
       </button>
       <button
         type="button"
-        class="rounded border border-neutral-600 px-4 py-2 text-sm"
+        class="rounded border border-nc-shell-border px-4 py-2 text-sm"
         on:click={handleCancel}>
         Cancel
       </button>
       <button
         type="button"
-        class="rounded bg-white px-5 py-2 text-sm font-semibold text-black"
+        class="rounded bg-nc-accent px-5 py-2 text-sm font-semibold text-neutral-900"
         on:click={handleSave}
         aria-label="Save GEOINT state">
         Save

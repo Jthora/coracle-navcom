@@ -18,7 +18,7 @@
   class="absolute left-0 w-72 pr-px"
   transition:slide|local={{duration: 300}}
   on:click={onEscape}>
-  <div class="overflow-hidden rounded-t-xl bg-neutral-800">
+  <div class="bg-nc-shell-bg overflow-hidden rounded-t-xl">
     <slot />
   </div>
 </div>

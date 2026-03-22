@@ -74,7 +74,7 @@
     {#each $zaps as zap}
       <div class="flex flex-col gap-1">
         <PersonBadge pubkey={zap.request.pubkey} />
-        <span class="ml-16 text-sm text-neutral-600"
+        <span class="ml-16 text-sm text-nc-text-muted"
           >{formatSats(zap.invoiceAmount / 1000)} sats</span>
       </div>
     {/each}
@@ -148,7 +148,7 @@
   <p slot="label">Event JSON</p>
   <div class="relative rounded bg-tinted-700 p-1">
     <pre class="overflow-auto text-xs"><code>{json}</code></pre>
-    <Button class="btn-circle absolute right-1 top-1 bg-neutral-800" on:click={copyJson}>
+    <Button class="btn-circle absolute right-1 top-1 bg-nc-shell-bg" on:click={copyJson}>
       <i class="fa fa-copy m-2" />
     </Button>
   </div>

@@ -68,7 +68,7 @@
         <img class="h-9 w-9 shrink-0 rounded-full border" src={relay.icon} />
       {:else}
         <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border">
-          <i class="fa fa-server text-xl text-neutral-100"></i>
+          <i class="fa fa-server text-xl text-nc-text"></i>
         </div>
       {/if}
       <div class="shrink-0">
@@ -77,7 +77,7 @@
             {displayRelayUrl(url)}
           </div>
         </div>
-        <div class="flex gap-4 text-xs text-neutral-400">
+        <div class="flex gap-4 text-xs text-nc-text-muted">
           {#if relay?.supported_nips}
             <span>
               {relay.supported_nips.length} NIPs

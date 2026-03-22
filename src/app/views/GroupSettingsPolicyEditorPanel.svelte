@@ -17,18 +17,18 @@
 </script>
 
 <div class="panel p-4">
-  <h3 class="text-sm uppercase tracking-[0.08em] text-neutral-300">Policy Editor</h3>
+  <h3 class="text-sm uppercase tracking-[0.08em] text-nc-text">Policy Editor</h3>
   {#if !enabled}
-    <div class="mt-3 rounded border border-neutral-700 px-3 py-2 text-sm text-neutral-400">
+    <div class="mt-3 rounded border border-nc-shell-border px-3 py-2 text-sm text-nc-text-muted">
       You do not have permission to edit policy.
     </div>
   {/if}
 
   <div class="mt-3 grid gap-2 sm:grid-cols-3">
-    <label class="text-sm text-neutral-300">
+    <label class="text-sm text-nc-text">
       Mission tier
       <select
-        class="mt-1 h-9 w-full rounded border border-neutral-700 bg-neutral-900 px-3 text-neutral-100"
+        class="mt-1 h-9 w-full rounded border border-nc-shell-border bg-nc-shell-deep px-3 text-nc-text"
         disabled={!enabled}
         bind:value={policy.tier}
         on:change={onPolicyTierChange}>
@@ -37,10 +37,10 @@
         <option value={2}>Tier 2</option>
       </select>
     </label>
-    <label class="text-sm text-neutral-300">
+    <label class="text-sm text-nc-text">
       Preferred mode
       <select
-        class="mt-1 h-9 w-full rounded border border-neutral-700 bg-neutral-900 px-3 text-neutral-100"
+        class="mt-1 h-9 w-full rounded border border-nc-shell-border bg-nc-shell-deep px-3 text-nc-text"
         disabled={!enabled}
         bind:value={policy.preferredMode}
         on:change={onPolicyModeChange}>
@@ -48,10 +48,10 @@
         <option value="secure-nip-ee">secure-nip-ee</option>
       </select>
     </label>
-    <label class="text-sm text-neutral-300">
+    <label class="text-sm text-nc-text">
       Downgrade
       <select
-        class="mt-1 h-9 w-full rounded border border-neutral-700 bg-neutral-900 px-3 text-neutral-100"
+        class="mt-1 h-9 w-full rounded border border-nc-shell-border bg-nc-shell-deep px-3 text-nc-text"
         disabled={!enabled}
         bind:value={policy.allowDowngrade}
         on:change={onPolicyDowngradeChange}>
@@ -64,7 +64,7 @@
   <div class="mt-3 space-y-2 text-sm">
     {#each policyNotices as notice, i (`policy-${i}`)}
       <div
-        class="rounded border border-neutral-700 px-3 py-2"
+        class="rounded border border-nc-shell-border px-3 py-2"
         class:text-warning={notice.level === "warning"}>
         {notice.message}
       </div>

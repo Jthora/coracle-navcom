@@ -48,7 +48,7 @@
 
 <Card interactive stopPropagation class="my-2" on:click={openQuote}>
   {#if muted && !showHidden}
-    <p class="mb-1 py-24 text-center text-neutral-600">
+    <p class="mb-1 py-24 text-center text-nc-text-muted">
       You have hidden this note.
       <Button class="underline" stopPropagation on:click={unmute}>Show</Button>
     </p>

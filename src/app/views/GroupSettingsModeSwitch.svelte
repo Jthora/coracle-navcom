@@ -6,8 +6,8 @@
 </script>
 
 <div class="panel p-4">
-  <h3 class="text-sm uppercase tracking-[0.08em] text-neutral-300">Experience Mode</h3>
-  <p class="mt-2 text-sm text-neutral-400">
+  <h3 class="text-sm uppercase tracking-[0.08em] text-nc-text">Experience Mode</h3>
+  <p class="mt-2 text-sm text-nc-text-muted">
     Guided mode keeps core actions simple. Expert mode exposes full policy and diagnostics controls.
   </p>
   <div class="mt-3 grid gap-2 sm:grid-cols-2">

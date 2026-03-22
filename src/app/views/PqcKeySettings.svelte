@@ -68,7 +68,7 @@
 <div class="flex flex-col gap-4">
   <Heading>Post-Quantum Encryption</Heading>
 
-  <div class="bg-neutral-800/50 rounded-lg border border-neutral-700 p-4">
+  <div class="bg-nc-shell-bg/50 rounded-lg border border-nc-shell-border p-4">
     {#if hasKey && !isExpired}
       <div class="mb-3 flex items-center gap-2">
         <span class="bg-green-400 inline-block h-2 w-2 rounded-full" />
@@ -76,20 +76,20 @@
       </div>
 
       <div class="grid grid-cols-2 gap-y-2 text-sm">
-        <span class="text-neutral-400">Algorithm</span>
-        <span class="text-neutral-100"
+        <span class="text-nc-text-muted">Algorithm</span>
+        <span class="text-nc-text"
           >{record.pq_alg === "mlkem768" ? "ML-KEM-768" : record.pq_alg}</span>
 
-        <span class="text-neutral-400">Generated</span>
-        <span class="text-neutral-100">{generatedDate}</span>
+        <span class="text-nc-text-muted">Generated</span>
+        <span class="text-nc-text">{generatedDate}</span>
 
-        <span class="text-neutral-400">Expires</span>
-        <span class="text-neutral-100">{expiresDate}</span>
+        <span class="text-nc-text-muted">Expires</span>
+        <span class="text-nc-text">{expiresDate}</span>
 
-        <span class="text-neutral-400">Key ID</span>
-        <span class="truncate font-mono text-xs text-neutral-100">{record.key_id}</span>
+        <span class="text-nc-text-muted">Key ID</span>
+        <span class="truncate font-mono text-xs text-nc-text">{record.key_id}</span>
 
-        <span class="text-neutral-400">Published</span>
+        <span class="text-nc-text-muted">Published</span>
         <span class="text-green-400">✅ Yes</span>
       </div>
 
@@ -104,7 +104,7 @@
         <span class="text-yellow-400 text-sm font-medium">Expired</span>
       </div>
 
-      <p class="mb-3 text-sm text-neutral-400">
+      <p class="mb-3 text-sm text-nc-text-muted">
         Your PQC key has expired. Generate a new key to continue using post-quantum encryption.
       </p>
 
@@ -113,11 +113,11 @@
       </Button>
     {:else}
       <div class="mb-3 flex items-center gap-2">
-        <span class="inline-block h-2 w-2 rounded-full bg-neutral-500" />
-        <span class="text-sm font-medium text-neutral-400">No PQC Key</span>
+        <span class="inline-block h-2 w-2 rounded-full bg-nc-shell-border" />
+        <span class="text-sm font-medium text-nc-text-muted">No PQC Key</span>
       </div>
 
-      <p class="mb-3 text-sm text-neutral-400">
+      <p class="mb-3 text-sm text-nc-text-muted">
         Generate a post-quantum encryption key to enable ML-KEM-768 encrypted messaging. Your public
         key will be published to your relays so others can send you PQC-encrypted messages.
       </p>

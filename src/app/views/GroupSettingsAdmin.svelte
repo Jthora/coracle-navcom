@@ -449,9 +449,9 @@
 </script>
 
 {#if !$groupsHydrated}
-  <div class="panel p-6 text-center text-neutral-300">Loading group admin panel…</div>
+  <div class="panel p-6 text-center text-nc-text">Loading group admin panel…</div>
 {:else if !projection}
-  <div class="panel p-6 text-center text-neutral-200">
+  <div class="panel p-6 text-center text-nc-text">
     <p>Group not found.</p>
     <div class="mt-4">
       <Link class="btn" href="/groups">Back to Groups</Link>
@@ -463,15 +463,15 @@
     <div class="flex items-center justify-between gap-3">
       <h2 class="text-lg uppercase tracking-[0.08em]">{adminSectionTitle} · Admin</h2>
       <div class="flex flex-wrap items-center justify-end gap-2">
-        <span class="rounded border border-neutral-700 px-2 py-1 text-xs text-neutral-300">
+        <span class="rounded border border-nc-shell-border px-2 py-1 text-xs text-nc-text">
           Role: {actorRole}
         </span>
-        <span class="rounded border border-neutral-700 px-2 py-1 text-xs text-neutral-300">
+        <span class="rounded border border-nc-shell-border px-2 py-1 text-xs text-nc-text">
           {securityState.label}
         </span>
       </div>
     </div>
-    <p class="mt-2 text-sm text-neutral-300">{adminSectionDescription}</p>
+    <p class="mt-2 text-sm text-nc-text">{adminSectionDescription}</p>
     <div class="mt-3 flex flex-wrap gap-2 text-sm">
       <Link
         class={adminSection === "settings" ? "btn btn-accent" : "btn"}
@@ -483,7 +483,7 @@
       <Link class="btn" href={`/groups/${encodeURIComponent(groupId)}/chat`}>Chat</Link>
       <Link class="btn" href={`/groups/${encodeURIComponent(groupId)}/members`}>Members</Link>
     </div>
-    <div class="mt-3 rounded border border-neutral-700 px-3 py-2 text-sm text-neutral-300">
+    <div class="mt-3 rounded border border-nc-shell-border px-3 py-2 text-sm text-nc-text">
       {securityState.hint}
     </div>
   </div>
@@ -503,14 +503,14 @@
       onSaved={onRelayPolicySaved} />
   {:else}
     <div class="panel p-4">
-      <h3 class="text-sm uppercase tracking-[0.08em] text-neutral-300">Guided Summary</h3>
-      <p class="mt-2 text-sm text-neutral-400">
+      <h3 class="text-sm uppercase tracking-[0.08em] text-nc-text">Guided Summary</h3>
+      <p class="mt-2 text-sm text-nc-text-muted">
         Advanced controls are hidden in guided mode. Current policy state remains preserved.
       </p>
-      <div class="mt-3 rounded border border-neutral-700 px-3 py-2 text-sm text-neutral-300">
-        Current policy: <span class="text-neutral-100">{policySummary}</span>
+      <div class="mt-3 rounded border border-nc-shell-border px-3 py-2 text-sm text-nc-text">
+        Current policy: <span class="text-nc-text">{policySummary}</span>
       </div>
-      <div class="mt-2 rounded border border-neutral-700 px-3 py-2 text-sm text-neutral-400">
+      <div class="mt-2 rounded border border-nc-shell-border px-3 py-2 text-sm text-nc-text-muted">
         Switch to Expert mode to edit advanced policy, diagnostics, and moderation controls.
       </div>
     </div>
@@ -534,7 +534,7 @@
 
   {#if isExpertMode && hasVisibleAdminActions}
     <div class="panel p-4">
-      <h3 class="text-sm uppercase tracking-[0.08em] text-neutral-300">Admin Actions</h3>
+      <h3 class="text-sm uppercase tracking-[0.08em] text-nc-text">Admin Actions</h3>
 
       <GroupSettingsModerationComposer
         {adminUi}
@@ -567,8 +567,8 @@
     </div>
   {:else if isExpertMode}
     <div class="panel p-4">
-      <h3 class="text-sm uppercase tracking-[0.08em] text-neutral-300">Admin Actions</h3>
-      <p class="mt-3 rounded border border-neutral-700 px-3 py-2 text-sm text-neutral-400">
+      <h3 class="text-sm uppercase tracking-[0.08em] text-nc-text">Admin Actions</h3>
+      <p class="mt-3 rounded border border-nc-shell-border px-3 py-2 text-sm text-nc-text-muted">
         No admin controls are available for your current role.
       </p>
     </div>
@@ -582,11 +582,11 @@
   <div class="panel border-red-900/40 mt-6 border p-4">
     <h3 class="text-red-400 text-sm uppercase tracking-[0.08em]">Danger Zone</h3>
     {#if isGroupOwner}
-      <p class="mt-2 text-sm text-neutral-400">
+      <p class="mt-2 text-sm text-nc-text-muted">
         Group owners cannot leave their own group. Transfer ownership first.
       </p>
     {:else if !showLeaveConfirm}
-      <p class="mt-2 text-sm text-neutral-400">
+      <p class="mt-2 text-sm text-nc-text-muted">
         Leaving this group will remove your membership and you will lose access to group messages.
       </p>
       <button
@@ -595,17 +595,17 @@
         Leave Group
       </button>
     {:else}
-      <p class="mt-2 text-sm text-neutral-300">
+      <p class="mt-2 text-sm text-nc-text">
         Type <strong class="text-red-300">{leaveGroupTitle}</strong> to confirm:
       </p>
       <input
         type="text"
         bind:value={leaveConfirmInput}
         placeholder="Type group name to confirm"
-        class="focus:border-red-500 mt-2 w-full rounded-lg border border-neutral-600 bg-neutral-700 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 focus:outline-none" />
+        class="focus:border-red-500 mt-2 w-full rounded-lg border border-nc-shell-border bg-nc-input px-3 py-2 text-sm text-nc-text placeholder-nc-text-muted focus:outline-none" />
       <div class="mt-3 flex gap-2">
         <button
-          class="rounded-lg bg-neutral-700 px-4 py-2 text-sm text-neutral-300 transition-colors hover:bg-neutral-600"
+          class="rounded-lg bg-nc-input px-4 py-2 text-sm text-nc-text transition-colors hover:bg-nc-shell-border"
           on:click={() => {
             showLeaveConfirm = false
             leaveConfirmInput = ""
@@ -616,7 +616,7 @@
           class="rounded-lg px-4 py-2 text-sm font-medium transition-colors
             {leaveConfirmed
             ? 'bg-red-700 hover:bg-red-600 text-white'
-            : 'cursor-not-allowed bg-neutral-700 text-neutral-500'}"
+            : 'cursor-not-allowed bg-nc-input text-nc-text-muted'}"
           disabled={!leaveConfirmed}
           on:click={onLeaveGroup}>
           Confirm Leave

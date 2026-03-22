@@ -12,7 +12,7 @@
   }
 </script>
 
-<div class="rounded-xl border border-solid border-neutral-600 bg-neutral-800 p-2">
+<div class="rounded-xl border border-solid border-nc-shell-border bg-nc-shell-bg p-2">
   <div class="m-auto flex max-w-sm flex-col gap-2">
     <QRCode {code} />
     <slot name="below" {copy}>

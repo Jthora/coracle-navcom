@@ -14,9 +14,9 @@
   <div
     class="fixed left-1/2 top-2 z-toast -translate-x-1/2 rounded-lg border {state.securityCritical
       ? 'border-red-500 bg-red-900/95'
-      : 'bg-neutral-900/95 border-accent'} px-4 py-2.5 shadow-xl"
+      : 'bg-nc-shell-deep/95 border-accent'} px-4 py-2.5 shadow-xl"
     role="alert">
-    <div class="flex items-center gap-3 text-sm text-neutral-100">
+    <div class="flex items-center gap-3 text-sm text-nc-text">
       {#if state.securityCritical}
         <i class="fa fa-shield-halved text-red-400" />
         <span><strong>Security update required</strong> — this update patches a vulnerability</span>
@@ -35,7 +35,7 @@
   </div>
 {:else if state.registrationError}
   <div
-    class="bg-neutral-900/95 fixed left-1/2 top-2 z-toast -translate-x-1/2 rounded-lg border border-warning px-4 py-2.5 shadow-xl"
+    class="bg-nc-shell-deep/95 fixed left-1/2 top-2 z-toast -translate-x-1/2 rounded-lg border border-warning px-4 py-2.5 shadow-xl"
     role="alert">
     <div class="flex items-center gap-3 text-sm text-warning">
       <i class="fa fa-exclamation-triangle" />

@@ -56,7 +56,7 @@
 {#if innerWidth >= 1024}
   <div class="top-sai left-sai right-sai fixed z-nav">
     <div
-      class="border-neutral-700/70 ml-72 flex h-16 items-center border-b bg-[radial-gradient(circle_at_12%_0%,rgba(34,211,238,0.12),transparent_30%),linear-gradient(180deg,var(--neutral-900),var(--neutral-950))] pl-6 pr-8 text-neutral-100 shadow-[0_10px_26px_rgba(0,0,0,0.35)] backdrop-blur-sm">
+      class="border-nc-shell-border/70 ml-72 flex h-16 items-center border-b bg-[radial-gradient(circle_at_12%_0%,rgba(var(--accent-rgb),0.12),transparent_30%),linear-gradient(180deg,var(--neutral-900),var(--neutral-950))] pl-6 pr-8 text-nc-text shadow-[0_10px_26px_rgba(0,0,0,0.35)] backdrop-blur-sm">
       <div class="flex w-full items-center justify-between gap-6">
         <div class="flex items-center gap-3">
           <h1 class="staatliches text-tinted-50 text-2xl uppercase tracking-[0.2em]">NAVCOM</h1>
@@ -66,7 +66,7 @@
             <div class="flex items-center gap-2">
               <Input
                 dark
-                class="!border-neutral-700 !bg-neutral-900"
+                class="!border-nc-shell-border !bg-nc-shell-deep"
                 on:blur={onSearchBlur}
                 on:keydown={onSearchKeydown}
                 bind:element={searchInput}
@@ -83,7 +83,7 @@
                     <div
                       slot="result"
                       let:result
-                      class="cursor-pointer px-4 py-2 transition-colors hover:bg-neutral-800">
+                      class="hover:bg-nc-shell-bg cursor-pointer px-4 py-2 transition-colors">
                       {#if result.type === "topic"}
                         #{result.topic.name}
                       {:else if result.type === "profile"}
@@ -95,7 +95,7 @@
                 {#if searching}
                   <div
                     transition:slide|local={{duration: 200, delay: 100}}
-                    class="flex justify-center gap-2 bg-neutral-900 px-4 py-2 text-neutral-200">
+                    class="flex justify-center gap-2 bg-nc-shell-deep px-4 py-2 text-nc-text">
                     <div>
                       <i class="fa fa-circle-notch fa-spin" />
                     </div>
@@ -123,11 +123,11 @@
 <!-- bottom nav -->
 {#if innerWidth < 1024}
   <div
-    class="px-sai pb-sai fixed bottom-0 left-0 right-0 z-nav border-t border-tinted-600 bg-[linear-gradient(180deg,rgba(15,17,20,0.92),rgba(5,6,8,0.96))] shadow-[0_-8px_26px_rgba(0,0,0,0.45)] backdrop-blur-sm">
+    class="px-sai pb-sai fixed bottom-0 left-0 right-0 z-nav border-t border-tinted-600 bg-[linear-gradient(180deg,rgba(var(--nc-shell-bg-rgb),0.92),rgba(var(--nc-shell-deep-rgb),0.96))] shadow-[0_-8px_26px_rgba(0,0,0,0.45)] backdrop-blur-sm">
     <div class="flex items-center justify-between rounded-t-xl px-4 py-2">
       <div class="w-1/3">
         <div
-          class="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-neutral-700 bg-neutral-900 text-accent shadow-[0_0_0_1px_rgba(99,230,255,0.2),0_0_12px_rgba(34,211,238,0.25)]"
+          class="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-nc-shell-border bg-nc-shell-deep text-accent shadow-[0_0_0_1px_rgba(var(--accent-rgb),0.2),0_0_12px_rgba(var(--accent-rgb),0.25)]"
           on:click={openSearch}>
           <i class="fa fa-search -mb-1 -mr-1 text-xl" />
         </div>
@@ -149,7 +149,7 @@
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 448 512"
             fill="currentColor"
-            class="pt-1 text-neutral-600 dark:text-tinted-600"
+            class="pt-1 text-nc-text-muted"
             width="36"
             height="36">
             <path
@@ -158,7 +158,7 @@
           </svg>
           {#if $signer}
             <PersonCircle
-              class="-ml-4 h-11 w-11 border-4 border-white dark:border-black"
+              class="-ml-4 h-11 w-11 border-4 border-nc-shell-border"
               pubkey={$pubkey} />
             {#if $hasNewNotifications || $hasNewMessages || $hasUnreadGroupMessages}
               <div class="absolute right-1 top-1 h-2 w-2 rounded bg-accent" />

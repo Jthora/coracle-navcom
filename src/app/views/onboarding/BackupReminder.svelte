@@ -8,9 +8,9 @@
 
 {#if $onboardingState.complete && $onboardingState.backupNeeded}
   <div
-    class="fixed bottom-16 right-4 z-toast max-w-sm rounded border border-warning bg-neutral-800 p-3 shadow-xl">
+    class="fixed bottom-16 right-4 z-toast max-w-sm rounded border border-warning bg-nc-shell-bg p-3 shadow-xl">
     <p class="text-sm font-semibold text-warning">Back up your key</p>
-    <p class="mt-1 text-sm text-neutral-100">
+    <p class="mt-1 text-sm text-nc-text">
       Export or write down your key. Posting stays enabled, but don’t lose access.
     </p>
     <div class="mt-2 flex gap-2">

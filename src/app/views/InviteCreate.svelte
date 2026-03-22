@@ -215,10 +215,10 @@
           on:input={onGroupIdInput} />
 
         <div class="grid gap-2 sm:grid-cols-2">
-          <label class="text-sm text-neutral-300">
+          <label class="text-sm text-nc-text">
             Preferred mode
             <select
-              class="mt-1 h-9 w-full rounded border border-neutral-700 bg-neutral-900 px-3 text-neutral-100"
+              class="mt-1 h-9 w-full rounded border border-nc-shell-border bg-nc-shell-deep px-3 text-nc-text"
               bind:value={group.preferredMode}
               on:change={onGroupModeChange}>
               <option value="baseline-nip29">baseline-nip29</option>
@@ -226,10 +226,10 @@
             </select>
           </label>
 
-          <label class="text-sm text-neutral-300">
+          <label class="text-sm text-nc-text">
             Mission tier
             <select
-              class="mt-1 h-9 w-full rounded border border-neutral-700 bg-neutral-900 px-3 text-neutral-100"
+              class="mt-1 h-9 w-full rounded border border-nc-shell-border bg-nc-shell-deep px-3 text-nc-text"
               bind:value={group.missionTier}
               on:change={onGroupMissionTierChange}>
               <option value={0}>Tier 0</option>
@@ -244,9 +244,9 @@
           bind:value={group.label}
           on:input={onGroupLabelInput} />
 
-        <div class="space-y-2 text-sm text-neutral-300">
+        <div class="space-y-2 text-sm text-nc-text">
           {#each groupHints as hint, i (`group-hint-${i}`)}
-            <div class="rounded border border-neutral-700 px-3 py-2">{hint}</div>
+            <div class="rounded border border-nc-shell-border px-3 py-2">{hint}</div>
           {/each}
         </div>
       </FlexColumn>

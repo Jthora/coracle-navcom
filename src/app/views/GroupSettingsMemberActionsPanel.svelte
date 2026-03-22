@@ -20,10 +20,10 @@
 {#if adminUi[GROUP_ADMIN_UI_CONTROL.PUT_MEMBER].visible}
   <div class="mt-3 grid gap-2 sm:grid-cols-3">
     <Input placeholder="Member pubkey" bind:value={memberPubkey} />
-    <label class="text-sm text-neutral-300">
+    <label class="text-sm text-nc-text">
       Role
       <select
-        class="mt-1 h-9 w-full rounded border border-neutral-700 bg-neutral-900 px-3 text-neutral-100"
+        class="mt-1 h-9 w-full rounded border border-nc-shell-border bg-nc-shell-deep px-3 text-nc-text"
         bind:value={memberRole}>
         <option value="member">member</option>
         <option value="moderator">moderator</option>
@@ -42,7 +42,7 @@
 {/if}
 
 {#if adminUi[GROUP_ADMIN_UI_CONTROL.REMOVE_MEMBER].visible}
-  <div class="mt-6 border-t border-neutral-700 pt-4">
+  <div class="mt-6 border-t border-nc-shell-border pt-4">
     <h4 class="text-sm uppercase tracking-[0.08em] text-danger">
       Destructive Action: Remove Member
     </h4>
@@ -50,7 +50,7 @@
       <Input placeholder="Target member pubkey" bind:value={removePubkey} />
       <Input placeholder="Removal reason" bind:value={removeReason} />
     </div>
-    <div class="mt-2 text-xs text-neutral-400">
+    <div class="mt-2 text-xs text-nc-text-muted">
       Type <strong>{destructiveToken}</strong> to confirm.
     </div>
     <div class="mt-2">

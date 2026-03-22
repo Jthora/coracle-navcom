@@ -5,6 +5,6 @@
 </script>
 
 <div class="aldrich flex items-center gap-1.5 whitespace-nowrap text-[11px] tracking-[0.12em]">
-  <span class="font-semibold uppercase text-neutral-300">{label}:</span>
+  <span class="font-semibold uppercase text-nc-text">{label}:</span>
   <span class={`font-semibold ${valueClass}`}>{value}</span>
 </div>

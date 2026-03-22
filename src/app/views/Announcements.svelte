@@ -14,6 +14,6 @@
 </script>
 
 <div class="flex flex-col gap-4">
-  <h1 class="staatliches text-3xl text-neutral-100">Starcom Announcements</h1>
+  <h1 class="staatliches text-3xl text-nc-text">Starcom Announcements</h1>
   <Feeds {feed} {topics} hideTopicChrome showControls={false} />
 </div>

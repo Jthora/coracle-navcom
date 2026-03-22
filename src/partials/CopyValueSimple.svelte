@@ -16,10 +16,10 @@
 </script>
 
 <div class={cx($$props.class, "flex items-center gap-1")}>
-  <div class="cursor-pointer px-1 text-neutral-400 transition-colors hover:text-neutral-100">
+  <div class="cursor-pointer px-1 text-nc-text-muted transition-colors hover:text-nc-text">
     <i class="fa-solid fa-copy" on:click={copy} />
   </div>
-  <div class="cursor-pointer px-1 text-neutral-400 transition-colors hover:text-neutral-100">
+  <div class="cursor-pointer px-1 text-nc-text-muted transition-colors hover:text-nc-text">
     <i class="fa-solid fa-qrcode" on:click={share} />
   </div>
 </div>

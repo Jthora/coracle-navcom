@@ -1,6 +1,6 @@
 <script lang="ts">
   import {signer, pubkey, sessions, displayProfileByPubkey} from "@welshman/app"
-  import {toggleTheme, installPrompt, installAsPWA} from "src/partials/state"
+  import {installPrompt, installAsPWA} from "src/partials/state"
   import Button from "src/partials/Button.svelte"
   import Link from "src/partials/Link.svelte"
   import SliderMenu from "src/partials/SliderMenu.svelte"
@@ -90,7 +90,7 @@
 {#if $menuIsOpen}
   <SliderMenu onEscape={closeMenu}>
     <div class="m-auto max-w-[236px] py-4">
-      <div class="mb-2 text-xs uppercase tracking-[0.08em] text-neutral-400">Quick Actions</div>
+      <div class="mb-2 text-xs uppercase tracking-[0.08em] text-nc-text-muted">Quick Actions</div>
       <div class="grid grid-cols-2 gap-3">
         <MenuMobileItem disabled={!$signer} href="/groups" on:click={goGroups}>
           <i class="fa fa-users" />
@@ -98,7 +98,7 @@
             Groups
             {#if $hasUnreadGroupMessages}
               <div
-                class="absolute -right-2 top-0 h-2 w-2 rounded border border-solid border-white bg-accent" />
+                class="absolute -right-2 top-0 h-2 w-2 rounded border border-solid border-nc-shell bg-accent" />
             {/if}
           </div>
         </MenuMobileItem>
@@ -136,7 +136,7 @@
           Relays
           {#if $slowConnections.length > 0}
             <div
-              class="absolute -right-2 top-0 h-2 w-2 rounded border border-solid border-white bg-accent" />
+              class="absolute -right-2 top-0 h-2 w-2 rounded border border-solid border-nc-shell bg-accent" />
           {/if}
         </div>
       </MenuMobileItem>
@@ -146,7 +146,7 @@
           Notifications
           {#if $hasNewNotifications}
             <div
-              class="absolute -right-2 top-0 h-2 w-2 rounded border border-solid border-white bg-accent" />
+              class="absolute -right-2 top-0 h-2 w-2 rounded border border-solid border-nc-shell bg-accent" />
           {/if}
         </div>
       </MenuMobileItem>
@@ -156,7 +156,7 @@
           Direct Messages
           {#if $hasNewMessages}
             <div
-              class="absolute -right-2 top-0 h-2 w-2 rounded border border-solid border-white bg-accent" />
+              class="absolute -right-2 top-0 h-2 w-2 rounded border border-solid border-nc-shell bg-accent" />
           {/if}
         </div>
       </MenuMobileItem>
@@ -166,7 +166,7 @@
           Groups
           {#if $hasUnreadGroupMessages}
             <div
-              class="absolute -right-2 top-0 h-2 w-2 rounded border border-solid border-white bg-accent" />
+              class="absolute -right-2 top-0 h-2 w-2 rounded border border-solid border-nc-shell bg-accent" />
           {/if}
         </div>
       </MenuMobileItem>
@@ -186,7 +186,7 @@
         <i class="fa fa-house" /> Open Feed
       </MenuMobileItem>
     </div>
-    <div class="staatliches mt-8 block flex h-8 justify-center gap-2 px-8 text-neutral-200">
+    <div class="staatliches mt-8 block flex h-8 justify-center gap-2 px-8 text-nc-text">
       <Link class="hover:text-accent" href="/about">About</Link> /
       <Link external class="hover:text-accent" href="/terms.html">Terms</Link> /
       <Link external class="hover:text-accent" href="/privacy.html">Privacy</Link>
@@ -203,7 +203,7 @@
           <i class="fa fa-rocket" /> Install
         </MenuMobileItem>
       {/if}
-      <MenuMobileItem on:click={toggleTheme} on:click={closeMenu}>
+      <MenuMobileItem disabled={!$signer} href="/settings" on:click={closeMenu}>
         <i class="fa fa-palette" /> Theme
       </MenuMobileItem>
       <MenuMobileItem disabled={!$signer} href="/settings/data" on:click={closeMenu}>
@@ -239,7 +239,7 @@
         <i class="fa fa-paper-plane" /> Create Invite
       </MenuMobileItem>
     </div>
-    <div class="staatliches block flex h-8 justify-center gap-2 px-8 text-neutral-200">
+    <div class="staatliches block flex h-8 justify-center gap-2 px-8 text-nc-text">
       <Link class="hover:text-accent" href="/logout" on:click={closeMenu}>Logout</Link> /
       <Button class="hover:text-accent" stopPropagation on:click={() => setSubMenu("accounts")}>
         Switch Accounts

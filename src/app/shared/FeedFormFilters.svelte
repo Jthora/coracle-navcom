@@ -168,7 +168,7 @@
       </Popover2>
     {/if}
     <Button
-      class="flex w-full items-center justify-center rounded-lg border border-dashed border-neutral-500 p-4 text-neutral-300"
+      class="flex w-full items-center justify-center rounded-lg border border-dashed border-nc-shell-border p-4 text-nc-text"
       on:click={openMenu}>
       <span class="staatliches underline">Add a filter</span>
     </Button>

@@ -43,15 +43,15 @@
 </script>
 
 <div class="panel p-4">
-  <h3 class="text-sm uppercase tracking-[0.08em] text-neutral-300">Audit & Event History</h3>
+  <h3 class="text-sm uppercase tracking-[0.08em] text-nc-text">Audit & Event History</h3>
   {#if auditHistoryView.total === 0}
-    <p class="mt-3 text-sm text-neutral-400">No audit events yet.</p>
+    <p class="mt-3 text-sm text-nc-text-muted">No audit events yet.</p>
   {:else}
     <div class="mt-3 grid gap-2 sm:grid-cols-2">
-      <label class="text-sm text-neutral-300">
+      <label class="text-sm text-nc-text">
         Action filter
         <select
-          class="mt-1 h-9 w-full rounded border border-neutral-700 bg-neutral-900 px-3 text-neutral-100"
+          class="mt-1 h-9 w-full rounded border border-nc-shell-border bg-nc-shell-deep px-3 text-nc-text"
           bind:value={auditFilter.action}
           on:change={e => onChangeAuditActionFilter(e.currentTarget.value)}>
           {#each auditHistoryView.actions as option}
@@ -60,10 +60,10 @@
         </select>
       </label>
 
-      <label class="text-sm text-neutral-300">
+      <label class="text-sm text-nc-text">
         Actor filter
         <select
-          class="mt-1 h-9 w-full rounded border border-neutral-700 bg-neutral-900 px-3 text-neutral-100"
+          class="mt-1 h-9 w-full rounded border border-nc-shell-border bg-nc-shell-deep px-3 text-nc-text"
           bind:value={auditFilter.actor}
           on:change={e => onChangeAuditActorFilter(e.currentTarget.value)}>
           {#each auditHistoryView.actors as option}
@@ -75,12 +75,12 @@
 
     <div class="mt-3 space-y-2">
       {#each auditHistoryView.items as entry, i (`audit-${entry.action}-${entry.createdAt}-${i}`)}
-        <div class="rounded border border-neutral-700 px-3 py-2 text-sm text-neutral-300">
+        <div class="rounded border border-nc-shell-border px-3 py-2 text-sm text-nc-text">
           <div class="flex items-center justify-between gap-2">
-            <span class="font-semibold text-neutral-100">{entry.action}</span>
-            <span class="text-xs text-neutral-400">{formatTimestamp(entry.createdAt)}</span>
+            <span class="font-semibold text-nc-text">{entry.action}</span>
+            <span class="text-xs text-nc-text-muted">{formatTimestamp(entry.createdAt)}</span>
           </div>
-          <div class="mt-1 text-xs text-neutral-400">Actor {entry.actorLabel}</div>
+          <div class="mt-1 text-xs text-nc-text-muted">Actor {entry.actorLabel}</div>
           {#if entry.reason}
             <div class="mt-1">{entry.reason}</div>
           {/if}

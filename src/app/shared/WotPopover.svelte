@@ -46,7 +46,7 @@
     <div slot="tooltip" class="p-4">
       <strong class="cursor-pointer font-bold" on:click={showPerson}>{$profileDisplay}</strong>
       {#if profileUpdated}
-        <div class="text-neutral-400">Updated {formatTimestampRelative(profileUpdated)}</div>
+        <div class="text-nc-text-muted">Updated {formatTimestampRelative(profileUpdated)}</div>
       {/if}
       {#if $profile?.about}
         <PersonAbout class="mt-4 font-thin" {pubkey} />
@@ -75,7 +75,7 @@
         </Link>
       {/if}
       <div class="mt-4 break-all">
-        <span class="text-neutral-400">{nip19.npubEncode(pubkey)}</span>
+        <span class="text-nc-text-muted">{nip19.npubEncode(pubkey)}</span>
         <CopyValueSimple class="!inline-flex pl-1" value={nip19.npubEncode(pubkey)} label="Npub" />
       </div>
       <div class="mt-4 flex items-center gap-2">

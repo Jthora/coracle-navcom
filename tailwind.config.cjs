@@ -8,6 +8,20 @@ const colors = {
   warning: "var(--warning)",
   danger: "var(--danger)",
   success: "var(--success)",
+  // NavCom semantic tokens
+  "nc-shell": "var(--nc-shell-bg)",
+  "nc-shell-deep": "var(--nc-shell-deep)",
+  "nc-shell-border": "var(--nc-shell-border)",
+  "nc-card": "var(--nc-surface-card)",
+  "nc-card-hover": "var(--nc-surface-hover)",
+  "nc-input": "var(--nc-surface-input)",
+  "nc-elevated": "var(--nc-surface-elevated)",
+  "nc-divider": "var(--nc-surface-divider)",
+  "nc-accent": "var(--nc-accent-primary)",
+  "nc-accent-hover": "var(--nc-accent-hover)",
+  "nc-accent-glow": "var(--nc-accent-glow)",
+  "nc-text": "var(--nc-text)",
+  "nc-text-muted": "var(--nc-text-muted)",
 }
 
 const baseColors = [
@@ -49,7 +63,7 @@ function generateVariants(baseColors) {
 }
 
 module.exports = {
-  content: ["./index.html", "./src/**/*.{js,svelte}"],
+  content: ["./index.html", "./src/**/*.{js,ts,svelte}"],
   darkMode: "class",
   safelist: [
     "w-4",

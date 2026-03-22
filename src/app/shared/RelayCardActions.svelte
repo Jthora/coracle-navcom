@@ -42,7 +42,7 @@
     </button>
   {:else if userRelayUrls.length > 1}
     <button
-      class="flex items-center rounded-md bg-tinted-700-d px-6 py-1 text-sm font-bold uppercase text-neutral-100"
+      class="flex items-center rounded-md bg-tinted-700-d px-6 py-1 text-sm font-bold uppercase text-nc-text"
       on:click={leave}>
       Leave
     </button>
@@ -51,7 +51,7 @@
 <Popover theme="transparent" class="flex md:hidden">
   <div
     slot="trigger"
-    class="cursor-pointer rounded bg-neutral-800 px-3 py-1 text-center text-neutral-50 hover:bg-neutral-700">
+    class="cursor-pointer rounded bg-nc-shell-bg px-3 py-1 text-center text-nc-text hover:bg-nc-input">
     <i class="fa fa-lg fa-ellipsis-v" />
   </div>
   <div
@@ -60,13 +60,13 @@
     class="relative flex flex-col gap-2"
     on:click={() => instance.hide()}>
     <div
-      class="relative z-popover flex cursor-pointer items-center justify-end gap-2 text-neutral-100"
+      class="relative z-popover flex cursor-pointer items-center justify-end gap-2 text-nc-text"
       on:click={_ => (details = !details)}>
       <span class="whitespace-nowrap">Info</span>
       <Button class="btn btn-tall btn-circle text-accent"><i class="fa fa-info text-sm" /></Button>
     </div>
     <div
-      class="relative z-popover flex cursor-pointer items-center justify-end gap-2 text-neutral-100"
+      class="relative z-popover flex cursor-pointer items-center justify-end gap-2 text-nc-text"
       on:click={() =>
         router.at(router.at("relays").of(encodeURIComponent(url)).toString()).push({modal: true})}>
       <span class="whitespace-nowrap">Explore</span>
@@ -75,7 +75,7 @@
     </div>
     {#if !userRelayUrls.includes(url)}
       <div
-        class="relative z-popover flex cursor-pointer items-center justify-end gap-2 text-neutral-100"
+        class="relative z-popover flex cursor-pointer items-center justify-end gap-2 text-nc-text"
         on:click={join}>
         <span class="whitespace-nowrap">Join</span>
         <Button class="btn btn-tall btn-circle text-accent"
@@ -83,7 +83,7 @@
       </div>
     {:else if userRelayUrls.length > 1}
       <div
-        class="relative z-popover flex cursor-pointer items-center justify-end gap-2 text-neutral-100"
+        class="relative z-popover flex cursor-pointer items-center justify-end gap-2 text-nc-text"
         on:click={leave}>
         <span class="whitespace-nowrap">Leave</span>
         <Button class="btn btn-tall btn-circle text-accent"
@@ -91,7 +91,7 @@
       </div>
     {/if}
     <div
-      class="absolute bottom-0 right-0 top-0 w-32 rounded-3xl bg-neutral-800"
+      class="absolute bottom-0 right-0 top-0 w-32 rounded-3xl bg-nc-shell-bg"
       style="filter: blur(15px)" />
   </div>
 </Popover>

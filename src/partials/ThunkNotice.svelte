@@ -36,7 +36,7 @@
 </script>
 
 <div class="flex flex-wrap gap-2 p-2">
-  <span class="shrink-0 text-neutral-400">{formatTimestamp(notice.created_at)}</span>
+  <span class="shrink-0 text-nc-text-muted">{formatTimestamp(notice.created_at)}</span>
   <strong
     class={cx(color, "max-w-full overflow-hidden text-ellipsis whitespace-nowrap text-success")}
     >to {notice.url}</strong>

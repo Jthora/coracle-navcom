@@ -32,19 +32,19 @@
 </script>
 
 <div
-  class="w-56 rounded-lg border border-neutral-700 bg-neutral-800 p-3 text-neutral-100 shadow-xl">
+  class="w-56 rounded-lg border border-nc-shell-border bg-nc-shell-bg p-3 text-nc-text shadow-xl">
   <div class="mb-1.5 flex items-center gap-2">
     <span style="color: {style.color}">{style.icon}</span>
     <span class="text-xs font-bold uppercase tracking-wide" style="color: {style.color}"
       >{typeLabel}</span>
   </div>
-  <div class="mb-2 flex items-center gap-1.5 text-[11px] text-neutral-400">
+  <div class="mb-2 flex items-center gap-1.5 text-[11px] text-nc-text-muted">
     <span class="truncate">{displayName}</span>
     <span>•</span>
     <span>{time}</span>
   </div>
   {#if marker.preview}
-    <p class="mb-2 line-clamp-2 text-xs leading-relaxed text-neutral-300">
+    <p class="mb-2 line-clamp-2 text-xs leading-relaxed text-nc-text">
       "{marker.preview}"
     </p>
   {/if}

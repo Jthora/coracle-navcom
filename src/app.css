@@ -169,6 +169,201 @@ select {
   --accent-glow-subtle: rgba(var(--accent-rgb), 0.12);
   --accent-glow-medium: rgba(var(--accent-rgb), 0.25);
   --accent-glow-strong: rgba(var(--accent-rgb), 0.4);
+
+  /* ── NavCom Typography Scale ── */
+  --nc-font-display: Staatliches, Aldrich, sans-serif;
+  --nc-font-body: Aldrich, "IBM Plex Sans", Lato, sans-serif;
+  --nc-font-mono: "JetBrains Mono", "Fira Code", "Cascadia Code", monospace;
+  --nc-text-xs: 0.6875rem;   /* 11px — labels, badges */
+  --nc-text-sm: 0.75rem;     /* 12px — secondary text */
+  --nc-text-base: 0.8125rem; /* 13px — body text (dense ops UI) */
+  --nc-text-md: 0.875rem;    /* 14px — primary content */
+  --nc-text-lg: 1rem;        /* 16px — section headers */
+  --nc-text-xl: 1.25rem;     /* 20px — page titles */
+  --nc-text-2xl: 1.5rem;     /* 24px — display */
+
+  /* ── NavCom Spacing ── */
+  --nc-radius-sm: 4px;
+  --nc-radius-md: 8px;
+  --nc-radius-lg: 12px;
+  --nc-radius-pill: 9999px;
+
+  /* ── NavCom Animation Timing ── */
+  --nc-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --nc-ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --nc-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --nc-duration-fast: 120ms;
+  --nc-duration-base: 200ms;
+  --nc-duration-slow: 400ms;
+}
+
+/* ── NavCom Operational Animations ── */
+
+@keyframes nc-pulse-glow {
+  0%, 100% { box-shadow: 0 0 4px rgba(var(--accent-rgb), 0.2); }
+  50% { box-shadow: 0 0 16px rgba(var(--accent-rgb), 0.45); }
+}
+
+@keyframes nc-scan-line {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+
+@keyframes nc-fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes nc-slide-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes nc-glow-breathe {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+@keyframes nc-border-trace {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@layer utilities {
+  /* ── NavCom Glow Utilities ── */
+  .nc-glow {
+    box-shadow: 0 0 12px rgba(var(--accent-rgb), 0.3), 0 0 4px rgba(var(--accent-rgb), 0.15);
+  }
+
+  .nc-glow-subtle {
+    box-shadow: 0 0 6px rgba(var(--accent-rgb), 0.15);
+  }
+
+  .nc-glow-intense {
+    box-shadow:
+      0 0 20px rgba(var(--accent-rgb), 0.4),
+      0 0 40px rgba(var(--accent-rgb), 0.15),
+      inset 0 0 8px rgba(var(--accent-rgb), 0.08);
+  }
+
+  .nc-glow-pulse {
+    animation: nc-pulse-glow 2.5s ease-in-out infinite;
+  }
+
+  /* ── NavCom Text Glow ── */
+  .nc-text-glow {
+    text-shadow: 0 0 8px rgba(var(--accent-rgb), 0.5), 0 0 20px rgba(var(--accent-rgb), 0.2);
+  }
+
+  /* ── NavCom Entrance Animations ── */
+  .nc-fade-in {
+    animation: nc-fade-in var(--nc-duration-base) var(--nc-ease-out) both;
+  }
+
+  .nc-slide-up {
+    animation: nc-slide-up var(--nc-duration-slow) var(--nc-ease-out) both;
+  }
+
+  /* ── NavCom Border Effects ── */
+  .nc-border-glow {
+    border: 1px solid rgba(var(--accent-rgb), 0.25);
+    box-shadow: inset 0 0 0 1px rgba(var(--accent-rgb), 0.08);
+  }
+
+  .nc-border-glow:hover {
+    border-color: rgba(var(--accent-rgb), 0.45);
+    box-shadow: inset 0 0 0 1px rgba(var(--accent-rgb), 0.12), 0 0 8px rgba(var(--accent-rgb), 0.2);
+  }
+
+  /* ── NavCom Scan Line (subtle ambient effect for headers) ── */
+  .nc-scan-line::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(var(--accent-rgb), 0.3), transparent);
+    animation: nc-scan-line 8s linear infinite;
+    pointer-events: none;
+  }
+
+  /* ── NavCom Status Indicators ── */
+  .nc-status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  .nc-status-online {
+    background: var(--success);
+    box-shadow: 0 0 6px rgba(122, 245, 122, 0.5);
+  }
+
+  .nc-status-warning {
+    background: var(--warning);
+    box-shadow: 0 0 6px rgba(245, 185, 66, 0.5);
+  }
+
+  .nc-status-danger {
+    background: var(--danger);
+    box-shadow: 0 0 6px rgba(220, 38, 38, 0.5);
+    animation: nc-pulse-glow 1.5s ease-in-out infinite;
+  }
+
+  /* ── NavCom Operational Typography ── */
+  .nc-display {
+    font-family: var(--nc-font-display);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .nc-mono {
+    font-family: var(--nc-font-mono);
+    font-size: var(--nc-text-xs);
+    letter-spacing: 0.04em;
+  }
+
+  .nc-label {
+    font-size: var(--nc-text-xs);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--neutral-400);
+  }
+
+  /* ── NavCom Card Styles ── */
+  .nc-card {
+    background: var(--nc-surface-card);
+    border: 1px solid var(--nc-surface-divider);
+    border-radius: var(--nc-radius-md);
+    transition: border-color var(--nc-duration-base) var(--nc-ease),
+                box-shadow var(--nc-duration-base) var(--nc-ease);
+  }
+
+  .nc-card:hover {
+    border-color: rgba(var(--accent-rgb), 0.25);
+    box-shadow: 0 0 8px rgba(var(--accent-rgb), 0.1);
+  }
+
+  /* ── NavCom Scrollbar ── */
+  .nc-scrollbar::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .nc-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .nc-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(var(--accent-rgb), 0.2);
+    border-radius: 2px;
+  }
+
+  .nc-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(var(--accent-rgb), 0.4);
+  }
 }
 
 html,
@@ -494,7 +689,7 @@ body,
   @apply pointer-events-none;
   opacity: 0.45;
   filter: grayscale(0.2);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  box-shadow: inset 0 1px 0 rgba(var(--nc-shell-border-rgb), 0.25);
 }
 
 .btn.btn-low {
@@ -519,7 +714,7 @@ body,
   border-color: rgba(var(--accent-rgb), 0.65);
   color: white;
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    inset 0 1px 0 rgba(var(--nc-shell-border-rgb), 0.3),
     0 0 0 1px rgba(var(--accent-rgb), 0.4),
     0 10px 22px rgba(var(--accent-rgb), 0.25);
 }
@@ -527,19 +722,19 @@ body,
 .btn.btn-accent:hover {
   background: linear-gradient(180deg, rgba(var(--accent-rgb), 0.98), rgba(var(--accent-rgb), 0.95));
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    inset 0 1px 0 rgba(var(--nc-shell-border-rgb), 0.4),
     0 0 0 1px rgba(var(--accent-rgb), 0.55),
     0 0 16px rgba(var(--accent-rgb), 0.45);
 }
 
 .btn.btn-danger {
-  background: linear-gradient(180deg, rgba(248, 113, 113, 0.95), rgba(220, 38, 38, 0.9));
-  border-color: rgba(248, 113, 113, 0.6);
+  background: linear-gradient(180deg, rgba(var(--danger-rgb), 0.95), rgba(var(--danger-rgb), 0.9));
+  border-color: rgba(var(--danger-rgb), 0.6);
   color: white;
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.1),
-    0 0 0 1px rgba(248, 113, 113, 0.4),
-    0 10px 22px rgba(220, 38, 38, 0.25);
+    inset 0 1px 0 rgba(var(--nc-shell-border-rgb), 0.25),
+    0 0 0 1px rgba(var(--danger-rgb), 0.4),
+    0 10px 22px rgba(var(--danger-rgb), 0.25);
 }
 
 .btn.btn-circle {
@@ -593,7 +788,7 @@ body,
 
 .panel-row {
   @apply flex items-center justify-between gap-3 rounded-[8px] px-3 py-2 text-neutral-100;
-  background: linear-gradient(90deg, rgba(var(--accent-rgb), 0.06), rgba(15, 17, 20, 0.95));
+  background: linear-gradient(90deg, rgba(var(--accent-rgb), 0.06), rgba(var(--nc-shell-bg-rgb), 0.95));
   border: 1px solid var(--neutral-700);
   box-shadow:
     inset 0 1px 0 rgba(var(--accent-rgb), 0.1),
@@ -603,7 +798,7 @@ body,
 
 .panel-row:hover {
   border-color: rgba(var(--accent-rgb), 0.35);
-  background: linear-gradient(90deg, rgba(var(--accent-rgb), 0.12), rgba(15, 17, 20, 0.9));
+  background: linear-gradient(90deg, rgba(var(--accent-rgb), 0.12), rgba(var(--nc-shell-bg-rgb), 0.9));
   box-shadow:
     inset 0 1px 0 rgba(var(--accent-rgb), 0.18),
     0 0 0 1px rgba(var(--accent-rgb), 0.25),

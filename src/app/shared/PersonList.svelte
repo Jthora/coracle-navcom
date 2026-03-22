@@ -39,7 +39,7 @@
 
 <FlexColumn bind:element>
   {#if results.length === 0}
-    <div class="panel p-6 text-center text-neutral-200">No people found</div>
+    <div class="panel p-6 text-center text-nc-text">No people found</div>
   {:else if results.length > 50}
     <!-- Virtualized for large member lists -->
     <VirtualList

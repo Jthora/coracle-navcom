@@ -11,7 +11,7 @@
     thunks,
     thunkIsComplete,
   } from "@welshman/app"
-  import {toggleTheme} from "src/partials/state"
+  import {router} from "src/app/util/router"
   import MenuItem from "src/partials/MenuItem.svelte"
   import FlexColumn from "src/partials/FlexColumn.svelte"
   import Link from "src/partials/Link.svelte"
@@ -23,7 +23,6 @@
   import {hasUnreadGroupMessages, totalUnreadGroupMessages} from "src/app/groups/state"
   import {trackGroupTelemetry} from "src/app/groups/telemetry"
   import {slowConnections} from "src/app/state"
-  import {router} from "src/app/util/router"
   import {hasNewMessages, hasNewNotifications} from "src/engine"
   import {env} from "src/engine"
   import {ANNOUNCEMENTS_PATH} from "src/app/announcements"
@@ -197,17 +196,20 @@
   </MenuDesktopItem>
   <FlexColumn small class="absolute bottom-0 w-72">
     <Button
-      class="staatliches px-8 text-start text-neutral-200 hover:text-accent"
+      class="staatliches px-8 text-start text-nc-text hover:text-accent"
       on:click={() => setSubMenu("settings")}>Settings</Button>
-    <div class="staatliches flex h-8 gap-2 px-8 text-neutral-200">
+    <div class="staatliches flex h-8 gap-2 px-8 text-nc-text">
       <Link class="hover:text-accent" href="/about">About</Link> /
       <Link external class="hover:text-accent" href="/terms.html">Terms</Link> /
       <Link external class="hover:text-accent" href="/privacy.html">Privacy</Link>
     </div>
     {#if subMenu === "settings"}
       <MenuDesktopSecondary onEscape={closeSubMenu}>
-        <MenuItem class="staatliches flex items-center gap-4 py-4 pl-8" on:click={toggleTheme}>
-          <i class="fa fa-palette" /> Toggle Theme
+        <MenuItem
+          class="staatliches flex items-center gap-4 py-4 pl-8"
+          href="/settings"
+          disabled={!$signer}>
+          <i class="fa fa-palette" /> Theme
         </MenuItem>
         <MenuItem
           class="staatliches flex items-center gap-4 py-4 pl-8"
@@ -237,28 +239,26 @@
     {:else if subMenu === "account"}
       <MenuDesktopSecondary onEscape={closeSubMenu}>
         <MenuItem
-          class="staatliches flex items-center gap-4 py-4 pl-8 text-neutral-100"
+          class="staatliches flex items-center gap-4 py-4 pl-8 text-nc-text"
           href={router.at("people").of($pubkey).toString()}>
           <i class="fa fa-user-circle" /> Profile
         </MenuItem>
         <MenuItem
-          class="staatliches flex items-center gap-4 py-4 pl-8 text-neutral-100"
+          class="staatliches flex items-center gap-4 py-4 pl-8 text-nc-text"
           href="/settings/keys">
           <i class="fa fa-key" /> Keys
         </MenuItem>
         <MenuItem
-          class="staatliches flex items-center gap-4 py-4 pl-8 text-neutral-100"
+          class="staatliches flex items-center gap-4 py-4 pl-8 text-nc-text"
           href={router.at("invite/create").qp({initialPubkey: $pubkey}).toString()}>
           <i class="fa fa-paper-plane" /> Create Invite
         </MenuItem>
         <MenuItem
-          class="staatliches flex items-center gap-4 py-4 pl-8 text-neutral-100"
+          class="staatliches flex items-center gap-4 py-4 pl-8 text-nc-text"
           on:click={() => setSubMenu("accounts")}>
           <i class="fa fa-right-left" /> Switch Account
         </MenuItem>
-        <MenuItem
-          class="staatliches flex items-center gap-4 py-4 pl-8 text-neutral-100"
-          href="/logout">
+        <MenuItem class="staatliches flex items-center gap-4 py-4 pl-8 text-nc-text" href="/logout">
           <i class="fa fa-right-to-bracket" /> Log Out
         </MenuItem>
       </MenuDesktopSecondary>
@@ -266,7 +266,7 @@
       <MenuDesktopSecondary onEscape={closeSubMenu}>
         {#each Object.values($sessions) as s (s.pubkey)}
           {#if s.pubkey !== $pubkey}
-            <MenuItem class="py-4 text-neutral-100" on:click={() => pubkey.set(s.pubkey)}>
+            <MenuItem class="py-4 text-nc-text" on:click={() => pubkey.set(s.pubkey)}>
               <div class="flex items-center gap-2">
                 <PersonCircle
                   class="h-8 w-8 border border-solid border-tinted-200"
@@ -277,7 +277,7 @@
           {/if}
         {/each}
         <MenuItem
-          class="staatliches flex items-center gap-4 py-4 text-neutral-100"
+          class="staatliches flex items-center gap-4 py-4 text-nc-text"
           on:click={() => router.at("login").open()}>
           <i class="fa fa-plus" /> Add Account
         </MenuItem>
@@ -287,7 +287,7 @@
       <Link
         modal
         href="/publishes"
-        class="flex h-12 cursor-pointer items-center justify-between border-t border-solid border-neutral-600 pl-7 pr-12">
+        class="flex h-12 cursor-pointer items-center justify-between border-t border-solid border-nc-shell-border pl-7 pr-12">
         <div class="flex items-center gap-1" class:text-tinted-500={$hud.pending === 0}>
           <i class="fa fa-hourglass" />
           {$hud.pending}
@@ -304,7 +304,7 @@
           {$hud.failure}
         </div>
       </Link>
-      <div class="h-20 cursor-pointer border-t border-solid border-neutral-600 px-7 py-4">
+      <div class="h-20 cursor-pointer border-t border-solid border-nc-shell-border px-7 py-4">
         {#if $pubkey}
           <Button class="flex items-center gap-2 text-start" on:click={() => setSubMenu("account")}>
             <PersonCircle class="h-10 w-10" pubkey={$pubkey} />

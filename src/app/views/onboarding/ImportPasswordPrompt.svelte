@@ -28,7 +28,7 @@
   <Modal onEscape={cancel}>
     <div class="space-y-3">
       <p class="text-xl font-bold">Decrypt your backup</p>
-      <p class="text-neutral-200">Enter the password for your ncryptsec key to continue.</p>
+      <p class="text-nc-text">Enter the password for your ncryptsec key to continue.</p>
       <Field label="Password">
         <Input
           type="password"

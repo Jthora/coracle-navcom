@@ -951,7 +951,7 @@
     <i class="fa fa-route text-accent" />
     <h2 class="text-lg uppercase tracking-[0.08em]">Create or Join Group</h2>
   </div>
-  <p class="mt-3 text-neutral-300">Choose your path. You can switch anytime.</p>
+  <p class="mt-3 text-nc-text">Choose your path. You can switch anytime.</p>
 
   <div class="mt-4 grid gap-3 sm:grid-cols-2">
     <button
@@ -980,37 +980,37 @@
 
     <div class="mt-3 grid gap-2 sm:grid-cols-2">
       <div
-        class="rounded border border-neutral-700 px-3 py-2 text-sm text-neutral-300 sm:col-span-2">
-        <div class="mb-2 font-semibold text-neutral-100">Group details</div>
+        class="rounded border border-nc-shell-border px-3 py-2 text-sm text-nc-text sm:col-span-2">
+        <div class="mb-2 font-semibold text-nc-text">Group details</div>
         <div class="space-y-3">
           <div>
-            <label class="mb-1 block text-sm font-semibold text-neutral-100" for="room-name">
+            <label class="mb-1 block text-sm font-semibold text-nc-text" for="room-name">
               Group Name
             </label>
             <Input id="room-name" placeholder="e.g. ops" bind:value={createRoomName} />
           </div>
           <div>
-            <label class="mb-1 block text-sm font-semibold text-neutral-100" for="room-title">
-              Group Title <span class="italic text-neutral-400">(optional)</span>
+            <label class="mb-1 block text-sm font-semibold text-nc-text" for="room-title">
+              Group Title <span class="italic text-nc-text-muted">(optional)</span>
             </label>
             <Input id="room-title" placeholder="Group title" bind:value={createTitle} />
           </div>
           <div>
-            <label class="mb-1 block text-sm font-semibold text-neutral-100" for="room-description">
-              Group Description <span class="italic text-neutral-400">(optional)</span>
+            <label class="mb-1 block text-sm font-semibold text-nc-text" for="room-description">
+              Group Description <span class="italic text-nc-text-muted">(optional)</span>
             </label>
             <Input
               id="room-description"
               placeholder="Group description"
               bind:value={createDescription} />
           </div>
-          <details class="rounded border border-neutral-700 px-3 py-2 text-sm text-neutral-300">
+          <details class="rounded border border-nc-shell-border px-3 py-2 text-sm text-nc-text">
             <summary class="cursor-pointer">Advanced: override group address manually</summary>
             <div class="mt-2">
               <Input
                 placeholder="Group address (e.g. relay.example'ops)"
                 bind:value={createGroupIdOverride} />
-              <p class="mt-2 text-xs text-neutral-400">
+              <p class="mt-2 text-xs text-nc-text-muted">
                 Use this only when you need a specific canonical address (for migration,
                 compatibility, or pre-agreed naming). Otherwise Group Name-derived address is
                 preferred.
@@ -1020,7 +1020,7 @@
           {#if createRoomWarnings.length > 0}
             <div class="space-y-2">
               {#each createRoomWarnings as warning, i (`create-room-warning-${i}`)}
-                <div class="rounded border border-neutral-700 px-3 py-2 text-neutral-300">
+                <div class="rounded border border-nc-shell-border px-3 py-2 text-nc-text">
                   {warning}
                 </div>
               {/each}
@@ -1029,37 +1029,37 @@
         </div>
       </div>
       <div class="sm:col-span-2">
-        <label class="mb-1 block text-sm font-semibold text-neutral-100" for="relay-preset">
+        <label class="mb-1 block text-sm font-semibold text-nc-text" for="relay-preset">
           Relay preset
         </label>
         <select
           id="relay-preset"
-          class="w-full rounded border border-neutral-700 bg-neutral-950 px-3 py-2 text-sm text-neutral-100"
+          class="w-full rounded border border-nc-shell-border bg-nc-shell-deep px-3 py-2 text-sm text-nc-text"
           bind:value={createRelayPreset}
           on:change={() => applyRelayPreset(createRelayPreset)}>
           {#each GUIDED_RELAY_PRESET_OPTIONS as option}
             <option value={option.id}>{option.label}</option>
           {/each}
         </select>
-        <div class="mt-1 text-xs text-neutral-400">
+        <div class="mt-1 text-xs text-nc-text-muted">
           {GUIDED_RELAY_PRESET_OPTIONS.find(option => option.id === createRelayPreset)?.description}
         </div>
       </div>
       <div class="sm:col-span-2">
-        <label class="mb-1 block text-sm font-semibold text-neutral-100" for="selected-relays">
+        <label class="mb-1 block text-sm font-semibold text-nc-text" for="selected-relays">
           Selected relays
         </label>
         <textarea
           id="selected-relays"
-          class="min-h-24 w-full rounded border border-neutral-700 bg-neutral-950 px-3 py-2 text-sm text-neutral-100"
+          class="min-h-24 w-full rounded border border-nc-shell-border bg-nc-shell-deep px-3 py-2 text-sm text-nc-text"
           placeholder="One relay per line (e.g. wss://relay.example)"
           bind:value={createSelectedRelaysText} />
-        <div class="mt-1 text-xs text-neutral-400">
+        <div class="mt-1 text-xs text-nc-text-muted">
           Primary relay host for group address: <strong
             >{createRelayHost || preferredRelayHost}</strong>
         </div>
         {#if createSelectedRelays.length > 1}
-          <div class="mt-1 text-xs text-neutral-400">
+          <div class="mt-1 text-xs text-nc-text-muted">
             Primary relay host is derived from the first selected relay address.
           </div>
         {/if}
@@ -1072,16 +1072,16 @@
             {createRelayChecksRunning ? "Checking relays…" : "Check relay capabilities"}
           </button>
           {#if createRelayChecksAt > 0}
-            <span class="text-xs text-neutral-400"
+            <span class="text-xs text-nc-text-muted"
               >Checked at {new Date(createRelayChecksAt).toLocaleTimeString()}</span>
           {/if}
         </div>
         {#if createRelayChecks.length > 0}
-          <div class="mt-2 space-y-2 rounded border border-neutral-700 px-3 py-2">
+          <div class="mt-2 space-y-2 rounded border border-nc-shell-border px-3 py-2">
             {#each createRelayChecks as check (`create-check-${check.relay}`)}
-              <div class="rounded border border-neutral-700 px-2 py-2 text-xs text-neutral-300">
+              <div class="rounded border border-nc-shell-border px-2 py-2 text-xs text-nc-text">
                 <div class="flex flex-wrap items-center gap-2">
-                  <span class="font-semibold text-neutral-100">{check.relay}</span>
+                  <span class="font-semibold text-nc-text">{check.relay}</span>
                   <span
                     class={`rounded border px-2 py-0.5 ${getRelayStatusBadgeClass(check.status)}`}
                     >{check.status}</span>
@@ -1097,26 +1097,26 @@
                       >{getRelayAuthStatusLabel(session.status)}</span>
                   {/if}
                 </div>
-                <div class="mt-1 text-neutral-400">{check.details}</div>
-                <div class="mt-2 rounded border border-neutral-700 px-2 py-2 text-[11px]">
+                <div class="mt-1 text-nc-text-muted">{check.details}</div>
+                <div class="mt-2 rounded border border-nc-shell-border px-2 py-2 text-[11px]">
                   <div class="flex flex-wrap items-center gap-2">
-                    <span class="text-neutral-500">Confidence</span>
+                    <span class="text-nc-text-muted">Confidence</span>
                     <span class={`rounded border px-2 py-0.5 ${getRelayConfidenceClass(check)}`}
                       >{getRelayConfidenceLabel(check)}</span>
                   </div>
                   <div class="mt-2 flex flex-wrap items-center gap-2">
-                    <span class="text-neutral-500">Runtime proof</span>
+                    <span class="text-nc-text-muted">Runtime proof</span>
                     <span
                       class={`rounded border px-2 py-0.5 ${getRuntimeProofClass(getRelayRuntimeProof(check, isCreateRelayConfirmed(check.relay)).tone)}`}
                       >{getRelayRuntimeProof(check, isCreateRelayConfirmed(check.relay))
                         .label}</span>
                   </div>
-                  <div class="mt-1 text-neutral-400">
+                  <div class="mt-1 text-nc-text-muted">
                     {getRelayRuntimeProof(check, isCreateRelayConfirmed(check.relay)).detail}
                   </div>
                 </div>
                 <div class="mt-2 flex flex-wrap items-center gap-1">
-                  <span class="text-[10px] uppercase tracking-[0.08em] text-neutral-500"
+                  <span class="text-[10px] uppercase tracking-[0.08em] text-nc-text-muted"
                     >Capabilities</span>
                   <span
                     class={`rounded border px-2 py-0.5 ${getCapabilitySignalClass(check.supportsNip29)}`}
@@ -1165,7 +1165,7 @@
         {#if createRelayWarnings.length > 0}
           <div class="mt-2 space-y-2">
             {#each createRelayWarnings as warning, i (`create-relay-warning-${i}`)}
-              <div class="rounded border border-neutral-700 px-3 py-2 text-neutral-300">
+              <div class="rounded border border-nc-shell-border px-3 py-2 text-nc-text">
                 {warning}
               </div>
             {/each}
@@ -1173,49 +1173,49 @@
         {/if}
       </div>
       <div
-        class="rounded border border-neutral-700 px-3 py-2 text-sm text-neutral-300 sm:col-span-2">
-        <div class="mb-2 font-semibold text-neutral-100">Security Mode</div>
-        <p class="mb-2 text-xs text-neutral-400">Choose a mode by requested transport behavior.</p>
+        class="rounded border border-nc-shell-border px-3 py-2 text-sm text-nc-text sm:col-span-2">
+        <div class="mb-2 font-semibold text-nc-text">Security Mode</div>
+        <p class="mb-2 text-xs text-nc-text-muted">Choose a mode by requested transport behavior.</p>
         <select
-          class="w-full rounded border border-neutral-700 bg-neutral-950 px-3 py-2 text-sm text-neutral-100"
+          class="w-full rounded border border-nc-shell-border bg-nc-shell-deep px-3 py-2 text-sm text-nc-text"
           bind:value={createPrivacy}>
           <option value="auto">Auto (Compatibility First)</option>
           <option value="basic">Basic (Open Group)</option>
           <option value="secure">Secure (Common Encryption)</option>
           <option value="max">Max (Post Quantum Cryptography)</option>
         </select>
-        <div class="mt-2 rounded border border-neutral-700 px-3 py-2 text-sm text-neutral-300">
-          <div class="font-semibold text-neutral-100">{securityStatus.badge}</div>
-          <div class="mt-1 text-neutral-400">{securityStatus.hint}</div>
+        <div class="mt-2 rounded border border-nc-shell-border px-3 py-2 text-sm text-nc-text">
+          <div class="font-semibold text-nc-text">{securityStatus.badge}</div>
+          <div class="mt-1 text-nc-text-muted">{securityStatus.hint}</div>
         </div>
-        <div class="mt-2 rounded border border-neutral-700 px-3 py-2 text-xs text-neutral-300">
-          <div class="mb-1 font-semibold text-neutral-100">Security Details</div>
-          <div class="space-y-1 text-neutral-400">
+        <div class="mt-2 rounded border border-nc-shell-border px-3 py-2 text-xs text-nc-text">
+          <div class="mb-1 font-semibold text-nc-text">Security Details</div>
+          <div class="space-y-1 text-nc-text-muted">
             <div>
-              <strong class="text-neutral-200">Protocol:</strong>
+              <strong class="text-nc-text">Protocol:</strong>
               {securityTechnical.protocol}
             </div>
-            <div><strong class="text-neutral-200">NIP:</strong> {securityTechnical.nipLabel}</div>
+            <div><strong class="text-nc-text">NIP:</strong> {securityTechnical.nipLabel}</div>
             <div>
-              <strong class="text-neutral-200">Encryption:</strong>
+              <strong class="text-nc-text">Encryption:</strong>
               {securityTechnical.encryption}
             </div>
-            <div><strong class="text-neutral-200">Note:</strong> {securityTechnical.note}</div>
+            <div><strong class="text-nc-text">Note:</strong> {securityTechnical.note}</div>
           </div>
         </div>
         {#if createMaxDiagnostics}
-          <div class="mt-2 rounded border border-neutral-700 px-3 py-2 text-xs text-neutral-300">
+          <div class="mt-2 rounded border border-nc-shell-border px-3 py-2 text-xs text-nc-text">
             <div class="mb-2 flex items-center gap-2">
-              <span class="font-semibold text-neutral-100">Max Diagnostics</span>
+              <span class="font-semibold text-nc-text">Max Diagnostics</span>
               <span
                 class={`rounded border px-2 py-0.5 ${getMaxDiagnosticsToneClass(createMaxDiagnostics.state)}`}
                 >{createMaxDiagnostics.label}</span>
               {#if createMaxDiagnostics.reason}
-                <span class="rounded border border-neutral-700 px-2 py-0.5 text-neutral-400"
+                <span class="rounded border border-nc-shell-border px-2 py-0.5 text-nc-text-muted"
                   >{createMaxDiagnostics.reason}</span>
               {/if}
             </div>
-            <div class="text-neutral-400">{createMaxDiagnostics.detail}</div>
+            <div class="text-nc-text-muted">{createMaxDiagnostics.detail}</div>
             <div class="mt-2 rounded border border-warning px-3 py-2 text-xs text-warning">
               {createMaxDiagnostics.warning}
             </div>
@@ -1225,7 +1225,7 @@
                   <span
                     class={`rounded border px-2 py-0.5 ${item.done ? "border-emerald-500 text-emerald-300" : "border-warning text-warning"}`}
                     >{item.done ? "ok" : "required"}</span>
-                  <span class="text-neutral-300">{item.label}</span>
+                  <span class="text-nc-text">{item.label}</span>
                 </div>
               {/each}
             </div>
@@ -1235,20 +1235,20 @@
     </div>
 
     {#if createGroupId}
-      <div class="mt-3 rounded border border-neutral-700 px-3 py-2 text-sm text-neutral-300">
+      <div class="mt-3 rounded border border-nc-shell-border px-3 py-2 text-sm text-nc-text">
         Group address preview: <strong>{createGroupId}</strong>
       </div>
     {/if}
 
     {#if createAccessPackageText}
-      <div class="mt-3 rounded border border-neutral-700 px-3 py-2 text-sm text-neutral-300">
-        <div class="mb-2 font-semibold text-neutral-100">Share Access Package</div>
-        <p class="mb-2 text-xs text-neutral-400">
+      <div class="mt-3 rounded border border-nc-shell-border px-3 py-2 text-sm text-nc-text">
+        <div class="mb-2 font-semibold text-nc-text">Share Access Package</div>
+        <p class="mb-2 text-xs text-nc-text-muted">
           Includes group address, relay list, relay auth requirements, and security/fallback
           expectations.
         </p>
         <textarea
-          class="min-h-40 w-full rounded border border-neutral-700 bg-neutral-950 px-3 py-2 text-xs text-neutral-100"
+          class="min-h-40 w-full rounded border border-nc-shell-border bg-nc-shell-deep px-3 py-2 text-xs text-nc-text"
           readonly
           value={createAccessPackageText} />
         <div class="mt-2 flex justify-end">
@@ -1268,7 +1268,7 @@
     <div class="mt-3 space-y-2 text-sm">
       {#each createPrompts as prompt, i (`create-${i}`)}
         <div
-          class="rounded border border-neutral-700 px-3 py-2"
+          class="rounded border border-nc-shell-border px-3 py-2"
           class:text-warning={prompt.level === "warning"}>
           {prompt.message}
         </div>
@@ -1291,7 +1291,7 @@
     </div>
 
     {#if groupId}
-      <div class="mt-3 rounded border border-neutral-700 px-3 py-2 text-sm text-neutral-300">
+      <div class="mt-3 rounded border border-nc-shell-border px-3 py-2 text-sm text-nc-text">
         Invite prefill detected for <strong>{groupId}</strong>.
       </div>
     {/if}
@@ -1300,10 +1300,10 @@
       <Input placeholder="Group address" bind:value={joinGroupAddress} />
     </div>
 
-    <div class="mt-3 rounded border border-neutral-700 px-3 py-2 text-sm text-neutral-300">
-      <div class="mb-1 font-semibold text-neutral-100">Join relays</div>
+    <div class="mt-3 rounded border border-nc-shell-border px-3 py-2 text-sm text-nc-text">
+      <div class="mb-1 font-semibold text-nc-text">Join relays</div>
       <textarea
-        class="min-h-20 w-full rounded border border-neutral-700 bg-neutral-950 px-3 py-2 text-sm text-neutral-100"
+        class="min-h-20 w-full rounded border border-nc-shell-border bg-nc-shell-deep px-3 py-2 text-sm text-nc-text"
         placeholder="One relay per line (invite relay will prefill when available)"
         bind:value={joinSelectedRelaysText} />
       <div class="mt-2 flex items-center gap-2">
@@ -1315,16 +1315,16 @@
           {joinRelayChecksRunning ? "Checking relays…" : "Check relay capabilities"}
         </button>
         {#if joinRelayChecksAt > 0}
-          <span class="text-xs text-neutral-400"
+          <span class="text-xs text-nc-text-muted"
             >Checked at {new Date(joinRelayChecksAt).toLocaleTimeString()}</span>
         {/if}
       </div>
       {#if joinRelayChecks.length > 0}
         <div class="mt-2 space-y-2">
           {#each joinRelayChecks as check (`join-check-${check.relay}`)}
-            <div class="rounded border border-neutral-700 px-2 py-2 text-xs text-neutral-300">
+            <div class="rounded border border-nc-shell-border px-2 py-2 text-xs text-nc-text">
               <div class="flex flex-wrap items-center gap-2">
-                <span class="font-semibold text-neutral-100">{check.relay}</span>
+                <span class="font-semibold text-nc-text">{check.relay}</span>
                 <span class={`rounded border px-2 py-0.5 ${getRelayStatusBadgeClass(check.status)}`}
                   >{check.status}</span>
                 {#if getRelayAuthMethodIndicator(check).needsCredential}
@@ -1339,25 +1339,25 @@
                     >{getRelayAuthStatusLabel(session.status)}</span>
                 {/if}
               </div>
-              <div class="mt-1 text-neutral-400">{check.details}</div>
-              <div class="mt-2 rounded border border-neutral-700 px-2 py-2 text-[11px]">
+              <div class="mt-1 text-nc-text-muted">{check.details}</div>
+              <div class="mt-2 rounded border border-nc-shell-border px-2 py-2 text-[11px]">
                 <div class="flex flex-wrap items-center gap-2">
-                  <span class="text-neutral-500">Confidence</span>
+                  <span class="text-nc-text-muted">Confidence</span>
                   <span class={`rounded border px-2 py-0.5 ${getRelayConfidenceClass(check)}`}
                     >{getRelayConfidenceLabel(check)}</span>
                 </div>
                 <div class="mt-2 flex flex-wrap items-center gap-2">
-                  <span class="text-neutral-500">Runtime proof</span>
+                  <span class="text-nc-text-muted">Runtime proof</span>
                   <span
                     class={`rounded border px-2 py-0.5 ${getRuntimeProofClass(getRelayRuntimeProof(check, isJoinRelayConfirmed(check.relay)).tone)}`}
                     >{getRelayRuntimeProof(check, isJoinRelayConfirmed(check.relay)).label}</span>
                 </div>
-                <div class="mt-1 text-neutral-400">
+                <div class="mt-1 text-nc-text-muted">
                   {getRelayRuntimeProof(check, isJoinRelayConfirmed(check.relay)).detail}
                 </div>
               </div>
               <div class="mt-2 flex flex-wrap items-center gap-1">
-                <span class="text-[10px] uppercase tracking-[0.08em] text-neutral-500"
+                <span class="text-[10px] uppercase tracking-[0.08em] text-nc-text-muted"
                   >Capabilities</span>
                 <span
                   class={`rounded border px-2 py-0.5 ${getCapabilitySignalClass(check.supportsNip29)}`}
@@ -1405,9 +1405,9 @@
       {/if}
     </div>
 
-    <div class="mt-3 rounded border border-neutral-700 px-3 py-2 text-sm text-neutral-300">
-      <div class="mb-1 font-semibold text-neutral-100">Receiver Setup Checklist</div>
-      <p class="mb-2 text-xs text-neutral-400">
+    <div class="mt-3 rounded border border-nc-shell-border px-3 py-2 text-sm text-nc-text">
+      <div class="mb-1 font-semibold text-nc-text">Receiver Setup Checklist</div>
+      <p class="mb-2 text-xs text-nc-text-muted">
         Complete each item before joining to avoid relay/auth failures.
       </p>
       <div class="space-y-2">
@@ -1415,7 +1415,7 @@
           <div class="flex items-center gap-2">
             <span class={`rounded border px-2 py-0.5 text-xs ${getChecklistStatusClass(item.done)}`}
               >{item.done ? "done" : "required"}</span>
-            <span class="text-xs text-neutral-200">{item.label}</span>
+            <span class="text-xs text-nc-text">{item.label}</span>
           </div>
         {/each}
       </div>
@@ -1429,9 +1429,9 @@
     </div>
 
     {#if joinInviteHints.length > 0}
-      <div class="mt-3 space-y-2 text-sm text-neutral-300">
+      <div class="mt-3 space-y-2 text-sm text-nc-text">
         {#each joinInviteHints as hint, i (`invite-hint-${i}`)}
-          <div class="rounded border border-neutral-700 px-3 py-2">{hint}</div>
+          <div class="rounded border border-nc-shell-border px-3 py-2">{hint}</div>
         {/each}
       </div>
     {/if}
@@ -1445,7 +1445,7 @@
     <div class="mt-3 space-y-2 text-sm">
       {#each joinPrompts as prompt, i (`join-${i}`)}
         <div
-          class="rounded border border-neutral-700 px-3 py-2"
+          class="rounded border border-nc-shell-border px-3 py-2"
           class:text-warning={prompt.level === "warning"}>
           {prompt.message}
         </div>

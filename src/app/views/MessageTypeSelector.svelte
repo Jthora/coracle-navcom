@@ -29,7 +29,7 @@
 <div class="relative">
   <button
     type="button"
-    class="flex h-9 w-9 items-center justify-center rounded text-neutral-400 hover:bg-neutral-700 hover:text-neutral-200"
+    class="flex h-9 w-9 items-center justify-center rounded text-nc-text-muted hover:bg-nc-input hover:text-nc-text"
     title={$t("msgType.selector.title")}
     on:click={() => (open = !open)}>
     📎
@@ -37,11 +37,11 @@
 
   {#if open}
     <div
-      class="z-10 absolute bottom-full left-0 mb-1 rounded border border-neutral-700 bg-neutral-800 py-1 shadow-lg">
+      class="z-10 absolute bottom-full left-0 mb-1 rounded border border-nc-shell-border bg-nc-shell-bg py-1 shadow-lg">
       {#each visibleTypes as type}
         <button
           type="button"
-          class="flex w-full items-center gap-2 whitespace-nowrap px-3 py-2 text-sm text-neutral-200 hover:bg-neutral-700"
+          class="flex w-full items-center gap-2 whitespace-nowrap px-3 py-2 text-sm text-nc-text hover:bg-nc-input"
           on:click={() => select(type.id)}>
           <span>{type.icon}</span>
           <span>{$t(type.labelKey)}</span>

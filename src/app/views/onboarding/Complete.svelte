@@ -12,39 +12,39 @@
 <div class="flex items-start gap-3">
   <div class="flex items-center gap-2">
     <p
-      class="-ml-1 -mt-1 flex h-10 w-10 items-center justify-center rounded-full bg-neutral-700 text-base text-neutral-100">
+      class="-ml-1 -mt-1 flex h-10 w-10 items-center justify-center rounded-full bg-nc-input text-base text-nc-text">
       4/4
     </p>
     <Popover triggerType="mouseenter" class="inline-flex items-center align-middle">
-      <span slot="trigger" class="text-neutral-300"><i class="fa fa-info-circle" /></span>
-      <div slot="tooltip" class="max-w-xs text-sm text-neutral-100">
+      <span slot="trigger" class="text-nc-text"><i class="fa fa-info-circle" /></span>
+      <div slot="tooltip" class="max-w-xs text-sm text-nc-text">
         Final step. You can still go back to adjust profile or key choices if needed.
       </div>
     </Popover>
   </div>
   <div class="flex flex-col gap-1">
     <div class="flex items-center gap-2">
-      <p class="text-2xl font-bold text-neutral-100">You're ready</p>
+      <p class="text-2xl font-bold text-nc-text">You're ready</p>
       <Popover triggerType="mouseenter" class="inline-flex items-center align-middle">
-        <span slot="trigger" class="text-neutral-300"><i class="fa fa-info-circle" /></span>
-        <div slot="tooltip" class="max-w-xs text-sm text-neutral-100">
+        <span slot="trigger" class="text-nc-text"><i class="fa fa-info-circle" /></span>
+        <div slot="tooltip" class="max-w-xs text-sm text-nc-text">
           Posting is enabled. You can tweak relays, follows, and backups later in settings.
         </div>
       </Popover>
     </div>
-    <p class="text-neutral-200">
+    <p class="text-nc-text">
       Posting is enabled. Defaults are applied so your feed isn’t empty.
     </p>
   </div>
 </div>
 
-<div class="panel mt-4 space-y-2 p-4 text-neutral-200">
+<div class="panel mt-4 space-y-2 p-4 text-nc-text">
   <div class="flex flex-wrap items-center justify-between gap-2">
     <div class="flex items-center gap-2">
       <span>Relay defaults</span>
       <Popover triggerType="mouseenter" class="inline-flex items-center align-middle">
-        <span slot="trigger" class="text-neutral-300"><i class="fa fa-info-circle" /></span>
-        <div slot="tooltip" class="max-w-xs text-sm text-neutral-100">
+        <span slot="trigger" class="text-nc-text"><i class="fa fa-info-circle" /></span>
+        <div slot="tooltip" class="max-w-xs text-sm text-nc-text">
           We preloaded relays so you can read and post immediately. You can change them later in
           settings.
         </div>
@@ -57,8 +57,8 @@
     <div class="flex items-center gap-2">
       <span>Starter follows</span>
       <Popover triggerType="mouseenter" class="inline-flex items-center align-middle">
-        <span slot="trigger" class="text-neutral-300"><i class="fa fa-info-circle" /></span>
-        <div slot="tooltip" class="max-w-xs text-sm text-neutral-100">
+        <span slot="trigger" class="text-nc-text"><i class="fa fa-info-circle" /></span>
+        <div slot="tooltip" class="max-w-xs text-sm text-nc-text">
           A short curated list so your feed isn’t empty. You can unfollow any of them anytime.
         </div>
       </Popover>
@@ -70,14 +70,14 @@
     <div class="flex items-center gap-2">
       <span>Backup reminder</span>
       <Popover triggerType="mouseenter">
-        <span slot="trigger" class="text-neutral-300"><i class="fa fa-info-circle" /></span>
-        <div slot="tooltip" class="max-w-xs text-sm text-neutral-100">
+        <span slot="trigger" class="text-nc-text"><i class="fa fa-info-circle" /></span>
+        <div slot="tooltip" class="max-w-xs text-sm text-nc-text">
           If you created or imported a key here, we’ll remind you to export or confirm a backup so
           you don’t lose access.
         </div>
       </Popover>
     </div>
-    <span class={backupNeeded ? "text-warning" : "text-neutral-300"}
+    <span class={backupNeeded ? "text-warning" : "text-nc-text"}
       >{backupNeeded ? "We'll remind you" : "Not required"}</span>
   </div>
 </div>

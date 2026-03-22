@@ -37,21 +37,21 @@
 <div class="flex items-start gap-3">
   <div class="flex items-center gap-2">
     <p
-      class="-ml-1 -mt-1 flex h-10 w-10 items-center justify-center rounded-full bg-neutral-700 text-base text-neutral-100">
+      class="-ml-1 -mt-1 flex h-10 w-10 items-center justify-center rounded-full bg-nc-input text-base text-nc-text">
       3/4
     </p>
   </div>
   <div class="flex flex-col gap-1">
     <div class="flex items-center gap-2">
-      <p class="text-2xl font-bold text-neutral-100">Profile (optional)</p>
+      <p class="text-2xl font-bold text-nc-text">Profile (optional)</p>
       <Popover triggerType="mouseenter" class="inline-flex items-center align-middle">
-        <span slot="trigger" class="text-neutral-300"><i class="fa fa-info-circle" /></span>
-        <div slot="tooltip" class="max-w-xs text-sm text-neutral-100">
+        <span slot="trigger" class="text-nc-text"><i class="fa fa-info-circle" /></span>
+        <div slot="tooltip" class="max-w-xs text-sm text-nc-text">
           Adding profile info is optional. You can skip now and edit it later in settings.
         </div>
       </Popover>
     </div>
-    <p class="text-neutral-200">
+    <p class="text-nc-text">
       Add a handle or display name, or skip. Starter follows help you see posts immediately.
     </p>
   </div>
@@ -61,14 +61,14 @@
   <Field>
     <div slot="label" class="flex justify-between">
       <label
-        class="flex items-center gap-2 font-semibold uppercase tracking-[0.06em] text-neutral-100">
+        class="flex items-center gap-2 font-semibold uppercase tracking-[0.06em] text-nc-text">
         Handle (optional)
       </label>
       <Popover
         triggerType="mouseenter"
-        class="inline-flex shrink-0 items-center align-middle text-neutral-300">
+        class="inline-flex shrink-0 items-center align-middle text-nc-text">
         <span slot="trigger"><i class="fa fa-info-circle" /></span>
-        <div slot="tooltip" class="max-w-xs text-sm text-neutral-100">
+        <div slot="tooltip" class="max-w-xs text-sm text-nc-text">
           A short name others can mention you with. Avoid sensitive info; you can change it later.
         </div>
       </Popover>
@@ -85,14 +85,14 @@
   <Field>
     <div slot="label" class="flex justify-between">
       <label
-        class="flex items-center gap-2 font-semibold uppercase tracking-[0.06em] text-neutral-100">
+        class="flex items-center gap-2 font-semibold uppercase tracking-[0.06em] text-nc-text">
         Display name (optional)
       </label>
       <Popover
         triggerType="mouseenter"
-        class="inline-flex shrink-0 items-center align-middle text-neutral-300">
+        class="inline-flex shrink-0 items-center align-middle text-nc-text">
         <span slot="trigger"><i class="fa fa-info-circle" /></span>
-        <div slot="tooltip" class="max-w-xs text-sm text-neutral-100">
+        <div slot="tooltip" class="max-w-xs text-sm text-nc-text">
           How your name appears in feeds. Freeform text; you can edit it anytime.
         </div>
       </Popover>
@@ -111,15 +111,15 @@
       <div class="flex items-center gap-2">
         <p class="text-lg font-semibold">Starter follows</p>
         <Popover triggerType="mouseenter" class="inline-flex items-center align-middle">
-          <span slot="trigger" class="text-neutral-300"><i class="fa fa-info-circle" /></span>
-          <div slot="tooltip" class="max-w-xs text-sm text-neutral-100">
+          <span slot="trigger" class="text-nc-text"><i class="fa fa-info-circle" /></span>
+          <div slot="tooltip" class="max-w-xs text-sm text-nc-text">
             Adds a small curated list so your feed isn’t empty. You can unfollow any of them later.
           </div>
         </Popover>
       </div>
       <Toggle bind:value={starterFollows} on:change={() => update({starterFollows})} />
     </div>
-    <p class="text-neutral-300">
+    <p class="text-nc-text">
       Adds a small curated list so your feed isn’t empty. You can unfollow anytime.
     </p>
   </div>

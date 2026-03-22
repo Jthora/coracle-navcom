@@ -46,7 +46,7 @@
         <div>
           <span
             class="staatliches text-xl"
-            class:text-neutral-400={!list.title}
+            class:text-nc-text-muted={!list.title}
             class:line-through={deleted}>
             {displayUserList(list)}
           </span>
@@ -69,7 +69,7 @@
       {quantify(getTags(tagTypes, event.tags).length, "item")}
       <div class="flex gap-1">
         <div
-          class="cursor-pointer p-1 text-neutral-400 transition-colors hover:text-neutral-100"
+          class="cursor-pointer p-1 text-nc-text-muted transition-colors hover:text-nc-text"
           on:click={$expandTags.toggle}>
           {#if $expandTags.enabled}
             <i class="fa fa-angle-down" />
@@ -80,11 +80,11 @@
         <CopyValueSimple
           label="List address"
           value={toNostrURI(Address.from(address).toNaddr())}
-          class="text-neutral-400" />
+          class="text-nc-text-muted" />
       </div>
     </div>
     {#if $expandTags.enabled}
-      <pre class="overflow-auto rounded bg-neutral-900" transition:slide|local>{JSON.stringify(
+      <pre class="overflow-auto rounded bg-nc-shell-deep" transition:slide|local>{JSON.stringify(
           event.tags,
           null,
           2,

@@ -12,19 +12,19 @@
     border-radius: 6px;
     border: 1.5px solid;
     font-size: 13px;
-    background: linear-gradient(180deg, rgba(39, 39, 42, 0.96), rgba(17, 24, 39, 0.96));
+    background: linear-gradient(180deg, rgba(var(--nc-shell-bg-rgb), 0.96), rgba(var(--nc-shell-deep-rgb), 0.96));
     box-shadow:
       0 0 0 1px rgba(0, 0, 0, 0.3),
       0 4px 8px rgba(0, 0, 0, 0.35);
   }
   :global(.navcom-popup-shell .leaflet-popup-content-wrapper) {
-    border: 1px solid rgba(64, 72, 86, 0.9);
+    border: 1px solid rgba(var(--nc-shell-border-rgb), 0.9);
     border-radius: 8px;
-    background: rgba(27, 31, 39, 0.97);
-    color: rgb(229, 231, 235);
+    background: rgba(var(--nc-shell-deep-rgb), 0.97);
+    color: var(--nc-text);
   }
   :global(.navcom-popup-shell .leaflet-popup-tip) {
-    background: rgba(27, 31, 39, 0.97);
+    background: rgba(var(--nc-shell-deep-rgb), 0.97);
   }
 </style>
 
@@ -121,7 +121,7 @@
       })
       const pin = leaflet
         .marker([m.lat, m.lng], {icon})
-        .bindPopup(`<div class="text-xs text-neutral-200">Member: ${m.author.slice(0, 8)}…</div>`, {
+        .bindPopup(`<div class="text-xs text-nc-text">Member: ${m.author.slice(0, 8)}…</div>`, {
           className: "navcom-popup-shell",
           maxWidth: 260,
         })
@@ -173,7 +173,7 @@
       })
       const pin = leaflet
         .marker([m.lat, m.lng], {icon})
-        .bindPopup(`<div class="text-xs text-neutral-200">${m.preview || m.type}</div>`, {
+        .bindPopup(`<div class="text-xs text-nc-text">${m.preview || m.type}</div>`, {
           className: "navcom-popup-shell",
           maxWidth: 260,
         })
@@ -262,7 +262,7 @@
         weight: 3,
         opacity: 0.6,
       })
-      .bindPopup('<div class="text-xs text-neutral-200">Your location</div>', {
+      .bindPopup('<div class="text-xs text-nc-text">Your location</div>', {
         className: "navcom-popup-shell",
       })
       .addTo(map)
@@ -373,10 +373,10 @@
 
 <div class="relative h-full w-full overflow-hidden">
   <!-- Map container with real Leaflet -->
-  <div class="absolute inset-0 bg-neutral-950">
+  <div class="absolute inset-0 bg-nc-shell-deep">
     <!-- Tools button -->
     <button
-      class="z-20 bg-neutral-800/90 absolute right-3 top-3 rounded-lg border border-neutral-700 px-3 py-2 text-xs text-neutral-200 backdrop-blur-sm transition-colors hover:bg-neutral-700"
+      class="z-20 bg-nc-shell-bg/90 absolute right-3 top-3 rounded-lg border border-nc-shell-border px-3 py-2 text-xs text-nc-text backdrop-blur-sm transition-colors hover:bg-nc-shell-border"
       class:hidden={showLayerPanel}
       on:click={() => (showLayerPanel = true)}
       aria-label={$t("map.tools.aria")}>
@@ -386,7 +386,7 @@
 
     {#if gpsAvailable}
       <button
-        class="z-20 bg-neutral-800/90 text-blue-400 absolute bottom-3 left-3 rounded-lg border border-neutral-700 px-2.5 py-2 text-sm backdrop-blur-sm transition-colors hover:bg-neutral-700"
+        class="z-20 bg-nc-shell-bg/90 text-blue-400 absolute bottom-3 left-3 rounded-lg border border-nc-shell-border px-2.5 py-2 text-sm backdrop-blur-sm transition-colors hover:bg-nc-shell-border"
         on:click={centerOnMe}
         title="Center on my location"
         style={isMobile ? "margin-bottom: 4rem" : ""}>
@@ -407,19 +407,19 @@
     <!-- Marker summary strip -->
     {#if markers.length > 0}
       <div
-        class="z-10 bg-neutral-900/80 absolute bottom-0 left-0 right-0 flex gap-2 overflow-x-auto border-t border-neutral-800 px-3 py-2 backdrop-blur-sm"
+        class="z-10 bg-nc-shell-deep/80 absolute bottom-0 left-0 right-0 flex gap-2 overflow-x-auto border-t border-nc-shell-border px-3 py-2 backdrop-blur-sm"
         style={isMobile ? "margin-bottom: 3.5rem" : ""}>
         {#if clusters.length > 0}
           {#each clusters as cl, i (i)}
             <button
-              class="flex flex-shrink-0 items-center gap-1.5 rounded-lg border bg-neutral-800 px-2.5 py-1.5 text-xs transition-colors hover:bg-neutral-700"
+              class="flex flex-shrink-0 items-center gap-1.5 rounded-lg border bg-nc-shell-bg px-2.5 py-1.5 text-xs transition-colors hover:bg-nc-shell-border"
               style="border-color: {CLUSTER_COLORS[cl.style]}"
               on:click={() => {
                 if (cl.markers[0]) handleMarkerClick(cl.markers[0])
               }}
               aria-label={$t("map.cluster.aria", {values: {count: cl.count}})}>
               <span class="font-bold" style="color: {CLUSTER_COLORS[cl.style]}">{cl.count}</span>
-              <span class="text-neutral-400">{$t("map.cluster.markerLabel")}</span>
+              <span class="text-nc-text-muted">{$t("map.cluster.markerLabel")}</span>
             </button>
           {/each}
         {:else}
@@ -428,17 +428,17 @@
             <button
               class="flex flex-shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs transition-colors
               {$selectedMarkerId === m.id
-                ? 'bg-neutral-700 ring-1 ring-accent'
-                : 'bg-neutral-800 hover:bg-neutral-700'}"
+                ? 'bg-nc-shell-border ring-1 ring-accent'
+                : 'bg-nc-shell-bg hover:bg-nc-shell-border'}"
               on:click={() => handleMarkerClick(m)}
               on:mouseenter={() => selectedMarkerId.set(m.id)}
               on:mouseleave={() => selectedMarkerId.set(null)}>
               <span style="color: {style.color}">{style.icon}</span>
-              <span class="max-w-[80px] truncate text-neutral-300">{m.preview || m.type}</span>
+              <span class="max-w-[80px] truncate text-nc-text">{m.preview || m.type}</span>
             </button>
           {/each}
           {#if markers.length > 12}
-            <span class="flex-shrink-0 self-center px-2 text-xs text-neutral-500"
+            <span class="flex-shrink-0 self-center px-2 text-xs text-nc-text-muted"
               >+{markers.length - 12} {$t("map.markers.more")}</span>
           {/if}
         {/if}
@@ -449,7 +449,7 @@
   {#if isMobile}
     <!-- Mobile: Bottom sheet drawer -->
     <div
-      class="z-20 absolute bottom-0 left-0 right-0 rounded-t-xl border-t border-neutral-700 bg-neutral-900 transition-all"
+      class="z-20 absolute bottom-0 left-0 right-0 rounded-t-xl border-t border-nc-shell-border bg-nc-shell-deep transition-all"
       style="height: {drawerHeight}px; margin-bottom: 3.5rem;">
       <!-- Drag handle -->
       <div
@@ -457,7 +457,7 @@
         on:pointerdown={onPointerDown}
         on:pointermove={onPointerMove}
         on:pointerup={onPointerUp}>
-        <div class="h-1 w-10 rounded-full bg-neutral-600" />
+        <div class="h-1 w-10 rounded-full bg-nc-shell-border" />
       </div>
 
       {#if drawerState === "peek"}
@@ -465,7 +465,7 @@
         <button
           class="flex w-full items-center justify-between px-4 text-left"
           on:click={() => (drawerState = "half")}>
-          <span class="truncate text-sm text-neutral-200">{channelTitle}</span>
+          <span class="truncate text-sm text-nc-text">{channelTitle}</span>
           {#if $activeChannel}
             {@const unread = getUnread($activeChannel)}
             {#if unread > 0}
@@ -480,20 +480,20 @@
         <!-- Half / Full: channel list or conversation preview -->
         <div class="flex h-[calc(100%-2rem)] flex-col overflow-y-auto px-4">
           {#if $activeChannel && projection}
-            <div class="mb-2 flex items-center justify-between border-b border-neutral-700 pb-2">
-              <span class="text-sm font-medium text-neutral-100">{channelTitle}</span>
+            <div class="mb-2 flex items-center justify-between border-b border-nc-shell-border pb-2">
+              <span class="text-sm font-medium text-nc-text">{channelTitle}</span>
               <button class="text-xs text-accent hover:underline" on:click={openChannelChat}
                 >{$t("map.action.openChat")}</button>
             </div>
-            <p class="text-xs text-neutral-400">{$t("map.hint.openChat")}</p>
+            <p class="text-xs text-nc-text-muted">{$t("map.hint.openChat")}</p>
           {:else}
-            <p class="mb-2 text-xs text-neutral-500">{$t("map.drawer.selectChannel")}</p>
+            <p class="mb-2 text-xs text-nc-text-muted">{$t("map.drawer.selectChannel")}</p>
             {#each $groupSummaries as ch (ch.id)}
               {@const u = getUnread(ch.id)}
               <button
-                class="border-neutral-800/40 hover:bg-neutral-800/40 flex w-full items-center justify-between border-b py-2 text-left text-sm"
+                class="border-nc-shell-border/40 hover:bg-nc-shell-border/40 flex w-full items-center justify-between border-b py-2 text-left text-sm"
                 on:click={() => selectChannelFromMap(ch.id)}>
-                <span class="truncate text-neutral-200"
+                <span class="truncate text-nc-text"
                   >{ch.title || $t("channel.title.unnamed")}</span>
                 {#if u > 0}
                   <span
@@ -509,9 +509,9 @@
   {:else}
     <!-- Desktop: Fixed right comms pane -->
     <aside
-      class="z-10 absolute bottom-0 right-0 top-0 flex w-80 flex-col border-l border-neutral-700 bg-neutral-900">
-      <header class="flex items-center justify-between border-b border-neutral-700 px-3 py-3">
-        <span class="truncate text-sm font-medium text-neutral-100">{channelTitle}</span>
+      class="z-10 absolute bottom-0 right-0 top-0 flex w-80 flex-col border-l border-nc-shell-border bg-nc-shell-deep">
+      <header class="flex items-center justify-between border-b border-nc-shell-border px-3 py-3">
+        <span class="truncate text-sm font-medium text-nc-text">{channelTitle}</span>
         {#if $activeChannel}
           <button class="text-xs text-accent hover:underline" on:click={openChannelChat}
             >{$t("map.action.openShort")}</button>
@@ -519,17 +519,17 @@
       </header>
       <div class="flex-1 overflow-y-auto p-3">
         {#if $activeChannel && projection}
-          <p class="text-xs text-neutral-400">{$t("map.hint.openComms")}</p>
+          <p class="text-xs text-nc-text-muted">{$t("map.hint.openComms")}</p>
         {:else}
-          <p class="mb-2 text-xs text-neutral-500">{$t("map.sidebar.channelsLabel")}</p>
+          <p class="mb-2 text-xs text-nc-text-muted">{$t("map.sidebar.channelsLabel")}</p>
           {#each $groupSummaries as ch (ch.id)}
             {@const u = getUnread(ch.id)}
             <button
-              class="border-neutral-800/40 hover:bg-neutral-800/40 flex w-full items-center justify-between rounded border-b px-1 py-2 text-left text-sm"
+                class="border-nc-shell-border/40 hover:bg-nc-shell-border/40 flex w-full items-center justify-between rounded border-b px-1 py-2 text-left text-sm"
               on:click={() => {
                 setActiveChannel(ch.id)
               }}>
-              <span class="truncate text-neutral-200"
+              <span class="truncate text-nc-text"
                 >{ch.title || $t("channel.title.unnamed")}</span>
               {#if u > 0}
                 <span

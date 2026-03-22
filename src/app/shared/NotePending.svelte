@@ -50,7 +50,7 @@
   <div
     on:click|stopPropagation
     class="loading-bar-content relative flex h-6 w-full items-center justify-between overflow-hidden rounded-md pl-4 text-sm"
-    class:bg-neutral-500={showProgress}
+    class:bg-nc-shell-border={showProgress}
     class:border={!showProgress}
     class:px-4={pending.length > 0}>
     {#if showProgress}

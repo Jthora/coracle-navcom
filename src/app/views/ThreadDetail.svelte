@@ -84,7 +84,7 @@
     {/each}
   {:else if ancestors.length > 0}
     <Button
-      class="text-center text-neutral-100"
+      class="text-center text-nc-text"
       on:click={() => {
         showAncestors = true
       }}>

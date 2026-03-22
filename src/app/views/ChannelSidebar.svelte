@@ -32,12 +32,12 @@
   }
 </script>
 
-<nav class="flex h-full flex-col bg-neutral-900" aria-label={$t("sidebar.channel.aria")}>
+<nav class="flex h-full flex-col bg-nc-shell-deep" aria-label={$t("sidebar.channel.aria")}>
   <!-- Header -->
-  <div class="flex items-center justify-between border-b border-neutral-700 px-4 py-3">
-    <h2 class="staatliches text-lg uppercase tracking-widest text-neutral-200">{$appName}</h2>
+  <div class="flex items-center justify-between border-b border-nc-shell-border px-4 py-3">
+    <h2 class="staatliches text-lg uppercase tracking-widest text-nc-text">{$appName}</h2>
     <button
-      class="hidden h-8 w-8 items-center justify-center rounded text-neutral-400 transition-colors hover:bg-neutral-800 hover:text-neutral-200 lg:flex"
+      class="hidden h-8 w-8 items-center justify-center rounded text-nc-text-muted transition-colors hover:bg-nc-shell-bg hover:text-nc-text lg:flex"
       on:click={() => router.at("/settings").open()}>
       <i class="fa fa-gear text-sm" />
     </button>
@@ -47,8 +47,8 @@
   <div class="flex-1 overflow-y-auto">
     {#if channels.length === 0}
       <div class="flex flex-col items-center justify-center px-4 py-12 text-center">
-        <p class="text-sm text-neutral-400">{$t("sidebar.empty.title")}</p>
-        <p class="mt-1 text-xs text-neutral-500">{$t("sidebar.empty.hint")}</p>
+        <p class="text-sm text-nc-text-muted">{$t("sidebar.empty.title")}</p>
+        <p class="mt-1 text-xs text-nc-text-muted">{$t("sidebar.empty.hint")}</p>
       </div>
     {:else if channels.length > 30}
       <!-- Virtualized for large channel lists -->
@@ -58,10 +58,10 @@
           {@const unread = getUnread(channel.id)}
           {@const encIcon = getEncryptionIcon(channel)}
           <button
-            class="hover:bg-neutral-800/60 border-neutral-800/40 flex w-full items-center gap-3 border-b px-4 py-3 text-left transition-colors"
+            class="hover:bg-nc-shell-bg/60 border-nc-shell-border/40 flex w-full items-center gap-3 border-b px-4 py-3 text-left transition-colors"
             on:click={() => selectChannel(channel.id)}>
             <div
-              class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-neutral-800 text-neutral-300">
+              class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-nc-shell-bg text-nc-text">
               {#if channel.picture}
                 <img src={channel.picture} alt="" class="h-10 w-10 rounded-lg object-cover" />
               {:else}
@@ -77,10 +77,10 @@
                       ? $t("encryption.tooltip.e2e")
                       : ""}>{encIcon}</span>
                 {/if}
-                <span class="truncate text-sm font-medium text-neutral-100"
+                <span class="truncate text-sm font-medium text-nc-text"
                   >{channel.title || $t("channel.title.unnamed")}</span>
               </div>
-              <div class="mt-0.5 truncate text-xs text-neutral-500">
+              <div class="mt-0.5 truncate text-xs text-nc-text-muted">
                 {$t("channel.members.count", {values: {count: channel.memberCount}})}
               </div>
             </div>
@@ -98,11 +98,11 @@
         {@const unread = getUnread(channel.id)}
         {@const encIcon = getEncryptionIcon(channel)}
         <button
-          class="hover:bg-neutral-800/60 border-neutral-800/40 flex w-full items-center gap-3 border-b px-4 py-3 text-left transition-colors"
+          class="hover:bg-nc-shell-bg/60 border-nc-shell-border/40 flex w-full items-center gap-3 border-b px-4 py-3 text-left transition-colors"
           on:click={() => selectChannel(channel.id)}>
           <!-- Avatar / icon -->
           <div
-            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-neutral-800 text-neutral-300">
+            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-nc-shell-bg text-nc-text">
             {#if channel.picture}
               <img src={channel.picture} alt="" class="h-10 w-10 rounded-lg object-cover" />
             {:else}
@@ -120,10 +120,10 @@
                     ? $t("encryption.tooltip.e2e")
                     : ""}>{encIcon}</span>
               {/if}
-              <span class="truncate text-sm font-medium text-neutral-100"
+              <span class="truncate text-sm font-medium text-nc-text"
                 >{channel.title || $t("channel.title.unnamed")}</span>
             </div>
-            <div class="mt-0.5 truncate text-xs text-neutral-500">
+            <div class="mt-0.5 truncate text-xs text-nc-text-muted">
               {$t("channel.members.count", {values: {count: channel.memberCount}})}
             </div>
           </div>
@@ -141,9 +141,9 @@
   </div>
 
   <!-- Add channel button -->
-  <div class="border-t border-neutral-700 p-3">
+  <div class="border-t border-nc-shell-border p-3">
     <button
-      class="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-neutral-600 py-2.5 text-sm text-neutral-400 transition-colors hover:border-accent hover:text-accent"
+      class="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-nc-shell-border py-2.5 text-sm text-nc-text-muted transition-colors hover:border-accent hover:text-accent"
       on:click={openCreateJoin}>
       <i class="fa fa-plus text-xs" />
       <span>{$t("sidebar.action.joinCreate")}</span>

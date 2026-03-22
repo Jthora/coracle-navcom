@@ -65,7 +65,7 @@
 </script>
 
 <div class="relative h-7" bind:this={container}>
-  <div class="absolute inset-0 h-1 translate-y-3 rounded-full bg-neutral-200">
+  <div class="absolute inset-0 h-1 translate-y-3 rounded-full bg-nc-shell-border">
     <div
       class="absolute h-full rounded-full bg-accent"
       style="left: {((value.min - min) / (max - min)) * 100}%; right: {100 -

@@ -67,14 +67,14 @@
 </script>
 
 <div class="space-y-2">
-  <p class="text-[10px] uppercase tracking-wider text-neutral-500">{$t("map.draw.heading")}</p>
+  <p class="text-[10px] uppercase tracking-wider text-nc-text-muted">{$t("map.draw.heading")}</p>
   <div class="grid grid-cols-2 gap-1.5">
     {#each tools as tool (tool.id)}
       <button
         class="flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-xs transition-colors
           {drawMode === tool.id
           ? 'bg-accent font-semibold text-neutral-900'
-          : 'bg-neutral-800 text-neutral-300 hover:bg-neutral-700'}"
+          : 'bg-nc-shell-bg text-nc-text hover:bg-nc-input'}"
         on:click={() => selectTool(tool)}
         aria-label={$t("map.draw.tool.aria", {values: {label: $t(tool.labelKey)}})}>
         <i class="fa {tool.icon} text-xs" />
@@ -84,7 +84,7 @@
   </div>
 
   {#if drawMode && !showForm}
-    <p class="text-[10px] italic text-neutral-400">
+    <p class="text-[10px] italic text-nc-text-muted">
       {drawMode === "point"
         ? $t("map.draw.hint.point")
         : drawMode === "line"

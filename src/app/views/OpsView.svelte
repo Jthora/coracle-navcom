@@ -174,31 +174,31 @@
 <div class={isMobile ? "flex flex-col gap-4" : "grid grid-cols-2 gap-4"}>
   <!-- Map Thumbnail -->
   <button
-    class="bg-neutral-800/50 overflow-hidden rounded-xl border border-neutral-700 text-left transition-colors hover:border-neutral-600"
+    class="bg-nc-shell-bg/50 overflow-hidden rounded-xl border border-nc-shell-border text-left transition-colors hover:border-nc-shell-border"
     on:click={openMapMode}>
-    <div bind:this={thumbnailContainer} class="h-48 w-full bg-neutral-900" />
+    <div bind:this={thumbnailContainer} class="h-48 w-full bg-nc-shell-deep" />
     <div class="flex items-center justify-between px-3 py-2">
-      <span class="text-xs uppercase tracking-wider text-neutral-400">{$t("ops.map.label")}</span>
-      <i class="fa fa-arrow-right text-xs text-neutral-500" />
+      <span class="text-xs uppercase tracking-wider text-nc-text-muted">{$t("ops.map.label")}</span>
+      <i class="fa fa-arrow-right text-xs text-nc-text-muted" />
     </div>
   </button>
 
   <!-- Channel Status Grid -->
-  <div class="bg-neutral-800/50 overflow-hidden rounded-xl border border-neutral-700">
-    <div class="border-b border-neutral-700 px-3 py-2">
-      <span class="text-xs uppercase tracking-wider text-neutral-400"
+  <div class="bg-nc-shell-bg/50 overflow-hidden rounded-xl border border-nc-shell-border">
+    <div class="border-b border-nc-shell-border px-3 py-2">
+      <span class="text-xs uppercase tracking-wider text-nc-text-muted"
         >{$t("ops.channels.label")}</span>
     </div>
-    <div class="divide-neutral-800/40 divide-y">
+    <div class="divide-nc-shell-border/40 divide-y">
       {#each $groupSummaries as ch (ch.id)}
         {@const unread = getUnread(ch.id)}
         {@const typeCounts = getMsgTypeCounts(ch.id)}
         {@const roleCounts = getRoleCounts(ch.id)}
         <button
-          class="hover:bg-neutral-800/60 flex w-full items-center gap-3 px-3 py-2.5 text-left transition-colors"
+          class="hover:bg-nc-shell-bg/60 flex w-full items-center gap-3 px-3 py-2.5 text-left transition-colors"
           on:click={() => openChannel(ch.id)}>
           <div
-            class="flex h-8 w-8 shrink-0 items-center justify-center rounded bg-neutral-700 text-neutral-300">
+            class="flex h-8 w-8 shrink-0 items-center justify-center rounded bg-nc-input text-nc-text">
             {#if ch.picture}
               <img src={ch.picture} alt="" class="h-8 w-8 rounded object-cover" />
             {:else}
@@ -206,20 +206,20 @@
             {/if}
           </div>
           <div class="min-w-0 flex-1">
-            <span class="block truncate text-sm text-neutral-100"
+            <span class="block truncate text-sm text-nc-text"
               >{ch.title || $t("channel.title.unnamed")}</span>
-            <span class="text-[11px] text-neutral-500"
+            <span class="text-[11px] text-nc-text-muted"
               >{getEncryptionLabel(ch)} · {$t("ops.channel.members", {
                 values: {count: ch.memberCount},
               })}</span>
             <div class="mt-0.5 flex flex-wrap gap-1">
               {#each Object.entries(typeCounts) as [type, count]}
-                <span class="bg-neutral-700/60 rounded px-1 py-0.5 text-[10px] text-neutral-400">
+                <span class="bg-nc-input/60 rounded px-1 py-0.5 text-[10px] text-nc-text-muted">
                   {MSG_TYPE_ICONS[type] || "💬"}{count}
                 </span>
               {/each}
               {#each Object.entries(roleCounts) as [role, count]}
-                <span class="bg-neutral-700/40 rounded px-1 py-0.5 text-[10px] text-neutral-500">
+                <span class="bg-nc-input/40 rounded px-1 py-0.5 text-[10px] text-nc-text-muted">
                   {role}:{count}
                 </span>
               {/each}
@@ -233,36 +233,36 @@
           {/if}
         </button>
       {:else}
-        <div class="px-3 py-4 text-center text-xs text-neutral-500">{$t("ops.channels.empty")}</div>
+        <div class="px-3 py-4 text-center text-xs text-nc-text-muted">{$t("ops.channels.empty")}</div>
       {/each}
     </div>
   </div>
 
   <!-- Recent Activity Feed (spans full width on desktop) -->
   <div class={isMobile ? "" : "col-span-2"}>
-    <div class="bg-neutral-800/50 overflow-hidden rounded-xl border border-neutral-700">
-      <div class="border-b border-neutral-700 px-3 py-2">
-        <span class="text-xs uppercase tracking-wider text-neutral-400"
+    <div class="bg-nc-shell-bg/50 overflow-hidden rounded-xl border border-nc-shell-border">
+      <div class="border-b border-nc-shell-border px-3 py-2">
+        <span class="text-xs uppercase tracking-wider text-nc-text-muted"
           >{$t("ops.activity.label")}</span>
       </div>
-      <div class="divide-neutral-800/40 divide-y">
+      <div class="divide-nc-shell-border/40 divide-y">
         {#each recentActivity as item (item.id)}
           <button
-            class="hover:bg-neutral-800/60 flex w-full items-center gap-3 px-3 py-2.5 text-left transition-colors"
+            class="hover:bg-nc-shell-bg/60 flex w-full items-center gap-3 px-3 py-2.5 text-left transition-colors"
             on:click={() => openChannel(item.groupId)}>
-            <span class="w-12 shrink-0 text-[11px] tabular-nums text-neutral-500">
+            <span class="w-12 shrink-0 text-[11px] tabular-nums text-nc-text-muted">
               {relativeTime(item.timestamp)}
             </span>
             <span class="text-sm">{getActivityIcon(item.msgType)}</span>
             <div class="min-w-0 flex-1">
-              <span class="truncate text-sm text-neutral-200">
+              <span class="truncate text-sm text-nc-text">
                 {displayProfileByPubkey(item.author)} · {getActivityLabel(item.msgType)}
               </span>
-              <span class="block truncate text-[11px] text-neutral-500">{item.groupTitle}</span>
+              <span class="block truncate text-[11px] text-nc-text-muted">{item.groupTitle}</span>
             </div>
           </button>
         {:else}
-          <div class="px-3 py-4 text-center text-xs text-neutral-500">
+          <div class="px-3 py-4 text-center text-xs text-nc-text-muted">
             {$t("ops.activity.empty")}
           </div>
         {/each}

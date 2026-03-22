@@ -65,13 +65,13 @@
 </script>
 
 <div
-  class="bg-neutral-900/80 flex h-8 items-center justify-between border-b border-neutral-800 px-3 text-xs text-neutral-400">
+  class="bg-nc-shell-deep/80 flex h-8 items-center justify-between border-b border-nc-shell-border px-3 text-xs text-nc-text-muted">
   <div class="flex items-center gap-2">
     <span
       class="inline-block h-2 w-2 rounded-full"
       class:bg-green-400={connected}
       class:bg-red-400={!connected && totalCount > 0}
-      class:bg-neutral-500={totalCount === 0} />
+      class:bg-nc-shell-border={totalCount === 0} />
     <span>{connectionLabel}</span>
   </div>
   {#if alertCount > 0}

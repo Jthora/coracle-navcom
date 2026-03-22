@@ -72,26 +72,26 @@
   }
 </script>
 
-<div class="bg-neutral-850 rounded-xl border border-neutral-700 p-4">
+<div class="bg-nc-shell-deep rounded-xl border border-nc-shell-border p-4">
   <div class="mb-3 flex items-center gap-2">
     <span class="text-lg">📌</span>
-    <h3 class="text-sm font-bold uppercase tracking-wide text-neutral-200">Spot Report</h3>
+    <h3 class="text-sm font-bold uppercase tracking-wide text-nc-text">Spot Report</h3>
   </div>
 
   <div class="flex flex-col gap-3">
     <div>
-      <label class="mb-1 block text-xs text-neutral-400" for="spotrep-obs"
+      <label class="mb-1 block text-xs text-nc-text-muted" for="spotrep-obs"
         >What did you observe?</label>
       <textarea
         id="spotrep-obs"
         bind:value={observation}
         rows="3"
         placeholder="Describe what you see..."
-        class="w-full resize-none rounded-lg border border-neutral-600 bg-neutral-700 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 focus:border-accent focus:outline-none" />
+        class="w-full resize-none rounded-lg border border-nc-shell-border bg-nc-input px-3 py-2 text-sm text-nc-text placeholder-nc-text-muted focus:border-accent focus:outline-none" />
     </div>
 
     <div>
-      <label class="mb-1 block text-xs text-neutral-400" for="spotrep-location"
+      <label class="mb-1 block text-xs text-nc-text-muted" for="spotrep-location"
         >Location (required)</label>
       <div class="flex gap-2">
         <input
@@ -99,9 +99,9 @@
           type="text"
           bind:value={locationText}
           placeholder="lat,lng"
-          class="flex-1 rounded-lg border border-neutral-600 bg-neutral-700 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 focus:border-accent focus:outline-none" />
+          class="flex-1 rounded-lg border border-nc-shell-border bg-nc-input px-3 py-2 text-sm text-nc-text placeholder-nc-text-muted focus:border-accent focus:outline-none" />
         <button
-          class="flex-shrink-0 rounded-lg border border-neutral-600 bg-neutral-700 px-3 py-2 text-sm text-neutral-300 transition-colors hover:bg-neutral-600"
+          class="flex-shrink-0 rounded-lg border border-nc-shell-border bg-nc-input px-3 py-2 text-sm text-nc-text transition-colors hover:bg-nc-shell-border"
           on:click={useGps}
           disabled={gpsLoading}>
           {gpsLoading ? "..." : "📍 GPS"}
@@ -115,14 +115,14 @@
     </div>
 
     <div>
-      <label class="mb-1 block text-xs text-neutral-400" for="spotrep-photo"
+      <label class="mb-1 block text-xs text-nc-text-muted" for="spotrep-photo"
         >Photo URL (optional)</label>
       <input
         id="spotrep-photo"
         type="text"
         bind:value={photoUrl}
         placeholder="https://..."
-        class="w-full rounded-lg border border-neutral-600 bg-neutral-700 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 focus:border-accent focus:outline-none" />
+        class="w-full rounded-lg border border-nc-shell-border bg-nc-input px-3 py-2 text-sm text-nc-text placeholder-nc-text-muted focus:border-accent focus:outline-none" />
       {#if photoUrlError}
         <p class="text-red-400 mt-1 text-[11px]">{photoUrlError}</p>
       {/if}
@@ -130,7 +130,7 @@
 
     <div class="flex gap-2 pt-1">
       <button
-        class="flex-1 rounded-lg bg-neutral-700 py-2 text-sm font-medium text-neutral-300 transition-colors hover:bg-neutral-600"
+        class="flex-1 rounded-lg bg-nc-input py-2 text-sm font-medium text-nc-text transition-colors hover:bg-nc-shell-border"
         on:click={() => dispatch("cancel")}>
         Cancel
       </button>
@@ -138,7 +138,7 @@
         class="flex-1 rounded-lg py-2 text-sm font-medium transition-colors
           {canSubmit
           ? 'bg-accent text-neutral-900 hover:opacity-90'
-          : 'cursor-not-allowed bg-neutral-700 text-neutral-500'}"
+          : 'cursor-not-allowed bg-nc-input text-nc-text-muted'}"
         on:click={handleSubmit}
         disabled={!canSubmit}>
         Send SPOTREP

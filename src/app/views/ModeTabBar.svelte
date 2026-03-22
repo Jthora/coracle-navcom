@@ -15,7 +15,7 @@
 </script>
 
 <nav
-  class="px-sai pb-sai bg-neutral-900/95 fixed bottom-0 left-0 right-0 z-nav border-t border-neutral-700 backdrop-blur-sm lg:left-72">
+  class="px-sai pb-sai bg-nc-shell-deep/95 fixed bottom-0 left-0 right-0 z-nav border-t border-nc-shell-border backdrop-blur-sm lg:left-72">
   <div
     class="flex h-14 items-center justify-around"
     role="tablist"
@@ -24,7 +24,7 @@
       <button
         class="relative flex flex-col items-center gap-0.5 px-6 py-2 transition-colors"
         class:text-accent={$navcomMode === tab.id}
-        class:text-neutral-400={$navcomMode !== tab.id}
+        class:text-nc-text-muted={$navcomMode !== tab.id}
         role="tab"
         aria-selected={$navcomMode === tab.id}
         aria-label={$t("mode.tab.aria", {values: {label: $t(tab.labelKey)}})}
@@ -47,7 +47,7 @@
       </button>
     {/each}
     <button
-      class="flex flex-col items-center gap-0.5 px-6 py-2 text-neutral-400 transition-colors hover:text-neutral-200 lg:hidden"
+      class="flex flex-col items-center gap-0.5 px-6 py-2 text-nc-text-muted transition-colors hover:text-nc-text lg:hidden"
       aria-label={$t("mode.settings.aria")}
       on:click={openSettings}>
       <span class="text-lg"><i class="fa fa-gear" /></span>

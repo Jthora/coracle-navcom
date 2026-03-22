@@ -133,12 +133,12 @@
 <div>
   <AltColor
     background
-    class="relative flex flex-col gap-8 p-6 text-neutral-100 sm:flex-row sm:gap-4">
+    class="relative flex flex-col gap-8 p-6 text-nc-text sm:flex-row sm:gap-4">
     <div class="flex flex-col items-center gap-4">
       <PersonCircle {pubkey} class="mt-1 h-32 w-32" />
       {#if pubkey === $session?.pubkey}
         <Link
-          class="btn w-full !bg-neutral-800 dark:!bg-white"
+          class="btn w-full !bg-nc-shell-bg"
           href={router.at("settings/profile").toString()}>
           Edit
         </Link>

@@ -28,21 +28,21 @@
   }
 </script>
 
-<div class="bg-neutral-800/60 rounded-lg border-l-4 px-3 py-2.5 {borderColor}">
+<div class="bg-nc-shell-bg/60 rounded-lg border-l-4 px-3 py-2.5 {borderColor}">
   <div class="mb-1 flex items-center gap-2">
     <span class="text-sm">📋</span>
     <span class="text-xs font-bold uppercase tracking-wide {severityColor}"
       >SITREP — {severityLabel}</span>
   </div>
-  <div class="mb-1.5 flex items-center gap-1.5 text-[11px] text-neutral-400">
+  <div class="mb-1.5 flex items-center gap-1.5 text-[11px] text-nc-text-muted">
     <span class="font-mono">{asShortKey(message.pubkey)}</span>
     <span>•</span>
     <span>{formatTimestamp(message.created_at)}</span>
   </div>
-  <p class="whitespace-pre-wrap break-words text-sm leading-relaxed text-neutral-100">
+  <p class="whitespace-pre-wrap break-words text-sm leading-relaxed text-nc-text">
     {message.content}
   </p>
   {#if location}
-    <div class="mt-1.5 text-xs text-neutral-400">📍 {location}</div>
+    <div class="mt-1.5 text-xs text-nc-text-muted">📍 {location}</div>
   {/if}
 </div>

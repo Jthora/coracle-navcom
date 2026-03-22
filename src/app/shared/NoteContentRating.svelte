@@ -35,7 +35,7 @@
 </script>
 
 {#if display}
-  <div class="mb-4 flex items-center gap-2 border-l-2 border-solid border-neutral-600 pl-2">
+  <div class="mb-4 flex items-center gap-2 border-l-2 border-solid border-nc-shell-border pl-2">
     Rated
     {#if href}
       <Link modal class="underline" {href}>{display}</Link>

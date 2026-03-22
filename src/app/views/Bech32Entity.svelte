@@ -41,8 +41,8 @@
   <Content size="lg" class="text-center">
     <div class="flex flex-col items-center gap-3">
       <i class="fa fa-link-slash text-3xl text-warning" />
-      <h2 class="text-lg font-semibold text-neutral-100">Invalid Link</h2>
-      <p class="text-sm text-neutral-400">
+      <h2 class="text-lg font-semibold text-nc-text">Invalid Link</h2>
+      <p class="text-sm text-nc-text-muted">
         This nostr link could not be resolved. It may be malformed or unsupported.
       </p>
       <button class="btn mt-2" on:click={() => history.back()}>

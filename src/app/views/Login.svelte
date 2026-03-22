@@ -59,7 +59,7 @@
         <Link class="underline" external href="https://nostr.com/">nostr protocol</Link>, which
         allows you to own your social identity.
       </p>
-      <p class="text-neutral-300">
+      <p class="text-nc-text">
         You can read Starcom Ops without signing in. To post, you'll need a nostr signer (browser
         extension or mobile signer app). Pick an option below or create an account if you're new.
       </p>

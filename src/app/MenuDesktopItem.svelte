@@ -290,7 +290,7 @@
     "text-3xl": !small && isActive,
     "text-2xl": !small && !isActive,
     "text-accent": isActive,
-    "text-neutral-200 hover:text-accent": !isActive,
+    "text-nc-text hover:text-accent": !isActive,
   })
 </script>
 

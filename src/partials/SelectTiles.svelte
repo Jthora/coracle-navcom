@@ -5,8 +5,8 @@
 
   const getClass = active =>
     cx("transition-all", {
-      "bg-tinted-500 dark:bg-tinted-600 text-tinted-800": !active,
-      "bg-white dark:bg-tinted-200 dark:text-neutral-900": active,
+      "bg-tinted-500 text-tinted-800": !active,
+      "bg-nc-accent text-neutral-900": active,
     })
 </script>
 

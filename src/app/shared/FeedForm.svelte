@@ -97,7 +97,7 @@
   {#if !saveIsOpen}
     <Card class="flex flex-col justify-between sm:flex-row">
       <p>Would you like to save this feed?</p>
-      <Button class="text-neutral-400 underline" on:click={openSave}>Save this feed</Button>
+      <Button class="text-nc-text-muted underline" on:click={openSave}>Save this feed</Button>
     </Card>
   {:else if draft.event || draft.list}
     {@const event = draft.event || draft.list.event}
@@ -111,14 +111,14 @@
           )}.
         </p>
       {/if}
-      <Button class="whitespace-nowrap text-neutral-400 underline" on:click={startClone}>
+      <Button class="whitespace-nowrap text-nc-text-muted underline" on:click={startClone}>
         Create a new feed instead
       </Button>
     </Card>
   {:else if feed.event || feed.list}
     <Card class="flex flex-col justify-between sm:flex-row">
       <p>You are currently creating a new feed.</p>
-      <Button class="text-neutral-400 underline" on:click={stopClone}>
+      <Button class="text-nc-text-muted underline" on:click={stopClone}>
         Edit "{displayFeed(feed)}" instead
       </Button>
     </Card>

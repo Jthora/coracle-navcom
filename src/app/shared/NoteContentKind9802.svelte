@@ -24,13 +24,13 @@
     <NoteContentKind1 note={{content: meta.comment}} {showMedia} {showEntire} />
   {/if}
   <div class="flex flex-col gap-2 overflow-hidden text-ellipsis">
-    <div class="border-l-2 border-solid border-neutral-600 pl-4">
+    <div class="border-l-2 border-solid border-nc-shell-border pl-4">
       <NoteContentKind1 {note} {showEntire} />
     </div>
   </div>
   {#if aTag}
     {@const naddr = Address.from(aTag[1], aTag.slice(2, 3)).toNaddr()}
-    <div class="flex items-center gap-1 text-end text-sm text-neutral-400">
+    <div class="flex items-center gap-1 text-end text-sm text-nc-text-muted">
       <i class="fa fa-highlighter fa-xs mt-1" />
       <Link
         modal
@@ -45,7 +45,7 @@
     {@const relays = eTag.slice(2, 3)}
     {@const author = eTag[3]}
     {@const nevent = nip19.neventEncode({id, relays, author})}
-    <div class="flex items-center gap-1 text-end text-sm text-neutral-400">
+    <div class="flex items-center gap-1 text-end text-sm text-nc-text-muted">
       <i class="fa fa-highlighter fa-xs mt-1" />
       <Link
         modal
@@ -56,7 +56,7 @@
       </Link>
     </div>
   {:else if meta.r}
-    <div class="flex items-center gap-1 text-end text-sm text-neutral-400">
+    <div class="flex items-center gap-1 text-end text-sm text-nc-text-muted">
       <i class="fa fa-highlighter fa-xs mt-1" />
       {#if parseLink(meta.r, {results: [], content: "", tags: []})}
         <NoteContentLinks urls={[meta.r]} />

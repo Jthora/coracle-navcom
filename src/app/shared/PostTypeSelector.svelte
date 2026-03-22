@@ -52,8 +52,8 @@
       type="button"
       class={`rounded-lg border px-3 py-2 text-sm transition-all ${
         selected === type.key
-          ? "bg-white text-black"
-          : "border-neutral-600 bg-transparent text-white"
+          ? "bg-nc-accent text-neutral-900"
+          : "border-nc-shell-border bg-transparent text-nc-text"
       }`}
       aria-pressed={selected === type.key}
       aria-label={`Select ${type.label} post type`}
@@ -62,7 +62,7 @@
       <div class="flex items-center gap-2">
         <span class="font-semibold">{type.label}</span>
         {#if type.helper}
-          <span class="text-xs text-neutral-300">{type.helper}</span>
+          <span class="text-xs text-nc-text">{type.helper}</span>
         {/if}
       </div>
     </button>

@@ -37,7 +37,7 @@
             Connected to <strong>{node?.alias || version || "unknown wallet"}</strong>
             via <strong>{$session.wallet.type}</strong>
           </p>
-          <p class="flex gap-2 whitespace-nowrap text-neutral-100">
+          <p class="flex gap-2 whitespace-nowrap text-nc-text">
             Balance:
             {#await getWebLn()
               ?.enable()
@@ -57,7 +57,7 @@
           <p>
             Connected to <strong>{lud16}</strong> via <strong>{displayRelayUrl(relayUrl)}</strong>
           </p>
-          <p class="flex gap-2 whitespace-nowrap text-neutral-100">
+          <p class="flex gap-2 whitespace-nowrap text-nc-text">
             Balance:
             {#await new nwc.NWCClient({nostrWalletConnectUrl}).getBalance()}
               <span class="loading loading-spinner loading-sm"></span>

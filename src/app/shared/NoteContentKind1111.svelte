@@ -14,7 +14,7 @@
 <div class="flex flex-col gap-2">
   <NoteContentKind1 {note} {showEntire} {showMedia} />
   {#if linkParent}
-    <div class="flex items-center gap-1 text-end text-sm text-neutral-400">
+    <div class="flex items-center gap-1 text-end text-sm text-nc-text-muted">
       <i class="fa fa-link fa-xs mt-1" />
       <NoteContentLinks urls={[linkParent]} />
     </div>

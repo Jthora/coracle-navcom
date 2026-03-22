@@ -63,11 +63,11 @@
         {#if content}
           <NoteContent showEntire note={{...message, content}} />
         {:else if message.kind === 4 && message.content}
-          <div class="flex items-center gap-2 text-sm italic text-neutral-400">
+          <div class="flex items-center gap-2 text-sm italic text-nc-text-muted">
             <i class="fa fa-lock text-xs" />
             <span>Message could not be decrypted</span>
             <button
-              class="ml-1 cursor-pointer underline hover:text-neutral-200"
+              class="ml-1 cursor-pointer underline hover:text-nc-text"
               disabled={retrying}
               on:click={retryDecrypt}>
               {#if retrying}
@@ -85,7 +85,7 @@
     <small
       class="mt-1 flex items-center justify-between gap-2 text-xs"
       class:text-tinted-700={message.pubkey === $session.pubkey}
-      class:text-neutral-100={message.pubkey !== $session.pubkey}>
+      class:text-nc-text={message.pubkey !== $session.pubkey}>
       {#if thunk}
         {#if thunkHasStatus(PublishStatus.Pending, thunk)}
           <div class="flex items-center gap-1">
@@ -105,19 +105,19 @@
       {/if}
       <div class="flex items-center gap-3">
         <i
-          class="fa fa-info-circle cursor-pointer text-neutral-400"
+          class="fa fa-info-circle cursor-pointer text-nc-text-muted"
           on:click={() => (showDetails = true)} />
         {#if message.kind === 4}
           {#if dmSecurity}
             <span
-              class="rounded border border-neutral-500 px-2 py-0.5 text-[10px] uppercase tracking-[0.08em]">
+              class="rounded border border-nc-shell-border px-2 py-0.5 text-[10px] uppercase tracking-[0.08em]">
               {dmSecurity.badge}
             </span>
           {/if}
           <Popover triggerType="mouseenter">
             <i
               slot="trigger"
-              class={`fa fa-${dmSecurity?.icon === "lock" ? "lock" : "unlock"} cursor-pointer text-neutral-400`} />
+              class={`fa fa-${dmSecurity?.icon === "lock" ? "lock" : "unlock"} cursor-pointer text-nc-text-muted`} />
             <div slot="tooltip" class="flex max-w-xs flex-col gap-2">
               {#if dmSecurity?.icon === "lock"}
                 <p>
@@ -139,7 +139,7 @@
           </Popover>
         {:else}
           <Popover triggerType="mouseenter">
-            <i slot="trigger" class="fa fa-lock cursor-pointer text-neutral-400" />
+            <i slot="trigger" class="fa fa-lock cursor-pointer text-nc-text-muted" />
             <div slot="tooltip" class="flex flex-col gap-2">
               <p>
                 This message was sent using nostr's new group chat specification, which solves

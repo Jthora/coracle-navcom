@@ -21,28 +21,28 @@
   }
 </script>
 
-<div class="border-cyan-500 bg-neutral-800/60 rounded-lg border-l-4 px-3 py-2.5">
+<div class="border-cyan-500 bg-nc-shell-bg/60 rounded-lg border-l-4 px-3 py-2.5">
   <div class="mb-1 flex items-center gap-2">
     <span class="text-sm">📌</span>
     <span class="text-cyan-300 text-xs font-bold uppercase tracking-wide">SPOTREP</span>
   </div>
-  <div class="mb-1.5 flex items-center gap-1.5 text-[11px] text-neutral-400">
+  <div class="mb-1.5 flex items-center gap-1.5 text-[11px] text-nc-text-muted">
     <span class="font-mono">{asShortKey(message.pubkey)}</span>
     <span>•</span>
     <span>{formatTimestamp(message.created_at)}</span>
   </div>
-  <p class="whitespace-pre-wrap break-words text-sm leading-relaxed text-neutral-100">
+  <p class="whitespace-pre-wrap break-words text-sm leading-relaxed text-nc-text">
     {message.content}
   </p>
   {#if location}
-    <div class="mt-1.5 text-xs text-neutral-400">📍 {location}</div>
+    <div class="mt-1.5 text-xs text-nc-text-muted">📍 {location}</div>
   {/if}
   {#if photoUrl}
     <div class="mt-2">
       <img
         src={photoUrl}
         alt="SPOTREP photo"
-        class="max-h-48 rounded-lg border border-neutral-700 object-cover"
+        class="max-h-48 rounded-lg border border-nc-shell-border object-cover"
         loading="lazy" />
     </div>
   {/if}

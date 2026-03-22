@@ -44,7 +44,7 @@
 </script>
 
 <div class="flex flex-col items-end">
-  <Button class="text-neutral-500 underline" on:click={openForm}>Save selection as list</Button>
+  <Button class="text-nc-text-muted underline" on:click={openForm}>Save selection as list</Button>
   {#if formIsOpen}
     <div class="relative w-full">
       <Popover2 onClose={closeForm}>

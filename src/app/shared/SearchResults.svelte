@@ -90,6 +90,6 @@
       <slot name="result" {result} />
     </div>
   {:else}
-    <div class="panel p-4 text-center text-neutral-200">No results found.</div>
+    <div class="panel p-4 text-center text-nc-text">No results found.</div>
   {/each}
 {/if}

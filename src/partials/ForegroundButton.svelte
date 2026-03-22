@@ -12,7 +12,7 @@
       "h-12 w-12": size === "small",
       "h-16 w-16": size === "large",
       "text-white border-accent bg-accent hover:bg-accent": theme === "primary",
-      "border-neutral-800 bg-tinted-700 text-neutral-100 hover:bg-neutral-600":
+      "border-nc-shell-border bg-tinted-700 text-nc-text hover:bg-nc-shell-border":
         theme === "secondary",
     },
   )

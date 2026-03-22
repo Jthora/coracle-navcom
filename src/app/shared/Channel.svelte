@@ -176,8 +176,8 @@
     showNewMessages = false
   }} />
 
-<div class="inset-sai fixed z-chat flex flex-col bg-neutral-800 lg:ml-72">
-  <div class="bg-neutral-900">
+<div class="inset-sai bg-nc-shell-bg fixed z-chat flex flex-col lg:ml-72">
+  <div class="bg-nc-shell-deep">
     <slot name="header" />
   </div>
   <div
@@ -210,14 +210,14 @@
         <span>Cannot send — recipient's encryption key has been revoked</span>
       </div>
     {/if}
-    <div class="flex border-t border-solid border-tinted-700 bg-neutral-900 dark:bg-neutral-600">
+    <div class="flex border-t border-solid border-tinted-700 bg-nc-shell-deep">
       <EditorContent
         {editor}
-        class="w-full resize-none border-r border-solid border-tinted-700 bg-transparent p-2 text-neutral-100 outline-0 placeholder:text-neutral-100" />
+        class="w-full resize-none border-r border-solid border-tinted-700 bg-transparent p-2 text-nc-text outline-0 placeholder:text-nc-text" />
       <div>
         <button
           class="flex cursor-pointer flex-col justify-center gap-2 p-3
-                 py-6 text-neutral-100 transition-all hover:bg-accent hover:text-white"
+                 py-6 text-nc-text transition-all hover:bg-accent hover:text-white"
           on:click={() => editor.chain().selectFiles().run()}>
           <i class="fa-solid fa-paperclip fa-lg" />
         </button>
@@ -225,7 +225,7 @@
           on:click={sendOrConfirm}
           disabled={recipientKeysRevoked}
           class="flex cursor-pointer flex-col justify-center gap-2 p-3
-               py-6 text-neutral-100 transition-all hover:bg-accent hover:text-white
+               py-6 text-nc-text transition-all hover:bg-accent hover:text-white
                disabled:cursor-not-allowed disabled:opacity-40">
           {#if sending}
             <i class="fa fa-circle-notch fa-spin fa-lg" />
@@ -236,7 +236,7 @@
       </div>
     </div>
   {:else}
-    <FlexColumn class="bg-neutral-900 px-4 py-2">
+    <FlexColumn class="bg-nc-shell-deep px-4 py-2">
       <p class="flex items-center gap-2">
         <i class="fa fa-info-circle p-1" />
         You are using a login method that doesn't yet support group chats. Please consider upgrading
@@ -249,7 +249,7 @@
       class="fixed bottom-32 flex w-full cursor-pointer justify-center"
       transition:fly|local={{y: 20}}
       on:click={scrollToBottom}>
-      <div class="rounded-full bg-accent px-4 py-2 text-neutral-100">New messages found</div>
+      <div class="rounded-full bg-accent px-4 py-2 text-nc-text">New messages found</div>
     </div>
   {/if}
 </div>

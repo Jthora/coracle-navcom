@@ -55,11 +55,11 @@
         <ThunkNotice {notice} />
       {:else}
         <div class="flex flex-wrap items-center gap-2 overflow-hidden p-2">
-          <span class="shrink-0 text-neutral-400">{formatTimestamp(notice.created_at)}</span>
+          <span class="shrink-0 text-nc-text-muted">{formatTimestamp(notice.created_at)}</span>
           <strong class={colorFromVerb(notice.notice[0])}>from {notice.url}</strong>
           <span class="shrink-0">[{notice.notice[0]}]</span>
           {#each notice.notice.slice(1).filter(n => typeof n === "string") as item}
-            <span class="text-neutral-300">{item}</span>
+            <span class="text-nc-text">{item}</span>
           {/each}
         </div>
       {/if}
@@ -67,7 +67,7 @@
   {:else}
     <div
       in:fly|local={{y: 20}}
-      class="panel flex items-center justify-center gap-3 p-5 text-center text-neutral-200">
+      class="panel flex items-center justify-center gap-3 p-5 text-center text-nc-text">
       <i class="fa fa-triangle-exclamation text-warning" />
       <span>No notices found.</span>
     </div>

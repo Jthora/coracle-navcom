@@ -698,11 +698,11 @@
 </script>
 
 {#if !$groupsHydrated}
-  <div class="panel p-6 text-center text-neutral-300">Loading group chat…</div>
+  <div class="panel p-6 text-center text-nc-text">Loading group chat…</div>
 {:else if !projection}
-  <div class="panel p-6 text-center text-neutral-200">
+  <div class="panel p-6 text-center text-nc-text">
     <p>Group not found.</p>
-    <p class="mt-2 text-sm text-neutral-400">Open a valid group address to start chatting.</p>
+    <p class="mt-2 text-sm text-nc-text-muted">Open a valid group address to start chatting.</p>
     <div class="mt-4">
       <Link class="btn" href="/groups">Back to Groups</Link>
     </div>
@@ -712,10 +712,10 @@
     <GroupBreadcrumbs items={breadcrumbs} />
     <div class="flex items-start justify-between gap-3">
       <div>
-        <h2 class="text-xl font-semibold text-neutral-50">{groupTitle}</h2>
-        <p class="mt-1 text-sm text-neutral-300">Group Chat</p>
+        <h2 class="text-xl font-semibold text-nc-text">{groupTitle}</h2>
+        <p class="mt-1 text-sm text-nc-text">Group Chat</p>
         <div class="mt-2 flex flex-wrap gap-2 text-xs">
-          <span class="rounded border border-neutral-700 px-2 py-1 text-neutral-300">
+          <span class="rounded border border-nc-shell-border px-2 py-1 text-nc-text">
             {securityState.label}
           </span>
         </div>
@@ -738,11 +738,11 @@
         </button>
       </div>
     </div>
-    <div class="mt-3 rounded border border-neutral-700 px-3 py-2 text-sm text-neutral-300">
+    <div class="mt-3 rounded border border-nc-shell-border px-3 py-2 text-sm text-nc-text">
       {securityState.hint}
     </div>
     {#if inviteCue}
-      <div class="mt-2 rounded border border-neutral-700 px-3 py-2 text-xs text-neutral-300">
+      <div class="mt-2 rounded border border-nc-shell-border px-3 py-2 text-xs text-nc-text">
         {inviteCue}
       </div>
     {/if}
@@ -754,16 +754,16 @@
             bind:value={searchQuery}
             on:keydown={onSearchKeydown}
             placeholder="Search messages…"
-            class="w-full rounded-lg border border-neutral-600 bg-neutral-700 px-3 py-2 pl-8 text-sm text-neutral-100 placeholder-neutral-500 focus:border-accent focus:outline-none" />
+            class="w-full rounded-lg border border-nc-shell-border bg-nc-input px-3 py-2 pl-8 text-sm text-nc-text placeholder-nc-text-muted focus:border-accent focus:outline-none" />
           <i
-            class="fa fa-search absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-neutral-500" />
+            class="fa fa-search absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-nc-text-muted" />
         </div>
         {#if searchLower}
-          <span class="text-xs text-neutral-400"
+          <span class="text-xs text-nc-text-muted"
             >{searchMatchCount} match{searchMatchCount !== 1 ? "es" : ""}</span>
         {/if}
         <button
-          class="text-neutral-400 transition-colors hover:text-neutral-200"
+          class="text-nc-text-muted transition-colors hover:text-nc-text"
           on:click={toggleSearch}>
           <i class="fa fa-times" />
         </button>
@@ -772,7 +772,7 @@
   </div>
 
   <div class="panel p-4">
-    <h3 class="text-sm uppercase tracking-[0.08em] text-neutral-300">Conversation</h3>
+    <h3 class="text-sm uppercase tracking-[0.08em] text-nc-text">Conversation</h3>
     {#if filteredMessages.length > 50}
       <!-- Virtualized rendering for large message lists -->
       <div class="mt-3">
@@ -799,7 +799,7 @@
                     <i class="fa fa-exclamation-triangle" />
                     <span>Message integrity check failed — possible tampering</span>
                   </div>
-                  <div class="mt-1 text-xs text-neutral-400">
+                  <div class="mt-1 text-xs text-nc-text-muted">
                     <span class="font-mono">{asShortKey(message.pubkey)}</span> · {formatTimestamp(
                       message.created_at,
                     )}
@@ -814,16 +814,16 @@
               {:else if msgType === "spotrep"}
                 <SpotrepCard {message} />
               {:else}
-                <div class="rounded border border-neutral-700 px-3 py-2 text-sm text-neutral-300">
-                  <div class="flex items-center justify-between gap-2 text-xs text-neutral-400">
+                <div class="rounded border border-nc-shell-border px-3 py-2 text-sm text-nc-text">
+                  <div class="flex items-center justify-between gap-2 text-xs text-nc-text-muted">
                     <span class="font-mono">{asShortKey(message.pubkey)}</span>
                     <span>{formatTimestamp(message.created_at)}</span>
                   </div>
-                  <div class="mt-1 whitespace-pre-wrap break-words text-neutral-100">
+                  <div class="mt-1 whitespace-pre-wrap break-words text-nc-text">
                     {getDisplayContent(message)}
                   </div>
                   {#if geoTagged}
-                    <div class="mt-1 text-xs text-neutral-500">📍 Geo-tagged</div>
+                    <div class="mt-1 text-xs text-nc-text-muted">📍 Geo-tagged</div>
                   {/if}
                 </div>
               {/if}
@@ -849,7 +849,7 @@
                   <i class="fa fa-exclamation-triangle" />
                   <span>Message integrity check failed — possible tampering</span>
                 </div>
-                <div class="mt-1 text-xs text-neutral-400">
+                <div class="mt-1 text-xs text-nc-text-muted">
                   <span class="font-mono">{asShortKey(message.pubkey)}</span> · {formatTimestamp(
                     message.created_at,
                   )}
@@ -864,22 +864,22 @@
             {:else if msgType === "spotrep"}
               <SpotrepCard {message} />
             {:else}
-              <div class="rounded border border-neutral-700 px-3 py-2 text-sm text-neutral-300">
-                <div class="flex items-center justify-between gap-2 text-xs text-neutral-400">
+              <div class="rounded border border-nc-shell-border px-3 py-2 text-sm text-nc-text">
+                <div class="flex items-center justify-between gap-2 text-xs text-nc-text-muted">
                   <span class="font-mono">{asShortKey(message.pubkey)}</span>
                   <span>{formatTimestamp(message.created_at)}</span>
                 </div>
-                <div class="mt-1 whitespace-pre-wrap break-words text-neutral-100">
+                <div class="mt-1 whitespace-pre-wrap break-words text-nc-text">
                   {getDisplayContent(message)}
                 </div>
                 {#if geoTagged}
-                  <div class="mt-1 text-xs text-neutral-500">📍 Geo-tagged</div>
+                  <div class="mt-1 text-xs text-nc-text-muted">📍 Geo-tagged</div>
                 {/if}
               </div>
             {/if}
           </div>
         {:else}
-          <p class="text-sm text-neutral-400">
+          <p class="text-sm text-nc-text-muted">
             {searchLower
               ? "No messages match your search."
               : "No messages yet. Send the first group message."}
@@ -894,8 +894,8 @@
         <div
           class="rounded border px-3 py-2 text-sm {queued.status === 'failed'
             ? 'border-red-700/50 bg-red-900/10'
-            : 'bg-neutral-800/50 border-neutral-600'}">
-          <div class="flex items-center justify-between gap-2 text-xs text-neutral-400">
+            : 'bg-nc-shell-bg/50 border-nc-shell-border'}">
+          <div class="flex items-center justify-between gap-2 text-xs text-nc-text-muted">
             <span class="font-mono">You</span>
             <span class="flex items-center gap-1">
               {#if queued.status === "queued"}
@@ -907,7 +907,7 @@
               {/if}
             </span>
           </div>
-          <div class="mt-1 whitespace-pre-wrap break-words text-neutral-300">{queued.content}</div>
+          <div class="mt-1 whitespace-pre-wrap break-words text-nc-text">{queued.content}</div>
           {#if queued.status === "failed"}
             <button
               type="button"
@@ -922,7 +922,7 @@
   </div>
 
   <div class="panel p-4">
-    <h3 class="text-sm uppercase tracking-[0.08em] text-neutral-300">Send Message</h3>
+    <h3 class="text-sm uppercase tracking-[0.08em] text-nc-text">Send Message</h3>
 
     {#if selectedType === "check-in"}
       <div
@@ -930,7 +930,7 @@
         <span>📍 CHECK-IN</span>
         <button
           type="button"
-          class="ml-auto text-neutral-400 hover:text-neutral-200"
+          class="ml-auto text-nc-text-muted hover:text-nc-text"
           on:click={() => (selectedType = "message")}>✕</button>
       </div>
     {:else if selectedType === "alert"}
@@ -942,8 +942,8 @@
               <button
                 type="button"
                 class="rounded px-2 py-0.5 text-xs {alertPriority === p
-                  ? 'bg-neutral-600 text-neutral-100'
-                  : 'text-neutral-400 hover:text-neutral-200'}"
+                  ? 'bg-nc-shell-border text-nc-text'
+                  : 'text-nc-text-muted hover:text-nc-text'}"
                 on:click={() => setAlertPriority(p)}>
                 {p.charAt(0).toUpperCase() + p.slice(1)}
               </button>
@@ -951,7 +951,7 @@
           </div>
           <button
             type="button"
-            class="ml-auto text-neutral-400 hover:text-neutral-200"
+            class="ml-auto text-nc-text-muted hover:text-nc-text"
             on:click={() => (selectedType = "message")}>✕</button>
         </div>
       </div>

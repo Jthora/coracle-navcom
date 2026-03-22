@@ -26,7 +26,7 @@
     <div
       on:click|preventDefault|stopPropagation={onClose}
       class="absolute right-0 top-0 m-1 flex h-6 w-6 cursor-pointer items-center justify-center
-       rounded-full bg-white text-black opacity-50 shadow">
+       rounded-full bg-nc-card text-nc-text opacity-50 shadow">
       <i class="fa fa-times" />
     </div>
   {/if}

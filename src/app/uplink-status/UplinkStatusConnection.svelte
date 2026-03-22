@@ -26,8 +26,8 @@
     class="relative h-2 w-2 -translate-y-[1px] rounded-full"
     class:bg-success={connected}
     class:status-pulse={connected}
-    class:bg-neutral-500={!connected} />
-  <span class="font-semibold uppercase text-neutral-300">Uplink:</span>
-  <span class="font-semibold" class:text-accent={connected} class:text-neutral-400={!connected}
+    class:bg-nc-shell-border={!connected} />
+  <span class="font-semibold uppercase text-nc-text">Uplink:</span>
+  <span class="font-semibold" class:text-accent={connected} class:text-nc-text-muted={!connected}
     >{connected ? "Connected" : "Disconnected"}</span>
 </div>

@@ -108,19 +108,19 @@
 {#if component}
   <svelte:component this={component} {...props} />
 {:else if error}
-  <div class="panel p-6 text-center text-neutral-200">
+  <div class="panel p-6 text-center text-nc-text">
     <p>{error}</p>
     <div class="mt-3">
       <button class="btn" type="button" on:click={retry}>Retry</button>
     </div>
   </div>
 {:else if loading}
-  <div class="panel p-6 text-center text-neutral-300">
+  <div class="panel p-6 text-center text-nc-text">
     {$activeLoaderStatus?.operationId?.startsWith(ROUTE_LOAD_OPERATION_PREFIX)
       ? $activeLoaderStatus.message
       : "Fetching page code for this screen..."}
     {#if slow}
-      <p class="mt-2 text-sm text-neutral-400">Taking longer than expected&hellip;</p>
+      <p class="mt-2 text-sm text-nc-text-muted">Taking longer than expected&hellip;</p>
     {/if}
   </div>
 {/if}

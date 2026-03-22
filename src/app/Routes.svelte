@@ -110,7 +110,7 @@
 {#key $pubkey}
   <div
     id="page"
-    class={cx("m-sai scroll-container relative text-neutral-100 lg:pl-72 lg:pt-16", {
+    class={cx("m-sai scroll-container relative text-nc-text lg:pl-72 lg:pt-16", {
       "pointer-events-none": $menuIsOpen,
       "overflow-auto": !isCurrentFullBleed && !($navcomMode === "map" && isModePage),
       "overflow-hidden": isCurrentFullBleed || ($navcomMode === "map" && isModePage),

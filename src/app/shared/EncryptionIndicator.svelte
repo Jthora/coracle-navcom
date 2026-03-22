@@ -44,12 +44,12 @@
 
     {#if showTooltip}
       <div
-        class="z-50 absolute left-0 top-full mt-2 w-64 rounded-lg border border-neutral-600 bg-neutral-800 p-3 shadow-lg">
-        <p class="text-xs text-neutral-200">
+        class="z-50 bg-nc-shell-bg absolute left-0 top-full mt-2 w-64 rounded-lg border border-nc-shell-border p-3 shadow-lg">
+        <p class="text-xs text-nc-text">
           {$t("encryption.tooltip.explanation")}
         </p>
         <button
-          class="mt-2 rounded bg-neutral-700 px-2.5 py-1 text-[11px] text-neutral-200 transition-colors hover:bg-neutral-600"
+          class="mt-2 rounded bg-nc-input px-2.5 py-1 text-[11px] text-nc-text transition-colors hover:bg-nc-shell-border"
           on:click={dismissTooltip}>
           {$t("encryption.tooltip.dismiss")}
         </button>

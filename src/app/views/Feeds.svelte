@@ -23,9 +23,9 @@
 </script>
 
 {#if hasTopicPreset && !isOpsFeed && !isIntelFeed && !hideTopicChrome}
-  <div class="mb-3 flex flex-wrap items-center gap-2 text-sm text-neutral-300">
+  <div class="mb-3 flex flex-wrap items-center gap-2 text-sm text-nc-text">
     {#each topics as t (t)}
-      <span class="panel border border-neutral-700 px-2 py-1 text-neutral-200">#{t}</span>
+      <span class="panel border border-nc-shell-border px-2 py-1 text-nc-text">#{t}</span>
     {/each}
   </div>
 {/if}

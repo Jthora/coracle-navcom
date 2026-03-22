@@ -48,36 +48,36 @@
   }
 </script>
 
-<div class="max-w-sm rounded-xl border border-neutral-700 bg-neutral-900 p-4 shadow-xl">
-  <h3 class="mb-3 text-sm font-semibold text-neutral-200">
+<div class="max-w-sm rounded-xl border border-nc-shell-border bg-nc-shell-deep p-4 shadow-xl">
+  <h3 class="mb-3 text-sm font-semibold text-nc-text">
     {$t("geo.form.heading", {values: {geoTypeLabel}})}
   </h3>
 
   <div class="space-y-3">
     <div>
-      <label for="geo-label" class="text-xs text-neutral-400">{$t("geo.form.label.label")}</label>
+      <label for="geo-label" class="text-xs text-nc-text-muted">{$t("geo.form.label.label")}</label>
       <input
         id="geo-label"
         type="text"
         bind:value={label}
-        class="mt-1 w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-200 placeholder-neutral-500"
+        class="mt-1 w-full rounded-lg border border-nc-shell-border bg-nc-shell-bg px-3 py-2 text-sm text-nc-text placeholder-nc-text-muted"
         placeholder={$t("geo.form.label.placeholder")} />
     </div>
 
     <div>
-      <label for="geo-desc" class="text-xs text-neutral-400"
+      <label for="geo-desc" class="text-xs text-nc-text-muted"
         >{$t("geo.form.description.label")}</label>
       <textarea
         id="geo-desc"
         bind:value={description}
         rows="3"
-        class="mt-1 w-full resize-none rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-neutral-200 placeholder-neutral-500"
+        class="mt-1 w-full resize-none rounded-lg border border-nc-shell-border bg-nc-shell-bg px-3 py-2 text-sm text-nc-text placeholder-nc-text-muted"
         placeholder={$t("geo.form.description.placeholder", {values: {geoTypeLabel}})} />
     </div>
 
-    <div class="bg-neutral-800/50 rounded px-2 py-1.5 text-[10px] text-neutral-500">
-      {$t("geo.form.info.type")} <span class="text-neutral-400">{geoType}</span> ·
-      {$t("geo.form.info.points")} <span class="text-neutral-400">{coordinates.length}</span>
+    <div class="bg-nc-shell-bg/50 rounded px-2 py-1.5 text-[10px] text-nc-text-muted">
+      {$t("geo.form.info.type")} <span class="text-nc-text-muted">{geoType}</span> ·
+      {$t("geo.form.info.points")} <span class="text-nc-text-muted">{coordinates.length}</span>
     </div>
 
     <div class="flex gap-2">
@@ -88,7 +88,7 @@
         {$t("geo.form.action.submit")}
       </button>
       <button
-        class="rounded-lg bg-neutral-800 px-3 py-2 text-sm text-neutral-300 transition-colors hover:bg-neutral-700"
+        class="rounded-lg bg-nc-shell-bg px-3 py-2 text-sm text-nc-text transition-colors hover:bg-nc-input"
         on:click={() => dispatch("cancel")}>
         {$t("geo.form.action.cancel")}
       </button>

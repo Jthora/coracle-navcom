@@ -485,7 +485,7 @@
     })
 </script>
 
-<div class="text-neutral-100">
+<div class="text-nc-text">
   <!-- Accessibility: Skip-to-content link (appears on Tab) -->
   <a class="sr-only focus:not-sr-only" href="#main-content" on:click|preventDefault={skipToMain}>
     Skip to content
@@ -527,7 +527,7 @@
   {#if $pqcUnlockSkipped}
     <div class="fixed left-0 right-0 top-0 z-toast flex justify-center">
       <div
-        class="border-amber-500 bg-amber-900/80 m-2 max-w-xl flex-grow rounded border p-3 text-center text-sm text-neutral-100 shadow-xl">
+        class="border-amber-500 bg-amber-900/80 m-2 max-w-xl flex-grow rounded border p-3 text-center text-sm text-nc-text shadow-xl">
         <i class="fa fa-shield-halved mr-1" />
         Your encryption keys are not fully protected.
         <button

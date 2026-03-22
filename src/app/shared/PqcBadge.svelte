@@ -20,7 +20,7 @@
   </span>
 {:else if status === "unavailable"}
   <span
-    class="inline-flex items-center gap-1 rounded-full bg-neutral-800 px-2 py-0.5 text-[10px] font-medium text-neutral-500"
+    class="inline-flex items-center gap-1 rounded-full bg-nc-shell-bg px-2 py-0.5 text-[10px] font-medium text-nc-text-muted"
     title="Standard encryption only">
     ⚠ Standard
   </span>

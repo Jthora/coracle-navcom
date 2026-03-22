@@ -100,19 +100,19 @@
 </script>
 
 {#if point}
-  <div class="bg-neutral-900/40 mt-3 rounded-lg border border-neutral-700 p-2">
-    <div class="mb-2 flex items-center justify-between text-xs text-neutral-300">
+  <div class="bg-nc-shell-deep/40 mt-3 rounded-lg border border-nc-shell-border p-2">
+    <div class="mb-2 flex items-center justify-between text-xs text-nc-text">
       <span class="font-semibold">GEOINT location</span>
       <a class="underline" href={mapUrl} target="_blank" rel="noreferrer">Open map</a>
     </div>
 
     <div
       bind:this={mapEl}
-      class="relative h-28 w-full overflow-hidden rounded bg-neutral-800"
+      class="bg-nc-shell-bg relative h-28 w-full overflow-hidden rounded"
       aria-label={`Map preview at lat ${toFixed(point.lat)}, lon ${toFixed(point.lon)}`}
       aria-busy={tiles.length === 0 && !tilesError}>
       {#if tilesError}
-        <div class="absolute inset-0 flex items-center justify-center text-xs text-neutral-300">
+        <div class="absolute inset-0 flex items-center justify-center text-xs text-nc-text">
           Map preview unavailable
         </div>
       {:else}
@@ -128,12 +128,12 @@
         {/each}
 
         <div
-          class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-neutral-900 bg-white/90"
+          class="bg-nc-accent/90 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-nc-shell-border"
           style="width:12px;height:12px;" />
       {/if}
     </div>
 
-    <p class="mt-2 text-xs text-neutral-300">
+    <p class="mt-2 text-xs text-nc-text">
       Lat {toFixed(point.lat)} · Lon {toFixed(point.lon)}
     </p>
   </div>
