@@ -9,6 +9,7 @@ import {
   bytesToBase64,
   stringToBytes,
   mlKemEncapsulate,
+  hmacSha256,
 } from "src/engine/pqc/crypto-provider"
 
 export type DmEnvelopeBuildInput = {
@@ -106,12 +107,26 @@ export const buildDmPqcEnvelope = async ({
         // Derive a wrapping key from the KEM shared secret via HKDF
         const salt = stringToBytes(`navcom-pqc-dm:${senderPubkey}:${recipient}`)
         const info = stringToBytes(`dm-cek-wrap:${messageId}`)
-        const wrapKey = await hkdfDeriveKey(kemSs, salt, info, 32)
+        let wrapKey: Uint8Array
+        try {
+          wrapKey = await hkdfDeriveKey(kemSs, salt, info, 32)
+        } finally {
+          kemSs.fill(0)
+          salt.fill(0)
+        }
 
         // Wrap the CEK with the derived key
         const wrapNonce = randomNonce()
         const wrapKeyObj = await importAesGcmKey(wrapKey)
         const wrappedCek = await aesGcmEncrypt(cek, wrapKeyObj, wrapNonce)
+
+        // Compute confirmation tag: HMAC-SHA256(wrapKey, kem_ct || ad_bytes)
+        // Binds the KEM ciphertext to the associated data for key confirmation
+        const adBytes = stringToBytes(ad)
+        const tagInput = new Uint8Array(kemCt.length + adBytes.length)
+        tagInput.set(kemCt, 0)
+        tagInput.set(adBytes, kemCt.length)
+        const confirmationTag = await hmacSha256(wrapKey, tagInput)
 
         return {
           kem_alg: "mlkem768",
@@ -119,6 +134,7 @@ export const buildDmPqcEnvelope = async ({
           pk_ref: recipient,
           wrapped_cek: bytesToBase64(wrappedCek),
           wrap_nonce: bytesToBase64(wrapNonce),
+          confirmation_tag: bytesToBase64(confirmationTag),
         }
       }),
     )

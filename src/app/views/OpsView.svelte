@@ -1,9 +1,11 @@
 <script lang="ts">
   import {onDestroy, onMount} from "svelte"
   import {t} from "svelte-i18n"
+  import {displayProfileByPubkey} from "@welshman/app"
   import {setMode, setActiveChannel, mapViewport, mapTileSet} from "src/app/navcom-mode"
   import type {TileSetId} from "src/app/navcom-mode"
-  import {groupSummaries, unreadGroupMessageCounts} from "src/app/groups/state"
+  import {groupSummaries, unreadGroupMessageCounts, groupProjections} from "src/app/groups/state"
+  import {classifyGroupEventKind} from "src/domain/group-kinds"
   import {router} from "src/app/util/router"
   import type {GroupSummaryListItem} from "src/domain/group-selectors"
 
@@ -84,18 +86,87 @@
     router.at(`/groups/${id}/chat`).open()
   }
 
-  // Activity feed: basic stub pulling from groupSummaries as proxy
-  // Real implementation in Phase 3 will use typed message events
-  $: recentActivity = $groupSummaries
-    .filter(ch => ch.lastUpdated)
-    .sort((a, b) => (b.lastUpdated || 0) - (a.lastUpdated || 0))
-    .slice(0, 8)
-    .map(ch => ({
-      id: ch.id,
-      title: ch.title || $t("ops.activity.defaultTitle"),
-      lastUpdated: ch.lastUpdated || 0,
-      type: "activity" as const,
-    }))
+  // Activity feed: derive real events from group projections
+  const MSG_TYPE_ICONS: Record<string, string> = {
+    alert: "🚨",
+    sitrep: "📋",
+    "check-in": "📍",
+    spotrep: "📌",
+  }
+
+  type ActivityItem = {
+    id: string
+    groupId: string
+    groupTitle: string
+    msgType: string | null
+    author: string
+    timestamp: number
+  }
+
+  $: recentActivity = (() => {
+    const items: ActivityItem[] = []
+    for (const [gid, proj] of $groupProjections.entries()) {
+      const title = proj.group.title || gid
+      for (const ev of proj.sourceEvents) {
+        if (classifyGroupEventKind(ev.kind) !== "message") continue
+        const msgTypeTag = ev.tags.find(t => t[0] === "msg-type")
+        items.push({
+          id: ev.id,
+          groupId: gid,
+          groupTitle: title,
+          msgType: msgTypeTag ? msgTypeTag[1] : null,
+          author: ev.pubkey,
+          timestamp: ev.created_at,
+        })
+      }
+    }
+    items.sort((a, b) => b.timestamp - a.timestamp)
+    return items.slice(0, 8)
+  })()
+
+  function getActivityIcon(msgType: string | null): string {
+    if (msgType && MSG_TYPE_ICONS[msgType]) return MSG_TYPE_ICONS[msgType]
+    return "💬"
+  }
+
+  function getActivityLabel(msgType: string | null): string {
+    if (msgType) return msgType.replace("-", " ")
+    return "message"
+  }
+
+  // Per-group message type counts
+  function getMsgTypeCounts(groupId: string): Record<string, number> {
+    const proj = $groupProjections.get(groupId)
+    if (!proj) return {}
+    const counts: Record<string, number> = {}
+    for (const ev of proj.sourceEvents) {
+      if (classifyGroupEventKind(ev.kind) !== "message") continue
+      const tag = ev.tags.find(t => t[0] === "msg-type")
+      const key = tag ? tag[1] : "message"
+      counts[key] = (counts[key] || 0) + 1
+    }
+    return counts
+  }
+
+  // Per-group member role distribution
+  function getRoleCounts(groupId: string): Record<string, number> {
+    const proj = $groupProjections.get(groupId)
+    if (!proj) return {}
+    const counts: Record<string, number> = {}
+    for (const m of Object.values(proj.members)) {
+      if (m.status !== "active") continue
+      counts[m.role] = (counts[m.role] || 0) + 1
+    }
+    return counts
+  }
+
+  function relativeTime(ts: number): string {
+    const diff = Math.floor(Date.now() / 1000) - ts
+    if (diff < 60) return "just now"
+    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`
+    if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`
+    return `${Math.floor(diff / 86400)}d ago`
+  }
 </script>
 
 <svelte:window bind:innerWidth />
@@ -121,6 +192,8 @@
     <div class="divide-neutral-800/40 divide-y">
       {#each $groupSummaries as ch (ch.id)}
         {@const unread = getUnread(ch.id)}
+        {@const typeCounts = getMsgTypeCounts(ch.id)}
+        {@const roleCounts = getRoleCounts(ch.id)}
         <button
           class="hover:bg-neutral-800/60 flex w-full items-center gap-3 px-3 py-2.5 text-left transition-colors"
           on:click={() => openChannel(ch.id)}>
@@ -139,6 +212,18 @@
               >{getEncryptionLabel(ch)} · {$t("ops.channel.members", {
                 values: {count: ch.memberCount},
               })}</span>
+            <div class="mt-0.5 flex flex-wrap gap-1">
+              {#each Object.entries(typeCounts) as [type, count]}
+                <span class="bg-neutral-700/60 rounded px-1 py-0.5 text-[10px] text-neutral-400">
+                  {MSG_TYPE_ICONS[type] || "💬"}{count}
+                </span>
+              {/each}
+              {#each Object.entries(roleCounts) as [role, count]}
+                <span class="bg-neutral-700/40 rounded px-1 py-0.5 text-[10px] text-neutral-500">
+                  {role}:{count}
+                </span>
+              {/each}
+            </div>
           </div>
           {#if unread > 0}
             <span
@@ -161,19 +246,20 @@
           >{$t("ops.activity.label")}</span>
       </div>
       <div class="divide-neutral-800/40 divide-y">
-        {#each recentActivity as item (item.id + item.lastUpdated)}
+        {#each recentActivity as item (item.id)}
           <button
             class="hover:bg-neutral-800/60 flex w-full items-center gap-3 px-3 py-2.5 text-left transition-colors"
-            on:click={() => openChannel(item.id)}>
+            on:click={() => openChannel(item.groupId)}>
             <span class="w-12 shrink-0 text-[11px] tabular-nums text-neutral-500">
-              {new Date(item.lastUpdated * 1000).toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
-              })}
+              {relativeTime(item.timestamp)}
             </span>
-            <i class="fa fa-comment text-xs text-neutral-500" />
-            <span class="truncate text-sm text-neutral-200"
-              >{$t("ops.activity.description", {values: {title: item.title}})}</span>
+            <span class="text-sm">{getActivityIcon(item.msgType)}</span>
+            <div class="min-w-0 flex-1">
+              <span class="truncate text-sm text-neutral-200">
+                {displayProfileByPubkey(item.author)} · {getActivityLabel(item.msgType)}
+              </span>
+              <span class="block truncate text-[11px] text-neutral-500">{item.groupTitle}</span>
+            </div>
           </button>
         {:else}
           <div class="px-3 py-4 text-center text-xs text-neutral-500">

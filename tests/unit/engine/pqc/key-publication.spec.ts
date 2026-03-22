@@ -7,6 +7,7 @@ import {
   getPqcKeyFreshness,
   getPqcKeyFreshnessState,
   selectPreferredActivePqcKey,
+  selectPreferredActivePqcKeyOrError,
   validatePqcKeyPublicationRecord,
 } from "../../../../src/engine/pqc/key-publication"
 import {
@@ -145,5 +146,73 @@ describe("engine/pqc/key-publication", () => {
     const {record} = generatePqcKeyPair({userPubkey: "c".repeat(64)})
     const result = validatePqcKeyPublicationRecord(record, {requireActive: true})
     expect(result.ok).toBe(true)
+  })
+
+  it("returns null when all keys are revoked", () => {
+    const records = [
+      makeRecord({key_id: "k-rev1", status: "revoked"}),
+      makeRecord({key_id: "k-rev2", status: "revoked"}),
+    ]
+
+    const selected = selectPreferredActivePqcKey(records as any, now)
+    expect(selected).toBeNull()
+  })
+
+  it("returns null when all keys are deprecated", () => {
+    const records = [
+      makeRecord({key_id: "k-dep1", status: "deprecated"}),
+      makeRecord({key_id: "k-dep2", status: "deprecated"}),
+    ]
+
+    const selected = selectPreferredActivePqcKey(records as any, now)
+    expect(selected).toBeNull()
+  })
+
+  describe("selectPreferredActivePqcKeyOrError", () => {
+    it("returns structured error for empty records", () => {
+      const result = selectPreferredActivePqcKeyOrError([], now)
+      expect(result.ok).toBe(false)
+      if (!result.ok) expect(result.code).toBe("NO_KEYS_AVAILABLE")
+    })
+
+    it("returns ALL_KEYS_REVOKED when all keys are revoked", () => {
+      const records = [
+        makeRecord({key_id: "k-r1", status: "revoked"}),
+        makeRecord({key_id: "k-r2", status: "revoked"}),
+      ]
+      const result = selectPreferredActivePqcKeyOrError(records as any, now)
+      expect(result.ok).toBe(false)
+      if (!result.ok) expect(result.code).toBe("ALL_KEYS_REVOKED")
+    })
+
+    it("returns ALL_KEYS_DEPRECATED when all keys are deprecated", () => {
+      const records = [
+        makeRecord({key_id: "k-d1", status: "deprecated"}),
+        makeRecord({key_id: "k-d2", status: "deprecated"}),
+      ]
+      const result = selectPreferredActivePqcKeyOrError(records as any, now)
+      expect(result.ok).toBe(false)
+      if (!result.ok) expect(result.code).toBe("ALL_KEYS_DEPRECATED")
+    })
+
+    it("returns ALL_KEYS_EXPIRED when all active keys are expired", () => {
+      const records = [
+        makeRecord({key_id: "k-e1", expires_at: now - 1}),
+        makeRecord({key_id: "k-e2", expires_at: now - 100}),
+      ]
+      const result = selectPreferredActivePqcKeyOrError(records as any, now)
+      expect(result.ok).toBe(false)
+      if (!result.ok) expect(result.code).toBe("ALL_KEYS_EXPIRED")
+    })
+
+    it("returns ok with key when a valid key exists", () => {
+      const records = [
+        makeRecord({key_id: "k-good", expires_at: now + 3600}),
+        makeRecord({key_id: "k-rev", status: "revoked"}),
+      ]
+      const result = selectPreferredActivePqcKeyOrError(records as any, now)
+      expect(result.ok).toBe(true)
+      if (result.ok) expect(result.key.key_id).toBe("k-good")
+    })
   })
 })

@@ -31,6 +31,7 @@ import {
   deleteKey,
   listKeyIds,
   getKeyMetadata,
+  rewrapAllKeys,
 } from "src/engine/keys/secure-store"
 
 describe("secure-store", () => {
@@ -105,5 +106,45 @@ describe("secure-store", () => {
     await storeKey("pqc-large", largeKey, testPassphrase, "pqc-secret")
     const retrieved = await retrieveKey("pqc-large", testPassphrase)
     expect(retrieved).toEqual(largeKey)
+  })
+
+  it("rewrapAllKeys aborts atomically when any key cannot be unwrapped", async () => {
+    // Store two keys with the correct passphrase
+    await storeKey("key-good", new Uint8Array([1, 2, 3]), testPassphrase, "nostr-secret")
+    await storeKey("key-bad", new Uint8Array([4, 5, 6]), testPassphrase, "pqc-secret")
+
+    // Corrupt the second key's wrapped data so it can't be unwrapped
+    const record = _data.get("key-bad")
+    record.wrapped = new ArrayBuffer(8) // garbage
+    record.iv = new Uint8Array(12) // mismatched IV
+    _data.set("key-bad", record)
+
+    const result = await rewrapAllKeys(testPassphrase, "new-passphrase-456")
+
+    // Atomic: all fail if any unwrap fails — no partial re-wraps
+    expect(result.succeeded).toBe(0)
+    expect(result.failed).toBe(2)
+    expect(result.failedIds).toContain("key-bad")
+
+    // The good key should still be readable with the OLD passphrase (no modification)
+    const goodKey = await retrieveKey("key-good", testPassphrase)
+    expect(goodKey).toEqual(new Uint8Array([1, 2, 3]))
+  })
+
+  it("rewrapAllKeys succeeds when all keys are valid", async () => {
+    await storeKey("key-1", new Uint8Array([10, 20]), testPassphrase, "nostr-secret")
+    await storeKey("key-2", new Uint8Array([30, 40]), testPassphrase, "pqc-secret")
+
+    const result = await rewrapAllKeys(testPassphrase, "new-passphrase-789")
+
+    expect(result.succeeded).toBe(2)
+    expect(result.failed).toBe(0)
+    expect(result.failedIds).toEqual([])
+
+    // Verify keys can be retrieved with new passphrase
+    const r1 = await retrieveKey("key-1", "new-passphrase-789")
+    expect(r1).toEqual(new Uint8Array([10, 20]))
+    const r2 = await retrieveKey("key-2", "new-passphrase-789")
+    expect(r2).toEqual(new Uint8Array([30, 40]))
   })
 })

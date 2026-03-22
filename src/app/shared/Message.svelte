@@ -13,10 +13,21 @@
   import PersonName from "src/app/shared/PersonName.svelte"
   import NoteInfo from "src/app/shared/NoteInfo.svelte"
   import {getDmMessageSecurityState} from "src/app/shared/message-security"
-  import {ensureMessagePlaintext, userSettings} from "src/engine"
+  import {ensureMessagePlaintext, retryMessageDecryption, userSettings} from "src/engine"
   import {router} from "src/app/util/router"
 
   export let message
+
+  let retrying = false
+
+  const retryDecrypt = async () => {
+    retrying = true
+    try {
+      await retryMessageDecryption(message)
+    } finally {
+      retrying = false
+    }
+  }
 
   const getContent = e => (e.kind === 4 ? ensureMessagePlaintext(e) : e.content) || ""
 
@@ -49,7 +60,26 @@
       {#await getContent(message)}
         <!-- pass -->
       {:then content}
-        <NoteContent showEntire note={{...message, content}} />
+        {#if content}
+          <NoteContent showEntire note={{...message, content}} />
+        {:else if message.kind === 4 && message.content}
+          <div class="flex items-center gap-2 text-sm italic text-neutral-400">
+            <i class="fa fa-lock text-xs" />
+            <span>Message could not be decrypted</span>
+            <button
+              class="ml-1 cursor-pointer underline hover:text-neutral-200"
+              disabled={retrying}
+              on:click={retryDecrypt}>
+              {#if retrying}
+                <i class="fa fa-circle-notch fa-spin text-xs" />
+              {:else}
+                Retry
+              {/if}
+            </button>
+          </div>
+        {:else}
+          <NoteContent showEntire note={{...message, content}} />
+        {/if}
       {/await}
     </div>
     <small

@@ -73,29 +73,42 @@ export async function ensureOwnPqcKey(): Promise<{
   return {record, secretKey}
 }
 
+/** Max relay re-fetch attempts for stale/expired peer keys */
+const MAX_PEER_KEY_REFETCH_ATTEMPTS = 3
+
 /**
  * Resolve a peer's PQ public key by querying kind 10051 events.
  * Returns the raw ML-KEM public key bytes or null if unavailable.
+ *
+ * Cached keys are validated for expiry — stale/expired keys trigger
+ * a relay re-fetch (up to MAX_PEER_KEY_REFETCH_ATTEMPTS).
  */
 export async function resolvePeerPqPublicKey(peerPubkey: string): Promise<Uint8Array | null> {
   // First check the local repository cache
   const cached = findPeerPqKeyInRepository(peerPubkey)
   if (cached) return cached
 
-  // Query relays for kind 10051 from this peer
-  try {
-    const relays = Router.get().FromPubkeys([peerPubkey]).policy(addMaximalFallbacks).getUrls()
+  // Query relays for kind 10051 from this peer (with retry cap)
+  for (let attempt = 0; attempt < MAX_PEER_KEY_REFETCH_ATTEMPTS; attempt++) {
+    try {
+      const relays = Router.get().FromPubkeys([peerPubkey]).policy(addMaximalFallbacks).getUrls()
 
-    await load({
-      relays,
-      filters: [{kinds: [PQ_KEY_PACKAGE_RELAYS_KIND], authors: [peerPubkey]}],
-    })
+      await load({
+        relays,
+        filters: [{kinds: [PQ_KEY_PACKAGE_RELAYS_KIND], authors: [peerPubkey]}],
+      })
 
-    // After load, check the repository again
-    return findPeerPqKeyInRepository(peerPubkey)
-  } catch {
-    return null
+      const result = findPeerPqKeyInRepository(peerPubkey)
+      if (result) return result
+    } catch {
+      // Relay timeout/unreachable — don't use stale key, try again
+      console.warn(
+        `[PQC] Peer key fetch attempt ${attempt + 1}/${MAX_PEER_KEY_REFETCH_ATTEMPTS} failed for ${peerPubkey.slice(0, 8)}`,
+      )
+    }
   }
+
+  return null
 }
 
 /**

@@ -3,12 +3,17 @@
 > **Pillar 4 — "The map is the territory."**
 > Operational awareness requires spatial context. Communications without location are incomplete.
 
-## Status: NOT STARTED
+## Status: SUPERSEDED (2026-03-21)
 
-**Priority**: CRITICAL — Highest-leverage single change remaining
-**Effort**: ~280 lines across 3 files
-**Blocks**: 10 verification items (lines 270-277, 293-294 in progress-tracker.md)
-**Dependencies**: None — IntelNavMap.svelte is fully functional on `/intel/map`
+> **This plan is obsolete.** `IntelNavMap.svelte` was removed and its `/intel/map` route deleted.
+> MapView.svelte now has its own native Leaflet integration with marker derivation, layer
+> filtering, clustering, user GPS location, member positions layer, and draw tools.
+> OpsView.svelte has a real activity feed derived from group projection `sourceEvents`.
+> All verification items below have been addressed by the current MapView implementation.
+
+~~**Priority**: CRITICAL — Highest-leverage single change remaining~~
+~~**Effort**: ~280 lines across 3 files~~
+~~**Dependencies**: None — IntelNavMap.svelte is fully functional on `/intel/map`~~
 
 ---
 

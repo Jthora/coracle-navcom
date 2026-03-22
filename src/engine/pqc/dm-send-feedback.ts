@@ -12,6 +12,7 @@ const CODE_SUMMARIES: Record<string, string> = {
     "Secure DM send could not negotiate a hybrid profile with the recipient. Retry after peer capabilities refresh.",
   DM_KEY_UNAVAILABLE:
     "Recipient PQC key is unavailable. Ask the recipient to publish a PQC key and retry.",
+  DM_KEY_REVOKED: "Cannot send encrypted message — recipient's encryption key has been revoked.",
   DM_KEY_STALE: "Recipient PQC key is stale. Refresh peer PQC metadata before sending again.",
   DM_KEY_EXPIRED: "Recipient PQC key is expired. Wait for key rotation and retry secure send.",
   DM_ENVELOPE_ENCODE_FAILED:
@@ -49,7 +50,7 @@ const extractCode = (message: string) => {
     /DM send blocked by PQC policy:\s*([A-Z0-9_]+)/,
     /DM send blocked by PQC envelope encode failure:\s*([A-Z0-9_]+)/,
     /DM send blocked by PQC payload preflight:\s*([A-Z0-9_]+)/,
-    /\b(DM_(?:POLICY_BLOCKED|NEGOTIATION_FAILED|KEY_UNAVAILABLE|KEY_STALE|KEY_EXPIRED|ENVELOPE_ENCODE_FAILED|PAYLOAD_OVERSIZE_BLOCKED))\b/,
+    /\b(DM_(?:POLICY_BLOCKED|NEGOTIATION_FAILED|KEY_UNAVAILABLE|KEY_REVOKED|KEY_STALE|KEY_EXPIRED|ENVELOPE_ENCODE_FAILED|PAYLOAD_OVERSIZE_BLOCKED))\b/,
   ]
 
   for (const pattern of patterns) {

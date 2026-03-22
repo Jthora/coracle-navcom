@@ -12,8 +12,8 @@ export interface ChannelMarker {
   id: string
   lat: number
   lng: number
-  /** NavCom message type: check-in, alert, spotrep, or message */
-  type: "check-in" | "alert" | "spotrep" | "message"
+  /** NavCom message type: check-in, alert, sitrep, spotrep, or message */
+  type: "check-in" | "alert" | "sitrep" | "spotrep" | "message"
   /** Author pubkey */
   author: string
   /** Unix timestamp */
@@ -31,6 +31,7 @@ export const MARKER_STYLES: Record<
 > = {
   "check-in": {icon: "📍", color: "#22c55e", cssClass: "marker-checkin"},
   alert: {icon: "🚨", color: "#ef4444", cssClass: "marker-alert"},
+  sitrep: {icon: "📋", color: "#f59e0b", cssClass: "marker-sitrep"},
   spotrep: {icon: "📌", color: "#22d3ee", cssClass: "marker-spotrep"},
   message: {icon: "•", color: "#9ca3af", cssClass: "marker-message"},
 }
@@ -69,9 +70,11 @@ export function deriveMarkers(messages: TrustedEvent[]): ChannelMarker[] {
         ? "check-in"
         : msgType === "alert"
           ? "alert"
-          : msgType === "spotrep"
-            ? "spotrep"
-            : "message"
+          : msgType === "sitrep"
+            ? "sitrep"
+            : msgType === "spotrep"
+              ? "spotrep"
+              : "message"
 
     markers.push({
       id: msg.id,
@@ -85,4 +88,20 @@ export function deriveMarkers(messages: TrustedEvent[]): ChannelMarker[] {
   }
 
   return markers
+}
+
+/**
+ * Derive latest member positions from check-in markers.
+ * Groups by author pubkey and keeps only the most recent check-in per member.
+ */
+export function deriveMemberPositions(markers: ChannelMarker[]): ChannelMarker[] {
+  const latest = new Map<string, ChannelMarker>()
+  for (const m of markers) {
+    if (m.type !== "check-in") continue
+    const existing = latest.get(m.author)
+    if (!existing || m.timestamp > existing.timestamp) {
+      latest.set(m.author, m)
+    }
+  }
+  return Array.from(latest.values())
 }

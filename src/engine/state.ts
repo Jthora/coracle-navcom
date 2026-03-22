@@ -126,6 +126,19 @@ export const ensureMessagePlaintext = async (e: TrustedEvent) => {
   return getPlaintext(e)
 }
 
+/**
+ * Retry decryption for a message by clearing its cached plaintext and re-decrypting.
+ */
+export const retryMessageDecryption = async (e: TrustedEvent) => {
+  // Clear cached plaintext to allow re-attempt
+  plaintext.update(map => {
+    const copy = {...map}
+    delete copy[e.id]
+    return copy
+  })
+  return ensureMessagePlaintext(e)
+}
+
 // Decrypt stuff as it comes in
 
 const decrypter = new TaskQueue<TrustedEvent>({

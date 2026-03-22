@@ -2,6 +2,7 @@ import type {TrustedEvent} from "@welshman/util"
 import {getTagValue, getTagValues} from "@welshman/util"
 import {validateGroupContractEvent} from "src/domain/group-contracts"
 import {classifyGroupEventKind, GROUP_KINDS} from "src/domain/group-kinds"
+import {parseSecureGroupWelcome} from "src/engine/group-epoch-welcome"
 import {
   makeAuditEvent,
   makeGroup,
@@ -148,6 +149,16 @@ export const applyGroupEvent = (
         eventId: event.id,
       }),
     )
+  }
+
+  if (event.kind === GROUP_KINDS.NIP_EE.WELCOME) {
+    const result = parseSecureGroupWelcome(event)
+
+    if (result.ok) {
+      projection.group.transportMode = "secure-nip-ee"
+      projection.group.currentEpochId = result.payload.epoch_id
+      projection.group.currentEpochSequence = result.payload.epoch_sequence
+    }
   }
 
   return projection

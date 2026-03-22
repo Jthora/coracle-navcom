@@ -158,7 +158,14 @@ export const displayDomain = url => {
 
 export const sumBy = (f, xs) => sum(xs.map(f))
 
-export const ensureProto = url => (url.includes("://") ? url : "https://" + url)
+export const ensureProto = url => {
+  if (!url) return url
+  if (url.includes("://")) {
+    if (/^https?:\/\//i.test(url)) return url
+    return "https://" + url.replace(/^[^:]+:\/\//, "")
+  }
+  return "https://" + url
+}
 
 export const asArray = v => ensurePlural(v).filter(identity)
 

@@ -143,34 +143,103 @@ export async function listKeyIds(): Promise<string[]> {
 }
 
 /**
- * Re-wrap all keys with a new passphrase.
- * Used for passphrase change. Requires the old passphrase to unwrap first.
+ * Re-wrap all keys with a new passphrase (two-phase atomic approach).
+ *
+ * Phase 1: Unwrap all keys with old passphrase into memory. If any fail,
+ * abort without modifying the store — old passphrase remains valid.
+ * Phase 2: Write all keys with new passphrase. Only after all writes
+ * succeed is the operation considered complete.
  */
 export async function rewrapAllKeys(
   oldPassphrase: string,
   newPassphrase: string,
-): Promise<{succeeded: number; failed: number}> {
+): Promise<{succeeded: number; failed: number; failedIds: string[]}> {
   const ids = await listKeyIds()
-  let succeeded = 0
-  let failed = 0
+  const failedIds: string[] = []
+
+  // Phase 1 — Unwrap all keys into memory
+  const unwrapped: Array<{id: string; raw: Uint8Array; record: WrappedKeyRecord}> = []
 
   for (const id of ids) {
-    const db = await getDb()
-    const record: WrappedKeyRecord | undefined = await db.get(STORE_NAME, id)
-    if (!record) {
-      failed++
-      continue
-    }
+    try {
+      const db = await getDb()
+      const record: WrappedKeyRecord | undefined = await db.get(STORE_NAME, id)
+      if (!record) {
+        console.warn(`[SecureStore] rewrapAllKeys: record not found for key "${id}"`)
+        failedIds.push(id)
+        continue
+      }
 
-    const raw = await retrieveKey(id, oldPassphrase)
-    if (!raw) {
-      failed++
-      continue
-    }
+      const raw = await retrieveKey(id, oldPassphrase)
+      if (!raw) {
+        console.warn(
+          `[SecureStore] rewrapAllKeys: could not unwrap key "${id}" with old passphrase`,
+        )
+        failedIds.push(id)
+        continue
+      }
 
-    await storeKey(id, raw, newPassphrase, record.keyType, record.metadata)
-    succeeded++
+      unwrapped.push({id, raw, record})
+    } catch (error) {
+      console.warn(`[SecureStore] rewrapAllKeys: unexpected error unwrapping key "${id}":`, error)
+      failedIds.push(id)
+    }
   }
 
-  return {succeeded, failed}
+  // If any keys failed to unwrap, abort — don't partially re-wrap
+  if (failedIds.length > 0) {
+    // Zero unwrapped material before returning
+    for (const entry of unwrapped) entry.raw.fill(0)
+    return {succeeded: 0, failed: ids.length, failedIds}
+  }
+
+  // Phase 2 — Write all keys with new passphrase
+  let succeeded = 0
+  try {
+    for (const {id, raw, record} of unwrapped) {
+      await storeKey(id, raw, newPassphrase, record.keyType, record.metadata)
+      succeeded++
+    }
+  } catch (error) {
+    console.warn(
+      "[SecureStore] rewrapAllKeys: write phase failed — rolling back to old passphrase:",
+      error,
+    )
+    // Roll back: re-wrap already-succeeded keys with old passphrase
+    let rolledBack = 0
+    for (let i = 0; i < succeeded; i++) {
+      try {
+        const entry = unwrapped[i]
+        await storeKey(
+          entry.id,
+          entry.raw,
+          oldPassphrase,
+          entry.record.keyType,
+          entry.record.metadata,
+        )
+        rolledBack++
+      } catch (rollbackError) {
+        console.warn(
+          `[SecureStore] rewrapAllKeys: rollback failed for key "${unwrapped[i].id}":`,
+          rollbackError,
+        )
+      }
+    }
+    if (rolledBack === succeeded) {
+      console.warn(
+        "[SecureStore] rewrapAllKeys: rollback complete — old passphrase is still active",
+      )
+    } else {
+      console.warn(
+        `[SecureStore] rewrapAllKeys: partial rollback (${rolledBack}/${succeeded}) — inconsistent state`,
+      )
+    }
+    const remainingIds = unwrapped.slice(succeeded).map(e => e.id)
+    return {succeeded: 0, failed: ids.length, failedIds: remainingIds}
+  } finally {
+    // Zero all unwrapped material
+    for (const entry of unwrapped) entry.raw.fill(0)
+  }
+
+  return {succeeded, failed: 0, failedIds: []}
 }

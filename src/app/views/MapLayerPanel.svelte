@@ -74,6 +74,15 @@
     <label class="flex cursor-pointer items-center gap-2 py-1 text-sm text-neutral-200">
       <input
         type="checkbox"
+        checked={$mapLayers.sitreps}
+        on:change={() => toggleLayer("sitreps")}
+        class="accent-amber-500" />
+      <span style="color:#f59e0b">📋</span>
+      {$t("map.layer.sitreps")}
+    </label>
+    <label class="flex cursor-pointer items-center gap-2 py-1 text-sm text-neutral-200">
+      <input
+        type="checkbox"
         checked={$mapLayers.memberPositions}
         on:change={() => toggleLayer("memberPositions")}
         class="accent-neutral-400" />

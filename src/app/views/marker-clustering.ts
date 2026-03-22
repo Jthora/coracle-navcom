@@ -18,8 +18,8 @@ export interface MarkerCluster {
   markers: ChannelMarker[]
   /** Count of contained markers */
   count: number
-  /** Dominant style: red if any alert, green if all check-ins, cyan otherwise */
-  style: "alert" | "checkin" | "mixed"
+  /** Dominant style: red if any alert, amber if all sitreps, green if all check-ins, cyan otherwise */
+  style: "alert" | "sitrep" | "checkin" | "mixed"
 }
 
 /**
@@ -51,13 +51,14 @@ export function clusterMarkers(markers: ChannelMarker[], precision: number): Mar
     const lng = group.reduce((s, m) => s + m.lng, 0) / group.length
     const hasAlert = group.some(m => m.type === "alert")
     const allCheckIns = group.every(m => m.type === "check-in")
+    const allSitreps = group.every(m => m.type === "sitrep")
 
     clusters.push({
       lat,
       lng,
       markers: group,
       count: group.length,
-      style: hasAlert ? "alert" : allCheckIns ? "checkin" : "mixed",
+      style: hasAlert ? "alert" : allCheckIns ? "checkin" : allSitreps ? "sitrep" : "mixed",
     })
   }
 
@@ -79,6 +80,7 @@ export function zoomToPrecision(zoom: number): number {
 /** Cluster styling colors */
 export const CLUSTER_COLORS: Record<MarkerCluster["style"], string> = {
   alert: "#ef4444", // red
+  sitrep: "#f59e0b", // amber
   checkin: "#22c55e", // green
   mixed: "#22d3ee", // cyan/accent
 }

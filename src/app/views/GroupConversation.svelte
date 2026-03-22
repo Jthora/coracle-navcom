@@ -1,7 +1,8 @@
 <script lang="ts">
   import {formatTimestamp} from "@welshman/lib"
-  import {signer} from "@welshman/app"
+  import {signer, pubkey} from "@welshman/app"
   import {onMount, onDestroy} from "svelte"
+  import {get} from "svelte/store"
   import Link from "src/partials/Link.svelte"
   import GroupBreadcrumbs from "src/app/groups/GroupBreadcrumbs.svelte"
   import {buildGroupBreadcrumbItems} from "src/app/groups/breadcrumbs"
@@ -22,8 +23,16 @@
     getGroupInviteCreateHref,
   } from "src/app/groups/invite-share"
   import {reportGroupError} from "src/app/groups/error-reporting"
-  import {classifyGroupEventKind} from "src/domain/group-kinds"
+  import {classifyGroupEventKind, GROUP_KINDS} from "src/domain/group-kinds"
   import {publishGroupMessage, setChecked} from "src/engine"
+  import {resolveEpochKey} from "src/engine/group-transport-secure-ops"
+  import {validateAndDecryptSecureGroupEventContent} from "src/engine/group-epoch-decrypt"
+  import {parseSealedContent, sealedMetaToTags} from "src/engine/group-epoch-content"
+  import {getGroupMessageEpochId} from "src/engine/group-epoch-message"
+  import {adoptSecureGroupEpochState} from "src/engine/group-epoch-state"
+  import {getActivePassphrase, loadPqcKeyPair} from "src/engine/pqc/pq-key-store"
+  import {receiveEpochKeyShare} from "src/engine/group-epoch-key-share"
+  import {storeKey} from "src/engine/keys/secure-store"
   import MessageTypeSelector from "src/app/views/MessageTypeSelector.svelte"
   import CheckInCard from "src/app/views/CheckInCard.svelte"
   import AlertCard from "src/app/views/AlertCard.svelte"
@@ -53,6 +62,8 @@
   }
   let showSitrepForm = false
   let showSpotrepForm = false
+  let searchQuery = ""
+  let showSearch = false
 
   // Progressive disclosure: show type selector after N messages sent
   const MSG_COUNT_KEY = "compose-message-count"
@@ -238,6 +249,8 @@
   $: projection = $groupProjections.get(groupId)
   $: securityState = getProjectionSecurityState(projection, Boolean(downgradeBanner))
   $: groupTitle = projection?.group.title || groupId
+  // Reset decryption cache when switching groups
+  $: if (groupId) decryptedContent = new Map()
   $: messages = projection
     ? projection.sourceEvents
         .filter(event => classifyGroupEventKind(event.kind) === "message" && event.content)
@@ -246,6 +259,168 @@
           (left, right) => left.created_at - right.created_at || left.id.localeCompare(right.id),
         )
     : []
+
+  $: searchLower = searchQuery.trim().toLowerCase()
+  $: filteredMessages = searchLower
+    ? messages.filter(m => getDisplayContent(m).toLowerCase().includes(searchLower))
+    : messages
+  $: searchMatchCount = searchLower ? filteredMessages.length : 0
+
+  // PQC decryption layer: decrypt secure group messages for display
+  let decryptedContent: Map<string, string> = new Map()
+  let decryptionFailed: Set<string> = new Set()
+  let decryptionPending = false
+  let decryptionTrigger = 0
+
+  async function decryptSecureMessages(msgs: typeof messages, gid: string) {
+    if (decryptionPending) return
+    decryptionPending = true
+
+    try {
+      const currentEpochId = projection?.group.currentEpochId
+      if (!currentEpochId) return // WELCOME not received yet
+
+      const passphrase = getActivePassphrase()
+      if (!passphrase) return
+
+      const epochKey = await resolveEpochKey(gid, currentEpochId, passphrase)
+      if (!epochKey) return
+
+      const next = new Map(decryptedContent)
+      let changed = false
+
+      for (const msg of msgs) {
+        if (next.has(msg.id)) continue
+        if (msg.kind !== GROUP_KINDS.NIP_EE.GROUP_EVENT) continue
+
+        // Try current epoch key first
+        const result = await validateAndDecryptSecureGroupEventContent({
+          event: msg,
+          expectedEpochId: currentEpochId,
+          epochKeyBytes: epochKey,
+        })
+
+        if (result.ok && result.plaintext) {
+          const sealed = parseSealedContent(result.plaintext)
+          next.set(msg.id, sealed.text)
+          // Re-inject sealed metadata as event tags for UI rendering
+          const metaTags = sealedMetaToTags(sealed.meta)
+          if (metaTags.length > 0) {
+            msg.tags = [...msg.tags, ...metaTags]
+          }
+          changed = true
+          continue
+        }
+
+        // Fallback: try the epoch tagged in the message (multi-epoch retention)
+        const msgEpochId = getGroupMessageEpochId(msg)
+        if (msgEpochId && msgEpochId !== currentEpochId) {
+          const altKey = await resolveEpochKey(gid, msgEpochId, passphrase)
+          if (altKey) {
+            const altResult = await validateAndDecryptSecureGroupEventContent({
+              event: msg,
+              expectedEpochId: msgEpochId,
+              epochKeyBytes: altKey,
+            })
+            if (altResult.ok && altResult.plaintext) {
+              const altSealed = parseSealedContent(altResult.plaintext)
+              next.set(msg.id, altSealed.text)
+              const altMetaTags = sealedMetaToTags(altSealed.meta)
+              if (altMetaTags.length > 0) {
+                msg.tags = [...msg.tags, ...altMetaTags]
+              }
+              changed = true
+              continue
+            }
+          }
+        }
+
+        // Both attempts failed — mark as decryption failure
+        if (!next.has(msg.id)) {
+          decryptionFailed = new Set([...decryptionFailed, msg.id])
+        }
+      }
+
+      if (changed) {
+        decryptedContent = next
+      }
+    } finally {
+      decryptionPending = false
+    }
+  }
+
+  $: if (
+    projection?.group.transportMode === "secure-nip-ee" &&
+    messages.length > 0 &&
+    decryptionTrigger >= 0
+  ) {
+    decryptSecureMessages(messages, projection.group.id)
+  }
+
+  // Process incoming kind 446 key shares addressed to us
+  let processedKeyShares = new Set<string>()
+  let keyShareProcessing = false
+
+  async function processIncomingKeyShares(gid: string) {
+    if (keyShareProcessing || !projection) return
+    keyShareProcessing = true
+
+    try {
+      const myPub = get(pubkey)
+      if (!myPub) return
+
+      const passphrase = getActivePassphrase()
+      if (!passphrase) return
+
+      const keyPair = await loadPqcKeyPair(myPub)
+      if (!keyPair) return
+
+      const keyShareEvents = projection.sourceEvents.filter(
+        e =>
+          e.kind === GROUP_KINDS.NIP_EE.EPOCH_KEY_SHARE &&
+          !processedKeyShares.has(e.id) &&
+          e.tags.some(t => t[0] === "p" && t[1] === myPub),
+      )
+
+      for (const event of keyShareEvents) {
+        const result = await receiveEpochKeyShare(event.content, myPub, keyPair.secretKey)
+
+        if (result.ok) {
+          await storeKey(
+            `pqc-group-master:${result.groupId}:epoch:${result.epochId}`,
+            result.masterKey,
+            passphrase,
+            "pqc-secret",
+            {groupId: result.groupId, epochId: result.epochId},
+          )
+          adoptSecureGroupEpochState(result.groupId, {
+            epochId: result.epochId,
+            sequence: result.epochSequence,
+          })
+          // Re-trigger decryption with new key
+          decryptedContent = new Map()
+          decryptionTrigger++
+        }
+
+        processedKeyShares = new Set([...processedKeyShares, event.id])
+      }
+    } finally {
+      keyShareProcessing = false
+    }
+  }
+
+  $: if (projection?.group.transportMode === "secure-nip-ee") {
+    processIncomingKeyShares(groupId)
+  }
+
+  // Helper to get display content — decrypted if available, raw otherwise
+  const getDisplayContent = (msg: {id: string; content: string}) =>
+    decryptedContent.get(msg.id) || msg.content
+
+  /** Check if a message failed decryption (integrity check or key mismatch) */
+  const isDecryptionFailed = (msg: {id: string; kind?: number}) =>
+    msg.kind === GROUP_KINDS.NIP_EE.GROUP_EVENT && decryptionFailed.has(msg.id)
+
   $: activeRecipients = projection
     ? Object.values(projection.members || {})
         .filter(member => member?.status === "active" && typeof member?.pubkey === "string")
@@ -316,6 +491,20 @@
   const onOpenInvite = () => {
     inviteCue = "Opening Invite: generate a link or QR, then share it with members."
     trackGroupTelemetry("group_invite_create_opened", {route: "group-chat"})
+  }
+
+  function toggleSearch() {
+    showSearch = !showSearch
+    if (!showSearch) {
+      searchQuery = ""
+    }
+  }
+
+  function onSearchKeydown(e: KeyboardEvent) {
+    if (e.key === "Escape") {
+      showSearch = false
+      searchQuery = ""
+    }
   }
 
   onMount(() => {
@@ -405,8 +594,12 @@
       extraTags.push(["priority", alertPriority])
     }
 
-    // Auto-attach geolocation for check-in
-    if (selectedType === "check-in" && typeof navigator !== "undefined" && navigator.geolocation) {
+    // Auto-attach geolocation for check-in and alert
+    if (
+      (selectedType === "check-in" || selectedType === "alert") &&
+      typeof navigator !== "undefined" &&
+      navigator.geolocation
+    ) {
       try {
         const pos = await new Promise<GeolocationPosition>((resolve, reject) =>
           navigator.geolocation.getCurrentPosition(resolve, reject, {timeout: 5000}),
@@ -540,6 +733,9 @@
         <Link class="btn" href={`${baseRoute()}/settings`}>Settings</Link>
         <Link class="btn" href={inviteCreateHref()} on:click={onOpenInvite}>Invite</Link>
         <button class="btn" type="button" on:click={onShareInvite}>Share</button>
+        <button class="btn" type="button" on:click={toggleSearch} title="Search messages">
+          <i class="fa fa-search" />
+        </button>
       </div>
     </div>
     <div class="mt-3 rounded border border-neutral-700 px-3 py-2 text-sm text-neutral-300">
@@ -550,29 +746,66 @@
         {inviteCue}
       </div>
     {/if}
+    {#if showSearch}
+      <div class="mt-2 flex items-center gap-2">
+        <div class="relative flex-1">
+          <input
+            type="text"
+            bind:value={searchQuery}
+            on:keydown={onSearchKeydown}
+            placeholder="Search messages…"
+            class="w-full rounded-lg border border-neutral-600 bg-neutral-700 px-3 py-2 pl-8 text-sm text-neutral-100 placeholder-neutral-500 focus:border-accent focus:outline-none" />
+          <i
+            class="fa fa-search absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-neutral-500" />
+        </div>
+        {#if searchLower}
+          <span class="text-xs text-neutral-400"
+            >{searchMatchCount} match{searchMatchCount !== 1 ? "es" : ""}</span>
+        {/if}
+        <button
+          class="text-neutral-400 transition-colors hover:text-neutral-200"
+          on:click={toggleSearch}>
+          <i class="fa fa-times" />
+        </button>
+      </div>
+    {/if}
   </div>
 
   <div class="panel p-4">
     <h3 class="text-sm uppercase tracking-[0.08em] text-neutral-300">Conversation</h3>
-    {#if messages.length > 50}
+    {#if filteredMessages.length > 50}
       <!-- Virtualized rendering for large message lists -->
       <div class="mt-3">
         <VirtualList
-          count={messages.length}
+          count={filteredMessages.length}
           estimateSize={72}
           overscan={8}
           reverse={true}
           containerClass="h-[60vh] max-h-[600px]">
           <div slot="default" let:index>
-            {@const message = messages[index]}
+            {@const message = filteredMessages[index]}
             {@const msgType = getMessageType(message)}
             {@const geoTagged = isGeoTagged(message)}
+            {@const failed = isDecryptionFailed(message)}
             <div
               id="msg-{message.id}"
               class="pb-2 transition-shadow duration-300"
               on:mouseenter={() => geoTagged && onMessageHover(message.id)}
               on:mouseleave={() => geoTagged && onMessageLeave()}>
-              {#if msgType === "check-in"}
+              {#if failed}
+                <div
+                  class="border-warning/50 bg-warning/10 rounded border px-3 py-2 text-sm text-warning">
+                  <div class="flex items-center gap-2">
+                    <i class="fa fa-exclamation-triangle" />
+                    <span>Message integrity check failed — possible tampering</span>
+                  </div>
+                  <div class="mt-1 text-xs text-neutral-400">
+                    <span class="font-mono">{asShortKey(message.pubkey)}</span> · {formatTimestamp(
+                      message.created_at,
+                    )}
+                  </div>
+                </div>
+              {:else if msgType === "check-in"}
                 <CheckInCard {message} />
               {:else if msgType === "alert"}
                 <AlertCard {message} />
@@ -587,7 +820,7 @@
                     <span>{formatTimestamp(message.created_at)}</span>
                   </div>
                   <div class="mt-1 whitespace-pre-wrap break-words text-neutral-100">
-                    {message.content}
+                    {getDisplayContent(message)}
                   </div>
                   {#if geoTagged}
                     <div class="mt-1 text-xs text-neutral-500">📍 Geo-tagged</div>
@@ -600,15 +833,29 @@
       </div>
     {:else}
       <div class="mt-3 space-y-2">
-        {#each messages as message (message.id)}
+        {#each filteredMessages as message (message.id)}
           {@const msgType = getMessageType(message)}
           {@const geoTagged = isGeoTagged(message)}
+          {@const failed = isDecryptionFailed(message)}
           <div
             id="msg-{message.id}"
             class="transition-shadow duration-300"
             on:mouseenter={() => geoTagged && onMessageHover(message.id)}
             on:mouseleave={() => geoTagged && onMessageLeave()}>
-            {#if msgType === "check-in"}
+            {#if failed}
+              <div
+                class="border-warning/50 bg-warning/10 rounded border px-3 py-2 text-sm text-warning">
+                <div class="flex items-center gap-2">
+                  <i class="fa fa-exclamation-triangle" />
+                  <span>Message integrity check failed — possible tampering</span>
+                </div>
+                <div class="mt-1 text-xs text-neutral-400">
+                  <span class="font-mono">{asShortKey(message.pubkey)}</span> · {formatTimestamp(
+                    message.created_at,
+                  )}
+                </div>
+              </div>
+            {:else if msgType === "check-in"}
               <CheckInCard {message} />
             {:else if msgType === "alert"}
               <AlertCard {message} />
@@ -623,7 +870,7 @@
                   <span>{formatTimestamp(message.created_at)}</span>
                 </div>
                 <div class="mt-1 whitespace-pre-wrap break-words text-neutral-100">
-                  {message.content}
+                  {getDisplayContent(message)}
                 </div>
                 {#if geoTagged}
                   <div class="mt-1 text-xs text-neutral-500">📍 Geo-tagged</div>
@@ -632,7 +879,11 @@
             {/if}
           </div>
         {:else}
-          <p class="text-sm text-neutral-400">No messages yet. Send the first group message.</p>
+          <p class="text-sm text-neutral-400">
+            {searchLower
+              ? "No messages match your search."
+              : "No messages yet. Send the first group message."}
+          </p>
         {/each}
       </div>
     {/if}

@@ -1,4 +1,4 @@
-export const copyToClipboard = text => {
+export const copyToClipboard = (text, autoClearMs = 0) => {
   const {activeElement} = document
   const input = document.createElement("textarea")
 
@@ -10,6 +10,10 @@ export const copyToClipboard = text => {
 
   document.body.removeChild(input)
   ;(activeElement as HTMLElement).focus()
+
+  if (autoClearMs > 0 && navigator.clipboard?.writeText) {
+    setTimeout(() => navigator.clipboard.writeText("").catch(() => {}), autoClearMs)
+  }
 
   return result
 }

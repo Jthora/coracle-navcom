@@ -14,6 +14,118 @@ export const GROUP_EPOCH_CONTENT_VERSION_PQ = 2 as const
 export const GROUP_EPOCH_CONTENT_ALGORITHM = "aes-256-gcm"
 export const GROUP_EPOCH_CONTENT_ALGORITHM_PQ = "ml-kem-768-hkdf-aes256-gcm"
 
+/** Tags that leak operationally-sensitive metadata and must be sealed inside encrypted content. */
+export const SEALED_META_TAG_NAMES = ["msg-type", "location", "g", "priority"] as const
+
+/**
+ * Sealed metadata envelope — wraps plaintext + sensitive tag metadata
+ * inside a single JSON structure that gets encrypted as the content body.
+ *
+ * Format: `{ text: "...", meta: { type?, location?, geohash?, priority? } }`
+ */
+export type SealedMetaEnvelope = {
+  text: string
+  meta: {
+    type?: string
+    location?: string
+    geohash?: string
+    priority?: string
+  }
+}
+
+/**
+ * Extracts sensitive metadata tags from an extraTags array, returning:
+ * - `meta`: the sealed metadata object for inclusion in encrypted content
+ * - `remainingTags`: non-sensitive tags that stay as plaintext event tags
+ */
+export function extractSealedMeta(extraTags: string[][]): {
+  meta: SealedMetaEnvelope["meta"]
+  remainingTags: string[][]
+} {
+  const sealedNames = new Set<string>(SEALED_META_TAG_NAMES)
+  const meta: SealedMetaEnvelope["meta"] = {}
+  const remainingTags: string[][] = []
+
+  for (const tag of extraTags) {
+    if (!tag[0] || !sealedNames.has(tag[0])) {
+      remainingTags.push(tag)
+      continue
+    }
+    switch (tag[0]) {
+      case "msg-type":
+        meta.type = tag[1]
+        break
+      case "location":
+        meta.location = tag[1]
+        break
+      case "g":
+        meta.geohash = tag[1]
+        break
+      case "priority":
+        meta.priority = tag[1]
+        break
+    }
+  }
+
+  return {meta, remainingTags}
+}
+
+/**
+ * Build sealed content: wraps plaintext + metadata into a SealedMetaEnvelope JSON string.
+ * If no metadata is present, returns the plaintext as-is (no envelope wrapping).
+ */
+export function buildSealedContent(plaintext: string, meta: SealedMetaEnvelope["meta"]): string {
+  const hasAnyMeta = meta.type || meta.location || meta.geohash || meta.priority
+  if (!hasAnyMeta) return plaintext
+  const envelope: SealedMetaEnvelope = {text: plaintext, meta}
+  return JSON.stringify(envelope)
+}
+
+/**
+ * Parse potentially-sealed decrypted content. Returns text + metadata.
+ * Handles both old format (plain text) and new format (SealedMetaEnvelope JSON).
+ */
+export function parseSealedContent(decrypted: string): {
+  text: string
+  meta: SealedMetaEnvelope["meta"]
+} {
+  // Try to parse as SealedMetaEnvelope
+  try {
+    const parsed = JSON.parse(decrypted)
+    if (
+      parsed &&
+      typeof parsed === "object" &&
+      typeof parsed.text === "string" &&
+      parsed.meta &&
+      typeof parsed.meta === "object"
+    ) {
+      // Validate meta fields are strings or undefined
+      const meta: SealedMetaEnvelope["meta"] = {}
+      if (typeof parsed.meta.type === "string") meta.type = parsed.meta.type
+      if (typeof parsed.meta.location === "string") meta.location = parsed.meta.location
+      if (typeof parsed.meta.geohash === "string") meta.geohash = parsed.meta.geohash
+      if (typeof parsed.meta.priority === "string") meta.priority = parsed.meta.priority
+      return {text: parsed.text, meta}
+    }
+  } catch {
+    // Not JSON — old format, plain text
+  }
+  return {text: decrypted, meta: {}}
+}
+
+/**
+ * Re-inject sealed metadata as event tags (for UI rendering compatibility).
+ * Returns an array of tags derived from the sealed metadata.
+ */
+export function sealedMetaToTags(meta: SealedMetaEnvelope["meta"]): string[][] {
+  const tags: string[][] = []
+  if (meta.type) tags.push(["msg-type", meta.type])
+  if (meta.location) tags.push(["location", meta.location])
+  if (meta.geohash) tags.push(["g", meta.geohash])
+  if (meta.priority) tags.push(["priority", meta.priority])
+  return tags
+}
+
 export type SecureGroupEpochContentEnvelope = {
   v: typeof GROUP_EPOCH_CONTENT_VERSION
   mode: "group-epoch-v1"

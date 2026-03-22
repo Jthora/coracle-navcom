@@ -18,7 +18,31 @@
   let gpsLoading = false
   let photoUrl = ""
 
-  $: canSubmit = observation.trim().length > 0 && locationText.trim().length > 0
+  const COORD_RE = /^-?\d+\.?\d*\s*,\s*-?\d+\.?\d*$/
+  const URL_RE = /^https?:\/\/.+/i
+
+  function validateLocation(text: string): string | null {
+    if (!text.trim()) return null
+    if (!COORD_RE.test(text.trim())) return "Use lat,lng format (e.g. 51.5074,-0.1278)"
+    const [latStr, lngStr] = text
+      .trim()
+      .split(",")
+      .map(s => s.trim())
+    const lat = Number(latStr)
+    const lng = Number(lngStr)
+    if (lat < -90 || lat > 90) return "Latitude must be between -90 and 90"
+    if (lng < -180 || lng > 180) return "Longitude must be between -180 and 180"
+    return null
+  }
+
+  $: locationError = validateLocation(locationText)
+  $: photoUrlError =
+    photoUrl.trim() && !URL_RE.test(photoUrl.trim()) ? "Must be an http:// or https:// URL" : null
+  $: canSubmit =
+    observation.trim().length > 0 &&
+    locationText.trim().length > 0 &&
+    !locationError &&
+    !photoUrlError
 
   async function useGps() {
     if (!navigator.geolocation) return
@@ -83,7 +107,9 @@
           {gpsLoading ? "..." : "📍 GPS"}
         </button>
       </div>
-      {#if !locationText.trim()}
+      {#if locationError}
+        <p class="text-red-400 mt-1 text-[11px]">{locationError}</p>
+      {:else if !locationText.trim()}
         <p class="text-amber-400 mt-1 text-[11px]">Location is required for spot reports</p>
       {/if}
     </div>
@@ -97,6 +123,9 @@
         bind:value={photoUrl}
         placeholder="https://..."
         class="w-full rounded-lg border border-neutral-600 bg-neutral-700 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 focus:border-accent focus:outline-none" />
+      {#if photoUrlError}
+        <p class="text-red-400 mt-1 text-[11px]">{photoUrlError}</p>
+      {/if}
     </div>
 
     <div class="flex gap-2 pt-1">

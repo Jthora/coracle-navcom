@@ -77,6 +77,29 @@ describe("marker-derivation", () => {
       expect(markers[0].type).toBe("spotrep")
     })
 
+    it("extracts sitrep markers with correct type and style", () => {
+      const msgs = [
+        makeEvent({
+          id: "sitrep-1",
+          tags: [
+            ["msg-type", "sitrep"],
+            ["location", "51.5074,-0.1278"],
+          ],
+          content: "Situation update: area cleared",
+        }),
+      ]
+      const markers = deriveMarkers(msgs as any)
+      expect(markers).toHaveLength(1)
+      expect(markers[0]).toMatchObject({
+        id: "sitrep-1",
+        type: "sitrep",
+        lat: 51.5074,
+        lng: -0.1278,
+      })
+      expect(MARKER_STYLES["sitrep"]).toBeDefined()
+      expect(MARKER_STYLES["sitrep"].color).toBe("#f59e0b")
+    })
+
     it("treats unknown msg-type as regular message", () => {
       const msgs = [
         makeEvent({
@@ -128,6 +151,7 @@ describe("marker-derivation", () => {
     it("has styles for all marker types", () => {
       expect(MARKER_STYLES["check-in"]).toBeDefined()
       expect(MARKER_STYLES["alert"]).toBeDefined()
+      expect(MARKER_STYLES["sitrep"]).toBeDefined()
       expect(MARKER_STYLES["spotrep"]).toBeDefined()
       expect(MARKER_STYLES["message"]).toBeDefined()
     })

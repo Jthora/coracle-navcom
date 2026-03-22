@@ -14,7 +14,7 @@ NavCom's front-end is **85–90% unmodified Coracle**. This is not an exaggerati
 |----------|-------|----------|
 | Logo + typography (Aldrich, Staatliches) | MenuDesktop, MenuMobile, tailwind.config.cjs | ~2% |
 | Tag filters (`#starcom_ops`, `#starcom_intel`) | Home.svelte, Feeds.svelte, env vars | ~1% |
-| GEOINT map + posting | IntelNavMap.svelte, GeoModal, GeoSummary, GeoThumbnail, geoint.ts, NavMapToolBar, NavMapStatusBar | ~5% |
+| GEOINT map + posting | ~~IntelNavMap.svelte~~ _(removed — replaced by native MapView Leaflet integration)_, GeoModal, GeoSummary, GeoThumbnail, geoint.ts, NavMapToolBar, NavMapStatusBar | ~5% |
 | PQC crypto engine | src/engine/pqc/\*, crypto-provider, epoch-key-manager | ~5% |
 | Group encryption extensions | group-tier-policy, group-epoch-\*, group-key-\*, group-secure-storage | ~3% |
 | Announcements system | announcements.ts, Announcements.svelte | ~1% |

@@ -129,6 +129,39 @@ describe("offline/outbox", () => {
     const count = await getQueuedCount()
     expect(count).toBe(1)
   })
+
+  it("encrypts content in queue when passphrase is available", async () => {
+    // Fresh module state
+    vi.resetModules()
+    vi.doMock("idb", () => ({
+      openDB: vi.fn(() => Promise.resolve(fakeDb)),
+    }))
+    for (const key of fakeDb.getAll("messages").map((m: any) => m.id)) {
+      fakeDb.delete("messages", key)
+    }
+
+    const outbox = await import("src/engine/offline/outbox")
+    const pqKeyStore = await import("src/engine/pqc/pq-key-store")
+    pqKeyStore.setActivePassphrase("test-queue-passphrase")
+
+    await outbox.enqueue("ch-enc", "secret message content")
+
+    // Verify stored record is encrypted (not plaintext)
+    const rawRecords = fakeDb.getAll("messages")
+    expect(rawRecords).toHaveLength(1)
+    expect(rawRecords[0].encrypted).toBe(true)
+    expect(rawRecords[0].encryptedIv).toBeTruthy()
+    expect(rawRecords[0].content).not.toBe("secret message content")
+
+    // getPending should decrypt transparently
+    const pending = await outbox.getPending()
+    expect(pending).toHaveLength(1)
+    expect(pending[0].content).toBe("secret message content")
+
+    // Clean up
+    pqKeyStore.setActivePassphrase(null)
+    outbox.clearQueueKey()
+  })
 })
 
 describe("offline/queue-drain", () => {

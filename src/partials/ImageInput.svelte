@@ -6,7 +6,7 @@
   import Modal from "src/partials/Modal.svelte"
   import Spinner from "src/partials/Spinner.svelte"
   import Button from "src/partials/Button.svelte"
-  import {showWarning} from "src/partials/Toast.svelte"
+  import {showWarning, showActionToast} from "src/partials/Toast.svelte"
   import {ensureProto} from "src/util/misc"
   import type {CompressorOpts} from "src/util/html"
   import {listenForFile} from "src/util/html"
@@ -35,7 +35,16 @@
             value = result.url
           } catch (e) {
             console.error(e)
-            showWarning(e.toString())
+            const msg = e instanceof Error ? e.message : String(e)
+            if (msg.includes("no signer") || msg.includes("log in")) {
+              showActionToast("Sign in required to upload files", "Sign In", () => {
+                window.location.hash = "#/login"
+              })
+            } else if (msg.includes("timed out") || msg.includes("Signer timed out")) {
+              showWarning("Signer timed out — check your signing device or try again")
+            } else {
+              showWarning(msg)
+            }
           } finally {
             isOpen = false
             loading = false

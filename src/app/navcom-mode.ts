@@ -64,6 +64,7 @@ export const mapViewport = synced<{center: [number, number]; zoom: number}>({
 export type MapLayerConfig = {
   checkIns: boolean
   alerts: boolean
+  sitreps: boolean
   spotreps: boolean
   memberPositions: boolean
 }
@@ -73,6 +74,7 @@ export const mapLayers = synced<MapLayerConfig>({
   defaultValue: {
     checkIns: true,
     alerts: true,
+    sitreps: true,
     spotreps: true,
     memberPositions: false,
   },

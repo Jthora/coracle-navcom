@@ -13,7 +13,12 @@ import {
   parseDmPqcEnvelopeContent,
   resolveDmReceiveContent,
 } from "../../../../src/engine/pqc/dm-receive-envelope"
-import {mlKemKeygen, randomBytes} from "../../../../src/engine/pqc/crypto-provider"
+import {
+  mlKemKeygen,
+  randomBytes,
+  base64ToBytes,
+  bytesToBase64,
+} from "../../../../src/engine/pqc/crypto-provider"
 
 // Shared key material for tests that need build+parse roundtrips
 const peerKeys = mlKemKeygen()
@@ -232,4 +237,78 @@ describe("engine/pqc/dm-receive-envelope", () => {
       }
     },
   )
+
+  it("detects tampered KEM ciphertext via confirmation tag mismatch", async () => {
+    const recipientPqPublicKeys = new Map<string, Uint8Array>([["peer", peerKeys.publicKey]])
+
+    const built = await buildDmPqcEnvelope({
+      plaintext: "confirmation test",
+      senderPubkey: "sender",
+      recipients: ["peer"],
+      mode: "hybrid",
+      algorithm: "hybrid-mlkem768+x25519-aead-v1",
+      recipientPqPublicKeys,
+      createdAt: 1739836800,
+      messageId: "msg-tamper",
+    })
+
+    expect(built.ok).toBe(true)
+    if (built.ok) {
+      // Tamper with the confirmation tag
+      const envelope = JSON.parse(built.content)
+      const tamperedTag = base64ToBytes(envelope.recipients[0].confirmation_tag)
+      tamperedTag[0] ^= 0xff // flip bits
+      envelope.recipients[0].confirmation_tag = bytesToBase64(tamperedTag)
+
+      const parsed = await parseDmPqcEnvelopeContent(JSON.stringify(envelope), {
+        recipientSecretKey: peerKeys.secretKey,
+        recipientPubkey: "peer",
+        senderPubkey: "sender",
+        expectedSenderPubkey: "sender",
+        expectedRecipientPubkey: "peer",
+      })
+
+      // Should fail because tampered tag won't match recomputed HMAC
+      expect(parsed.ok).toBe(false)
+      if (!parsed.ok) {
+        expect(parsed.reason).toBe("DM_ENVELOPE_AD_BINDING_MISMATCH")
+      }
+    }
+  })
+
+  it("accepts old envelopes without confirmation tag (backward compatibility)", async () => {
+    const recipientPqPublicKeys = new Map<string, Uint8Array>([["peer", peerKeys.publicKey]])
+
+    const built = await buildDmPqcEnvelope({
+      plaintext: "no-tag compat test",
+      senderPubkey: "sender",
+      recipients: ["peer"],
+      mode: "hybrid",
+      algorithm: "hybrid-mlkem768+x25519-aead-v1",
+      recipientPqPublicKeys,
+      createdAt: 1739836800,
+      messageId: "msg-compat",
+    })
+
+    expect(built.ok).toBe(true)
+    if (built.ok) {
+      // Remove the confirmation tag to simulate an old envelope
+      const envelope = JSON.parse(built.content)
+      delete envelope.recipients[0].confirmation_tag
+
+      const parsed = await parseDmPqcEnvelopeContent(JSON.stringify(envelope), {
+        recipientSecretKey: peerKeys.secretKey,
+        recipientPubkey: "peer",
+        senderPubkey: "sender",
+        expectedSenderPubkey: "sender",
+        expectedRecipientPubkey: "peer",
+      })
+
+      // Should succeed — old envelopes without tag are accepted
+      expect(parsed.ok).toBe(true)
+      if (parsed.ok) {
+        expect(parsed.plaintext).toBe("no-tag compat test")
+      }
+    }
+  })
 })

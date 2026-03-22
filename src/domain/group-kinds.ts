@@ -18,6 +18,7 @@ export const GROUP_KINDS = {
     KEY_PACKAGE: 443,
     WELCOME: 444,
     GROUP_EVENT: 445,
+    EPOCH_KEY_SHARE: 446,
     KEY_PACKAGE_RELAYS: 10051,
   },
 } as const
@@ -58,6 +59,7 @@ const nipEeKinds = new Set<number>([
   GROUP_KINDS.NIP_EE.KEY_PACKAGE,
   GROUP_KINDS.NIP_EE.WELCOME,
   GROUP_KINDS.NIP_EE.GROUP_EVENT,
+  GROUP_KINDS.NIP_EE.EPOCH_KEY_SHARE,
   GROUP_KINDS.NIP_EE.KEY_PACKAGE_RELAYS,
 ])
 
@@ -77,7 +79,9 @@ export const classifyGroupEventKind = (kind: number): GroupEventClass => {
   if (kind === GROUP_KINDS.NIP_EE.KEY_PACKAGE || kind === GROUP_KINDS.NIP_EE.KEY_PACKAGE_RELAYS) {
     return "key-package"
   }
-  if (kind === GROUP_KINDS.NIP_EE.WELCOME) return "invite"
+  if (kind === GROUP_KINDS.NIP_EE.WELCOME || kind === GROUP_KINDS.NIP_EE.EPOCH_KEY_SHARE) {
+    return "invite"
+  }
 
   return "unknown"
 }

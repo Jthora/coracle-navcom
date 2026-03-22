@@ -79,13 +79,16 @@ const toRelayAddress = (value: string) => {
 
   if (!token) return ""
 
-  if (token.startsWith("wss://") || token.startsWith("ws://")) {
+  // Auto-upgrade ws:// to wss:// for security
+  const upgraded = token.startsWith("ws://") ? "wss://" + token.slice(5) : token
+
+  if (upgraded.startsWith("wss://")) {
     try {
-      const parsed = new URL(token)
+      const parsed = new URL(upgraded)
 
       return `${parsed.protocol}//${parsed.host}`
     } catch {
-      return token
+      return upgraded
     }
   }
 

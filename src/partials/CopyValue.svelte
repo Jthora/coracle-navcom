@@ -47,15 +47,15 @@
   }
 
   const copyEncoded = () => {
-    copyToClipboard(encode(value))
+    copyToClipboard(encode(value), 30_000)
     closeEncryptModal()
-    showInfo(`Copied nsec to clipboard!`)
+    showInfo(`Copied nsec to clipboard! (auto-clears in 30s)`)
   }
 
   const copyEncrypted = () => {
-    copyToClipboard(encrypt(hexToBytes(value), password))
+    copyToClipboard(encrypt(hexToBytes(value), password), 30_000)
     closeEncryptModal()
-    showInfo(`Copied ncryptsec to clipboard!`)
+    showInfo(`Copied ncryptsec to clipboard! (auto-clears in 30s)`)
   }
 
   const share = () => router.at("qrcode").at(displayValue).open()

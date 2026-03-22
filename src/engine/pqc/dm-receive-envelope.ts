@@ -10,9 +10,45 @@ import {
   bytesToString,
   stringToBytes,
   mlKemDecapsulate,
+  hmacSha256,
 } from "src/engine/pqc/crypto-provider"
 
 export const DM_SECURE_UNDECRYPTABLE_PLACEHOLDER = "Secure message unavailable."
+
+/** Constant-time comparison to prevent timing side-channel on HMAC verification. */
+function constantTimeEqual(a: Uint8Array, b: Uint8Array): boolean {
+  if (a.length !== b.length) return false
+  let result = 0
+  for (let i = 0; i < a.length; i++) {
+    result |= a[i] ^ b[i]
+  }
+  return result === 0
+}
+
+export type CryptoErrorClass = "key-mismatch" | "format-invalid" | "integrity-fail" | "unknown"
+
+/**
+ * Classify a crypto/decryption error into diagnostic buckets for internal logging.
+ * Never expose the result to users — it's for developer telemetry only.
+ */
+function classifyCryptoError(error: unknown): CryptoErrorClass {
+  const msg = error instanceof Error ? error.message.toLowerCase() : ""
+  if (msg.includes("decrypt") || msg.includes("operationerror") || msg.includes("tag")) {
+    return "integrity-fail"
+  }
+  if (msg.includes("key") || msg.includes("encapsulat") || msg.includes("unwrap")) {
+    return "key-mismatch"
+  }
+  if (
+    msg.includes("json") ||
+    msg.includes("parse") ||
+    msg.includes("base64") ||
+    msg.includes("invalid")
+  ) {
+    return "format-invalid"
+  }
+  return "unknown"
+}
 
 export type DmEnvelopeParseReasonCode =
   | "DM_ENVELOPE_PARSE_OK"
@@ -255,7 +291,34 @@ export const parseDmPqcEnvelopeContent = async (
     // Derive the wrapping key from KEM shared secret via HKDF
     const salt = stringToBytes(`navcom-pqc-dm:${senderPubkey}:${recipientPubkey}`)
     const info = stringToBytes(`dm-cek-wrap:${validation.value.msg_id}`)
-    const wrapKey = await hkdfDeriveKey(kemSs, salt, info, 32)
+    let wrapKey: Uint8Array
+    try {
+      wrapKey = await hkdfDeriveKey(kemSs, salt, info, 32)
+    } finally {
+      kemSs.fill(0)
+      salt.fill(0)
+    }
+
+    // Verify confirmation tag if present (backward-compatible: accept old envelopes without tag)
+    if (recipientEntry.confirmation_tag) {
+      const expectedTagInput = new Uint8Array(
+        kemCt.length + base64ToBytes(validation.value.ad).length,
+      )
+      expectedTagInput.set(kemCt, 0)
+      expectedTagInput.set(base64ToBytes(validation.value.ad), kemCt.length)
+      const expectedTag = await hmacSha256(wrapKey, expectedTagInput)
+      const actualTag = base64ToBytes(recipientEntry.confirmation_tag)
+      if (!constantTimeEqual(expectedTag, actualTag)) {
+        console.warn(
+          `[SecurityAudit] Key confirmation tag mismatch: sender=${senderPubkey.slice(0, 8)}… msg=${validation.value.msg_id}`,
+        )
+        return {
+          ok: false,
+          reason: "DM_ENVELOPE_AD_BINDING_MISMATCH",
+          details: "Key agreement confirmation failed — possible tampering.",
+        }
+      }
+    }
 
     // Unwrap the CEK
     const wrapNonce = base64ToBytes(recipientEntry.wrap_nonce)
@@ -276,15 +339,33 @@ export const parseDmPqcEnvelopeContent = async (
       reason: "DM_ENVELOPE_PARSE_OK",
     }
   } catch (error) {
+    // Classify error for internal diagnostics without leaking to user
+    const errorClass = classifyCryptoError(error)
+    console.warn(`[PQC] DM envelope parse/decrypt failed [${errorClass}]:`, error)
     return {
       ok: false,
       reason: "DM_ENVELOPE_PARSE_JSON_INVALID",
-      details: error instanceof Error ? error.message : "Invalid envelope JSON",
+      details: "Decryption failed",
     }
   }
 }
 
-export const resolveDmReceiveContent = async ({
+export const resolveDmReceiveContent = async (
+  input: ResolveDmReceiveContentInput,
+): Promise<ResolveDmReceiveContentResult> => {
+  try {
+    return await _resolveDmReceiveContentInner(input)
+  } catch (error) {
+    // Defensive: guarantee a corrupt message never throws past this boundary
+    console.warn("[PQC] Unexpected error in resolveDmReceiveContent:", error)
+    return {
+      content: DM_SECURE_UNDECRYPTABLE_PLACEHOLDER,
+      usedLegacyFallback: false,
+    }
+  }
+}
+
+const _resolveDmReceiveContentInner = async ({
   tags,
   decryptedContent,
   policyMode,

@@ -1,8 +1,11 @@
-import {describe, expect, it} from "vitest"
+import {describe, expect, it, vi} from "vitest"
 import {
   GROUP_SECURE_CONTROL_REASON,
   buildSecureControlTemplate,
   parseSecureControlRequestResult,
+  publishKeyShareForNewMember,
+  rotateEpochAfterMemberRemoval,
+  executeSecureGroupKeyRotation,
 } from "src/engine/group-transport-secure-control"
 import {GROUP_KINDS} from "src/domain/group-kinds"
 
@@ -67,5 +70,39 @@ describe("engine/group-transport-secure-control", () => {
         ["role", "moderator"],
       ]),
     )
+  })
+
+  it("builds create template with correct kind", () => {
+    const parsed = parseSecureControlRequestResult({
+      action: "create",
+      payload: {
+        groupId: "secure-ops",
+        title: "Secure Ops",
+        description: "PQC-secured ops channel",
+      },
+      actorRole: "admin",
+      requestedMode: "secure-nip-ee",
+      createdAt: 100,
+    })
+
+    expect(parsed).toMatchObject({ok: true})
+    if (!parsed.ok) throw new Error("Expected parsed control request")
+
+    const template = buildSecureControlTemplate(parsed.value)
+
+    expect(template.kind).toBe(GROUP_KINDS.NIP29.CREATE_GROUP)
+    expect(template.tags).toEqual(expect.arrayContaining([["h", "secure-ops"]]))
+  })
+
+  it("exports publishKeyShareForNewMember function", () => {
+    expect(typeof publishKeyShareForNewMember).toBe("function")
+  })
+
+  it("exports rotateEpochAfterMemberRemoval function", () => {
+    expect(typeof rotateEpochAfterMemberRemoval).toBe("function")
+  })
+
+  it("exports executeSecureGroupKeyRotation function", () => {
+    expect(typeof executeSecureGroupKeyRotation).toBe("function")
   })
 })

@@ -12,6 +12,7 @@
   import RelayStatus from "src/app/shared/RelayStatus.svelte"
   import RelayCardActions from "src/app/shared/RelayCardActions.svelte"
   import {setMessagingPolicy, setOutboxPolicy} from "src/engine"
+  import {relayHealthTracker} from "src/engine/relay/relay-health"
   import {slide} from "svelte/transition"
   import Modal from "src/partials/Modal.svelte"
 
@@ -56,6 +57,10 @@
   }
 
   $: isMobile = innerWidth < 768
+  $: trustTier = relayHealthTracker.getTier(url)
+  $: trustBadge = trustTier === "verified" ? "🟢" : trustTier === "known" ? "🟡" : "🔴"
+  $: trustLabel =
+    trustTier === "verified" ? "Verified" : trustTier === "known" ? "Known" : "Unknown"
 </script>
 
 <svelte:window bind:innerWidth />
@@ -75,6 +80,7 @@
           <div class="text-md overflow-hidden text-ellipsis whitespace-nowrap">
             {displayRelayUrl(url)}
           </div>
+          <span class="text-xs" title="{trustLabel} relay">{trustBadge}</span>
           {#if showStatus}
             <RelayStatus {url} />
           {/if}

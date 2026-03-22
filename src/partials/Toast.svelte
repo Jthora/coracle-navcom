@@ -31,6 +31,19 @@
 
   export const showWarning = (message, opts = {}) => showToast({message, theme: "warning", ...opts})
 
+  export const showError = (message, opts = {}) => showToast({message, theme: "error", ...opts})
+
+  export const showActionToast = (message, actionLabel, onAction, opts = {}) =>
+    showToast({
+      message,
+      type: "action",
+      actionLabel,
+      onAction,
+      theme: "warning",
+      timeout: 10,
+      ...opts,
+    })
+
   export const showPublishInfo = (thunk: Thunk, opts = {}) =>
     showToast({thunk, type: "publish", ...opts})
 
@@ -95,7 +108,7 @@
   })
 </script>
 
-{#each [$toast].filter(identity) as { id, type, theme, thunk, message, onCancel } (id)}
+{#each [$toast].filter(identity) as { id, type, theme, thunk, message, onCancel, actionLabel, onAction } (id)}
   <div
     on:touchstart={onTouchStart}
     on:touchmove={onTouchMove}
@@ -110,10 +123,19 @@
         {
           "border-neutral-600 bg-tinted-700 text-neutral-100": theme === "info",
           "border-warning bg-tinted-700 text-neutral-100": theme === "warning",
+          "border-red-500 bg-red-900/80 text-neutral-100": theme === "error",
         },
       )}>
       {#if type === "text"}
         {message}
+      {:else if type === "action"}
+        {message}
+        <Button
+          class="ml-3 inline-flex underline"
+          on:click={() => {
+            onAction?.()
+            toast.set(null)
+          }}>{actionLabel || "Retry"}</Button>
       {:else if type === "delay"}
         Sending in {timeLeft} seconds...
         <Button

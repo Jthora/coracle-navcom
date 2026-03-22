@@ -1,4 +1,5 @@
 <script lang="ts">
+  /* eslint-disable no-undef */
   import {identity, equals} from "@welshman/lib"
   import {BLOSSOM_SERVERS, tagger, getListTags, getTagValues, makeEvent} from "@welshman/util"
   import {Router} from "@welshman/router"
@@ -160,6 +161,9 @@
   </div>
   <div class="mt-8">
     <PqcKeySettings />
+  </div>
+  <div class="mt-6 text-center text-sm text-neutral-500">
+    NavCom v{__APP_VERSION__}
   </div>
   <Footer>
     <Button class="btn flex-grow" type="submit">Save</Button>

@@ -85,6 +85,13 @@ describe("engine/group-transport-secure-ops", () => {
       "#h": ["ops"],
       since: 100,
     })
+
+    // Kind 446 (EPOCH_KEY_SHARE) must be in the subscription filter
+    // so that mid-session key shares are fetched from relays
+    const filterKinds = buildSecureSubscribeFilters({groupId: "g1"})[0].kinds
+    expect(filterKinds).toContain(GROUP_KINDS.NIP_EE.GROUP_EVENT)
+    expect(filterKinds).toContain(GROUP_KINDS.NIP_EE.WELCOME)
+    expect(filterKinds).toContain(GROUP_KINDS.NIP_EE.EPOCH_KEY_SHARE)
   })
 
   it("reconciles secure events into projection and validates mismatches", async () => {

@@ -45,7 +45,11 @@
   import type {MapLayerConfig, TimeRange, TileSetId} from "src/app/navcom-mode"
   import {groupProjections, groupSummaries, unreadGroupMessageCounts} from "src/app/groups/state"
   import {router} from "src/app/util/router"
-  import {deriveMarkers, MARKER_STYLES} from "src/app/views/marker-derivation"
+  import {
+    deriveMarkers,
+    MARKER_STYLES,
+    deriveMemberPositions,
+  } from "src/app/views/marker-derivation"
   import type {ChannelMarker} from "src/app/views/marker-derivation"
   import {clusterMarkers, zoomToPrecision, CLUSTER_COLORS} from "src/app/views/marker-clustering"
   import MapLayerPanel from "src/app/views/MapLayerPanel.svelte"
@@ -62,7 +66,11 @@
   let leaflet: LeafletLike | null = null
   let map: any = null
   let markerLayerGroup: any = null
+  let memberPositionLayerGroup: any = null
   let tileLayer: any = null
+  let userLocationMarker: any = null
+  let userCoords: [number, number] | null = null
+  let gpsAvailable = true
 
   const TILE_URLS: Record<TileSetId, {url: string; attribution: string}> = {
     street: {
@@ -94,6 +102,33 @@
   // Cluster markers for map display (use city-level precision for overview)
   $: clusters = markers.length > 20 ? clusterMarkers(markers, zoomToPrecision(8)) : []
 
+  // Member positions: latest check-in per member
+  $: memberPositions = $mapLayers.memberPositions ? deriveMemberPositions(allMarkers) : []
+
+  // Sync member position layer
+  $: if (leaflet && map && memberPositionLayerGroup) syncMemberPositions(memberPositions)
+
+  function syncMemberPositions(positions: ChannelMarker[]) {
+    if (!leaflet || !memberPositionLayerGroup) return
+    memberPositionLayerGroup.clearLayers()
+    for (const m of positions) {
+      const icon = leaflet.divIcon({
+        className: "navcom-marker-icon",
+        html: `<div class="navcom-marker-shell" style="border-color: #6366f1; color: #6366f1">👤</div>`,
+        iconSize: [28, 28],
+        iconAnchor: [14, 26],
+        popupAnchor: [0, -20],
+      })
+      const pin = leaflet
+        .marker([m.lat, m.lng], {icon})
+        .bindPopup(`<div class="text-xs text-neutral-200">Member: ${m.author.slice(0, 8)}…</div>`, {
+          className: "navcom-popup-shell",
+          maxWidth: 260,
+        })
+      memberPositionLayerGroup.addLayer(pin)
+    }
+  }
+
   function filterMarkers(
     all: ChannelMarker[],
     layers: MapLayerConfig,
@@ -113,6 +148,7 @@
       // Layer filter
       if (m.type === "check-in" && !layers.checkIns) return false
       if (m.type === "alert" && !layers.alerts) return false
+      if (m.type === "sitrep" && !layers.sitreps) return false
       if (m.type === "spotrep" && !layers.spotreps) return false
       // Time filter
       if (cutoff > 0 && m.timestamp < cutoff) return false
@@ -169,6 +205,7 @@
 
     switchTileSet($mapTileSet)
     markerLayerGroup = leaflet.layerGroup().addTo(map)
+    memberPositionLayerGroup = leaflet.layerGroup().addTo(map)
 
     // Persist viewport on move
     map.on("moveend", () => {
@@ -188,10 +225,64 @@
 
   onMount(() => {
     initMap()
+    acquireUserLocation()
     const handleResize = () => map?.invalidateSize()
     window.addEventListener("resize", handleResize)
     return () => window.removeEventListener("resize", handleResize)
   })
+
+  function acquireUserLocation() {
+    if (!navigator.geolocation) {
+      gpsAvailable = false
+      return
+    }
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        userCoords = [pos.coords.latitude, pos.coords.longitude]
+        showUserLocationOnMap()
+      },
+      () => {
+        gpsAvailable = false
+      },
+      {timeout: 8000},
+    )
+  }
+
+  function showUserLocationOnMap() {
+    if (!leaflet || !map || !userCoords) return
+    if (userLocationMarker) {
+      map.removeLayer(userLocationMarker)
+    }
+    userLocationMarker = leaflet
+      .circleMarker(userCoords, {
+        radius: 8,
+        fillColor: "#3b82f6",
+        fillOpacity: 0.9,
+        color: "#93c5fd",
+        weight: 3,
+        opacity: 0.6,
+      })
+      .bindPopup('<div class="text-xs text-neutral-200">Your location</div>', {
+        className: "navcom-popup-shell",
+      })
+      .addTo(map)
+  }
+
+  function centerOnMe() {
+    if (!navigator.geolocation) return
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        userCoords = [pos.coords.latitude, pos.coords.longitude]
+        showUserLocationOnMap()
+        if (map) map.flyTo(userCoords, 14)
+      },
+      () => {},
+      {timeout: 5000},
+    )
+  }
+
+  // Update user marker when map/leaflet become available
+  $: if (leaflet && map && userCoords) showUserLocationOnMap()
 
   onDestroy(() => {
     unsubTileSet()
@@ -292,6 +383,16 @@
       <i class="fa fa-sliders mr-1 text-sm" />
       {$t("map.tools.label")}
     </button>
+
+    {#if gpsAvailable}
+      <button
+        class="z-20 bg-neutral-800/90 text-blue-400 absolute bottom-3 left-3 rounded-lg border border-neutral-700 px-2.5 py-2 text-sm backdrop-blur-sm transition-colors hover:bg-neutral-700"
+        on:click={centerOnMe}
+        title="Center on my location"
+        style={isMobile ? "margin-bottom: 4rem" : ""}>
+        <i class="fa fa-crosshairs" />
+      </button>
+    {/if}
 
     {#if showLayerPanel}
       <MapLayerPanel on:close={() => (showLayerPanel = false)} on:drawSubmit={handleDrawSubmit} />

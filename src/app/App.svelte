@@ -23,6 +23,7 @@
   import {ANNOUNCEMENTS_PATH} from "src/app/announcements"
   import {registerGroupRoutes} from "src/app/groups/routes"
   import Toast from "src/partials/Toast.svelte"
+  import {showWarning, showActionToast} from "src/partials/Toast.svelte"
   import ChatEnable from "src/app/views/ChatEnable.svelte"
   import Menu from "src/app/Menu.svelte"
   import Routes from "src/app/Routes.svelte"
@@ -32,6 +33,7 @@
   import MainStatusBar from "src/app/MainStatusBar.svelte"
   import ForegroundButtons from "src/app/ForegroundButtons.svelte"
   import LoaderStatusBanner from "src/app/shared/LoaderStatusBanner.svelte"
+  import SwUpdateBanner from "src/app/shared/SwUpdateBanner.svelte"
   import {enterLoaderStatus, exitLoaderStatus} from "src/app/status/loader-status"
   import {announcement, announcementPriority, skipToMain} from "src/partials/accessibility"
   import Bech32Entity from "src/app/views/Bech32Entity.svelte"
@@ -55,6 +57,15 @@
   import Notifications from "src/app/views/Notifications.svelte"
   import Onboarding from "src/app/views/Onboarding.svelte"
   import BackupReminder from "src/app/views/onboarding/BackupReminder.svelte"
+  import UnlockScreen from "src/app/views/UnlockScreen.svelte"
+  import {
+    pqcUnlockNeeded,
+    pqcUnlockSkipped,
+    setActivePassphrase,
+    skipPqcUnlock,
+    checkPqcUnlockNeeded,
+    migrateLegacyPqcKeys,
+  } from "src/engine/pqc/pq-key-store"
   import ManagedExportPrompt from "src/app/views/onboarding/ManagedExportPrompt.svelte"
   import PersonDetail from "src/app/views/PersonDetail.svelte"
   import PersonFollowers from "src/app/views/PersonFollowers.svelte"
@@ -127,8 +138,6 @@
       initialGroupAddress: asUrlComponent("initialGroupAddress"),
     },
   })
-
-  router.registerLazy("/intel/map", () => import("src/app/views/IntelNavMap.svelte"))
 
   router.register("/feeds", FeedList)
   router.register("/feeds/create", FeedCreate)
@@ -458,6 +467,9 @@
       enterLoaderStatus("app.bootstrap.store-settle", APP_BOOTSTRAP_OPERATION)
       await sleep(350)
 
+      // Check if PQC secure store needs unlocking
+      await checkPqcUnlockNeeded()
+
       if ($session) {
         enterLoaderStatus("app.bootstrap.user-data", APP_BOOTSTRAP_OPERATION)
         loadUserData()
@@ -484,12 +496,51 @@
     {$announcement}
   </div>
 
-  <ErrorBoundary>
-    <main id="main-content" tabindex="-1" aria-label="Main content">
-      <Routes />
-    </main>
-  </ErrorBoundary>
+  {#if $pqcUnlockNeeded}
+    <UnlockScreen
+      on:unlock={async e => {
+        setActivePassphrase(e.detail.passphrase)
+        const result = await migrateLegacyPqcKeys()
+        if (result.failed > 0) {
+          showActionToast(
+            `${result.failed} key(s) could not be re-encrypted with your passphrase`,
+            "Retry",
+            async () => {
+              const retry = await migrateLegacyPqcKeys()
+              if (retry.failed > 0) {
+                showWarning(`${retry.failed} key(s) still failed to migrate`)
+              }
+            },
+          )
+        }
+      }}
+      on:skip={skipPqcUnlock} />
+  {:else}
+    <ErrorBoundary>
+      <main id="main-content" tabindex="-1" aria-label="Main content">
+        <Routes />
+      </main>
+    </ErrorBoundary>
+  {/if}
   <LoaderStatusBanner />
+  <SwUpdateBanner />
+  {#if $pqcUnlockSkipped}
+    <div class="fixed left-0 right-0 top-0 z-toast flex justify-center">
+      <div
+        class="border-amber-500 bg-amber-900/80 m-2 max-w-xl flex-grow rounded border p-3 text-center text-sm text-neutral-100 shadow-xl">
+        <i class="fa fa-shield-halved mr-1" />
+        Your encryption keys are not fully protected.
+        <button
+          class="ml-2 underline hover:text-white"
+          on:click={() => {
+            pqcUnlockNeeded.set(true)
+            pqcUnlockSkipped.set(false)
+          }}>
+          Set passphrase
+        </button>
+      </div>
+    </div>
+  {/if}
   {#key $pubkey}
     <ForegroundButtons />
     <nav aria-label="Main navigation">

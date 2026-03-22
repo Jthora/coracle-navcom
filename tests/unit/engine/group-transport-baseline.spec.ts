@@ -9,9 +9,9 @@ describe("engine/group-transport-baseline", () => {
     await baselineGroupTransport.stop?.()
   })
 
-  it("accepts baseline and secure requests via canOperate", () => {
+  it("accepts baseline requests and rejects secure-nip-ee via canOperate", () => {
     expect(baselineGroupTransport.canOperate({requestedMode: "baseline-nip29"}).ok).toBe(true)
-    expect(baselineGroupTransport.canOperate({requestedMode: "secure-nip-ee"}).ok).toBe(true)
+    expect(baselineGroupTransport.canOperate({requestedMode: "secure-nip-ee"}).ok).toBe(false)
     expect(baselineGroupTransport.canOperate({requestedMode: "legacy-bridge"}).ok).toBe(false)
   })
 

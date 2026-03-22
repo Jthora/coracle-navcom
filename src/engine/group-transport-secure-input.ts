@@ -115,6 +115,12 @@ export const parseSecureGroupSendInputResult = (
     }
   }
 
+  const epochKeyBytes =
+    candidate.epochKeyBytes instanceof Uint8Array ? candidate.epochKeyBytes : undefined
+  const extraTags = Array.isArray(candidate.extraTags)
+    ? (candidate.extraTags as string[][])
+    : undefined
+
   return {
     ok: true,
     value: {
@@ -129,6 +135,8 @@ export const parseSecureGroupSendInputResult = (
       resolvedMode,
       downgradeConfirmed,
       allowTier2Override,
+      epochKeyBytes,
+      extraTags,
     },
   }
 }
@@ -167,7 +175,11 @@ export const buildSecureSubscribeFilters = ({
   cursor?: string | number
 }) => [
   {
-    kinds: [GROUP_KINDS.NIP_EE.GROUP_EVENT, GROUP_KINDS.NIP_EE.WELCOME],
+    kinds: [
+      GROUP_KINDS.NIP_EE.GROUP_EVENT,
+      GROUP_KINDS.NIP_EE.WELCOME,
+      GROUP_KINDS.NIP_EE.EPOCH_KEY_SHARE,
+    ],
     "#h": [groupId],
     ...(typeof cursor === "number" ? {since: cursor} : {}),
   },

@@ -28,6 +28,7 @@
     publishGroupMetadataEdit,
     publishGroupPutMember,
     publishGroupRemoveMember,
+    publishGroupLeave,
   } from "src/engine"
   import {
     ADMIN_DESTRUCTIVE_ACTION,
@@ -410,6 +411,34 @@
     }
   }
 
+  let showLeaveConfirm = false
+  let leaveConfirmInput = ""
+  $: isGroupOwner = actorRole === "owner"
+  $: leaveGroupTitle = projection?.group?.title || groupId
+  $: leaveConfirmed =
+    leaveConfirmInput.trim().toLowerCase() === leaveGroupTitle.trim().toLowerCase()
+
+  const onLeaveGroup = async () => {
+    if (!leaveConfirmed || isGroupOwner) return
+    try {
+      await publishGroupLeave({groupId}, actorRole)
+      showInfo("You have left the group.")
+      showLeaveConfirm = false
+      leaveConfirmInput = ""
+      // Navigate back to groups list
+      window.location.hash = "#/groups"
+    } catch (error) {
+      const reported = reportGroupError({
+        context: "group-admin-leave",
+        error,
+        flow: "create",
+        groupId,
+        source: "group-settings-admin",
+      })
+      showWarning(reported.userMessage)
+    }
+  }
+
   $: document.title = projection
     ? `${projection.group.title || projection.group.id} · ${adminSectionTitle} | NavCom`
     : "Group Admin | NavCom"
@@ -548,4 +577,51 @@
   {#if isExpertMode && adminUi[GROUP_ADMIN_UI_CONTROL.AUDIT_HISTORY].visible}
     <GroupAuditHistoryPanel {projection} actorPubkey={$pubkey || undefined} />
   {/if}
+
+  <!-- Danger Zone: Leave Group -->
+  <div class="panel border-red-900/40 mt-6 border p-4">
+    <h3 class="text-red-400 text-sm uppercase tracking-[0.08em]">Danger Zone</h3>
+    {#if isGroupOwner}
+      <p class="mt-2 text-sm text-neutral-400">
+        Group owners cannot leave their own group. Transfer ownership first.
+      </p>
+    {:else if !showLeaveConfirm}
+      <p class="mt-2 text-sm text-neutral-400">
+        Leaving this group will remove your membership and you will lose access to group messages.
+      </p>
+      <button
+        class="bg-red-900/30 text-red-300 hover:bg-red-900/50 mt-3 rounded-lg px-4 py-2 text-sm font-medium transition-colors"
+        on:click={() => (showLeaveConfirm = true)}>
+        Leave Group
+      </button>
+    {:else}
+      <p class="mt-2 text-sm text-neutral-300">
+        Type <strong class="text-red-300">{leaveGroupTitle}</strong> to confirm:
+      </p>
+      <input
+        type="text"
+        bind:value={leaveConfirmInput}
+        placeholder="Type group name to confirm"
+        class="focus:border-red-500 mt-2 w-full rounded-lg border border-neutral-600 bg-neutral-700 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 focus:outline-none" />
+      <div class="mt-3 flex gap-2">
+        <button
+          class="rounded-lg bg-neutral-700 px-4 py-2 text-sm text-neutral-300 transition-colors hover:bg-neutral-600"
+          on:click={() => {
+            showLeaveConfirm = false
+            leaveConfirmInput = ""
+          }}>
+          Cancel
+        </button>
+        <button
+          class="rounded-lg px-4 py-2 text-sm font-medium transition-colors
+            {leaveConfirmed
+            ? 'bg-red-700 hover:bg-red-600 text-white'
+            : 'cursor-not-allowed bg-neutral-700 text-neutral-500'}"
+          disabled={!leaveConfirmed}
+          on:click={onLeaveGroup}>
+          Confirm Leave
+        </button>
+      </div>
+    {/if}
+  </div>
 {/if}

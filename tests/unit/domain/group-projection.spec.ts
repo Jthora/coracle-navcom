@@ -259,4 +259,111 @@ describe("group-projection", () => {
     expect(projection?.members[member].role).toBe("admin")
     expect(projection?.members[member].updatedAt).toBe(200)
   })
+
+  it("applies WELCOME event to set transportMode and epoch fields", () => {
+    const projection = createProjectionFromEvent({
+      ...baseEvent,
+      kind: GROUP_KINDS.NIP29.METADATA,
+      tags: [["d", "ops"]],
+    } as any)
+
+    expect(projection?.group.transportMode).toBe("baseline-nip29")
+
+    const welcomePayload = {
+      v: 1,
+      group_id: "ops",
+      epoch_id: "epoch-abc",
+      epoch_sequence: 1,
+      transport_mode: "secure-nip-ee",
+      creator_pubkey: "a".repeat(64),
+      creator_pq_key_id: "pqkey-1",
+      created_at: 200,
+    }
+
+    applyGroupEvent(projection!, {
+      ...baseEvent,
+      id: "evt-welcome-1",
+      kind: GROUP_KINDS.NIP_EE.WELCOME,
+      created_at: 200,
+      content: JSON.stringify(welcomePayload),
+      tags: [
+        ["h", "ops"],
+        ["d", "ops"],
+        ["epoch", "epoch-abc"],
+        ["epoch_seq", "1"],
+        ["transport", "secure-nip-ee"],
+      ],
+    } as any)
+
+    expect(projection?.group.transportMode).toBe("secure-nip-ee")
+    expect(projection?.group.currentEpochId).toBe("epoch-abc")
+    expect(projection?.group.currentEpochSequence).toBe(1)
+  })
+
+  it("upgrades from baseline-nip29 to secure-nip-ee on WELCOME", () => {
+    const projection = createProjectionFromEvent({
+      ...baseEvent,
+      kind: GROUP_KINDS.NIP29.METADATA,
+      tags: [
+        ["d", "intel"],
+        ["name", "Intel Team"],
+      ],
+    } as any)
+
+    expect(projection?.group.transportMode).toBe("baseline-nip29")
+    expect(projection?.group.protocol).toBe("nip29")
+
+    const welcomePayload = {
+      v: 1,
+      group_id: "intel",
+      epoch_id: "epoch-xyz",
+      epoch_sequence: 3,
+      transport_mode: "secure-nip-ee",
+      creator_pubkey: "c".repeat(64),
+      creator_pq_key_id: "pqkey-2",
+      created_at: 300,
+    }
+
+    applyGroupEvent(projection!, {
+      ...baseEvent,
+      id: "evt-welcome-2",
+      kind: GROUP_KINDS.NIP_EE.WELCOME,
+      created_at: 300,
+      content: JSON.stringify(welcomePayload),
+      tags: [
+        ["h", "intel"],
+        ["d", "intel"],
+        ["epoch", "epoch-xyz"],
+        ["epoch_seq", "3"],
+        ["transport", "secure-nip-ee"],
+      ],
+    } as any)
+
+    expect(projection?.group.transportMode).toBe("secure-nip-ee")
+    expect(projection?.group.currentEpochId).toBe("epoch-xyz")
+    expect(projection?.group.currentEpochSequence).toBe(3)
+  })
+
+  it("ignores WELCOME with malformed content", () => {
+    const projection = createProjectionFromEvent({
+      ...baseEvent,
+      kind: GROUP_KINDS.NIP29.METADATA,
+      tags: [["d", "ops"]],
+    } as any)
+
+    applyGroupEvent(projection!, {
+      ...baseEvent,
+      id: "evt-welcome-bad",
+      kind: GROUP_KINDS.NIP_EE.WELCOME,
+      created_at: 200,
+      content: "not valid json",
+      tags: [
+        ["h", "ops"],
+        ["d", "ops"],
+      ],
+    } as any)
+
+    expect(projection?.group.transportMode).toBe("baseline-nip29")
+    expect(projection?.group.currentEpochId).toBeUndefined()
+  })
 })

@@ -2,7 +2,7 @@ import {writable} from "svelte/store"
 import type {QueuedMessage} from "./outbox"
 import {getPending} from "./outbox"
 
-export type QueueStatus = "queued" | "sending" | "sent" | "failed"
+export type QueueStatus = "queued" | "sending" | "sent" | "failed" | "quarantined"
 
 export interface QueueStatusEntry {
   id: string

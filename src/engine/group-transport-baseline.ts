@@ -141,11 +141,11 @@ export const baselineGroupTransport: GroupTransport = {
   start: () => {},
   stop: () => {},
   canOperate: ({requestedMode}) => ({
-    ok: requestedMode === "baseline-nip29" || requestedMode === "secure-nip-ee",
+    ok: requestedMode === "baseline-nip29",
     reason:
-      requestedMode === "baseline-nip29" || requestedMode === "secure-nip-ee"
+      requestedMode === "baseline-nip29"
         ? undefined
-        : "Unsupported mode for baseline adapter",
+        : `Baseline adapter does not handle ${requestedMode}. Use the secure adapter.`,
   }),
   publishControlAction,
   sendMessage,

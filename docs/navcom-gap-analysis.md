@@ -43,7 +43,7 @@ The "Gap" column states what's missing.
 
 | Capability | Rating | Vision Requires | Current State | Gap |
 |-----------|--------|-----------------|---------------|-----|
-| **Interactive map** | OPERATIONAL | Real-time operational map with GEOINT markers | Leaflet + OpenStreetMap at `/intel/map`. Auto-refresh (10s), custom mil-style markers, fit-to-bounds. `src/app/views/IntelNavMap.svelte` | Works for basic display |
+| **Interactive map** | OPERATIONAL | Real-time operational map with GEOINT markers | Leaflet + OpenStreetMap integrated in `MapView.svelte` (NavCom Map mode). Marker derivation, layer filtering, clustering, user GPS, member positions. ~~Legacy `IntelNavMap.svelte` removed 2026-03-21.~~ | Map fully integrated into tri-mode NavCom UI |
 | **GEOINT posting** | OPERATIONAL | Structured geo-tagged reports with GeoJSON | Full pipeline: lat/lon/alt/confidence/subtype/geohash. GeoJSON Feature embedded in content. Size validation. `src/app/util/geoint.ts`, `src/app/util/post-assembly.ts` | None for basic posting |
 | **Map as core tool** | PARTIAL | Fused map-and-comms view, always accessible | Map exists but is a standalone page at `/intel/map`, separate from comms. Not in any composite view. | Map is isolated — not integrated with groups, feeds, or dashboard |
 | **Layer controls** | MISSING | Filter markers by type, time, confidence, source | All GEOINT markers shown as identical pins. No filtering, no legend, no layer toggle. | No layer system |

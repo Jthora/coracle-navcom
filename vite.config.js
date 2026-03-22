@@ -11,6 +11,7 @@ import {svelte} from "@sveltejs/vite-plugin-svelte"
 dotenv.config({path: ".env"})
 dotenv.config({path: ".env.template"})
 
+const pkg = JSON.parse(fs.readFileSync("package.json", "utf8"))
 const accentColor = process.env.VITE_LIGHT_THEME.match(/accent:(#\w+)/)[1]
 const normalizeModuleId = id => id.split(path.sep).join("/")
 const nonCriticalPreloadChunks = ["vendor-qr-scanner", "vendor-leaflet", "vendor-hls"]
@@ -59,6 +60,9 @@ export default defineConfig(async () => {
   }
 
   return {
+    define: {
+      __APP_VERSION__: JSON.stringify(pkg.version),
+    },
     server: {
       https: false,
     },
@@ -163,7 +167,7 @@ export default defineConfig(async () => {
         ],
       }),
       VitePWA({
-        registerType: "autoUpdate",
+        registerType: "prompt",
         injectRegister: "auto",
         workbox: {
           maximumFileSizeToCacheInBytes: 5 * 1024 ** 2, // 5 MB or set to something else

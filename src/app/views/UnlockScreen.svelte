@@ -14,8 +14,9 @@
   import {retrieveKey, listKeyIds} from "src/engine/keys/secure-store"
   import {migrateLegacyKeys} from "src/engine/keys/migrate"
   import {validatePassphrase, passphraseStrength} from "src/engine/keys/passphrase"
+  import {pqcMigrationProgress} from "src/engine/pqc/pq-key-store"
 
-  const dispatch = createEventDispatcher<{unlock: {passphrase: string}}>()
+  const dispatch = createEventDispatcher<{unlock: {passphrase: string}; skip: void}>()
 
   export let mode: "unlock" | "setup" | "migrate" = "unlock"
 
@@ -158,7 +159,11 @@
           ? 'bg-neutral-600 text-neutral-400'
           : 'bg-accent text-neutral-900 hover:opacity-90'}">
         {#if loading}
-          Unlocking...
+          {#if $pqcMigrationProgress}
+            Securing keys... ({$pqcMigrationProgress.current}/{$pqcMigrationProgress.total})
+          {:else}
+            Unlocking...
+          {/if}
         {:else if mode === "migrate"}
           Secure & Unlock
         {:else if isSetup}
@@ -168,10 +173,27 @@
         {/if}
       </button>
 
+      {#if loading && $pqcMigrationProgress && $pqcMigrationProgress.total > 0}
+        <div class="mt-1">
+          <div class="h-1.5 overflow-hidden rounded-full bg-neutral-600">
+            <div
+              class="h-full rounded-full bg-accent transition-all"
+              style="width: {($pqcMigrationProgress.current / $pqcMigrationProgress.total) *
+                100}%" />
+          </div>
+          <p class="mt-1 text-center text-xs text-neutral-400">Securing your encryption keys...</p>
+        </div>
+      {/if}
+
       {#if !isSetup}
         <p class="mt-2 text-center text-xs text-neutral-500">
           If you forgot your passphrase, you'll need your nsec backup to recover your account.
         </p>
+        <button
+          on:click={() => dispatch("skip")}
+          class="mt-1 w-full text-center text-xs text-neutral-500 underline hover:text-neutral-300">
+          Skip for now
+        </button>
       {:else}
         <p class="mt-2 text-center text-xs text-neutral-500">
           Your keys will be encrypted with this passphrase. If you forget it, you'll need your nsec

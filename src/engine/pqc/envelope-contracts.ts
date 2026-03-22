@@ -32,6 +32,8 @@ export type PqcEnvelopeRecipient = {
   wrap_nonce?: string
   key_epoch?: string
   flags?: Record<string, unknown>
+  /** HMAC-SHA256 confirmation tag binding KEM ciphertext to associated data. */
+  confirmation_tag?: string
 }
 
 export type PqcEnvelopeCompat = {

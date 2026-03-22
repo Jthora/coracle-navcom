@@ -29,6 +29,7 @@ describe("pq-key-store", () => {
   let loadPqcKeyPair: typeof import("src/engine/pqc/pq-key-store").loadPqcKeyPair
   let loadPqcSecretKey: typeof import("src/engine/pqc/pq-key-store").loadPqcSecretKey
   let removePqcKeyPair: typeof import("src/engine/pqc/pq-key-store").removePqcKeyPair
+  let setActivePassphrase: typeof import("src/engine/pqc/pq-key-store").setActivePassphrase
 
   const store = new Map<string, string>()
 
@@ -48,6 +49,10 @@ describe("pq-key-store", () => {
     loadPqcKeyPair = mod.loadPqcKeyPair
     loadPqcSecretKey = mod.loadPqcSecretKey
     removePqcKeyPair = mod.removePqcKeyPair
+    setActivePassphrase = mod.setActivePassphrase
+
+    // Set passphrase so secure store is used
+    setActivePassphrase("test-passphrase")
   })
 
   afterEach(() => {

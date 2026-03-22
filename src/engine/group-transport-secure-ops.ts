@@ -1,4 +1,4 @@
-import {pubkey, sendWrapped} from "@welshman/app"
+import {pubkey, publishThunk} from "@welshman/app"
 import {Router, addMaximalFallbacks} from "@welshman/router"
 import {uniq} from "@welshman/lib"
 import {makeEvent} from "@welshman/util"
@@ -12,10 +12,15 @@ import {
   ensureSecureGroupEpochState,
 } from "src/engine/group-epoch-state"
 import {
+  getGroupMessageEpochId,
   validateGroupMessageEpochForReceive,
   withGroupMessageEpochTag,
 } from "src/engine/group-epoch-message"
-import {encodeSecureGroupEpochContent} from "src/engine/group-epoch-content"
+import {
+  encodeSecureGroupEpochContent,
+  extractSealedMeta,
+  buildSealedContent,
+} from "src/engine/group-epoch-content"
 import {validateAndDecryptSecureGroupEventContent} from "src/engine/group-epoch-decrypt"
 import {repairSecureGroupEpochStateFromEvents} from "src/engine/group-epoch-reconcile"
 import {collectGroupMembershipRemovalPubkeys} from "src/engine/group-membership-events"
@@ -31,6 +36,8 @@ import {
 import {applyGroupTransportProjectionEvents} from "src/engine/group-transport-projection"
 import {retrieveKey} from "src/engine/keys/secure-store"
 import {deriveEpochContentKey} from "src/engine/pqc/epoch-key-manager"
+import {getActivePassphrase} from "src/engine/pqc/pq-key-store"
+import {ensureOwnPqcKey} from "src/engine/pqc/pq-key-lifecycle"
 import {
   errTransportResult,
   okTransportResult,
@@ -71,7 +78,7 @@ export const resolveEpochKey = async (
   epochId: string,
   passphrase: string,
 ): Promise<Uint8Array | null> => {
-  const masterKey = await retrieveKey(`pqc-group-master:${groupId}`, passphrase)
+  const masterKey = await retrieveKey(`pqc-group-master:${groupId}:epoch:${epochId}`, passphrase)
   if (!masterKey) return null
   return deriveEpochContentKey(masterKey, groupId, epochId)
 }
@@ -114,6 +121,9 @@ export const sendSecureGroupMessage = async (
   try {
     const senderPubkey = pubkey.get()
 
+    // Ensure sender's PQC key is published (kind 10051)
+    await ensureOwnPqcKey()
+
     const recipientResolution = resolveEligibleSecureWrapRecipients({
       recipients: uniq(input.recipients.concat(senderPubkey).filter(Boolean)),
       senderPubkey,
@@ -132,31 +142,58 @@ export const sendSecureGroupMessage = async (
     }
 
     if (!input.epochKeyBytes) {
+      // Resolve epoch key from secure store (no auto-provisioning)
+      const passphrase = getActivePassphrase()
+      if (!passphrase) {
+        return errTransportResult(
+          "GROUP_TRANSPORT_VALIDATION_FAILED",
+          "PQC passphrase not available. Key store is locked.",
+          true,
+        )
+      }
+
+      const resolved = await resolveEpochKey(input.groupId, epochState.epochId, passphrase)
+      if (!resolved) {
+        return errTransportResult(
+          "GROUP_TRANSPORT_VALIDATION_FAILED",
+          "No epoch key for this group. You may not have received the key share yet.",
+          true,
+        )
+      }
+
+      input = {...input, epochKeyBytes: resolved}
+    }
+
+    if (!input.epochKeyBytes) {
       return errTransportResult(
         "GROUP_TRANSPORT_VALIDATION_FAILED",
-        "Epoch key bytes are required for secure group send.",
+        "Epoch key bytes are required for secure group send. Ensure the group has a PQC epoch key.",
         false,
       )
     }
 
+    // Seal sensitive metadata tags inside the encrypted content body
+    const rawExtraTags = Array.isArray(input.extraTags) ? input.extraTags : []
+    const {meta, remainingTags: extraTags} = extractSealedMeta(rawExtraTags)
+    const sealedPlaintext = buildSealedContent(input.content, meta)
+
     const encodedContent = await encodeSecureGroupEpochContent({
       groupId: input.groupId,
       epochId: epochState.epochId,
-      plaintext: input.content,
+      plaintext: sealedPlaintext,
       senderPubkey,
       recipients: recipientResolution.eligibleRecipients,
       epochKeyBytes: input.epochKeyBytes,
+      pqDerived: true,
     })
 
     if (encodedContent.ok === false) {
       return errTransportResult("GROUP_TRANSPORT_VALIDATION_FAILED", encodedContent.message, false)
     }
 
-    const extraTags = Array.isArray(input.extraTags) ? input.extraTags : []
+    const relays = Router.get().FromUser().policy(addMaximalFallbacks).getUrls()
 
-    const result = await sendWrapped({
-      delay: input.delay || 0,
-      recipients: recipientResolution.eligibleRecipients,
+    const result = await publishThunk({
       event: makeEvent(GROUP_KINDS.NIP_EE.GROUP_EVENT, {
         content: encodedContent.content,
         tags: withGroupMessageEpochTag({
@@ -174,6 +211,7 @@ export const sendSecureGroupMessage = async (
           ],
         }),
       }),
+      relays,
     })
 
     return okTransportResult(result)
@@ -221,7 +259,46 @@ export const subscribeSecureGroupEvents = async (
       signal: controller.signal,
       relays,
       filters: buildSecureSubscribeFilters({groupId: input.groupId, cursor: input.cursor}),
-      onEvent: event => handlers.onEvent(event),
+      onEvent: async event => {
+        // Attempt to decrypt secure group content before passing to handler
+        const epochState = ensureSecureGroupEpochState(input.groupId)
+        const passphrase = getActivePassphrase()
+
+        if (passphrase && event.kind === GROUP_KINDS.NIP_EE.GROUP_EVENT) {
+          const epochKey = await resolveEpochKey(input.groupId, epochState.epochId, passphrase)
+          if (epochKey) {
+            const decrypted = await validateAndDecryptSecureGroupEventContent({
+              event,
+              expectedEpochId: epochState.epochId,
+              epochKeyBytes: epochKey,
+            })
+            if (decrypted.ok && decrypted.plaintext) {
+              handlers.onEvent({...event, content: decrypted.plaintext})
+              return
+            }
+          }
+
+          // Multi-epoch fallback: try the epoch tagged in the message
+          const msgEpochId = getGroupMessageEpochId(event)
+          if (msgEpochId && msgEpochId !== epochState.epochId) {
+            const altKey = await resolveEpochKey(input.groupId, msgEpochId, passphrase)
+            if (altKey) {
+              const altDecrypted = await validateAndDecryptSecureGroupEventContent({
+                event,
+                expectedEpochId: msgEpochId,
+                epochKeyBytes: altKey,
+              })
+              if (altDecrypted.ok && altDecrypted.plaintext) {
+                handlers.onEvent({...event, content: altDecrypted.plaintext})
+                return
+              }
+            }
+          }
+        }
+
+        // Fall through: pass raw event if decryption unavailable
+        handlers.onEvent(event)
+      },
     })
 
     return okTransportResult({

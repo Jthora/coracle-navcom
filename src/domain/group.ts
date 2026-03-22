@@ -14,6 +14,8 @@ export type GroupEntity = {
   picture?: string
   protocol: GroupProtocol
   transportMode: GroupTransportMode
+  currentEpochId?: string
+  currentEpochSequence?: number
   createdAt: number
   updatedAt: number
 }
@@ -53,6 +55,8 @@ export const makeGroup = (input: Partial<GroupEntity> & {id: string}): GroupEnti
     picture: input.picture,
     protocol: input.protocol || "nip29",
     transportMode: input.transportMode || "baseline-nip29",
+    currentEpochId: input.currentEpochId,
+    currentEpochSequence: input.currentEpochSequence,
     createdAt: input.createdAt || now,
     updatedAt: input.updatedAt || now,
   }

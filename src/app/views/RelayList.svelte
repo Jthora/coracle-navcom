@@ -24,6 +24,7 @@
   } from "@welshman/util"
   import {createScroller} from "src/util/misc"
   import {showWarning} from "src/partials/Toast.svelte"
+  import {relayHealthTracker} from "src/engine/relay/relay-health"
   import Tabs from "src/partials/Tabs.svelte"
   import Modal from "src/partials/Modal.svelte"
   import FlexColumn from "src/partials/FlexColumn.svelte"
@@ -87,15 +88,39 @@
     modal = "add_relay"
   }
 
+  let confirmUnknownRelay = false
+  let pendingRelayUrl = ""
+
   const confirmAddCustomRelay = () => {
     const url = normalizeRelayUrl(customRelay)
 
     if (!isRelayUrl(url)) {
       showWarning("Please provide a valid relay url")
+    } else if (url.startsWith("ws://")) {
+      showWarning("Unencrypted relay connections (ws://) are not allowed — use wss://")
     } else {
-      joinRelay(url)
-      closeModal()
+      const tier = relayHealthTracker.getTier(url)
+      if (tier === "unknown") {
+        pendingRelayUrl = url
+        confirmUnknownRelay = true
+      } else {
+        joinRelay(url)
+        closeModal()
+      }
     }
+  }
+
+  const confirmAddUnknownRelay = () => {
+    relayHealthTracker.markKnown(pendingRelayUrl)
+    joinRelay(pendingRelayUrl)
+    confirmUnknownRelay = false
+    pendingRelayUrl = ""
+    closeModal()
+  }
+
+  const cancelUnknownRelay = () => {
+    confirmUnknownRelay = false
+    pendingRelayUrl = ""
   }
 
   const closeModal = () => {
@@ -215,11 +240,21 @@
 
 {#if modal}
   <Modal onEscape={closeModal}>
-    <Subheading>Add a relay</Subheading>
-    <p>Enter a relay url below to add it to your relay selections.</p>
-    <Input autofocus bind:value={customRelay} placeholder="wss://...">
-      <i slot="before" class="fa fa-server" />
-    </Input>
-    <Button class="btn btn-accent" on:click={confirmAddCustomRelay}>Add Relay</Button>
+    {#if confirmUnknownRelay}
+      <Subheading>Unverified Relay</Subheading>
+      <p class="text-warning">This relay is unverified — messages may not be delivered reliably.</p>
+      <p class="text-sm text-neutral-400">URL: {pendingRelayUrl}</p>
+      <div class="flex gap-2">
+        <Button class="btn btn-accent" on:click={confirmAddUnknownRelay}>Add Anyway</Button>
+        <Button class="btn" on:click={cancelUnknownRelay}>Cancel</Button>
+      </div>
+    {:else}
+      <Subheading>Add a relay</Subheading>
+      <p>Enter a relay url below to add it to your relay selections.</p>
+      <Input autofocus bind:value={customRelay} placeholder="wss://...">
+        <i slot="before" class="fa fa-server" />
+      </Input>
+      <Button class="btn btn-accent" on:click={confirmAddCustomRelay}>Add Relay</Button>
+    {/if}
   </Modal>
 {/if}

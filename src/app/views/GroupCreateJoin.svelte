@@ -140,6 +140,9 @@
     createRelayHost && !createRelayHost.includes(".")
       ? "Primary relay host looks incomplete; use a full relay address when possible."
       : "",
+    createSelectedRelays.some(r => r.startsWith("ws://"))
+      ? "Unencrypted relay connections (ws://) are not allowed — use wss://"
+      : "",
   ].filter(Boolean)
   $: joinPrompts = buildJoinPolicyPrompts(joinGroupAddress)
   $: joinSelectedRelays = parseSelectedRelays(joinSelectedRelaysText)

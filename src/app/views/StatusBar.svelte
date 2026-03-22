@@ -4,11 +4,13 @@
   import {derivePubkeyRelays, pubkey} from "@welshman/app"
   import {RelayMode} from "@welshman/util"
   import {ConnectionType, getSocketStatus} from "src/domain/connection"
+  import {relayHealthTracker} from "src/engine/relay/relay-health"
   import {onMount} from "svelte"
 
   let connected = false
   let connectedCount = 0
   let totalCount = 0
+  let rateLimitedCount = 0
   const alertCount = 0
 
   const readRelays = derivePubkeyRelays($pubkey, RelayMode.Read)
@@ -32,21 +34,31 @@
   $: connectionLabel = connected
     ? $t("status.relay.connected", {values: {connectedCount, totalCount}})
     : totalCount > 0
-      ? $t("status.relay.reconnecting")
+      ? rateLimitedCount > 0
+        ? `Reconnecting to ${rateLimitedCount} relay(s)...`
+        : $t("status.relay.reconnecting")
       : $t("status.relay.none")
 
   // Poll relay status since sockets don't emit reactive changes to Svelte
   onMount(() => {
     const interval = setInterval(() => {
       let count = 0
+      let rlCount = 0
       for (const url of relayUrls) {
         const socket = Pool.get().get(url)
         if (socket && getSocketStatus(socket) === ConnectionType.Connected) {
           count++
         }
+        // Check for rate-limited/demoted relays
+        const metrics = relayHealthTracker.getAllMetrics()
+        const entry = metrics.find(m => m.url === url)
+        if (entry?.demoted) {
+          rlCount++
+        }
       }
       connectedCount = count
       connected = count > 0
+      rateLimitedCount = rlCount
     }, 3000)
     return () => clearInterval(interval)
   })
@@ -66,6 +78,14 @@
     <div class="text-yellow-400 flex items-center gap-1">
       <span>⚠</span>
       <span>{alertCount}</span>
+    </div>
+  {/if}
+  {#if rateLimitedCount > 0}
+    <div
+      class="text-amber-400 flex items-center gap-1"
+      title="{rateLimitedCount} relay(s) rate-limited">
+      <span class="bg-amber-400 inline-block h-2 w-2 rounded-full" />
+      <span>{rateLimitedCount} throttled</span>
     </div>
   {/if}
 </div>

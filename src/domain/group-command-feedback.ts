@@ -9,6 +9,16 @@ export const GROUP_COMMAND_REASON = {
   UNKNOWN: "GROUP_COMMAND_UNKNOWN",
 } as const
 
+/** Unique triage codes for group command failures — searchable in logs */
+export const GROUP_ERROR_CODE: Record<GroupCommandReasonCode, string> = {
+  GROUP_COMMAND_PERMISSION_DENIED: "GRP-PERM-001",
+  GROUP_COMMAND_INVALID_INPUT: "GRP-INP-001",
+  GROUP_COMMAND_CAPABILITY_BLOCKED: "GRP-CAP-001",
+  GROUP_COMMAND_POLICY_BLOCKED: "GRP-POL-001",
+  GROUP_COMMAND_PUBLISH_FAILED: "GRP-PUB-001",
+  GROUP_COMMAND_UNKNOWN: "GRP-UNK-001",
+}
+
 export type GroupCommandReasonCode =
   (typeof GROUP_COMMAND_REASON)[keyof typeof GROUP_COMMAND_REASON]
 
@@ -71,14 +81,34 @@ export const normalizeGroupCommandAck = (result: unknown): GroupCommandAck => {
 }
 
 export const mapGroupCommandError = (error: unknown): GroupCommandOutcome<never> => {
+  // Log full error for developer debugging; user-facing messages use generic text
+  const triageCode = classifyGroupCommandError(error)
+  console.warn(`[GroupCommand] Command error [${triageCode}]:`, error)
+
   if (isGroupEngineError(error)) {
+    // Engine errors have structured codes — use generic UI messages, not raw .message
+    const genericMessage =
+      GROUP_COMMAND_REASON_UI[
+        error.code === GROUP_ENGINE_ERROR_CODE.PERMISSION_DENIED
+          ? GROUP_COMMAND_REASON.PERMISSION_DENIED
+          : error.code === GROUP_ENGINE_ERROR_CODE.INVALID_INPUT
+            ? GROUP_COMMAND_REASON.INVALID_INPUT
+            : error.code === GROUP_ENGINE_ERROR_CODE.CAPABILITY_BLOCKED
+              ? GROUP_COMMAND_REASON.CAPABILITY_BLOCKED
+              : error.code === GROUP_ENGINE_ERROR_CODE.POLICY_BLOCKED
+                ? GROUP_COMMAND_REASON.POLICY_BLOCKED
+                : error.code === GROUP_ENGINE_ERROR_CODE.DISPATCH_FAILED ||
+                    error.code === GROUP_ENGINE_ERROR_CODE.ADAPTER_UNSUPPORTED
+                  ? GROUP_COMMAND_REASON.PUBLISH_FAILED
+                  : GROUP_COMMAND_REASON.UNKNOWN
+      ] || GROUP_COMMAND_REASON_UI[GROUP_COMMAND_REASON.UNKNOWN]
+
     if (error.code === GROUP_ENGINE_ERROR_CODE.PERMISSION_DENIED) {
       return {
         ok: false,
         reason: GROUP_COMMAND_REASON.PERMISSION_DENIED,
-        message: error.message,
+        message: genericMessage,
         retryable: error.retryable,
-        details: error.details,
       }
     }
 
@@ -86,9 +116,8 @@ export const mapGroupCommandError = (error: unknown): GroupCommandOutcome<never>
       return {
         ok: false,
         reason: GROUP_COMMAND_REASON.INVALID_INPUT,
-        message: error.message,
+        message: genericMessage,
         retryable: error.retryable,
-        details: error.details,
       }
     }
 
@@ -96,9 +125,8 @@ export const mapGroupCommandError = (error: unknown): GroupCommandOutcome<never>
       return {
         ok: false,
         reason: GROUP_COMMAND_REASON.CAPABILITY_BLOCKED,
-        message: error.message,
+        message: genericMessage,
         retryable: error.retryable,
-        details: error.details,
       }
     }
 
@@ -106,9 +134,8 @@ export const mapGroupCommandError = (error: unknown): GroupCommandOutcome<never>
       return {
         ok: false,
         reason: GROUP_COMMAND_REASON.POLICY_BLOCKED,
-        message: error.message,
+        message: genericMessage,
         retryable: error.retryable,
-        details: error.details,
       }
     }
 
@@ -119,71 +146,66 @@ export const mapGroupCommandError = (error: unknown): GroupCommandOutcome<never>
       return {
         ok: false,
         reason: GROUP_COMMAND_REASON.PUBLISH_FAILED,
-        message: error.message,
+        message: genericMessage,
         retryable: error.retryable,
-        details: error.details,
       }
     }
   }
 
-  const message = error instanceof Error ? error.message : "Unknown command failure"
+  // For non-engine errors, classify by keyword but never pass raw message to UI
+  const rawMessage = error instanceof Error ? error.message : ""
+  const lower = rawMessage.toLowerCase()
 
-  if (message.toLowerCase().includes("permission denied")) {
+  if (lower.includes("permission denied")) {
     return {
       ok: false,
       reason: GROUP_COMMAND_REASON.PERMISSION_DENIED,
-      message,
+      message: GROUP_COMMAND_REASON_UI[GROUP_COMMAND_REASON.PERMISSION_DENIED],
       retryable: false,
-      details: error,
     }
   }
 
-  if (message.toLowerCase().includes("invalid")) {
+  if (lower.includes("invalid")) {
     return {
       ok: false,
       reason: GROUP_COMMAND_REASON.INVALID_INPUT,
-      message,
+      message: GROUP_COMMAND_REASON_UI[GROUP_COMMAND_REASON.INVALID_INPUT],
       retryable: false,
-      details: error,
     }
   }
 
-  if (message.toLowerCase().includes("capability gate")) {
+  if (lower.includes("capability gate")) {
     return {
       ok: false,
       reason: GROUP_COMMAND_REASON.CAPABILITY_BLOCKED,
-      message,
+      message: GROUP_COMMAND_REASON_UI[GROUP_COMMAND_REASON.CAPABILITY_BLOCKED],
       retryable: false,
-      details: error,
     }
   }
 
-  if (message.toLowerCase().includes("tier policy blocked")) {
+  if (lower.includes("tier policy blocked")) {
     return {
       ok: false,
       reason: GROUP_COMMAND_REASON.POLICY_BLOCKED,
-      message,
+      message: GROUP_COMMAND_REASON_UI[GROUP_COMMAND_REASON.POLICY_BLOCKED],
       retryable: false,
-      details: error,
     }
   }
 
-  if (message.toLowerCase().includes("publish") || message.toLowerCase().includes("relay")) {
+  if (lower.includes("publish") || lower.includes("relay")) {
     return {
       ok: false,
       reason: GROUP_COMMAND_REASON.PUBLISH_FAILED,
-      message,
+      message: GROUP_COMMAND_REASON_UI[GROUP_COMMAND_REASON.PUBLISH_FAILED],
       retryable: true,
-      details: error,
     }
   }
 
   return {
     ok: false,
     reason: GROUP_COMMAND_REASON.UNKNOWN,
-    message,
+    message: GROUP_COMMAND_REASON_UI[GROUP_COMMAND_REASON.UNKNOWN],
     retryable: true,
-    details: error,
   }
 }
 
@@ -200,6 +222,27 @@ export const GROUP_COMMAND_REASON_UI: Record<GroupCommandReasonCode, string> = {
 
 export const toGroupCommandUiMessage = (reason: GroupCommandReasonCode) =>
   GROUP_COMMAND_REASON_UI[reason]
+
+/** Derive triage code from an error without exposing details to the caller */
+const classifyGroupCommandError = (error: unknown): string => {
+  if (isGroupEngineError(error)) {
+    const reason =
+      error.code === GROUP_ENGINE_ERROR_CODE.PERMISSION_DENIED
+        ? GROUP_COMMAND_REASON.PERMISSION_DENIED
+        : error.code === GROUP_ENGINE_ERROR_CODE.INVALID_INPUT
+          ? GROUP_COMMAND_REASON.INVALID_INPUT
+          : error.code === GROUP_ENGINE_ERROR_CODE.CAPABILITY_BLOCKED
+            ? GROUP_COMMAND_REASON.CAPABILITY_BLOCKED
+            : error.code === GROUP_ENGINE_ERROR_CODE.POLICY_BLOCKED
+              ? GROUP_COMMAND_REASON.POLICY_BLOCKED
+              : error.code === GROUP_ENGINE_ERROR_CODE.DISPATCH_FAILED ||
+                  error.code === GROUP_ENGINE_ERROR_CODE.ADAPTER_UNSUPPORTED
+                ? GROUP_COMMAND_REASON.PUBLISH_FAILED
+                : GROUP_COMMAND_REASON.UNKNOWN
+    return GROUP_ERROR_CODE[reason]
+  }
+  return GROUP_ERROR_CODE[GROUP_COMMAND_REASON.UNKNOWN]
+}
 
 export const withGroupCommandRetry = async <T>(
   run: () => Promise<GroupCommandOutcome<T>>,

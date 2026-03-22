@@ -21,7 +21,24 @@
   let locationText = ""
   let gpsLoading = false
 
-  $: canSubmit = description.trim().length > 0
+  const COORD_RE = /^-?\d+\.?\d*\s*,\s*-?\d+\.?\d*$/
+
+  function validateLocation(text: string): string | null {
+    if (!text.trim()) return null
+    if (!COORD_RE.test(text.trim())) return "Use lat,lng format (e.g. 51.5074,-0.1278)"
+    const [latStr, lngStr] = text
+      .trim()
+      .split(",")
+      .map(s => s.trim())
+    const lat = Number(latStr)
+    const lng = Number(lngStr)
+    if (lat < -90 || lat > 90) return "Latitude must be between -90 and 90"
+    if (lng < -180 || lng > 180) return "Longitude must be between -180 and 180"
+    return null
+  }
+
+  $: locationError = validateLocation(locationText)
+  $: canSubmit = description.trim().length > 0 && !locationError
 
   async function useGps() {
     if (!navigator.geolocation) return
@@ -84,6 +101,9 @@
           {gpsLoading ? "..." : "📍 GPS"}
         </button>
       </div>
+      {#if locationError}
+        <p class="text-red-400 mt-1 text-[11px]">{locationError}</p>
+      {/if}
     </div>
 
     <div>

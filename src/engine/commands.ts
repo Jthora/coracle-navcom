@@ -13,7 +13,6 @@ import {
   sendWrapped,
 } from "@welshman/app"
 import {append, sha256, remove, nthNe, uniq} from "@welshman/lib"
-import {Nip01Signer} from "@welshman/signer"
 import type {TrustedEvent} from "@welshman/util"
 import {Router, addMaximalFallbacks, addMinimalFallbacks} from "@welshman/router"
 import {
@@ -89,8 +88,27 @@ export const uploadFile = async (server: string, file: File, compressorOpts = {}
   }
 
   const hashes = [await sha256(await file.arrayBuffer())]
-  const $signer = signer.get() || Nip01Signer.ephemeral()
-  const authEvent = await $signer.sign(makeBlossomAuthEvent({action: "upload", server, hashes}))
+  const $signer = signer.get()
+
+  if (!$signer) {
+    throw new Error("Cannot upload file: no signer available. Please log in first.")
+  }
+
+  const SIGNER_TIMEOUT_MS = 30_000
+  const authEvent = await Promise.race([
+    $signer.sign(makeBlossomAuthEvent({action: "upload", server, hashes})),
+    new Promise<never>((_, reject) =>
+      setTimeout(
+        () =>
+          reject(
+            new Error(
+              "Signer timed out after 30s — check your signing device or bunker connection",
+            ),
+          ),
+        SIGNER_TIMEOUT_MS,
+      ),
+    ),
+  ])
   const res = await uploadBlob(server, file, {authEvent})
 
   return res.json()
