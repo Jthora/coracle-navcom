@@ -34,7 +34,7 @@ const makeRelayId = () => {
     .slice(0, 8)}`
 }
 
-const normalizeRelayUrl = (url: string) => {
+export const normalizeRelayUrl = (url: string) => {
   const trimmed = (url || "").trim()
   const lower = trimmed.toLowerCase()
 
@@ -43,6 +43,13 @@ const normalizeRelayUrl = (url: string) => {
 
   return cleaned.replace(/\/+$/, "")
 }
+
+/**
+ * Extract normalized relay URLs from a room relay policy.
+ * Used by the relay fingerprint gate assembly.
+ */
+export const extractRelayUrls = (policy: RoomRelayPolicy): string[] =>
+  policy.relays.map(r => normalizeRelayUrl(r.url))
 
 export const isValidRelayUrl = (url: string) => /^wss:\/\/[a-z0-9.-]+(:\d+)?(\/.*)?$/i.test(url)
 

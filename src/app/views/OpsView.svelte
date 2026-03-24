@@ -6,6 +6,7 @@
   import type {TileSetId} from "src/app/navcom-mode"
   import {groupSummaries, unreadGroupMessageCounts, groupProjections} from "src/app/groups/state"
   import {classifyGroupEventKind} from "src/domain/group-kinds"
+  import GroupHealthBadge from "src/partials/GroupHealthBadge.svelte"
   import {router} from "src/app/util/router"
   import type {GroupSummaryListItem} from "src/domain/group-selectors"
 
@@ -206,8 +207,10 @@
             {/if}
           </div>
           <div class="min-w-0 flex-1">
-            <span class="block truncate text-sm text-nc-text"
-              >{ch.title || $t("channel.title.unnamed")}</span>
+            <span class="block truncate text-sm text-nc-text">
+              {ch.title || $t("channel.title.unnamed")}
+              <GroupHealthBadge groupId={ch.id} />
+            </span>
             <span class="text-[11px] text-nc-text-muted"
               >{getEncryptionLabel(ch)} · {$t("ops.channel.members", {
                 values: {count: ch.memberCount},

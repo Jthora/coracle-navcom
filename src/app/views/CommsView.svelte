@@ -62,9 +62,9 @@
         requestedMode: transportMode as any,
         extraTags,
       })
-      showInfo("Check-in sent")
+      showInfo("Signal transmitted")
     } catch {
-      showWarning("Failed to send check-in")
+      showWarning("Signal failed — no relay connection")
     } finally {
       checkInLoading = false
     }
@@ -151,8 +151,8 @@
           class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-nc-shell-bg py-2 text-sm text-nc-text transition-colors hover:bg-nc-input"
           on:click={sendCheckIn}
           disabled={checkInLoading || !$signer}>
-          <i class="fa fa-map-pin text-xs text-success" />
-          <span>{checkInLoading ? "Sending…" : $t("comms.action.checkIn")}</span>
+          <i class="fa fa-satellite-dish text-xs text-success" />
+          <span>{checkInLoading ? "Sending…" : "Signal"}</span>
         </button>
         <div class="relative flex-1">
           <button
@@ -211,8 +211,8 @@
               class="flex items-center gap-1.5 rounded-lg bg-nc-shell-bg px-3 py-1.5 text-xs text-nc-text transition-colors hover:bg-nc-input"
               on:click={sendCheckIn}
               disabled={checkInLoading || !$signer}>
-              <i class="fa fa-map-pin text-success" />
-              {checkInLoading ? "Sending…" : $t("comms.action.checkIn")}
+              <i class="fa fa-satellite-dish text-success" />
+              {checkInLoading ? "Sending…" : "Signal"}
             </button>
             <div class="relative">
               <button

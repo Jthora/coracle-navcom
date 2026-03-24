@@ -43,16 +43,18 @@
   </div>
   <div class="flex flex-col gap-1">
     <div class="flex items-center gap-2">
-      <p class="text-2xl font-bold text-nc-text">Profile (optional)</p>
+      <p class="text-2xl font-bold text-nc-text">Operator card (optional)</p>
       <Popover triggerType="mouseenter" class="inline-flex items-center align-middle">
         <span slot="trigger" class="text-nc-text"><i class="fa fa-info-circle" /></span>
         <div slot="tooltip" class="max-w-xs text-sm text-nc-text">
-          Adding profile info is optional. You can skip now and edit it later in settings.
+          Your operator card is visible to other operators on the network. All fields are optional
+          and can be changed later in settings.
         </div>
       </Popover>
     </div>
     <p class="text-nc-text">
-      Add a handle or display name, or skip. Starter follows help you see posts immediately.
+      A callsign and display name help other operators identify you. Use operational handles, not
+      personal information.
     </p>
   </div>
 </div>
@@ -62,14 +64,15 @@
     <div slot="label" class="flex justify-between">
       <label
         class="flex items-center gap-2 font-semibold uppercase tracking-[0.06em] text-nc-text">
-        Handle (optional)
+        Callsign (optional)
       </label>
       <Popover
         triggerType="mouseenter"
         class="inline-flex shrink-0 items-center align-middle text-nc-text">
         <span slot="trigger"><i class="fa fa-info-circle" /></span>
         <div slot="tooltip" class="max-w-xs text-sm text-nc-text">
-          A short name others can mention you with. Avoid sensitive info; you can change it later.
+          A unique identifier other operators can use to reference you. Avoid real names or
+          personally identifying information.
         </div>
       </Popover>
     </div>
@@ -93,7 +96,7 @@
         class="inline-flex shrink-0 items-center align-middle text-nc-text">
         <span slot="trigger"><i class="fa fa-info-circle" /></span>
         <div slot="tooltip" class="max-w-xs text-sm text-nc-text">
-          How your name appears in feeds. Freeform text; you can edit it anytime.
+          How your name appears in messages and on the map. Freeform text; editable anytime.
         </div>
       </Popover>
     </div>
@@ -109,18 +112,20 @@
   <div class="panel space-y-2 p-4">
     <div class="flex flex-wrap items-center justify-between gap-2">
       <div class="flex items-center gap-2">
-        <p class="text-lg font-semibold">Starter follows</p>
+        <p class="text-lg font-semibold">Connect to default relay network</p>
         <Popover triggerType="mouseenter" class="inline-flex items-center align-middle">
           <span slot="trigger" class="text-nc-text"><i class="fa fa-info-circle" /></span>
           <div slot="tooltip" class="max-w-xs text-sm text-nc-text">
-            Adds a small curated list so your feed isn’t empty. You can unfollow any of them later.
+            Pre-configured relay connections so you can communicate immediately. You can modify
+            relay configuration later in settings.
           </div>
         </Popover>
       </div>
       <Toggle bind:value={starterFollows} on:change={() => update({starterFollows})} />
     </div>
     <p class="text-nc-text">
-      Adds a small curated list so your feed isn’t empty. You can unfollow anytime.
+      Pre-configured relay connections so you can communicate immediately. You can modify relay
+      configuration later in settings.
     </p>
   </div>
 </div>

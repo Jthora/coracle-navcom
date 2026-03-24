@@ -47,18 +47,18 @@
   </div>
   <div class="flex flex-col gap-1">
     <div class="flex items-center gap-2">
-      <p class="text-2xl font-bold text-nc-text">Choose your key path</p>
+      <p class="text-2xl font-bold text-nc-text">Identity credential</p>
       <Popover triggerType="mouseenter" class="inline-flex items-center align-middle">
         <span slot="trigger" class="text-nc-text"><i class="fa fa-info-circle" /></span>
         <div slot="tooltip" class="max-w-xs text-sm text-nc-text">
-          Pick how you want to hold or sign with your key: quick managed, bring your own key, or use
-          an external signer you already trust.
+          Your identity credential is a cryptographic key pair. The private half proves you are
+          you. The public half lets others verify your messages.
         </div>
       </Popover>
     </div>
     <p class="text-nc-text">
-      Recommended: let Navcom manage your key so you can post now. Advanced: bring/import a key or
-      use an external signer.
+      Your key pair is your identity on the network. NavCom can generate one for you, or you can
+      bring your own.
     </p>
   </div>
 </div>
@@ -67,12 +67,12 @@
   <div class={`panel space-y-2 p-4 ${selectedPath === "managed" ? "border-accent" : ""}`}>
     <div class="flex flex-wrap items-center justify-between gap-2">
       <div class="flex items-center gap-2">
-        <p class="text-lg font-semibold text-nc-text">Managed (recommended)</p>
+        <p class="text-lg font-semibold text-nc-text">Generate new credential (recommended)</p>
         <Popover triggerType="mouseenter" class="inline-flex items-center align-middle">
           <span slot="trigger" class="text-nc-text"><i class="fa fa-info-circle" /></span>
           <div slot="tooltip" class="max-w-xs text-sm text-nc-text">
-            Fastest path. We generate and store a Navcom key for you. You can export or switch to
-            another signer anytime. Good for getting started quickly.
+            Generates a Nostr key pair using your device's cryptographic random number generator.
+            The private key is stored in browser storage and never transmitted.
           </div>
         </Popover>
       </div>
@@ -80,13 +80,13 @@
         <span class="bg-accent/20 rounded-full px-2 py-0.5 text-xs text-accent">Selected</span>
       {/if}
     </div>
-    <p class="text-nc-text">We generate and store a Navcom key. You can export it anytime.</p>
+    <p class="text-nc-text">NavCom creates a key pair and stores it locally on this device. No server ever sees your private key. You can export it anytime.</p>
     <div class="flex flex-col gap-2">
       <Button
         class="btn btn-accent w-full whitespace-normal text-center"
         {loading}
         on:click={continueManaged}>
-        Use recommended
+        Generate credential
       </Button>
       <Button class="btn w-full whitespace-normal text-center" on:click={() => select("managed")}>
         Keep selected
@@ -97,7 +97,7 @@
   <div class={`panel space-y-3 p-4 ${selectedPath === "import" ? "border-accent" : ""}`}>
     <div class="flex flex-wrap items-center justify-between gap-2">
       <div class="flex items-center gap-2">
-        <p class="text-lg font-semibold text-nc-text">Import your key</p>
+        <p class="text-lg font-semibold text-nc-text">Import existing credential</p>
         <Popover triggerType="mouseenter" class="inline-flex items-center align-middle">
           <span slot="trigger" class="text-nc-text"><i class="fa fa-info-circle" /></span>
           <div slot="tooltip" class="max-w-xs text-sm text-nc-text">
@@ -111,7 +111,8 @@
       {/if}
     </div>
     <p class="text-nc-text">
-      Paste an existing nsec. You keep custody; we remind you to back it up.
+      Paste an existing nsec or encrypted key. Full custody stays with you. NavCom stores nothing
+      without your explicit action.
     </p>
     <Field label="nsec key">
       <Input
