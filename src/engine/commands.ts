@@ -48,8 +48,13 @@ import {recordPqcDmFallback} from "src/engine/pqc/dm-fallback-history"
 import {resolveDmSendPolicy} from "src/engine/pqc/dm-send-policy"
 import {runDmPayloadSizePreflight} from "src/engine/pqc/dm-size-preflight"
 import {ensureOwnPqcKey, resolvePeerPqPublicKey} from "src/engine/pqc/pq-key-lifecycle"
-import {enqueue as enqueueOffline} from "src/engine/offline/outbox"
+import {
+  enqueue as enqueueOffline,
+  enqueueSignedEvent,
+  getQueuedCount,
+} from "src/engine/offline/outbox"
 import {registerSendMessage} from "src/engine/offline/queue-drain"
+import {isSovereign, updateQueuedCount} from "src/engine/connection-state"
 import {stripExifData} from "src/util/html"
 import {appDataKeys} from "src/util/nostr"
 import {get} from "svelte/store"
@@ -119,6 +124,13 @@ export const uploadFile = async (server: string, file: File, compressorOpts = {}
 export const signAndPublish = async (template, {anonymous = false} = {}) => {
   const event = await sign(template, {anonymous})
   const relays = Router.get().PublishEvent(event).policy(addMinimalFallbacks).getUrls()
+
+  // Sovereign mode: queue instead of publish
+  if (get(isSovereign)) {
+    await enqueueSignedEvent(event, relays)
+    updateQueuedCount(await getQueuedCount())
+    return event
+  }
 
   return await publishThunk({event, relays})
 }

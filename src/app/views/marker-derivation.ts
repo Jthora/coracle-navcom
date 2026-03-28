@@ -6,6 +6,7 @@
  */
 
 import type {TrustedEvent} from "@welshman/util"
+import type {Attestation} from "src/engine/trust/attestation"
 
 export interface ChannelMarker {
   /** Message event ID (used as marker ID for linking) */
@@ -20,6 +21,8 @@ export interface ChannelMarker {
   timestamp: number
   /** Truncated content for popup preview */
   preview: string
+  /** Whether the author has at least one active attestation */
+  attested: boolean
 }
 
 /**
@@ -54,7 +57,10 @@ function parseLocation(value: string): [number, number] | null {
  * Derive map markers from an array of channel messages.
  * Only includes messages that have valid location data.
  */
-export function deriveMarkers(messages: TrustedEvent[]): ChannelMarker[] {
+export function deriveMarkers(
+  messages: TrustedEvent[],
+  attestationMap?: Map<string, Attestation[]>,
+): ChannelMarker[] {
   const markers: ChannelMarker[] = []
 
   for (const msg of messages) {
@@ -84,6 +90,9 @@ export function deriveMarkers(messages: TrustedEvent[]): ChannelMarker[] {
       author: msg.pubkey,
       timestamp: msg.created_at,
       preview: msg.content.slice(0, 100),
+      attested: attestationMap
+        ? (attestationMap.get(msg.pubkey) || []).some(a => !a.expired)
+        : false,
     })
   }
 

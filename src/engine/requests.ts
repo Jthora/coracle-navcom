@@ -215,6 +215,17 @@ export const loadPubkeys = async (pubkeys: string[]) => {
   }
 }
 
+export const loadAttestations = async (pubkeys: string[]) => {
+  if (pubkeys.length === 0) return
+
+  for (const pubkeyChunk of chunk(50, pubkeys)) {
+    await myLoad({
+      relays: Router.get().FromPubkeys(pubkeyChunk).policy(addMaximalFallbacks).getUrls(),
+      filters: [{kinds: [30078], "#p": pubkeyChunk}],
+    })
+  }
+}
+
 // Notifications
 
 export const getNotificationKinds = () =>

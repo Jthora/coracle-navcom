@@ -12,7 +12,11 @@
     border-radius: 6px;
     border: 1.5px solid;
     font-size: 13px;
-    background: linear-gradient(180deg, rgba(var(--nc-shell-bg-rgb), 0.96), rgba(var(--nc-shell-deep-rgb), 0.96));
+    background: linear-gradient(
+      180deg,
+      rgba(var(--nc-shell-bg-rgb), 0.96),
+      rgba(var(--nc-shell-deep-rgb), 0.96)
+    );
     box-shadow:
       0 0 0 1px rgba(0, 0, 0, 0.3),
       0 4px 8px rgba(0, 0, 0, 0.35);
@@ -55,6 +59,7 @@
   import MapLayerPanel from "src/app/views/MapLayerPanel.svelte"
   import {repository} from "@welshman/app"
   import {publishGroupMessage} from "src/engine"
+  import {attestationsByTarget} from "src/engine/trust/attestation"
 
   type LeafletLike = typeof import("leaflet")
 
@@ -94,7 +99,7 @@
   $: channelMessages = $activeChannel
     ? repository.query([{kinds: [445], "#h": [$activeChannel]}])
     : []
-  $: allMarkers = deriveMarkers(channelMessages)
+  $: allMarkers = deriveMarkers(channelMessages, $attestationsByTarget)
 
   // Apply layer + time filters
   $: markers = filterMarkers(allMarkers, $mapLayers, $mapTimeRange)
@@ -164,19 +169,29 @@
     markerLayerGroup.clearLayers()
     for (const m of mkrs) {
       const style = MARKER_STYLES[m.type]
+      const opacity = m.attested ? 1.0 : 0.5
+      const borderStyle = m.attested
+        ? "border: 2px solid rgba(34,197,94,0.8)"
+        : "border: 2px dashed rgba(156,163,175,0.6)"
       const icon = leaflet.divIcon({
         className: "navcom-marker-icon",
-        html: `<div class="navcom-marker-shell" style="border-color: ${style.color}; color: ${style.color}">${style.icon}</div>`,
+        html: `<div class="navcom-marker-shell" style="border-color: ${style.color}; color: ${style.color}; opacity: ${opacity}; ${borderStyle}">${style.icon}</div>`,
         iconSize: [28, 28],
         iconAnchor: [14, 26],
         popupAnchor: [0, -20],
       })
+      const attestLabel = m.attested
+        ? "✦ Attested"
+        : "<span style='opacity:0.6'>Not attested</span>"
       const pin = leaflet
         .marker([m.lat, m.lng], {icon})
-        .bindPopup(`<div class="text-xs text-nc-text">${m.preview || m.type}</div>`, {
-          className: "navcom-popup-shell",
-          maxWidth: 260,
-        })
+        .bindPopup(
+          `<div class="text-xs text-nc-text">${m.preview || m.type}<div class="mt-1">${attestLabel}</div></div>`,
+          {
+            className: "navcom-popup-shell",
+            maxWidth: 260,
+          },
+        )
       pin.on("click", () => handleMarkerClick(m))
       markerLayerGroup.addLayer(pin)
     }
@@ -412,7 +427,7 @@
         {#if clusters.length > 0}
           {#each clusters as cl, i (i)}
             <button
-              class="flex flex-shrink-0 items-center gap-1.5 rounded-lg border bg-nc-shell-bg px-2.5 py-1.5 text-xs transition-colors hover:bg-nc-shell-border"
+              class="bg-nc-shell-bg flex flex-shrink-0 items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs transition-colors hover:bg-nc-shell-border"
               style="border-color: {CLUSTER_COLORS[cl.style]}"
               on:click={() => {
                 if (cl.markers[0]) handleMarkerClick(cl.markers[0])
@@ -480,7 +495,8 @@
         <!-- Half / Full: channel list or conversation preview -->
         <div class="flex h-[calc(100%-2rem)] flex-col overflow-y-auto px-4">
           {#if $activeChannel && projection}
-            <div class="mb-2 flex items-center justify-between border-b border-nc-shell-border pb-2">
+            <div
+              class="mb-2 flex items-center justify-between border-b border-nc-shell-border pb-2">
               <span class="text-sm font-medium text-nc-text">{channelTitle}</span>
               <button class="text-xs text-accent hover:underline" on:click={openChannelChat}
                 >{$t("map.action.openChat")}</button>
@@ -493,8 +509,7 @@
               <button
                 class="border-nc-shell-border/40 hover:bg-nc-shell-border/40 flex w-full items-center justify-between border-b py-2 text-left text-sm"
                 on:click={() => selectChannelFromMap(ch.id)}>
-                <span class="truncate text-nc-text"
-                  >{ch.title || $t("channel.title.unnamed")}</span>
+                <span class="truncate text-nc-text">{ch.title || $t("channel.title.unnamed")}</span>
                 {#if u > 0}
                   <span
                     class="flex h-4 min-w-[1rem] items-center justify-center rounded-full bg-accent px-1 text-[10px] font-bold text-neutral-900"
@@ -525,12 +540,11 @@
           {#each $groupSummaries as ch (ch.id)}
             {@const u = getUnread(ch.id)}
             <button
-                class="border-nc-shell-border/40 hover:bg-nc-shell-border/40 flex w-full items-center justify-between rounded border-b px-1 py-2 text-left text-sm"
+              class="border-nc-shell-border/40 hover:bg-nc-shell-border/40 flex w-full items-center justify-between rounded border-b px-1 py-2 text-left text-sm"
               on:click={() => {
                 setActiveChannel(ch.id)
               }}>
-              <span class="truncate text-nc-text"
-                >{ch.title || $t("channel.title.unnamed")}</span>
+              <span class="truncate text-nc-text">{ch.title || $t("channel.title.unnamed")}</span>
               {#if u > 0}
                 <span
                   class="flex h-4 min-w-[1rem] items-center justify-center rounded-full bg-accent px-1 text-[10px] font-bold text-neutral-900"

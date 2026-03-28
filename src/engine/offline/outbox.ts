@@ -15,6 +15,10 @@ export interface QueuedMessage {
   encrypted?: boolean
   /** Base64-encoded AES-GCM IV (present when encrypted) */
   encryptedIv?: string
+  /** Full signed event envelope for sovereign mode queue (JSON-safe) */
+  signedEvent?: object
+  /** Relay URLs to publish to when draining sovereign mode events */
+  targetRelays?: string[]
 }
 
 const DB_NAME = "navcom-outbox"
@@ -208,4 +212,35 @@ export async function clearSent(): Promise<void> {
     }
   }
   await tx.done
+}
+
+/** Enqueue a pre-signed event for sovereign mode (no encryption needed — already signed). */
+export async function enqueueSignedEvent(
+  signedEvent: object,
+  targetRelays: string[],
+): Promise<string> {
+  const db = await getDb()
+  const id = `outbox-${Date.now()}-${nextId++}`
+
+  const msg: QueuedMessage = {
+    id,
+    channelId: "",
+    content: "",
+    createdAt: Date.now(),
+    status: "queued",
+    retryCount: 0,
+    lastRetryAt: null,
+    signedEvent,
+    targetRelays,
+  }
+
+  try {
+    await db.put(STORE_NAME, msg)
+  } catch (err: unknown) {
+    if (isQuotaExceeded(err)) {
+      throw new Error("Storage full — cannot queue event. Free up space and try again.")
+    }
+    throw err
+  }
+  return id
 }

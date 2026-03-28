@@ -11,7 +11,7 @@
   import {navcomMode} from "src/app/navcom-mode"
   import CommsView from "src/app/views/CommsView.svelte"
   import MapView from "src/app/views/MapView.svelte"
-  import OpsView from "src/app/views/OpsView.svelte"
+  import BoardView from "src/app/views/BoardView.svelte"
   import StatusBar from "src/app/views/StatusBar.svelte"
 
   const {current, page, modals} = router
@@ -132,9 +132,9 @@
             <MapView />
           </div>
         {:else if $navcomMode === "ops"}
-          <div class="m-auto w-full max-w-4xl">
-            <div class="flex max-w-4xl flex-grow flex-col gap-4 p-4">
-              <OpsView />
+          <div class="m-auto w-full max-w-6xl">
+            <div class="flex max-w-6xl flex-grow flex-col gap-4 p-2">
+              <BoardView />
             </div>
           </div>
         {/if}

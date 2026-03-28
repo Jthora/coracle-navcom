@@ -660,370 +660,370 @@
 
 #### 3.1.1 Step: Core Store — `connection-state.ts`
 
-- [ ] 3.1.1.1 — Create `src/engine/connection-state.ts`
-  - [ ] Create file with TypeScript module structure
-  - [ ] Import writable/derived from svelte/store
-  - [ ] [CR] Follow engine module conventions (state + logic colocated)
+- [x] 3.1.1.1 — Create `src/engine/connection-state.ts`
+  - [x] Create file with TypeScript module structure
+  - [x] Import writable/derived from svelte/store
+  - [x] [CR] Follow engine module conventions (state + logic colocated)
 
-- [ ] 3.1.1.2 — Define `ConnectionMode` type: "connected" | "sovereign"
-  - [ ] Export type
-  - [ ] [CR] String literal union (not enum) for consistency with codebase
+- [x] 3.1.1.2 — Define `ConnectionMode` type: "connected" | "sovereign"
+  - [x] Export type
+  - [x] [CR] String literal union (not enum) for consistency with codebase
 
-- [ ] 3.1.1.3 — Define `ConnectionState` type: `{mode, since, queuedCount, lastConnectedAt}`
-  - [ ] `mode: ConnectionMode`
-  - [ ] `since: number` (epoch seconds when current mode started)
-  - [ ] `queuedCount: number` (messages in outbox awaiting drain)
-  - [ ] `lastConnectedAt: number` (epoch seconds of last connected transition)
-  - [ ] [CR] Export type for consumer components
+- [x] 3.1.1.3 — Define `ConnectionState` type: `{mode, since, queuedCount, lastConnectedAt}`
+  - [x] `mode: ConnectionMode`
+  - [x] `since: number` (epoch seconds when current mode started)
+  - [x] `queuedCount: number` (messages in outbox awaiting drain)
+  - [x] `lastConnectedAt: number` (epoch seconds of last connected transition)
+  - [x] [CR] Export type for consumer components
 
-- [ ] 3.1.1.4 — Create `connectionState` writable store
-  - [ ] Initialize with safe defaults: mode="connected", since=now, queuedCount=0
-  - [ ] [EH] Initial mode should reflect `navigator.onLine` at creation time
-  - [ ] [EH] Handle case where `navigator.onLine` is unavailable (SSR, old browsers) → default "connected"
+- [x] 3.1.1.4 — Create `connectionState` writable store
+  - [x] Initialize with safe defaults: mode="connected", since=now, queuedCount=0
+  - [x] [EH] Initial mode should reflect `navigator.onLine` at creation time
+  - [x] [EH] Handle case where `navigator.onLine` is unavailable (SSR, old browsers) → default "connected"
 
-- [ ] 3.1.1.5 — Create `isSovereign` derived store: `derived(connectionState, s => s.mode === "sovereign")`
-  - [ ] Export for use in signAndPublish and components
-  - [ ] [CR] Derived store auto-updates when connectionState changes
+- [x] 3.1.1.5 — Create `isSovereign` derived store: `derived(connectionState, s => s.mode === "sovereign")`
+  - [x] Export for use in signAndPublish and components
+  - [x] [CR] Derived store auto-updates when connectionState changes
 
-- [ ] 3.1.1.6 — Implement `startConnectionMonitor()` — bind `navigator.onLine`, online/offline events
-  - [ ] Add event listener for `window.addEventListener("online", ...)`
-  - [ ] Add event listener for `window.addEventListener("offline", ...)`
-  - [ ] Read initial `navigator.onLine` value at startup
-  - [ ] [EH] Guard: only bind events when `window` is defined (SSR safety)
-  - [ ] [EH] Handle `navigator.onLine` reporting true behind captive portal (relay health fallback)
-  - [ ] [CR] Return cleanup function for event listener removal (testability)
-  - [ ] [ER] Log connection state transitions to console (debug aid)
+- [x] 3.1.1.6 — Implement `startConnectionMonitor()` — bind `navigator.onLine`, online/offline events
+  - [x] Add event listener for `window.addEventListener("online", ...)`
+  - [x] Add event listener for `window.addEventListener("offline", ...)`
+  - [x] Read initial `navigator.onLine` value at startup
+  - [x] [EH] Guard: only bind events when `window` is defined (SSR safety)
+  - [x] [EH] Handle `navigator.onLine` reporting true behind captive portal (relay health fallback)
+  - [x] [CR] Return cleanup function for event listener removal (testability)
+  - [x] [ER] Log connection state transitions to console (debug aid)
 
-- [ ] 3.1.1.7 — Implement 3-second debounce for transition to sovereign (prevent flapping)
-  - [ ] On offline event: start 3-second timer before setting mode="sovereign"
-  - [ ] If online event fires within window: cancel timer, stay connected
-  - [ ] [EH] Clear any pending timer on component/monitor teardown
-  - [ ] [CR] Use `setTimeout`/`clearTimeout` (not reactive timer libraries)
-  - [ ] [CR] Debounce window is configurable constant (not magic number)
+- [x] 3.1.1.7 — Implement 3-second debounce for transition to sovereign (prevent flapping)
+  - [x] On offline event: start 3-second timer before setting mode="sovereign"
+  - [x] If online event fires within window: cancel timer, stay connected
+  - [x] [EH] Clear any pending timer on component/monitor teardown
+  - [x] [CR] Use `setTimeout`/`clearTimeout` (not reactive timer libraries)
+  - [x] [CR] Debounce window is configurable constant (not magic number)
 
-- [ ] 3.1.1.8 — Implement immediate transition to connected (no debounce)
-  - [ ] On online event: immediately set mode="connected"
-  - [ ] Cancel any pending sovereign-transition timer
-  - [ ] Trigger queue drain (outbox flush)
-  - [ ] [CR] Update `lastConnectedAt` timestamp on transition
+- [x] 3.1.1.8 — Implement immediate transition to connected (no debounce)
+  - [x] On online event: immediately set mode="connected"
+  - [x] Cancel any pending sovereign-transition timer
+  - [x] Trigger queue drain (outbox flush)
+  - [x] [CR] Update `lastConnectedAt` timestamp on transition
 
-- [ ] 3.1.1.9 — Implement `updateQueuedCount(count)` function
-  - [ ] Accept count (number), update connectionState.queuedCount
-  - [ ] [EH] Clamp to non-negative (Math.max(0, count))
-  - [ ] [CR] Export function for use by signAndPublish and queue-drain
+- [x] 3.1.1.9 — Implement `updateQueuedCount(count)` function
+  - [x] Accept count (number), update connectionState.queuedCount
+  - [x] [EH] Clamp to non-negative (Math.max(0, count))
+  - [x] [CR] Export function for use by signAndPublish and queue-drain
 
-- [ ] 3.1.1.10 — Track `lastConnectedAt` timestamp on transitions
-  - [ ] Set `lastConnectedAt = Math.floor(Date.now() / 1000)` when transitioning to connected
-  - [ ] Preserve value during sovereign mode (don't overwrite on offline events)
-  - [ ] [EU] Used by SovereignBar to display "Last online: N minutes ago"
+- [x] 3.1.1.10 — Track `lastConnectedAt` timestamp on transitions
+  - [x] Set `lastConnectedAt = Math.floor(Date.now() / 1000)` when transitioning to connected
+  - [x] Preserve value during sovereign mode (don't overwrite on offline events)
+  - [x] [EU] Used by SovereignBar to display "Last online: N minutes ago"
 
 #### 3.1.2 Step: New Component — `SovereignBar.svelte`
 
-- [ ] 3.1.2.1 — Create `src/partials/SovereignBar.svelte`
-  - [ ] Create Svelte component with TypeScript script block
-  - [ ] [CR] Maintain separation from Toast.svelte (two independent systems)
+- [x] 3.1.2.1 — Create `src/partials/SovereignBar.svelte`
+  - [x] Create Svelte component with TypeScript script block
+  - [x] [CR] Maintain separation from Toast.svelte (two independent systems)
 
-- [ ] 3.1.2.2 — Subscribe to `connectionState` store
-  - [ ] Use `$connectionState` reactive subscription
-  - [ ] Derive display values reactively
+- [x] 3.1.2.2 — Subscribe to `connectionState` store
+  - [x] Use `$connectionState` reactive subscription
+  - [x] Derive display values reactively
 
-- [ ] 3.1.2.3 — Implement 4 visual states: CONNECTED (hidden), DEGRADED (amber bar), SOVEREIGN (red bar), RECONNECTING (blue bar)
-  - [ ] CONNECTED: component renders nothing (display:none or `{#if}` guard)
-  - [ ] DEGRADED: amber/yellow background with warning icon
-  - [ ] SOVEREIGN: red background with disconnect icon
-  - [ ] RECONNECTING: blue background with spinning sync icon
-  - [ ] [EU] Transitions between states should be smooth (CSS transition)
-  - [ ] [EU] Color must meet WCAG AA contrast on text within the bar
-  - [ ] [CR] Use Tailwind utility classes with nc- tokens where possible
+- [x] 3.1.2.3 — Implement 4 visual states: CONNECTED (hidden), DEGRADED (amber bar), SOVEREIGN (red bar), RECONNECTING (blue bar)
+  - [x] CONNECTED: component renders nothing (display:none or `{#if}` guard)
+  - [x] DEGRADED: amber/yellow background with warning icon
+  - [x] SOVEREIGN: red background with disconnect icon
+  - [x] RECONNECTING: blue background with spinning sync icon
+  - [x] [EU] Transitions between states should be smooth (CSS transition)
+  - [x] [EU] Color must meet WCAG AA contrast on text within the bar
+  - [x] [CR] Use Tailwind utility classes with nc- tokens where possible
 
-- [ ] 3.1.2.4 — Display elapsed time since last connected (`since` field)
-  - [ ] Compute and update elapsed time reactively (tick every second or minute)
-  - [ ] Format as "Xm" or "Xh Xm" for readability
-  - [ ] [EH] Handle `since` timestamp being 0 or future → show "Just now"
-  - [ ] [CR] Use `setInterval` with cleanup in `onDestroy` (no timer leak)
+- [x] 3.1.2.4 — Display elapsed time since last connected (`since` field)
+  - [x] Compute and update elapsed time reactively (tick every second or minute)
+  - [x] Format as "Xm" or "Xh Xm" for readability
+  - [x] [EH] Handle `since` timestamp being 0 or future → show "Just now"
+  - [x] [CR] Use `setInterval` with cleanup in `onDestroy` (no timer leak)
 
-- [ ] 3.1.2.5 — Display queue depth: "N queued" from `queuedCount`
-  - [ ] Show only when queuedCount > 0
-  - [ ] Format: "1 queued" / "N queued"
-  - [ ] [EU] Provide assurance: queued items will send on reconnect
-  - [ ] [EU] If queue is empty in sovereign mode, show "Nothing to send"
+- [x] 3.1.2.5 — Display queue depth: "N queued" from `queuedCount`
+  - [x] Show only when queuedCount > 0
+  - [x] Format: "1 queued" / "N queued"
+  - [x] [EU] Provide assurance: queued items will send on reconnect
+  - [x] [EU] If queue is empty in sovereign mode, show "Nothing to send"
 
-- [ ] 3.1.2.6 — Position as fixed/sticky bar at top of viewport
-  - [ ] Use `position: fixed; top: 0; left: 0; right: 0; z-index:` above content
-  - [ ] [CR] Use z-index from existing scale (check architecture-patterns.md z-index scale)
-  - [ ] [EU] Bar should not obscure critical navigation elements
+- [x] 3.1.2.6 — Position as fixed/sticky bar at top of viewport
+  - [x] Use `position: fixed; top: 0; left: 0; right: 0; z-index:` above content
+  - [x] [CR] Use z-index from existing scale (check architecture-patterns.md z-index scale)
+  - [x] [EU] Bar should not obscure critical navigation elements
 
-- [ ] 3.1.2.7 — Ensure bar is visible in all mode-views (COMMS, MAP, OPS)
-  - [ ] Import SovereignBar at layout/shell level (above Routes.svelte conditional)
-  - [ ] Verify visibility when switching modes
-  - [ ] [CR] Bar renders independently of navcomMode state
+- [x] 3.1.2.7 — Ensure bar is visible in all mode-views (COMMS, MAP, OPS)
+  - [x] Import SovereignBar at layout/shell level (above Routes.svelte conditional)
+  - [x] Verify visibility when switching modes
+  - [x] [CR] Bar renders independently of navcomMode state
 
-- [ ] 3.1.2.8 — Add app shell conditional padding to prevent content overlap
-  - [ ] When bar is visible, add `padding-top` to main content area
-  - [ ] When bar is hidden, remove padding
-  - [ ] [EU] Content should not "jump" when bar appears (smooth transition)
-  - [ ] [CR] Use reactive class binding or CSS variable for padding
+- [x] 3.1.2.8 — Add app shell conditional padding to prevent content overlap
+  - [x] When bar is visible, add `padding-top` to main content area
+  - [x] When bar is hidden, remove padding
+  - [x] [EU] Content should not "jump" when bar appears (smooth transition)
+  - [x] [CR] Use reactive class binding or CSS variable for padding
 
 ### 3.2 Phase: Pipeline Integration
 
 #### 3.2.1 Step: Modify `signAndPublish` — Choke Point
 
-- [ ] 3.2.1.1 — Modify `src/engine/commands.ts` — add sovereign mode branch to `signAndPublish()`
-  - [ ] Locate `signAndPublish` function
-  - [ ] [CR] Minimal change: single if-statement, not a rewrite
-  - [ ] [CR] Read `isSovereign` synchronously via `get(isSovereign)` (not reactive $)
+- [x] 3.2.1.1 — Modify `src/engine/commands.ts` — add sovereign mode branch to `signAndPublish()`
+  - [x] Locate `signAndPublish` function
+  - [x] [CR] Minimal change: single if-statement, not a rewrite
+  - [x] [CR] Read `isSovereign` synchronously via `get(isSovereign)` (not reactive $)
 
-- [ ] 3.2.1.2 — Import `isSovereign` and `updateQueuedCount` from connection-state
-  - [ ] Verify import paths
-  - [ ] [CR] Verify no circular dependency (commands ←→ connection-state)
+- [x] 3.2.1.2 — Import `isSovereign` and `updateQueuedCount` from connection-state
+  - [x] Verify import paths
+  - [x] [CR] Verify no circular dependency (commands ←→ connection-state)
 
-- [ ] 3.2.1.3 — When `isSovereign === true`: sign event → enqueue to outbox → update queue count → return
-  - [ ] Call `sign()` to produce signed event (works offline — uses local key)
-  - [ ] Determine target relay URLs from routing logic
-  - [ ] Enqueue `{signedEvent, targetRelays}` to IndexedDB outbox
-  - [ ] Call `updateQueuedCount()` with new count
-  - [ ] [EH] If `sign()` fails (e.g., passphrase unavailable): show error toast, don't enqueue
-  - [ ] [EH] If `enqueue()` fails (IndexedDB error / quota exceeded): show error toast, explain message not saved
-  - [ ] [ER] Toast message for enqueue failure: "Message could not be saved for later sending"
-  - [ ] [EU] On success: no toast (SovereignBar already shows queue count)
-  - [ ] [CR] Return signed event regardless of enqueue success/failure
+- [x] 3.2.1.3 — When `isSovereign === true`: sign event → enqueue to outbox → update queue count → return
+  - [x] Call `sign()` to produce signed event (works offline — uses local key)
+  - [x] Determine target relay URLs from routing logic
+  - [x] Enqueue `{signedEvent, targetRelays}` to IndexedDB outbox
+  - [x] Call `updateQueuedCount()` with new count
+  - [x] [EH] If `sign()` fails (e.g., passphrase unavailable): show error toast, don't enqueue
+  - [x] [EH] If `enqueue()` fails (IndexedDB error / quota exceeded): show error toast, explain message not saved
+  - [x] [ER] Toast message for enqueue failure: "Message could not be saved for later sending"
+  - [x] [EU] On success: no toast (SovereignBar already shows queue count)
+  - [x] [CR] Return signed event regardless of enqueue success/failure
 
-- [ ] 3.2.1.4 — When `isSovereign === false`: existing publishThunk path (no change)
-  - [ ] [CR] Verify existing code path is completely unchanged
-  - [ ] [CR] No additional wrapping, error handling, or logging added to connected path
+- [x] 3.2.1.4 — When `isSovereign === false`: existing publishThunk path (no change)
+  - [x] [CR] Verify existing code path is completely unchanged
+  - [x] [CR] No additional wrapping, error handling, or logging added to connected path
 
-- [ ] 3.2.1.5 — Ensure signed event is returned regardless of mode
-  - [ ] Both sovereign and connected paths return the signed event
-  - [ ] [CR] Callers that use the return value work identically in both modes
+- [x] 3.2.1.5 — Ensure signed event is returned regardless of mode
+  - [x] Both sovereign and connected paths return the signed event
+  - [x] [CR] Callers that use the return value work identically in both modes
 
 #### 3.2.2 Step: Extend Outbox Queue
 
 ##### 3.2.2.1 Task: Extend `QueuedMessage` type
 
-- [ ] 3.2.2.1.1 — Add `signedEvent` field to `QueuedMessage` in outbox module (full signed event envelope)
-  - [ ] Add optional `signedEvent?: TrustedEvent` (or appropriate signed event type)
-  - [ ] [CR] Field is optional to maintain backward compatibility with legacy DM queue entries
-  - [ ] [CR] Existing serialization/deserialization handles new field (JSON-safe)
+- [x] 3.2.2.1.1 — Add `signedEvent` field to `QueuedMessage` in outbox module (full signed event envelope)
+  - [x] Add optional `signedEvent?: TrustedEvent` (or appropriate signed event type)
+  - [x] [CR] Field is optional to maintain backward compatibility with legacy DM queue entries
+  - [x] [CR] Existing serialization/deserialization handles new field (JSON-safe)
 
-- [ ] 3.2.2.1.2 — Add `targetRelays` field to `QueuedMessage` (array of relay URLs for publication)
-  - [ ] Add optional `targetRelays?: string[]`
-  - [ ] [CR] Required when `signedEvent` is present
-  - [ ] [EH] Default to empty array if missing (drain will skip publish with no targets)
+- [x] 3.2.2.1.2 — Add `targetRelays` field to `QueuedMessage` (array of relay URLs for publication)
+  - [x] Add optional `targetRelays?: string[]`
+  - [x] [CR] Required when `signedEvent` is present
+  - [x] [EH] Default to empty array if missing (drain will skip publish with no targets)
 
 ##### 3.2.2.2 Task: Extend `queue-drain.ts`
 
-- [ ] 3.2.2.2.1 — Modify drain logic: detect `signedEvent` field on queued message
-  - [ ] Check `msg.signedEvent` presence before deciding drain path
-  - [ ] [CR] Detection is a simple truthiness check, not type discrimination
+- [x] 3.2.2.2.1 — Modify drain logic: detect `signedEvent` field on queued message
+  - [x] Check `msg.signedEvent` presence before deciding drain path
+  - [x] [CR] Detection is a simple truthiness check, not type discrimination
 
-- [ ] 3.2.2.2.2 — When `signedEvent` present: publish via `publishThunk()` (skip re-signing)
-  - [ ] Extract signed event and target relays from queued message
-  - [ ] Call `publishThunk(signedEvent, targetRelays)`
-  - [ ] [EH] If publish fails on specific relays: retry with exponential backoff (existing pattern)
-  - [ ] [EH] If publish fails on ALL relays: mark message as "failed", leave in queue for next drain
-  - [ ] [EH] If signed event has stale `created_at` (relay rejects "event too old"): log warning, dequeue anyway
-  - [ ] [ER] Log each drain attempt: "Draining N queued events to M relays"
-  - [ ] [CR] Guard against concurrent drains (existing `draining` boolean)
+- [x] 3.2.2.2.2 — When `signedEvent` present: publish via `publishThunk()` (skip re-signing)
+  - [x] Extract signed event and target relays from queued message
+  - [x] Call `publishThunk(signedEvent, targetRelays)`
+  - [x] [EH] If publish fails on specific relays: retry with exponential backoff (existing pattern)
+  - [x] [EH] If publish fails on ALL relays: mark message as "failed", leave in queue for next drain
+  - [x] [EH] If signed event has stale `created_at` (relay rejects "event too old"): log warning, dequeue anyway
+  - [x] [ER] Log each drain attempt: "Draining N queued events to M relays"
+  - [x] [CR] Guard against concurrent drains (existing `draining` boolean)
 
-- [ ] 3.2.2.2.3 — When `signedEvent` absent: legacy DM send path (existing behavior)
-  - [ ] [CR] Existing sendMessage logic unchanged
-  - [ ] [CR] Both paths share retry/dequeue/error infrastructure
+- [x] 3.2.2.2.3 — When `signedEvent` absent: legacy DM send path (existing behavior)
+  - [x] [CR] Existing sendMessage logic unchanged
+  - [x] [CR] Both paths share retry/dequeue/error infrastructure
 
-- [ ] 3.2.2.2.4 — Update `updateQueuedCount()` after each successful drain
-  - [ ] After each message successfully published: decrement count
-  - [ ] After full drain complete: set count to remaining queue length
-  - [ ] [EH] Count should never go negative (clamp to 0)
-  - [ ] [EU] SovereignBar updates in real-time as queue drains
+- [x] 3.2.2.2.4 — Update `updateQueuedCount()` after each successful drain
+  - [x] After each message successfully published: decrement count
+  - [x] After full drain complete: set count to remaining queue length
+  - [x] [EH] Count should never go negative (clamp to 0)
+  - [x] [EU] SovereignBar updates in real-time as queue drains
 
 #### 3.2.3 Step: Relay Health Integration
 
-- [ ] 3.2.3.1 — Modify `relay-health.ts`: add `pause()` method to relay health tracker
-  - [ ] Set internal flag to skip health check evaluations
-  - [ ] [CR] Existing health data preserved (not cleared on pause)
-  - [ ] [EH] Idempotent: calling pause() when already paused is a no-op
+- [x] 3.2.3.1 — Modify `relay-health.ts`: add `pause()` method to relay health tracker
+  - [x] Set internal flag to skip health check evaluations
+  - [x] [CR] Existing health data preserved (not cleared on pause)
+  - [x] [EH] Idempotent: calling pause() when already paused is a no-op
 
-- [ ] 3.2.3.2 — Modify `relay-health.ts`: add `resume()` method to relay health tracker
-  - [ ] Clear pause flag, re-enable health tracking
-  - [ ] [CR] Don't trigger immediate re-evaluation (let normal check cycle resume)
-  - [ ] [EH] Idempotent: calling resume() when already running is a no-op
+- [x] 3.2.3.2 — Modify `relay-health.ts`: add `resume()` method to relay health tracker
+  - [x] Clear pause flag, re-enable health tracking
+  - [x] [CR] Don't trigger immediate re-evaluation (let normal check cycle resume)
+  - [x] [EH] Idempotent: calling resume() when already running is a no-op
 
-- [ ] 3.2.3.3 — Call `pause()` on transition to sovereign mode
-  - [ ] Wire from connectionState transition logic
-  - [ ] [CR] Prevents false relay demotions during offline period
+- [x] 3.2.3.3 — Call `pause()` on transition to sovereign mode
+  - [x] Wire from connectionState transition logic
+  - [x] [CR] Prevents false relay demotions during offline period
 
-- [ ] 3.2.3.4 — Call `resume()` on transition to connected mode
-  - [ ] Wire from connectionState transition logic
-  - [ ] [CR] Resume before triggering drain (health data informs relay selection)
+- [x] 3.2.3.4 — Call `resume()` on transition to connected mode
+  - [x] Wire from connectionState transition logic
+  - [x] [CR] Resume before triggering drain (health data informs relay selection)
 
-- [ ] 3.2.3.5 — Add relay circuit-breaker: if all relays demoted, transition to sovereign regardless of `navigator.onLine`
-  - [ ] Monitor relay health states; if all reach demoted/failed state, trigger sovereign
-  - [ ] [EH] Captive portal detection: navigator.onLine says true, but no relay responds
-  - [ ] [EH] Reset circuit-breaker when at least one relay recovers
-  - [ ] [CR] Circuit-breaker should have its own debounce (don't flap on brief relay hiccups)
+- [x] 3.2.3.5 — Add relay circuit-breaker: if all relays demoted, transition to sovereign regardless of `navigator.onLine`
+  - [x] Monitor relay health states; if all reach demoted/failed state, trigger sovereign
+  - [x] [EH] Captive portal detection: navigator.onLine says true, but no relay responds
+  - [x] [EH] Reset circuit-breaker when at least one relay recovers
+  - [x] [CR] Circuit-breaker should have its own debounce (don't flap on brief relay hiccups)
 
 #### 3.2.4 Step: Cleanup & Startup
 
-- [ ] 3.2.4.1 — Modify `Toast.svelte`: remove independent online/offline event listeners that show redundant toast
-  - [ ] Locate online/offline event listeners in Toast.svelte
-  - [ ] Remove the listeners and associated toast rendering
-  - [ ] [CR] SovereignBar now owns all connection-status UI
-  - [ ] [EH] If SovereignBar fails to render, there's no fallback — accept this (fail loudly)
+- [x] 3.2.4.1 — Modify `Toast.svelte`: remove independent online/offline event listeners that show redundant toast
+  - [x] Locate online/offline event listeners in Toast.svelte
+  - [x] Remove the listeners and associated toast rendering
+  - [x] [CR] SovereignBar now owns all connection-status UI
+  - [x] [EH] If SovereignBar fails to render, there's no fallback — accept this (fail loudly)
 
-- [ ] 3.2.4.2 — Modify `main.js` (or app entry): call `startConnectionMonitor()` at app startup
-  - [ ] Import `startConnectionMonitor` from connection-state.ts
-  - [ ] Call during app initialization sequence
-  - [ ] [CR] Call after DOM is ready but before user interaction (init sequence ordering)
-  - [ ] [EH] If monitor fails to start, app still loads (connection features disabled, not blocking)
+- [x] 3.2.4.2 — Modify `main.js` (or app entry): call `startConnectionMonitor()` at app startup
+  - [x] Import `startConnectionMonitor` from connection-state.ts
+  - [x] Call during app initialization sequence
+  - [x] [CR] Call after DOM is ready but before user interaction (init sequence ordering)
+  - [x] [EH] If monitor fails to start, app still loads (connection features disabled, not blocking)
 
-- [ ] 3.2.4.3 — Ensure SovereignBar component is imported at layout/shell level
-  - [ ] Import in the top-level layout or shell component
-  - [ ] Position above the Routes.svelte conditional rendering
-  - [ ] [CR] Bar is always mounted regardless of navcomMode
+- [x] 3.2.4.3 — Ensure SovereignBar component is imported at layout/shell level
+  - [x] Import in the top-level layout or shell component
+  - [x] Position above the Routes.svelte conditional rendering
+  - [x] [CR] Bar is always mounted regardless of navcomMode
 
 ### 3.3 Phase: Testing — Sovereign Mode
 
 #### 3.3.1 Step: Unit Tests
 
-- [ ] 3.3.1.1 — Create `tests/unit/engine/connection-state.spec.ts`
-  - [ ] Set up test harness with mocked `navigator.onLine` and event dispatch
-  - [ ] [CR] Use fake timers for debounce testing (vi.useFakeTimers)
+- [x] 3.3.1.1 — Create `tests/unit/engine/connection-state.spec.ts`
+  - [x] Set up test harness with mocked `navigator.onLine` and event dispatch
+  - [x] [CR] Use fake timers for debounce testing (vi.useFakeTimers)
 
-- [ ] 3.3.1.2 — Unit test: store initializes to "connected" when `navigator.onLine` is true
-  - [ ] Mock `navigator.onLine = true`
-  - [ ] Assert initial mode is "connected"
+- [x] 3.3.1.2 — Unit test: store initializes to "connected" when `navigator.onLine` is true
+  - [x] Mock `navigator.onLine = true`
+  - [x] Assert initial mode is "connected"
 
-- [ ] 3.3.1.3 — Unit test: store initializes to "sovereign" when `navigator.onLine` is false
-  - [ ] Mock `navigator.onLine = false`
-  - [ ] Assert initial mode is "sovereign"
+- [x] 3.3.1.3 — Unit test: store initializes to "sovereign" when `navigator.onLine` is false
+  - [x] Mock `navigator.onLine = false`
+  - [x] Assert initial mode is "sovereign"
 
-- [ ] 3.3.1.4 — Unit test: transition to sovereign after debounce on offline event
-  - [ ] Dispatch offline event
-  - [ ] Assert mode is still "connected" immediately
-  - [ ] Advance timer by 3000ms
-  - [ ] Assert mode is "sovereign"
+- [x] 3.3.1.4 — Unit test: transition to sovereign after debounce on offline event
+  - [x] Dispatch offline event
+  - [x] Assert mode is still "connected" immediately
+  - [x] Advance timer by 3000ms
+  - [x] Assert mode is "sovereign"
 
-- [ ] 3.3.1.5 — Unit test: transition to connected immediately on online event
-  - [ ] Set mode to sovereign
-  - [ ] Dispatch online event
-  - [ ] Assert mode is "connected" immediately (no timer wait)
+- [x] 3.3.1.5 — Unit test: transition to connected immediately on online event
+  - [x] Set mode to sovereign
+  - [x] Dispatch online event
+  - [x] Assert mode is "connected" immediately (no timer wait)
 
-- [ ] 3.3.1.6 — Unit test: no transition if connection returns within debounce window
-  - [ ] Dispatch offline event
-  - [ ] Wait 1000ms
-  - [ ] Dispatch online event
-  - [ ] Advance timer by 5000ms
-  - [ ] Assert mode was never "sovereign"
+- [x] 3.3.1.6 — Unit test: no transition if connection returns within debounce window
+  - [x] Dispatch offline event
+  - [x] Wait 1000ms
+  - [x] Dispatch online event
+  - [x] Advance timer by 5000ms
+  - [x] Assert mode was never "sovereign"
 
-- [ ] 3.3.1.7 — Unit test: `since` timestamp updates on each transition
-  - [ ] Record timestamp before transition
-  - [ ] Trigger transition
-  - [ ] Assert `since` is >= recorded timestamp
+- [x] 3.3.1.7 — Unit test: `since` timestamp updates on each transition
+  - [x] Record timestamp before transition
+  - [x] Trigger transition
+  - [x] Assert `since` is >= recorded timestamp
 
-- [ ] 3.3.1.8 — Unit test: `lastConnectedAt` preserved during sovereign mode
-  - [ ] Record `lastConnectedAt` before going sovereign
-  - [ ] Go sovereign
-  - [ ] Assert `lastConnectedAt` unchanged during sovereign mode
+- [x] 3.3.1.8 — Unit test: `lastConnectedAt` preserved during sovereign mode
+  - [x] Record `lastConnectedAt` before going sovereign
+  - [x] Go sovereign
+  - [x] Assert `lastConnectedAt` unchanged during sovereign mode
 
-- [ ] 3.3.1.9 — Unit test: `updateQueuedCount()` updates store
-  - [ ] Call updateQueuedCount(5)
-  - [ ] Assert store.queuedCount === 5
-  - [ ] [EH] Call updateQueuedCount(-1)
-  - [ ] Assert store.queuedCount === 0 (clamped)
+- [x] 3.3.1.9 — Unit test: `updateQueuedCount()` updates store
+  - [x] Call updateQueuedCount(5)
+  - [x] Assert store.queuedCount === 5
+  - [x] [EH] Call updateQueuedCount(-1)
+  - [x] Assert store.queuedCount === 0 (clamped)
 
-- [ ] 3.3.1.10 — Create `tests/unit/engine/commands-sovereign.spec.ts`
-  - [ ] Set up test harness with mocked stores and outbox
+- [x] 3.3.1.10 — Create `tests/unit/engine/commands-sovereign.spec.ts`
+  - [x] Set up test harness with mocked stores and outbox
 
-- [ ] 3.3.1.11 — Unit test: `signAndPublish` enqueues when sovereign
-  - [ ] Set isSovereign to true
-  - [ ] Call signAndPublish with template
-  - [ ] Assert event was enqueued to outbox
-  - [ ] Assert publishThunk was NOT called
+- [x] 3.3.1.11 — Unit test: `signAndPublish` enqueues when sovereign
+  - [x] Set isSovereign to true
+  - [x] Call signAndPublish with template
+  - [x] Assert event was enqueued to outbox
+  - [x] Assert publishThunk was NOT called
 
-- [ ] 3.3.1.12 — Unit test: `signAndPublish` publishes normally when connected
-  - [ ] Set isSovereign to false
-  - [ ] Call signAndPublish with template
-  - [ ] Assert publishThunk was called
-  - [ ] Assert outbox was NOT written to
+- [x] 3.3.1.12 — Unit test: `signAndPublish` publishes normally when connected
+  - [x] Set isSovereign to false
+  - [x] Call signAndPublish with template
+  - [x] Assert publishThunk was called
+  - [x] Assert outbox was NOT written to
 
-- [ ] 3.3.1.13 — Unit test: queued count updated after enqueue
-  - [ ] Set isSovereign to true
-  - [ ] Call signAndPublish
-  - [ ] Assert updateQueuedCount called with incremented value
+- [x] 3.3.1.13 — Unit test: queued count updated after enqueue
+  - [x] Set isSovereign to true
+  - [x] Call signAndPublish
+  - [x] Assert updateQueuedCount called with incremented value
 
-- [ ] 3.3.1.14 — Unit test: signed event returned regardless of mode
-  - [ ] [Test sovereign] Assert return value is a signed event
-  - [ ] [Test connected] Assert return value is a signed event
-  - [ ] Assert event structure matches in both cases
+- [x] 3.3.1.14 — Unit test: signed event returned regardless of mode
+  - [x] [Test sovereign] Assert return value is a signed event
+  - [x] [Test connected] Assert return value is a signed event
+  - [x] Assert event structure matches in both cases
 
 #### 3.3.2 Step: E2E Tests
 
-- [ ] 3.3.2.1 — Create `cypress/e2e/beta/sovereign-mode.cy.ts`
-  - [ ] Set up E2E fixtures with active groups and relay connections
-  - [ ] Define helper for simulating offline/online transitions (cy.intercept + navigator.onLine mock)
-  - [ ] [CR] Ensure test cleanup restores online state
+- [x] 3.3.2.1 — Create `cypress/e2e/beta/sovereign-mode.cy.ts`
+  - [x] Set up E2E fixtures with active groups and relay connections
+  - [x] Define helper for simulating offline/online transitions (cy.intercept + navigator.onLine mock)
+  - [x] [CR] Ensure test cleanup restores online state
 
-- [ ] 3.3.2.2 — E2E test: SovereignBar appears when connection drops
-  - [ ] Simulate offline
-  - [ ] Wait for debounce (3s)
-  - [ ] Assert SovereignBar visible
-  - [ ] Assert "SOVEREIGN" text present
-  - [ ] Assert bar is red-themed
+- [x] 3.3.2.2 — E2E test: SovereignBar appears when connection drops
+  - [x] Simulate offline
+  - [x] Wait for debounce (3s)
+  - [x] Assert SovereignBar visible
+  - [x] Assert "SOVEREIGN" text present
+  - [x] Assert bar is red-themed
 
-- [ ] 3.3.2.3 — E2E test: messages queue in sovereign mode and drain on reconnect
-  - [ ] Simulate offline → wait for sovereign
-  - [ ] Send a message in COMMS view
-  - [ ] Assert "1 queued" in SovereignBar
-  - [ ] Simulate online
-  - [ ] Assert drain completes (queued count returns to 0)
-  - [ ] Assert SovereignBar shows "CONNECTED" then hides
+- [x] 3.3.2.3 — E2E test: messages queue in sovereign mode and drain on reconnect
+  - [x] Simulate offline → wait for sovereign
+  - [x] Send a message in COMMS view
+  - [x] Assert "1 queued" in SovereignBar
+  - [x] Simulate online
+  - [x] Assert drain completes (queued count returns to 0)
+  - [x] Assert SovereignBar shows "CONNECTED" then hides
 
-- [ ] 3.3.2.4 — E2E test: SovereignBar shows queue depth
-  - [ ] Simulate offline → send 3 messages
-  - [ ] Assert "3 queued" displayed
-  - [ ] [EU] Verify count updates in real-time (not batch)
+- [x] 3.3.2.4 — E2E test: SovereignBar shows queue depth
+  - [x] Simulate offline → send 3 messages
+  - [x] Assert "3 queued" displayed
+  - [x] [EU] Verify count updates in real-time (not batch)
 
-- [ ] 3.3.2.5 — E2E test: brief connection hiccups don't trigger sovereign mode (debounce)
-  - [ ] Simulate offline → wait 1 second → simulate online
-  - [ ] Assert SovereignBar NEVER appeared
-  - [ ] [CR] Test validates the 3-second debounce behavior
+- [x] 3.3.2.5 — E2E test: brief connection hiccups don't trigger sovereign mode (debounce)
+  - [x] Simulate offline → wait 1 second → simulate online
+  - [x] Assert SovereignBar NEVER appeared
+  - [x] [CR] Test validates the 3-second debounce behavior
 
-- [ ] 3.3.2.6 — E2E test: relay health pause prevents false demotions during sovereign mode
-  - [ ] Enter sovereign mode
-  - [ ] Verify relay health tracking is paused (no demotion events)
-  - [ ] Reconnect
-  - [ ] Verify relay health tracking is resumed
+- [x] 3.3.2.6 — E2E test: relay health pause prevents false demotions during sovereign mode
+  - [x] Enter sovereign mode
+  - [x] Verify relay health tracking is paused (no demotion events)
+  - [x] Reconnect
+  - [x] Verify relay health tracking is resumed
 
 ### 3.4 Phase: Phase 2 Validation
 
-- [ ] 3.4.1 — Validate all 19 acceptance criteria for Sovereign Mode
-  - [ ] Create criterion-to-test mapping
-  - [ ] Verify each criterion has at least one automated test
-  - [ ] [CR] No manual-only criteria
+- [x] 3.4.1 — Validate all 19 acceptance criteria for Sovereign Mode
+  - [x] Create criterion-to-test mapping
+  - [x] Verify each criterion has at least one automated test
+  - [x] [CR] No manual-only criteria
 
-- [ ] 3.4.2 — Run full beta test suite (243+ Phase 1 tests) and confirm no regressions
-  - [ ] Run all existing specs plus new sovereign specs
-  - [ ] [ER] Document any regressions with root cause analysis
+- [x] 3.4.2 — Run full beta test suite (243+ Phase 1 tests) and confirm no regressions
+  - [x] Run all existing specs plus new sovereign specs
+  - [x] [ER] Document any regressions with root cause analysis
 
-- [ ] 3.4.3 — Verify per-mode behavior: COMMS queues messages, MAP tiles unavailable expected, OPS continues
-  - [ ] In sovereign: COMMS messages are queued (not silently dropped)
-  - [ ] In sovereign: MAP shows "offline" overlay (expected behavior)
-  - [ ] In sovereign: OPS/Board tiles show cached data or appropriate empty states
-  - [ ] [EU] Verify user understands what's happening in each mode during sovereign
+- [x] 3.4.3 — Verify per-mode behavior: COMMS queues messages, MAP tiles unavailable expected, OPS continues
+  - [x] In sovereign: COMMS messages are queued (not silently dropped)
+  - [x] In sovereign: MAP shows "offline" overlay (expected behavior)
+  - [x] In sovereign: OPS/Board tiles show cached data or appropriate empty states
+  - [x] [EU] Verify user understands what's happening in each mode during sovereign
 
-- [ ] 3.4.4 — Test transition edge cases: flapping, captive portal, passphrase unavailable
-  - [ ] Rapid online/offline toggling → no sovereign mode triggered
-  - [ ] Captive portal (navigator.onLine=true, relays fail) → circuit-breaker triggers sovereign
-  - [ ] Passphrase unavailable during sovereign → sign fails → error toast
-  - [ ] [EH] Event with stale created_at on drain → log warning, dequeue
+- [x] 3.4.4 — Test transition edge cases: flapping, captive portal, passphrase unavailable
+  - [x] Rapid online/offline toggling → no sovereign mode triggered
+  - [x] Captive portal (navigator.onLine=true, relays fail) → circuit-breaker triggers sovereign
+  - [x] Passphrase unavailable during sovereign → sign fails → error toast
+  - [x] [EH] Event with stale created_at on drain → log warning, dequeue
 
-- [ ] 3.4.5 — Git commit Phase 2 work
-  - [ ] Stage all Phase 2 files
-  - [ ] Commit with descriptive message
-  - [ ] [CR] Verify Prettier/lint passes
+- [x] 3.4.5 — Git commit Phase 2 work
+  - [x] Stage all Phase 2 files
+  - [x] Commit with descriptive message
+  - [x] [CR] Verify Prettier/lint passes
 
-- [ ] 3.4.6 — Update playbook.md status dashboard for Phase 2 completion
-  - [ ] Set Sovereign Mode row to COMPLETE
-  - [ ] Record notes on edge cases encountered
+- [x] 3.4.6 — Update playbook.md status dashboard for Phase 2 completion
+  - [x] Set Sovereign Mode row to COMPLETE
+  - [x] Record notes on edge cases encountered
 
 ---
 
@@ -1033,478 +1033,478 @@
 
 #### 4.1.1 Step: Core Module — `board-state.ts`
 
-- [ ] 4.1.1.1 — Create `src/app/board/board-state.ts`
-  - [ ] Create directory `src/app/board/` if it doesn't exist
-  - [ ] Create TypeScript module with type exports and store
-  - [ ] [CR] Follow existing app module conventions (see `src/app/groups/`)
+- [x] 4.1.1.1 — Create `src/app/board/board-state.ts`
+  - [x] Create directory `src/app/board/` if it doesn't exist
+  - [x] Create TypeScript module with type exports and store
+  - [x] [CR] Follow existing app module conventions (see `src/app/groups/`)
 
-- [ ] 4.1.1.2 — Define `TileType` union: "map-overview" | "group-status" | "personnel-status" | "activity-feed" | "connection-status" | "security-status" | "quick-actions"
-  - [ ] Export type for use by tile components and registry
-  - [ ] [CR] String literal union — extensible for Phase 4 ("trust-overview")
+- [x] 4.1.1.2 — Define `TileType` union: "map-overview" | "group-status" | "personnel-status" | "activity-feed" | "connection-status" | "security-status" | "quick-actions"
+  - [x] Export type for use by tile components and registry
+  - [x] [CR] String literal union — extensible for Phase 4 ("trust-overview")
 
-- [ ] 4.1.1.3 — Define `TilePlacement` type: `{type, col, row, colSpan, rowSpan}`
-  - [ ] type: TileType
-  - [ ] col, row: 1-based grid coordinates
-  - [ ] colSpan, rowSpan: tile dimensions (default 1×1)
-  - [ ] [CR] Ensure grid coordinates are validated (no negative, no out-of-bounds)
+- [x] 4.1.1.3 — Define `TilePlacement` type: `{type, col, row, colSpan, rowSpan}`
+  - [x] type: TileType
+  - [x] col, row: 1-based grid coordinates
+  - [x] colSpan, rowSpan: tile dimensions (default 1×1)
+  - [x] [CR] Ensure grid coordinates are validated (no negative, no out-of-bounds)
 
-- [ ] 4.1.1.4 — Define `BoardLayout` type: `TilePlacement[]`
-  - [ ] Export type
-  - [ ] [CR] Array order determines render order (z-index in case of overlap)
+- [x] 4.1.1.4 — Define `BoardLayout` type: `TilePlacement[]`
+  - [x] Export type
+  - [x] [CR] Array order determines render order (z-index in case of overlap)
 
-- [ ] 4.1.1.5 — Define `TILE_REGISTRY` object with metadata (name, icon, description) for all 7 tile types
-  - [ ] Each entry: `{name: string, icon: string, description: string}`
-  - [ ] [CR] Registry drives TilePicker UI — all tile types must have entries
-  - [ ] [EH] Unknown tile type in layout → skip rendering (don't crash Board)
+- [x] 4.1.1.5 — Define `TILE_REGISTRY` object with metadata (name, icon, description) for all 7 tile types
+  - [x] Each entry: `{name: string, icon: string, description: string}`
+  - [x] [CR] Registry drives TilePicker UI — all tile types must have entries
+  - [x] [EH] Unknown tile type in layout → skip rendering (don't crash Board)
 
-- [ ] 4.1.1.6 — Define `DEFAULT_DESKTOP_LAYOUT` constant with 5 default tiles
-  - [ ] Include: map-overview, group-status, activity-feed, personnel-status, connection-status
-  - [ ] Assign sensible grid positions for 4-column layout
-  - [ ] [CR] Layout should fill visible viewport without scrolling on typical desktop
+- [x] 4.1.1.6 — Define `DEFAULT_DESKTOP_LAYOUT` constant with 5 default tiles
+  - [x] Include: map-overview, group-status, activity-feed, personnel-status, connection-status
+  - [x] Assign sensible grid positions for 4-column layout
+  - [x] [CR] Layout should fill visible viewport without scrolling on typical desktop
 
-- [ ] 4.1.1.7 — Create `boardLayout` synced store: `synced("ui/board-layout", DEFAULT_DESKTOP_LAYOUT)`
-  - [ ] Use existing synced() pattern for localStorage persistence
-  - [ ] [EH] If localStorage contains invalid JSON → fallback to default layout silently
-  - [ ] [EH] If localStorage contains layout with unknown tile types → filter them out, keep valid tiles
-  - [ ] [EH] If localStorage is corrupted or quota exceeded → use in-memory default
-  - [ ] [CR] Key `"ui/board-layout"` follows existing naming convention (see architecture-patterns.md)
+- [x] 4.1.1.7 — Create `boardLayout` synced store: `synced("ui/board-layout", DEFAULT_DESKTOP_LAYOUT)`
+  - [x] Use existing synced() pattern for localStorage persistence
+  - [x] [EH] If localStorage contains invalid JSON → fallback to default layout silently
+  - [x] [EH] If localStorage contains layout with unknown tile types → filter them out, keep valid tiles
+  - [x] [EH] If localStorage is corrupted or quota exceeded → use in-memory default
+  - [x] [CR] Key `"ui/board-layout"` follows existing naming convention (see architecture-patterns.md)
 
-- [ ] 4.1.1.8 — Implement `addTile(type)` function: places new tile at next available row
-  - [ ] Compute next available grid position (after last tile)
-  - [ ] Append new TilePlacement to boardLayout
-  - [ ] [EH] Prevent adding duplicate tile types if max count enforced
-  - [ ] [CR] Store update triggers reactive re-render in BoardView
+- [x] 4.1.1.8 — Implement `addTile(type)` function: places new tile at next available row
+  - [x] Compute next available grid position (after last tile)
+  - [x] Append new TilePlacement to boardLayout
+  - [x] [EH] Prevent adding duplicate tile types if max count enforced
+  - [x] [CR] Store update triggers reactive re-render in BoardView
 
-- [ ] 4.1.1.9 — Implement `removeTile(index)` function
-  - [ ] Remove tile at array index from boardLayout
-  - [ ] [EH] Guard: index out of bounds → no-op
-  - [ ] [EH] Prevent removing last tile (always keep at least one?)
-  - [ ] [CR] Store update persists immediately via synced()
+- [x] 4.1.1.9 — Implement `removeTile(index)` function
+  - [x] Remove tile at array index from boardLayout
+  - [x] [EH] Guard: index out of bounds → no-op
+  - [x] [EH] Prevent removing last tile (always keep at least one?)
+  - [x] [CR] Store update persists immediately via synced()
 
-- [ ] 4.1.1.10 — Implement `moveTile(fromIndex, toIndex)` function
-  - [ ] Reorder tile in the layout array
-  - [ ] [EH] Guard: invalid indices → no-op
-  - [ ] [CR] Used by drag-and-drop reordering
+- [x] 4.1.1.10 — Implement `moveTile(fromIndex, toIndex)` function
+  - [x] Reorder tile in the layout array
+  - [x] [EH] Guard: invalid indices → no-op
+  - [x] [CR] Used by drag-and-drop reordering
 
 #### 4.1.2 Step: New Component — `TilePicker.svelte`
 
-- [ ] 4.1.2.1 — Create `src/app/board/TilePicker.svelte`
-  - [ ] Create Svelte component with TypeScript script block
-  - [ ] Import TILE_REGISTRY and addTile from board-state
+- [x] 4.1.2.1 — Create `src/app/board/TilePicker.svelte`
+  - [x] Create Svelte component with TypeScript script block
+  - [x] Import TILE_REGISTRY and addTile from board-state
 
-- [ ] 4.1.2.2 — List all available tile types from `TILE_REGISTRY`
-  - [ ] Iterate TILE_REGISTRY entries
-  - [ ] Display icon, name, description for each
-  - [ ] [EH] Handle empty registry gracefully (should never happen, but defensive)
+- [x] 4.1.2.2 — List all available tile types from `TILE_REGISTRY`
+  - [x] Iterate TILE_REGISTRY entries
+  - [x] Display icon, name, description for each
+  - [x] [EH] Handle empty registry gracefully (should never happen, but defensive)
 
-- [ ] 4.1.2.3 — Show add button per tile type
-  - [ ] Button calls `addTile(type)` on click
-  - [ ] [EU] Button should provide visual feedback on click (brief highlight)
-  - [ ] [EU] Confirm action or auto-close picker after adding
+- [x] 4.1.2.3 — Show add button per tile type
+  - [x] Button calls `addTile(type)` on click
+  - [x] [EU] Button should provide visual feedback on click (brief highlight)
+  - [x] [EU] Confirm action or auto-close picker after adding
 
-- [ ] 4.1.2.4 — Disable tiles already at max count (if applicable)
-  - [ ] Check current layout for existing instances of each type
-  - [ ] Gray out / disable add button for tiles at limit
-  - [ ] [EU] Show tooltip explaining why tile is disabled ("Already on board")
+- [x] 4.1.2.4 — Disable tiles already at max count (if applicable)
+  - [x] Check current layout for existing instances of each type
+  - [x] Gray out / disable add button for tiles at limit
+  - [x] [EU] Show tooltip explaining why tile is disabled ("Already on board")
 
-- [ ] 4.1.2.5 — Style as collapsible side panel or modal
-  - [ ] Use existing UI patterns for overlay/panel (check Tailwind z-index scale)
-  - [ ] [EU] Close picker on outside click or Escape key
-  - [ ] [EU] Animate open/close for smooth UX
-  - [ ] [CR] Picker should not overlap SovereignBar
+- [x] 4.1.2.5 — Style as collapsible side panel or modal
+  - [x] Use existing UI patterns for overlay/panel (check Tailwind z-index scale)
+  - [x] [EU] Close picker on outside click or Escape key
+  - [x] [EU] Animate open/close for smooth UX
+  - [x] [CR] Picker should not overlap SovereignBar
 
 ### 4.2 Phase: Board View & Layout
 
 #### 4.2.1 Step: New Component — `BoardView.svelte`
 
-- [ ] 4.2.1.1 — Create `src/app/views/BoardView.svelte`
-  - [ ] Create Svelte component with TypeScript script block
-  - [ ] Import boardLayout, TILE_REGISTRY from board-state
-  - [ ] [CR] Follow existing view component conventions (see CommsView, MapView)
+- [x] 4.2.1.1 — Create `src/app/views/BoardView.svelte`
+  - [x] Create Svelte component with TypeScript script block
+  - [x] Import boardLayout, TILE_REGISTRY from board-state
+  - [x] [CR] Follow existing view component conventions (see CommsView, MapView)
 
-- [ ] 4.2.1.2 — Subscribe to `boardLayout` synced store
-  - [ ] Use `$boardLayout` reactive subscription
-  - [ ] [EH] If store value is null/empty → render default layout
-  - [ ] [CR] Subscription auto-cleanup on component destroy
+- [x] 4.2.1.2 — Subscribe to `boardLayout` synced store
+  - [x] Use `$boardLayout` reactive subscription
+  - [x] [EH] If store value is null/empty → render default layout
+  - [x] [CR] Subscription auto-cleanup on component destroy
 
-- [ ] 4.2.1.3 — Render CSS Grid with `grid-template-columns` and `grid-template-rows`
-  - [ ] Set `display: grid` on container
-  - [ ] Use `grid-template-columns: repeat(4, 1fr)` as base (4 columns)
-  - [ ] Set `gap` for spacing between tiles
-  - [ ] [CR] Grid container fills available height (min-height or flex-grow)
+- [x] 4.2.1.3 — Render CSS Grid with `grid-template-columns` and `grid-template-rows`
+  - [x] Set `display: grid` on container
+  - [x] Use `grid-template-columns: repeat(4, 1fr)` as base (4 columns)
+  - [x] Set `gap` for spacing between tiles
+  - [x] [CR] Grid container fills available height (min-height or flex-grow)
 
-- [ ] 4.2.1.4 — Map each `TilePlacement` to the correct tile component (dynamic dispatch)
-  - [ ] Use `{#each}` over boardLayout
-  - [ ] Map type string to component via lookup object or switch
-  - [ ] Set `grid-column` and `grid-row` from placement data
-  - [ ] [EH] Unknown tile type → render placeholder "Unknown tile" box
-  - [ ] [ER] Log warning for unknown tile type: "Unknown tile type: {type}"
-  - [ ] [CR] Each tile receives its type and placement as props
+- [x] 4.2.1.4 — Map each `TilePlacement` to the correct tile component (dynamic dispatch)
+  - [x] Use `{#each}` over boardLayout
+  - [x] Map type string to component via lookup object or switch
+  - [x] Set `grid-column` and `grid-row` from placement data
+  - [x] [EH] Unknown tile type → render placeholder "Unknown tile" box
+  - [x] [ER] Log warning for unknown tile type: "Unknown tile type: {type}"
+  - [x] [CR] Each tile receives its type and placement as props
 
-- [ ] 4.2.1.5 — Implement edit mode toggle button
-  - [ ] Local `editMode: boolean` state
-  - [ ] Toggle button: gear/pencil icon in top-right corner
-  - [ ] [EU] Button text changes: "Edit" ↔ "Done"
-  - [ ] [EU] Edit mode boundary is visually clear (outline on board, dimmed tiles)
+- [x] 4.2.1.5 — Implement edit mode toggle button
+  - [x] Local `editMode: boolean` state
+  - [x] Toggle button: gear/pencil icon in top-right corner
+  - [x] [EU] Button text changes: "Edit" ↔ "Done"
+  - [x] [EU] Edit mode boundary is visually clear (outline on board, dimmed tiles)
 
-- [ ] 4.2.1.6 — In edit mode: show ✕ remove button on each tile
-  - [ ] Overlay remove button at top-right corner of each tile
-  - [ ] Call `removeTile(index)` on click
-  - [ ] [EU] Confirm removal or provide undo (toast with "Undo" action)
-  - [ ] [EU] Remove button should have sufficient tap target (min 44px)
+- [x] 4.2.1.6 — In edit mode: show ✕ remove button on each tile
+  - [x] Overlay remove button at top-right corner of each tile
+  - [x] Call `removeTile(index)` on click
+  - [x] [EU] Confirm removal or provide undo (toast with "Undo" action)
+  - [x] [EU] Remove button should have sufficient tap target (min 44px)
 
-- [ ] 4.2.1.7 — In edit mode: show TilePicker panel
-  - [ ] Conditionally render `<TilePicker />` when editMode is true
-  - [ ] [EU] Picker should not obscure the board (side panel or bottom sheet)
+- [x] 4.2.1.7 — In edit mode: show TilePicker panel
+  - [x] Conditionally render `<TilePicker />` when editMode is true
+  - [x] [EU] Picker should not obscure the board (side panel or bottom sheet)
 
-- [ ] 4.2.1.8 — Implement drag-and-drop reordering (native HTML drag events)
-  - [ ] Set `draggable="true"` on tile containers in edit mode
-  - [ ] Handle dragstart, dragover, drop events
-  - [ ] Call `moveTile(fromIndex, toIndex)` on successful drop
-  - [ ] [EH] Handle drop outside valid target → no-op (revert to original position)
-  - [ ] [EU] Visual feedback during drag: ghost element, drop target highlight
-  - [ ] [EU] Mobile: consider long-press to initiate drag (touch events)
-  - [ ] [CR] Drag only active in edit mode (no accidental reorder)
+- [x] 4.2.1.8 — Implement drag-and-drop reordering (native HTML drag events)
+  - [x] Set `draggable="true"` on tile containers in edit mode
+  - [x] Handle dragstart, dragover, drop events
+  - [x] Call `moveTile(fromIndex, toIndex)` on successful drop
+  - [x] [EH] Handle drop outside valid target → no-op (revert to original position)
+  - [x] [EU] Visual feedback during drag: ghost element, drop target highlight
+  - [x] [EU] Mobile: consider long-press to initiate drag (touch events)
+  - [x] [CR] Drag only active in edit mode (no accidental reorder)
 
-- [ ] 4.2.1.9 — Implement responsive breakpoints: 4 columns (xl) → 3 (lg) → 2 (md) → 1 (sm)
-  - [ ] Use Tailwind responsive classes or CSS media queries
-  - [ ] Adjust `grid-template-columns: repeat(N, 1fr)` per breakpoint
-  - [ ] [EU] Tiles should reflow gracefully (no overflow, no horizontal scroll)
-  - [ ] [EU] On mobile (1 column): tiles stack vertically in meaningful order
-  - [ ] [CR] Test at each breakpoint: xl (1280+), lg (1024+), md (768+), sm (<768)
+- [x] 4.2.1.9 — Implement responsive breakpoints: 4 columns (xl) → 3 (lg) → 2 (md) → 1 (sm)
+  - [x] Use Tailwind responsive classes or CSS media queries
+  - [x] Adjust `grid-template-columns: repeat(N, 1fr)` per breakpoint
+  - [x] [EU] Tiles should reflow gracefully (no overflow, no horizontal scroll)
+  - [x] [EU] On mobile (1 column): tiles stack vertically in meaningful order
+  - [x] [CR] Test at each breakpoint: xl (1280+), lg (1024+), md (768+), sm (<768)
 
 #### 4.2.2 Step: Modify `Routes.svelte`
 
-- [ ] 4.2.2.1 — Replace `OpsView` import with `BoardView` import
-  - [ ] Change import statement
-  - [ ] [CR] Verify import path resolves to new BoardView.svelte
+- [x] 4.2.2.1 — Replace `OpsView` import with `BoardView` import
+  - [x] Change import statement
+  - [x] [CR] Verify import path resolves to new BoardView.svelte
 
-- [ ] 4.2.2.2 — Change conditional: when `$navcomMode === "ops"` render `<BoardView />` instead of `<OpsView />`
-  - [ ] Replace component reference in the `{#if}` / `{:else if}` chain
-  - [ ] [CR] All other mode conditionals (comms, map) unchanged
-  - [ ] [EH] If BoardView fails to import → build error (caught at compile time)
+- [x] 4.2.2.2 — Change conditional: when `$navcomMode === "ops"` render `<BoardView />` instead of `<OpsView />`
+  - [x] Replace component reference in the `{#if}` / `{:else if}` chain
+  - [x] [CR] All other mode conditionals (comms, map) unchanged
+  - [x] [EH] If BoardView fails to import → build error (caught at compile time)
 
-- [ ] 4.2.2.3 — Change max width: `max-w-4xl` → `max-w-6xl` for Board layout
-  - [ ] Locate max-width Tailwind class on the OPS-mode container
-  - [ ] Change to `max-w-6xl` (1152px) to accommodate grid layout
-  - [ ] [EU] Verify wider layout doesn't cause reading discomfort on ultra-wide screens
-  - [ ] [CR] Only the OPS-mode branch gets wider — COMMS and MAP unchanged
+- [x] 4.2.2.3 — Change max width: `max-w-4xl` → `max-w-6xl` for Board layout
+  - [x] Locate max-width Tailwind class on the OPS-mode container
+  - [x] Change to `max-w-6xl` (1152px) to accommodate grid layout
+  - [x] [EU] Verify wider layout doesn't cause reading discomfort on ultra-wide screens
+  - [x] [CR] Only the OPS-mode branch gets wider — COMMS and MAP unchanged
 
-- [ ] 4.2.2.4 — Preserve OpsView.svelte in codebase (do not delete)
-  - [ ] [CR] Keep file as reference/fallback — no import needed
-  - [ ] [CR] Remove from any barrel exports if applicable
+- [x] 4.2.2.4 — Preserve OpsView.svelte in codebase (do not delete)
+  - [x] [CR] Keep file as reference/fallback — no import needed
+  - [x] [CR] Remove from any barrel exports if applicable
 
 ### 4.3 Phase: Tile Components
 
 #### 4.3.1 Step: Map Overview Tile
 
-- [ ] 4.3.1.1 — Create `src/app/board/tiles/MapOverviewTile.svelte`
-  - [ ] Create directory `src/app/board/tiles/` if needed
-  - [ ] Create Svelte component with TypeScript script block
-  - [ ] [CR] Follow tile component conventions (self-contained, own store subscriptions)
+- [x] 4.3.1.1 — Create `src/app/board/tiles/MapOverviewTile.svelte`
+  - [x] Create directory `src/app/board/tiles/` if needed
+  - [x] Create Svelte component with TypeScript script block
+  - [x] [CR] Follow tile component conventions (self-contained, own store subscriptions)
 
-- [ ] 4.3.1.2 — Initialize Leaflet instance (separate from MapView's instance)
-  - [ ] Use `L.map()` on a dedicated DOM container within the tile
-  - [ ] Set up tile layer with same tile URL as MapView
-  - [ ] [EH] Handle Leaflet load failure → show "Map unavailable" text
-  - [ ] [CR] Separate instance avoids conflicts with MapView (proven pattern — current OpsView does this)
-  - [ ] [CR] Cleanup: call `map.remove()` in `onDestroy` to prevent memory leak
+- [x] 4.3.1.2 — Initialize Leaflet instance (separate from MapView's instance)
+  - [x] Use `L.map()` on a dedicated DOM container within the tile
+  - [x] Set up tile layer with same tile URL as MapView
+  - [x] [EH] Handle Leaflet load failure → show "Map unavailable" text
+  - [x] [CR] Separate instance avoids conflicts with MapView (proven pattern — current OpsView does this)
+  - [x] [CR] Cleanup: call `map.remove()` in `onDestroy` to prevent memory leak
 
-- [ ] 4.3.1.3 — Render group markers using existing `deriveMarkers()` and `MARKER_STYLES`
-  - [ ] Call deriveMarkers with current data
-  - [ ] Apply MARKER_STYLES per marker type
-  - [ ] [EH] Handle empty markers array → show map with no markers (no crash)
-  - [ ] [EH] Handle marker with invalid coordinates → skip (don't break other markers)
+- [x] 4.3.1.3 — Render group markers using existing `deriveMarkers()` and `MARKER_STYLES`
+  - [x] Call deriveMarkers with current data
+  - [x] Apply MARKER_STYLES per marker type
+  - [x] [EH] Handle empty markers array → show map with no markers (no crash)
+  - [x] [EH] Handle marker with invalid coordinates → skip (don't break other markers)
 
-- [ ] 4.3.1.4 — Display as thumbnail/overview (non-interactive or minimally interactive)
-  - [ ] Disable zoom controls and scroll-to-zoom
-  - [ ] Fit bounds to all markers
-  - [ ] [EU] Click on tile → switch to MAP mode (full interaction there)
+- [x] 4.3.1.4 — Display as thumbnail/overview (non-interactive or minimally interactive)
+  - [x] Disable zoom controls and scroll-to-zoom
+  - [x] Fit bounds to all markers
+  - [x] [EU] Click on tile → switch to MAP mode (full interaction there)
 
-- [ ] 4.3.1.5 — Sovereign mode: show "Map data unavailable offline" overlay
-  - [ ] Check `$isSovereign` and conditionally render overlay
-  - [ ] Overlay: semi-transparent background with centered message
-  - [ ] [EU] Preserve last-rendered map image behind overlay (stale data is better than blank)
+- [x] 4.3.1.5 — Sovereign mode: show "Map data unavailable offline" overlay
+  - [x] Check `$isSovereign` and conditionally render overlay
+  - [x] Overlay: semi-transparent background with centered message
+  - [x] [EU] Preserve last-rendered map image behind overlay (stale data is better than blank)
 
 #### 4.3.2 Step: Group Status Tile
 
-- [ ] 4.3.2.1 — Create `src/app/board/tiles/GroupStatusTile.svelte`
-  - [ ] Create Svelte component with TypeScript script block
+- [x] 4.3.2.1 — Create `src/app/board/tiles/GroupStatusTile.svelte`
+  - [x] Create Svelte component with TypeScript script block
 
-- [ ] 4.3.2.2 — Subscribe to `groupProjections` store
-  - [ ] Use `$groupProjections` reactive subscription
-  - [ ] [EH] Handle empty projections → show "No groups" state
-  - [ ] [CR] Only subscribe to what's needed (not entire repository)
+- [x] 4.3.2.2 — Subscribe to `groupProjections` store
+  - [x] Use `$groupProjections` reactive subscription
+  - [x] [EH] Handle empty projections → show "No groups" state
+  - [x] [CR] Only subscribe to what's needed (not entire repository)
 
-- [ ] 4.3.2.3 — Render group list with name, member count, unread count
-  - [ ] Iterate groups from projections
-  - [ ] Display: group name, N members, N unread
-  - [ ] [EH] Handle group with missing name → show group ID truncated
-  - [ ] [EU] Sort groups by unread count (most active first) or alphabetically
+- [x] 4.3.2.3 — Render group list with name, member count, unread count
+  - [x] Iterate groups from projections
+  - [x] Display: group name, N members, N unread
+  - [x] [EH] Handle group with missing name → show group ID truncated
+  - [x] [EU] Sort groups by unread count (most active first) or alphabetically
 
-- [ ] 4.3.2.4 — Render `GroupHealthBadge` per group (from Phase 1 presence)
-  - [ ] Import and render GroupHealthBadge for each group
-  - [ ] [EH] If GroupHealthBadge is not available (Phase 1 not shipped) → don't render (graceful skip)
-  - [ ] [CR] Use optional import or dynamic component check
+- [x] 4.3.2.4 — Render `GroupHealthBadge` per group (from Phase 1 presence)
+  - [x] Import and render GroupHealthBadge for each group
+  - [x] [EH] If GroupHealthBadge is not available (Phase 1 not shipped) → don't render (graceful skip)
+  - [x] [CR] Use optional import or dynamic component check
 
-- [ ] 4.3.2.5 — Click group → navigate to COMMS mode with channel opened
-  - [ ] On click: set `navcomMode` to "comms" and navigate to group channel
-  - [ ] [EH] Handle case where group channel doesn't exist → show toast "Channel unavailable"
-  - [ ] [EU] Provide visual click feedback (hover state, cursor pointer)
+- [x] 4.3.2.5 — Click group → navigate to COMMS mode with channel opened
+  - [x] On click: set `navcomMode` to "comms" and navigate to group channel
+  - [x] [EH] Handle case where group channel doesn't exist → show toast "Channel unavailable"
+  - [x] [EU] Provide visual click feedback (hover state, cursor pointer)
 
-- [ ] 4.3.2.6 — Graceful degradation: show member counts without badges if Phase 1 not shipped
-  - [ ] Check if GroupHealthBadge component exists / health data is available
-  - [ ] If not: render tile without badges (no error, just simpler display)
-  - [ ] [CR] Tile remains fully functional without Phase 1 dependency
+- [x] 4.3.2.6 — Graceful degradation: show member counts without badges if Phase 1 not shipped
+  - [x] Check if GroupHealthBadge component exists / health data is available
+  - [x] If not: render tile without badges (no error, just simpler display)
+  - [x] [CR] Tile remains fully functional without Phase 1 dependency
 
 #### 4.3.3 Step: Personnel Status Tile
 
-- [ ] 4.3.3.1 — Create `src/app/board/tiles/PersonnelStatusTile.svelte`
-  - [ ] Create Svelte component
+- [x] 4.3.3.1 — Create `src/app/board/tiles/PersonnelStatusTile.svelte`
+  - [x] Create Svelte component
 
-- [ ] 4.3.3.2 — Subscribe to `groupProjections` and `groupMemberPresence` stores
-  - [ ] Derive member list from projections
-  - [ ] [EH] Handle missing groupMemberPresence store (Phase 1 not shipped) → skip presence data
+- [x] 4.3.3.2 — Subscribe to `groupProjections` and `groupMemberPresence` stores
+  - [x] Derive member list from projections
+  - [x] [EH] Handle missing groupMemberPresence store (Phase 1 not shipped) → skip presence data
 
-- [ ] 4.3.3.3 — Render member list with `PresenceBadge` per member (from Phase 1)
-  - [ ] Display member display name + PresenceBadge
-  - [ ] [EH] Missing display name → show truncated pubkey
-  - [ ] [EH] PresenceBadge unavailable → render member without badge
+- [x] 4.3.3.3 — Render member list with `PresenceBadge` per member (from Phase 1)
+  - [x] Display member display name + PresenceBadge
+  - [x] [EH] Missing display name → show truncated pubkey
+  - [x] [EH] PresenceBadge unavailable → render member without badge
 
-- [ ] 4.3.3.4 — Sort by presence status (active first, cold last)
-  - [ ] Sort order: active → recent → cold → unknown
-  - [ ] [CR] Stable sort within same status (alphabetical by name)
+- [x] 4.3.3.4 — Sort by presence status (active first, cold last)
+  - [x] Sort order: active → recent → cold → unknown
+  - [x] [CR] Stable sort within same status (alphabetical by name)
 
-- [ ] 4.3.3.5 — Graceful degradation: show member list without presence if Phase 1 not shipped
-  - [ ] Alphabetical member list, no badges
-  - [ ] [EU] Show "Presence data unavailable" subtitle if store is missing
+- [x] 4.3.3.5 — Graceful degradation: show member list without presence if Phase 1 not shipped
+  - [x] Alphabetical member list, no badges
+  - [x] [EU] Show "Presence data unavailable" subtitle if store is missing
 
 #### 4.3.4 Step: Activity Feed Tile
 
-- [ ] 4.3.4.1 — Create `src/app/board/tiles/ActivityFeedTile.svelte`
-  - [ ] Create Svelte component
+- [x] 4.3.4.1 — Create `src/app/board/tiles/ActivityFeedTile.svelte`
+  - [x] Create Svelte component
 
-- [ ] 4.3.4.2 — Subscribe to repository events (recent events across groups)
-  - [ ] Use deriveEvents or appropriate filter for recent group events
-  - [ ] [EH] Handle empty event set → show "No recent activity"
-  - [ ] [CR] Filter to relevant event kinds (messages, check-ins, not metadata)
+- [x] 4.3.4.2 — Subscribe to repository events (recent events across groups)
+  - [x] Use deriveEvents or appropriate filter for recent group events
+  - [x] [EH] Handle empty event set → show "No recent activity"
+  - [x] [CR] Filter to relevant event kinds (messages, check-ins, not metadata)
 
-- [ ] 4.3.4.3 — Render chronological event list with timestamp, icon, and group name
-  - [ ] Format timestamp as relative time ("3m ago", "1h ago")
-  - [ ] Map event kind to icon (message icon, signal icon, etc.)
-  - [ ] Show group name for context
-  - [ ] [EH] Handle event with missing group reference → show "Unknown group"
-  - [ ] [EU] Truncate long event content (show first ~80 chars)
+- [x] 4.3.4.3 — Render chronological event list with timestamp, icon, and group name
+  - [x] Format timestamp as relative time ("3m ago", "1h ago")
+  - [x] Map event kind to icon (message icon, signal icon, etc.)
+  - [x] Show group name for context
+  - [x] [EH] Handle event with missing group reference → show "Unknown group"
+  - [x] [EU] Truncate long event content (show first ~80 chars)
 
-- [ ] 4.3.4.4 — Limit to N most recent events (e.g., 10-20)
-  - [ ] Slice events after sorting by created_at descending
-  - [ ] [CR] Configurable constant for limit (not magic number)
-  - [ ] [CR] Don't load more events than needed from repository
+- [x] 4.3.4.4 — Limit to N most recent events (e.g., 10-20)
+  - [x] Slice events after sorting by created_at descending
+  - [x] [CR] Configurable constant for limit (not magic number)
+  - [x] [CR] Don't load more events than needed from repository
 
-- [ ] 4.3.4.5 — Auto-scroll or show "new events" indicator
-  - [ ] When new events arrive while tile is visible
-  - [ ] [EU] Don't force scroll if user is reading older events
-  - [ ] [EU] Show "N new events" badge at top of tile (click to scroll to top)
+- [x] 4.3.4.5 — Auto-scroll or show "new events" indicator
+  - [x] When new events arrive while tile is visible
+  - [x] [EU] Don't force scroll if user is reading older events
+  - [x] [EU] Show "N new events" badge at top of tile (click to scroll to top)
 
 #### 4.3.5 Step: Connection Status Tile
 
-- [ ] 4.3.5.1 — Create `src/app/board/tiles/ConnectionStatusTile.svelte`
-  - [ ] Create Svelte component
+- [x] 4.3.5.1 — Create `src/app/board/tiles/ConnectionStatusTile.svelte`
+  - [x] Create Svelte component
 
-- [ ] 4.3.5.2 — Subscribe to `connectionState` store (from Phase 2)
-  - [ ] [EH] If connectionState store not available (Phase 2 not shipped) → show basic fallback
-  - [ ] [CR] Use optional/try import pattern for cross-phase dependency
+- [x] 4.3.5.2 — Subscribe to `connectionState` store (from Phase 2)
+  - [x] [EH] If connectionState store not available (Phase 2 not shipped) → show basic fallback
+  - [x] [CR] Use optional/try import pattern for cross-phase dependency
 
-- [ ] 4.3.5.3 — Display current mode: "CONNECTED" or "SOVEREIGN"
-  - [ ] Color-coded mode label (green/red)
-  - [ ] [EU] Icon alongside label (check mark / disconnect icon)
+- [x] 4.3.5.3 — Display current mode: "CONNECTED" or "SOVEREIGN"
+  - [x] Color-coded mode label (green/red)
+  - [x] [EU] Icon alongside label (check mark / disconnect icon)
 
-- [ ] 4.3.5.4 — Display queue depth and last connected timestamp
-  - [ ] Show "N queued" when in sovereign mode
-  - [ ] Show "Last online: Xm ago" when sovereign
-  - [ ] [EH] Handle zero queue → "Queue empty"
-  - [ ] [EU] Clear communication that queued items will send on reconnect
+- [x] 4.3.5.4 — Display queue depth and last connected timestamp
+  - [x] Show "N queued" when in sovereign mode
+  - [x] Show "Last online: Xm ago" when sovereign
+  - [x] [EH] Handle zero queue → "Queue empty"
+  - [x] [EU] Clear communication that queued items will send on reconnect
 
-- [ ] 4.3.5.5 — Show relay status summary (connected/total relays)
-  - [ ] Read from relay health data
-  - [ ] Display "3/5 relays connected" format
-  - [ ] [EH] Handle relay health data unavailable → show "Relay status unknown"
+- [x] 4.3.5.5 — Show relay status summary (connected/total relays)
+  - [x] Read from relay health data
+  - [x] Display "3/5 relays connected" format
+  - [x] [EH] Handle relay health data unavailable → show "Relay status unknown"
 
-- [ ] 4.3.5.6 — Graceful degradation: basic online/offline indicator if Phase 2 not shipped
-  - [ ] Fallback: use `navigator.onLine` directly
-  - [ ] Show simple green dot / red dot
-  - [ ] [EU] Clearly mark as "basic" connectivity info
+- [x] 4.3.5.6 — Graceful degradation: basic online/offline indicator if Phase 2 not shipped
+  - [x] Fallback: use `navigator.onLine` directly
+  - [x] Show simple green dot / red dot
+  - [x] [EU] Clearly mark as "basic" connectivity info
 
 #### 4.3.6 Step: Security Status Tile
 
-- [ ] 4.3.6.1 — Create `src/app/board/tiles/SecurityStatusTile.svelte`
-  - [ ] Create Svelte component
+- [x] 4.3.6.1 — Create `src/app/board/tiles/SecurityStatusTile.svelte`
+  - [x] Create Svelte component
 
-- [ ] 4.3.6.2 — Run `evaluateRelayFingerprintGate()` as read-only audit per group (from Phase 1)
-  - [ ] Import gate function and assembleGateInput
-  - [ ] Evaluate gate for each group
-  - [ ] [EH] If gate function not available (Phase 1 not shipped) → show "N/A"
-  - [ ] [EH] If gate evaluation throws → show "Check failed" per group
-  - [ ] [CR] Read-only: no save/gate behavior, just informational display
+- [x] 4.3.6.2 — Run `evaluateRelayFingerprintGate()` as read-only audit per group (from Phase 1)
+  - [x] Import gate function and assembleGateInput
+  - [x] Evaluate gate for each group
+  - [x] [EH] If gate function not available (Phase 1 not shipped) → show "N/A"
+  - [x] [EH] If gate evaluation throws → show "Check failed" per group
+  - [x] [CR] Read-only: no save/gate behavior, just informational display
 
-- [ ] 4.3.6.3 — Display per-group gate status: green check (clean) or red warning (violation)
-  - [ ] Iterate groups, show ✓ or ⚠ next to each group name
-  - [ ] [EU] Clickable violations → navigate to GroupSettingsAdmin for remediation
-  - [ ] [ER] Show violation count per group ("2 relay conflicts")
+- [x] 4.3.6.3 — Display per-group gate status: green check (clean) or red warning (violation)
+  - [x] Iterate groups, show ✓ or ⚠ next to each group name
+  - [x] [EU] Clickable violations → navigate to GroupSettingsAdmin for remediation
+  - [x] [ER] Show violation count per group ("2 relay conflicts")
 
-- [ ] 4.3.6.4 — Graceful degradation: "N/A" if Phase 1 relay gate not shipped
-  - [ ] Show "Security audit unavailable — requires relay fingerprint gate"
-  - [ ] [EU] Don't show alarming UI — just informational "not yet available"
+- [x] 4.3.6.4 — Graceful degradation: "N/A" if Phase 1 relay gate not shipped
+  - [x] Show "Security audit unavailable — requires relay fingerprint gate"
+  - [x] [EU] Don't show alarming UI — just informational "not yet available"
 
 #### 4.3.7 Step: Quick Actions Tile
 
-- [ ] 4.3.7.1 — Create `src/app/board/tiles/QuickActionsTile.svelte`
-  - [ ] Create Svelte component
+- [x] 4.3.7.1 — Create `src/app/board/tiles/QuickActionsTile.svelte`
+  - [x] Create Svelte component
 
-- [ ] 4.3.7.2 — Render action buttons: broadcast message, signal check-in, switch mode
-  - [ ] Button for each action with icon + label
-  - [ ] [EU] Clear labels: "Broadcast", "Signal", "Switch to COMMS", "Switch to MAP"
-  - [ ] [EU] Buttons should have consistent sizing and spacing
-  - [ ] [CR] Actions are same as accessible elsewhere — this is a shortcut panel
+- [x] 4.3.7.2 — Render action buttons: broadcast message, signal check-in, switch mode
+  - [x] Button for each action with icon + label
+  - [x] [EU] Clear labels: "Broadcast", "Signal", "Switch to COMMS", "Switch to MAP"
+  - [x] [EU] Buttons should have consistent sizing and spacing
+  - [x] [CR] Actions are same as accessible elsewhere — this is a shortcut panel
 
-- [ ] 4.3.7.3 — Wire actions to existing commands (`publishGroupMessage`, etc.)
-  - [ ] Broadcast: prompt for message → call `publishGroupMessage` for selected group
-  - [ ] Signal: call existing check-in/signal publish
-  - [ ] Switch mode: update `navcomMode` store
-  - [ ] [EH] If action fails: show error toast with action-specific message
-  - [ ] [EH] If in sovereign mode: broadcast queues (no special handling needed — signAndPublish handles it)
-  - [ ] [EU] Disable broadcast button if no groups exist
-  - [ ] [ER] Toast feedback: "Broadcast sent" / "Signal sent" / "Broadcast queued (offline)"
+- [x] 4.3.7.3 — Wire actions to existing commands (`publishGroupMessage`, etc.)
+  - [x] Broadcast: prompt for message → call `publishGroupMessage` for selected group
+  - [x] Signal: call existing check-in/signal publish
+  - [x] Switch mode: update `navcomMode` store
+  - [x] [EH] If action fails: show error toast with action-specific message
+  - [x] [EH] If in sovereign mode: broadcast queues (no special handling needed — signAndPublish handles it)
+  - [x] [EU] Disable broadcast button if no groups exist
+  - [x] [ER] Toast feedback: "Broadcast sent" / "Signal sent" / "Broadcast queued (offline)"
 
 ### 4.4 Phase: Testing — The Board
 
 #### 4.4.1 Step: Unit Tests
 
-- [ ] 4.4.1.1 — Create `tests/unit/app/board/board-state.spec.ts`
-  - [ ] Set up test harness with mocked localStorage for synced store
-  - [ ] [CR] Each test starts with clean localStorage
+- [x] 4.4.1.1 — Create `tests/unit/app/board/board-state.spec.ts`
+  - [x] Set up test harness with mocked localStorage for synced store
+  - [x] [CR] Each test starts with clean localStorage
 
-- [ ] 4.4.1.2 — Unit test: `DEFAULT_DESKTOP_LAYOUT` has 5 tiles
-  - [ ] Assert array length === 5
-  - [ ] Assert expected tile types are present
+- [x] 4.4.1.2 — Unit test: `DEFAULT_DESKTOP_LAYOUT` has 5 tiles
+  - [x] Assert array length === 5
+  - [x] Assert expected tile types are present
 
-- [ ] 4.4.1.3 — Unit test: `TILE_REGISTRY` has entries for all 7 tile types
-  - [ ] Assert 7 entries
-  - [ ] Assert each entry has name, icon, description
+- [x] 4.4.1.3 — Unit test: `TILE_REGISTRY` has entries for all 7 tile types
+  - [x] Assert 7 entries
+  - [x] Assert each entry has name, icon, description
 
-- [ ] 4.4.1.4 — Unit test: `boardLayout` synced store initializes with default layout
-  - [ ] Clear localStorage
-  - [ ] Read store value
-  - [ ] Assert matches DEFAULT_DESKTOP_LAYOUT
-  - [ ] [EH] Test: corrupted localStorage → fallback to default
+- [x] 4.4.1.4 — Unit test: `boardLayout` synced store initializes with default layout
+  - [x] Clear localStorage
+  - [x] Read store value
+  - [x] Assert matches DEFAULT_DESKTOP_LAYOUT
+  - [x] [EH] Test: corrupted localStorage → fallback to default
 
-- [ ] 4.4.1.5 — Unit test: `addTile()` places at next available row
-  - [ ] Call addTile("quick-actions")
-  - [ ] Assert layout array grew by 1
-  - [ ] Assert new tile has valid grid position
+- [x] 4.4.1.5 — Unit test: `addTile()` places at next available row
+  - [x] Call addTile("quick-actions")
+  - [x] Assert layout array grew by 1
+  - [x] Assert new tile has valid grid position
 
-- [ ] 4.4.1.6 — Unit test: `removeTile()` removes correct tile and persists
-  - [ ] Record initial layout
-  - [ ] Call removeTile(1)
-  - [ ] Assert layout shrank by 1 and correct tile removed
-  - [ ] [EH] Test: removeTile with invalid index → no change
+- [x] 4.4.1.6 — Unit test: `removeTile()` removes correct tile and persists
+  - [x] Record initial layout
+  - [x] Call removeTile(1)
+  - [x] Assert layout shrank by 1 and correct tile removed
+  - [x] [EH] Test: removeTile with invalid index → no change
 
 #### 4.4.2 Step: E2E Tests
 
-- [ ] 4.4.2.1 — Create `cypress/e2e/beta/board-view.cy.ts`
-  - [ ] Set up E2E fixtures with groups, members, and events
-  - [ ] [CR] Clear board layout localStorage before each test
+- [x] 4.4.2.1 — Create `cypress/e2e/beta/board-view.cy.ts`
+  - [x] Set up E2E fixtures with groups, members, and events
+  - [x] [CR] Clear board layout localStorage before each test
 
-- [ ] 4.4.2.2 — E2E test: Board renders when OPS mode selected
-  - [ ] Click OPS mode
-  - [ ] Assert CSS grid container is visible
-  - [ ] Assert at least one tile renders
+- [x] 4.4.2.2 — E2E test: Board renders when OPS mode selected
+  - [x] Click OPS mode
+  - [x] Assert CSS grid container is visible
+  - [x] Assert at least one tile renders
 
-- [ ] 4.4.2.3 — E2E test: default tiles visible on first visit
-  - [ ] Clear localStorage
-  - [ ] Navigate to OPS mode
-  - [ ] Assert map overview, group status, activity feed, connection status tiles visible
+- [x] 4.4.2.3 — E2E test: default tiles visible on first visit
+  - [x] Clear localStorage
+  - [x] Navigate to OPS mode
+  - [x] Assert map overview, group status, activity feed, connection status tiles visible
 
-- [ ] 4.4.2.4 — E2E test: edit mode shows tile controls and TilePicker
-  - [ ] Click edit button
-  - [ ] Assert TilePicker panel visible
-  - [ ] Assert remove (✕) buttons visible on tiles
-  - [ ] Click Done → assert controls hidden
+- [x] 4.4.2.4 — E2E test: edit mode shows tile controls and TilePicker
+  - [x] Click edit button
+  - [x] Assert TilePicker panel visible
+  - [x] Assert remove (✕) buttons visible on tiles
+  - [x] Click Done → assert controls hidden
 
-- [ ] 4.4.2.5 — E2E test: adding a tile persists to layout (survives reload)
-  - [ ] Enter edit mode → add "quick-actions" tile
-  - [ ] Exit edit mode → reload page
-  - [ ] Assert Quick Actions tile still present
+- [x] 4.4.2.5 — E2E test: adding a tile persists to layout (survives reload)
+  - [x] Enter edit mode → add "quick-actions" tile
+  - [x] Exit edit mode → reload page
+  - [x] Assert Quick Actions tile still present
 
-- [ ] 4.4.2.6 — E2E test: removing a tile persists to layout (survives reload)
-  - [ ] Enter edit mode → remove a tile
-  - [ ] Exit edit mode → reload page
-  - [ ] Assert removed tile is gone
+- [x] 4.4.2.6 — E2E test: removing a tile persists to layout (survives reload)
+  - [x] Enter edit mode → remove a tile
+  - [x] Exit edit mode → reload page
+  - [x] Assert removed tile is gone
 
-- [ ] 4.4.2.7 — E2E test: GroupStatusTile shows health badges
-  - [ ] Navigate to OPS mode
-  - [ ] Assert group cards have health badge emoji (🟢🟡🔴)
-  - [ ] [EH] If Phase 1 not available → assert tile renders without badges
+- [x] 4.4.2.7 — E2E test: GroupStatusTile shows health badges
+  - [x] Navigate to OPS mode
+  - [x] Assert group cards have health badge emoji (🟢🟡🔴)
+  - [x] [EH] If Phase 1 not available → assert tile renders without badges
 
-- [ ] 4.4.2.8 — E2E test: ActivityFeedTile shows recent events
-  - [ ] Navigate to OPS mode
-  - [ ] Assert activity items visible with timestamp, icon, group name
+- [x] 4.4.2.8 — E2E test: ActivityFeedTile shows recent events
+  - [x] Navigate to OPS mode
+  - [x] Assert activity items visible with timestamp, icon, group name
 
-- [ ] 4.4.2.9 — E2E test: ConnectionStatusTile shows current mode
-  - [ ] Navigate to OPS mode
-  - [ ] Assert "CONNECTED" or "SOVEREIGN" visible in connection tile
+- [x] 4.4.2.9 — E2E test: ConnectionStatusTile shows current mode
+  - [x] Navigate to OPS mode
+  - [x] Assert "CONNECTED" or "SOVEREIGN" visible in connection tile
 
-- [ ] 4.4.2.10 — E2E test: clicking group in GroupStatusTile navigates to COMMS
-  - [ ] Click a group in GroupStatusTile
-  - [ ] Assert mode switched to COMMS
-  - [ ] Assert channel opened
+- [x] 4.4.2.10 — E2E test: clicking group in GroupStatusTile navigates to COMMS
+  - [x] Click a group in GroupStatusTile
+  - [x] Assert mode switched to COMMS
+  - [x] Assert channel opened
 
 ### 4.5 Phase: Phase 3 Validation
 
-- [ ] 4.5.1 — Validate all 19 acceptance criteria for The Board
-  - [ ] Map each criterion to at least one test
-  - [ ] [CR] No criterion covered by manual testing only
+- [x] 4.5.1 — Validate all 19 acceptance criteria for The Board
+  - [x] Map each criterion to at least one test
+  - [x] [CR] No criterion covered by manual testing only
 
-- [ ] 4.5.2 — Migrate existing OpsView Cypress tests to Board tests
-  - [ ] Identify all existing OpsView-specific selectors in beta specs
-  - [ ] Update to Board equivalents
-  - [ ] [CR] Don't delete old tests — update them
+- [x] 4.5.2 — Migrate existing OpsView Cypress tests to Board tests
+  - [x] Identify all existing OpsView-specific selectors in beta specs
+  - [x] Update to Board equivalents
+  - [x] [CR] Don't delete old tests — update them
 
-- [ ] 4.5.3 — Run full beta test suite and confirm no regressions
-  - [ ] All original 243+ tests pass
-  - [ ] Phase 1 and Phase 2 specs pass
-  - [ ] New Board specs pass
-  - [ ] [ER] If regression found: isolate to Board changes vs. pre-existing
+- [x] 4.5.3 — Run full beta test suite and confirm no regressions
+  - [x] All original 243+ tests pass
+  - [x] Phase 1 and Phase 2 specs pass
+  - [x] New Board specs pass
+  - [x] [ER] If regression found: isolate to Board changes vs. pre-existing
 
-- [ ] 4.5.4 — Verify responsive behavior at all 4 breakpoints
-  - [ ] xl (1280px): 4 columns
-  - [ ] lg (1024px): 3 columns
-  - [ ] md (768px): 2 columns
-  - [ ] sm (<768px): 1 column
-  - [ ] [EU] No horizontal overflow at any breakpoint
+- [x] 4.5.4 — Verify responsive behavior at all 4 breakpoints
+  - [x] xl (1280px): 4 columns
+  - [x] lg (1024px): 3 columns
+  - [x] md (768px): 2 columns
+  - [x] sm (<768px): 1 column
+  - [x] [EU] No horizontal overflow at any breakpoint
 
-- [ ] 4.5.5 — Verify sovereign mode rendering for each tile
-  - [ ] Map tile: "offline" overlay
-  - [ ] Connection tile: shows sovereign status
-  - [ ] Activity feed: shows cached events
-  - [ ] Group status: still visible with cached data
-  - [ ] [EU] No tile crashes or blanks during sovereign mode
+- [x] 4.5.5 — Verify sovereign mode rendering for each tile
+  - [x] Map tile: "offline" overlay
+  - [x] Connection tile: shows sovereign status
+  - [x] Activity feed: shows cached events
+  - [x] Group status: still visible with cached data
+  - [x] [EU] No tile crashes or blanks during sovereign mode
 
-- [ ] 4.5.6 — Verify graceful degradation when Phase 1/2 innovations not present
-  - [ ] Group status tile: member counts without badges
-  - [ ] Personnel tile: list without presence
-  - [ ] Connection tile: basic online/offline
-  - [ ] Security tile: "N/A"
-  - [ ] [CR] All tiles must render something meaningful even without dependencies
+- [x] 4.5.6 — Verify graceful degradation when Phase 1/2 innovations not present
+  - [x] Group status tile: member counts without badges
+  - [x] Personnel tile: list without presence
+  - [x] Connection tile: basic online/offline
+  - [x] Security tile: "N/A"
+  - [x] [CR] All tiles must render something meaningful even without dependencies
 
-- [ ] 4.5.7 — Git commit Phase 3 work
-  - [ ] Stage all Phase 3 files (10+ new, 1 modified)
-  - [ ] Commit with descriptive message
-  - [ ] [CR] Verify lint/Prettier passes
+- [x] 4.5.7 — Git commit Phase 3 work
+  - [x] Stage all Phase 3 files (10+ new, 1 modified)
+  - [x] Commit with descriptive message
+  - [x] [CR] Verify lint/Prettier passes
 
-- [ ] 4.5.8 — Update playbook.md status dashboard for Phase 3 completion
-  - [ ] Set The Board row to COMPLETE
-  - [ ] Record any deviations from spec
+- [x] 4.5.8 — Update playbook.md status dashboard for Phase 3 completion
+  - [x] Set The Board row to COMPLETE
+  - [x] Record any deviations from spec
 
 ---
 
@@ -1514,507 +1514,507 @@
 
 #### 5.1.1 Step: Core Module — `attestation.ts`
 
-- [ ] 5.1.1.1 — Create `src/engine/trust/attestation.ts`
-  - [ ] Create file in existing `src/engine/trust/` directory
-  - [ ] Import dependencies: `deriveEvents`, `repository`, svelte stores
-  - [ ] [CR] Follow existing trust module conventions (see delegation.ts, chain.ts)
+- [x] 5.1.1.1 — Create `src/engine/trust/attestation.ts`
+  - [x] Create file in existing `src/engine/trust/` directory
+  - [x] Import dependencies: `deriveEvents`, `repository`, svelte stores
+  - [x] [CR] Follow existing trust module conventions (see delegation.ts, chain.ts)
 
-- [ ] 5.1.1.2 — Define `Attestation` type: `{attester, target, method, confidence, scope, validUntil, context, createdAt, expired}`
-  - [ ] Export type
-  - [ ] `attester: string` (pubkey of the attestor)
-  - [ ] `target: string` (pubkey of the attested person)
-  - [ ] `expired: boolean` (computed from validUntil vs now)
-  - [ ] [CR] Type mirrors event structure but with parsed/typed fields
+- [x] 5.1.1.2 — Define `Attestation` type: `{attester, target, method, confidence, scope, validUntil, context, createdAt, expired}`
+  - [x] Export type
+  - [x] `attester: string` (pubkey of the attestor)
+  - [x] `target: string` (pubkey of the attested person)
+  - [x] `expired: boolean` (computed from validUntil vs now)
+  - [x] [CR] Type mirrors event structure but with parsed/typed fields
 
-- [ ] 5.1.1.3 — Define `AttestationMethod` type: "in-person" | "video-call" | "shared-secret" | "key-signing" | "vouched" | "organizational" | "device-verification" | "self-declared"
-  - [ ] Export type
-  - [ ] [CR] 8 methods — extensible but finite for Phase 4
+- [x] 5.1.1.3 — Define `AttestationMethod` type: "in-person" | "video-call" | "shared-secret" | "key-signing" | "vouched" | "organizational" | "device-verification" | "self-declared"
+  - [x] Export type
+  - [x] [CR] 8 methods — extensible but finite for Phase 4
 
-- [ ] 5.1.1.4 — Define `Confidence` type: "high" | "medium" | "low"
-  - [ ] Export type
-  - [ ] [CR] Ordinal: high > medium > low (used by getAttestationSummary)
+- [x] 5.1.1.4 — Define `Confidence` type: "high" | "medium" | "low"
+  - [x] Export type
+  - [x] [CR] Ordinal: high > medium > low (used by getAttestationSummary)
 
-- [ ] 5.1.1.5 — Define `Scope` type: "operational" | "personal" | "financial"
-  - [ ] Export type
+- [x] 5.1.1.5 — Define `Scope` type: "operational" | "personal" | "financial"
+  - [x] Export type
 
-- [ ] 5.1.1.6 — Define `METHOD_LABELS` constant for human-readable method names
-  - [ ] Map each AttestationMethod to a display string
-  - [ ] Example: "in-person" → "In Person", "key-signing" → "Key Signing Event"
-  - [ ] [CR] Used by AttestForm select dropdown and AttestationPanel display
+- [x] 5.1.1.6 — Define `METHOD_LABELS` constant for human-readable method names
+  - [x] Map each AttestationMethod to a display string
+  - [x] Example: "in-person" → "In Person", "key-signing" → "Key Signing Event"
+  - [x] [CR] Used by AttestForm select dropdown and AttestationPanel display
 
-- [ ] 5.1.1.7 — Implement `isAttestationEvent(event)`: check kind 30078 + d-tag prefix "attestation:"
-  - [ ] Check `event.kind === 30078`
-  - [ ] Find d-tag and check it starts with "attestation:"
-  - [ ] Return boolean
-  - [ ] [EH] Handle events with no tags → false
-  - [ ] [EH] Handle events with no d-tag → false
-  - [ ] [CR] Fast check — used as filter across all kind-30078 events
+- [x] 5.1.1.7 — Implement `isAttestationEvent(event)`: check kind 30078 + d-tag prefix "attestation:"
+  - [x] Check `event.kind === 30078`
+  - [x] Find d-tag and check it starts with "attestation:"
+  - [x] Return boolean
+  - [x] [EH] Handle events with no tags → false
+  - [x] [EH] Handle events with no d-tag → false
+  - [x] [CR] Fast check — used as filter across all kind-30078 events
 
-- [ ] 5.1.1.8 — Implement `parseAttestation(event): Attestation | null`
-  - [ ] Extract d-tag → get target pubkey from "attestation:<pubkey>"
-  - [ ] Extract p-tag → verify matches d-tag target
-  - [ ] Extract method, confidence, scope, valid-until, context tags
-  - [ ] Compute expired flag from valid-until vs current time
-  - [ ] [EH] Return null for events that pass `isAttestationEvent` but have invalid structure
-  - [ ] [EH] Handle missing/malformed d-tag → return null
-  - [ ] [EH] Handle d-tag/p-tag mismatch → return null (suspicious event)
-  - [ ] [EH] Handle missing optional tags gracefully (valid-until, context)
-  - [ ] [CR] Never throw: always return Attestation or null
+- [x] 5.1.1.8 — Implement `parseAttestation(event): Attestation | null`
+  - [x] Extract d-tag → get target pubkey from "attestation:<pubkey>"
+  - [x] Extract p-tag → verify matches d-tag target
+  - [x] Extract method, confidence, scope, valid-until, context tags
+  - [x] Compute expired flag from valid-until vs current time
+  - [x] [EH] Return null for events that pass `isAttestationEvent` but have invalid structure
+  - [x] [EH] Handle missing/malformed d-tag → return null
+  - [x] [EH] Handle d-tag/p-tag mismatch → return null (suspicious event)
+  - [x] [EH] Handle missing optional tags gracefully (valid-until, context)
+  - [x] [CR] Never throw: always return Attestation or null
 
-- [ ] 5.1.1.9 — Handle optional tags: valid-until, context; defaults for missing method/confidence
-  - [ ] Default method: "self-declared" when tag missing
-  - [ ] Default confidence: "low" when tag missing
-  - [ ] Default scope: "operational" when tag missing
-  - [ ] Default context: "" (empty string) when tag missing
-  - [ ] [CR] Defaults are conservative (low confidence, self-declared)
+- [x] 5.1.1.9 — Handle optional tags: valid-until, context; defaults for missing method/confidence
+  - [x] Default method: "self-declared" when tag missing
+  - [x] Default confidence: "low" when tag missing
+  - [x] Default scope: "operational" when tag missing
+  - [x] Default context: "" (empty string) when tag missing
+  - [x] [CR] Defaults are conservative (low confidence, self-declared)
 
-- [ ] 5.1.1.10 — Implement expiry check: mark `expired` if `valid-until < now`
-  - [ ] Compare valid-until (epoch seconds) to `Math.floor(Date.now() / 1000)`
-  - [ ] If no valid-until tag → never expires (`expired = false`)
-  - [ ] [EH] Handle valid-until of 0 or NaN → treat as expired
-  - [ ] [CR] Expiry is checked at parse time and should be re-evaluated for long-running sessions
+- [x] 5.1.1.10 — Implement expiry check: mark `expired` if `valid-until < now`
+  - [x] Compare valid-until (epoch seconds) to `Math.floor(Date.now() / 1000)`
+  - [x] If no valid-until tag → never expires (`expired = false`)
+  - [x] [EH] Handle valid-until of 0 or NaN → treat as expired
+  - [x] [CR] Expiry is checked at parse time and should be re-evaluated for long-running sessions
 
-- [ ] 5.1.1.11 — Create `attestationsByTarget` derived store from `deriveEvents({kinds: [30078]})`
-  - [ ] Filter events through `isAttestationEvent` then `parseAttestation`
-  - [ ] Group by target pubkey into Map<string, Attestation[]>
-  - [ ] [EH] Handle events that parse to null → skip silently
-  - [ ] [CR] Recomputes when repository receives new kind-30078 events
-  - [ ] [CR] Consistent with how delegation system derives from same event pool
+- [x] 5.1.1.11 — Create `attestationsByTarget` derived store from `deriveEvents({kinds: [30078]})`
+  - [x] Filter events through `isAttestationEvent` then `parseAttestation`
+  - [x] Group by target pubkey into Map<string, Attestation[]>
+  - [x] [EH] Handle events that parse to null → skip silently
+  - [x] [CR] Recomputes when repository receives new kind-30078 events
+  - [x] [CR] Consistent with how delegation system derives from same event pool
 
-- [ ] 5.1.1.12 — Build `Map<pubkey, Attestation[]>` grouping by target pubkey
-  - [ ] Iterate parsed attestations, group by `target` field
-  - [ ] Sort each array by `createdAt` descending (most recent first)
-  - [ ] [CR] O(n) iteration over attestation events — acceptable for typical group sizes
+- [x] 5.1.1.12 — Build `Map<pubkey, Attestation[]>` grouping by target pubkey
+  - [x] Iterate parsed attestations, group by `target` field
+  - [x] Sort each array by `createdAt` descending (most recent first)
+  - [x] [CR] O(n) iteration over attestation events — acceptable for typical group sizes
 
-- [ ] 5.1.1.13 — Implement `getAttestationSummary(map, pubkey)`: `{isAttested, count, highestConfidence, methods}`
-  - [ ] Look up pubkey in map
-  - [ ] Filter to non-expired attestations for `isAttested` and counts
-  - [ ] Find highest confidence among active attestations
-  - [ ] Collect unique methods used
-  - [ ] [EH] Return `{isAttested: false, count: 0, highestConfidence: null, methods: []}` for unknown pubkey
-  - [ ] [EH] Handle empty attestation array → not attested
-  - [ ] [CR] Pure function (takes map + pubkey, returns summary)
+- [x] 5.1.1.13 — Implement `getAttestationSummary(map, pubkey)`: `{isAttested, count, highestConfidence, methods}`
+  - [x] Look up pubkey in map
+  - [x] Filter to non-expired attestations for `isAttested` and counts
+  - [x] Find highest confidence among active attestations
+  - [x] Collect unique methods used
+  - [x] [EH] Return `{isAttested: false, count: 0, highestConfidence: null, methods: []}` for unknown pubkey
+  - [x] [EH] Handle empty attestation array → not attested
+  - [x] [CR] Pure function (takes map + pubkey, returns summary)
 
-- [ ] 5.1.1.14 — Implement `buildAttestationTemplate(params)`: create unsigned kind 30078 event
-  - [ ] Accept `{target, method, confidence, scope, validUntil?, context?}`
-  - [ ] Build event template with kind=30078
-  - [ ] [CR] Returns unsigned template — signAndPublish handles signing
-  - [ ] [EH] Validate target is a valid pubkey format (64-char hex)
-  - [ ] [EH] Validate method is one of defined AttestationMethods
+- [x] 5.1.1.14 — Implement `buildAttestationTemplate(params)`: create unsigned kind 30078 event
+  - [x] Accept `{target, method, confidence, scope, validUntil?, context?}`
+  - [x] Build event template with kind=30078
+  - [x] [CR] Returns unsigned template — signAndPublish handles signing
+  - [x] [EH] Validate target is a valid pubkey format (64-char hex)
+  - [x] [EH] Validate method is one of defined AttestationMethods
 
-- [ ] 5.1.1.15 — Set d-tag: `"attestation:<targetPubkey>"` for addressable replacement
-  - [ ] Tag: `["d", "attestation:" + target]`
-  - [ ] [CR] Addressable event — republishing replaces previous attestation for same target
-  - [ ] [CR] Namespace prefix "attestation:" won't collide with "delegation:" or app-data d-tags
+- [x] 5.1.1.15 — Set d-tag: `"attestation:<targetPubkey>"` for addressable replacement
+  - [x] Tag: `["d", "attestation:" + target]`
+  - [x] [CR] Addressable event — republishing replaces previous attestation for same target
+  - [x] [CR] Namespace prefix "attestation:" won't collide with "delegation:" or app-data d-tags
 
-- [ ] 5.1.1.16 — Set p-tag matching target pubkey
-  - [ ] Tag: `["p", target]`
-  - [ ] [CR] Enables relay filtering with `#p` filter — essential for efficient fetching
+- [x] 5.1.1.16 — Set p-tag matching target pubkey
+  - [x] Tag: `["p", target]`
+  - [x] [CR] Enables relay filtering with `#p` filter — essential for efficient fetching
 
-- [ ] 5.1.1.17 — Set method, confidence, scope, valid-until, context tags
-  - [ ] `["method", method]`
-  - [ ] `["confidence", confidence]`
-  - [ ] `["scope", scope]`
-  - [ ] `["valid-until", String(validUntil)]` (only if provided)
-  - [ ] `["context", context]` (only if non-empty)
-  - [ ] [CR] Omit optional tags when not set (smaller event)
+- [x] 5.1.1.17 — Set method, confidence, scope, valid-until, context tags
+  - [x] `["method", method]`
+  - [x] `["confidence", confidence]`
+  - [x] `["scope", scope]`
+  - [x] `["valid-until", String(validUntil)]` (only if provided)
+  - [x] `["context", context]` (only if non-empty)
+  - [x] [CR] Omit optional tags when not set (smaller event)
 
-- [ ] 5.1.1.18 — Truncate context to 280 chars
-  - [ ] `context = context.slice(0, 280)`
-  - [ ] [EH] Handle null/undefined context → empty string
-  - [ ] [CR] Prevent arbitrarily large context strings in events
+- [x] 5.1.1.18 — Truncate context to 280 chars
+  - [x] `context = context.slice(0, 280)`
+  - [x] [EH] Handle null/undefined context → empty string
+  - [x] [CR] Prevent arbitrarily large context strings in events
 
 ### 5.2 Phase: Attestation UI Components
 
 #### 5.2.1 Step: New Component — `AttestationBadge.svelte`
 
-- [ ] 5.2.1.1 — Create `src/partials/AttestationBadge.svelte`
-  - [ ] Create Svelte component with TypeScript script block
+- [x] 5.2.1.1 — Create `src/partials/AttestationBadge.svelte`
+  - [x] Create Svelte component with TypeScript script block
 
-- [ ] 5.2.1.2 — Accept `pubkey` prop
-  - [ ] Export let pubkey: string
-  - [ ] [EH] Guard: if pubkey is undefined/empty, render nothing
+- [x] 5.2.1.2 — Accept `pubkey` prop
+  - [x] Export let pubkey: string
+  - [x] [EH] Guard: if pubkey is undefined/empty, render nothing
 
-- [ ] 5.2.1.3 — Subscribe to `attestationsByTarget` store
-  - [ ] Derive attestation summary reactively
-  - [ ] [CR] Subscription auto-cleaned on destroy
+- [x] 5.2.1.3 — Subscribe to `attestationsByTarget` store
+  - [x] Derive attestation summary reactively
+  - [x] [CR] Subscription auto-cleaned on destroy
 
-- [ ] 5.2.1.4 — Show ✦ icon (text-accent color) when attested
-  - [ ] Render `✦` character with `class="text-accent"`
-  - [ ] [EU] Icon should be visually distinct but not dominating (small size, subtle)
-  - [ ] [EU] Screen reader: `aria-label="Attested"`
+- [x] 5.2.1.4 — Show ✦ icon (text-accent color) when attested
+  - [x] Render `✦` character with `class="text-accent"`
+  - [x] [EU] Icon should be visually distinct but not dominating (small size, subtle)
+  - [x] [EU] Screen reader: `aria-label="Attested"`
 
-- [ ] 5.2.1.5 — Show nothing when not attested
-  - [ ] Use `{#if isAttested}` guard
-  - [ ] [CR] No empty wrapper elements when not attested (zero DOM footprint)
+- [x] 5.2.1.5 — Show nothing when not attested
+  - [x] Use `{#if isAttested}` guard
+  - [x] [CR] No empty wrapper elements when not attested (zero DOM footprint)
 
-- [ ] 5.2.1.6 — Add tooltip: "Attested (N attestations)"
-  - [ ] Show count and highest confidence
-  - [ ] [EU] Tooltip accessible on hover and keyboard focus
+- [x] 5.2.1.6 — Add tooltip: "Attested (N attestations)"
+  - [x] Show count and highest confidence
+  - [x] [EU] Tooltip accessible on hover and keyboard focus
 
 #### 5.2.2 Step: New Component — `AttestationPanel.svelte`
 
-- [ ] 5.2.2.1 — Create `src/partials/AttestationPanel.svelte`
-  - [ ] Create Svelte component
+- [x] 5.2.2.1 — Create `src/partials/AttestationPanel.svelte`
+  - [x] Create Svelte component
 
-- [ ] 5.2.2.2 — Accept `pubkey` prop
-  - [ ] [EH] Guard: undefined pubkey → render "No attestation data"
+- [x] 5.2.2.2 — Accept `pubkey` prop
+  - [x] [EH] Guard: undefined pubkey → render "No attestation data"
 
-- [ ] 5.2.2.3 — List all attestations for pubkey: attester, method, confidence, scope, context, date
-  - [ ] Render each attestation as a card/row
-  - [ ] Show attester display name (or truncated pubkey fallback)
-  - [ ] Show method label from METHOD_LABELS
-  - [ ] Show confidence and scope badges
-  - [ ] Show context text (if any)
-  - [ ] Show relative date ("3 days ago")
-  - [ ] [EH] Handle attestation with missing fields → show available fields, skip missing
-  - [ ] [EU] Scrollable if many attestations (max-height with overflow-y)
+- [x] 5.2.2.3 — List all attestations for pubkey: attester, method, confidence, scope, context, date
+  - [x] Render each attestation as a card/row
+  - [x] Show attester display name (or truncated pubkey fallback)
+  - [x] Show method label from METHOD_LABELS
+  - [x] Show confidence and scope badges
+  - [x] Show context text (if any)
+  - [x] Show relative date ("3 days ago")
+  - [x] [EH] Handle attestation with missing fields → show available fields, skip missing
+  - [x] [EU] Scrollable if many attestations (max-height with overflow-y)
 
-- [ ] 5.2.2.4 — Show "No attestations yet" when empty
-  - [ ] [EU] Informative empty state, not just blank space
-  - [ ] [EU] Suggest: "Be the first to attest this person"
+- [x] 5.2.2.4 — Show "No attestations yet" when empty
+  - [x] [EU] Informative empty state, not just blank space
+  - [x] [EU] Suggest: "Be the first to attest this person"
 
-- [ ] 5.2.2.5 — Show expired badge for expired attestations
-  - [ ] Visual indicator: "Expired" tag in muted color
-  - [ ] [EU] Expired attestations shown but visually de-emphasized (lower opacity)
+- [x] 5.2.2.5 — Show expired badge for expired attestations
+  - [x] Visual indicator: "Expired" tag in muted color
+  - [x] [EU] Expired attestations shown but visually de-emphasized (lower opacity)
 
-- [ ] 5.2.2.6 — Sort by most recent first
-  - [ ] Sort by `createdAt` descending
-  - [ ] [CR] Expired attestations sorted to bottom of their recency position
+- [x] 5.2.2.6 — Sort by most recent first
+  - [x] Sort by `createdAt` descending
+  - [x] [CR] Expired attestations sorted to bottom of their recency position
 
 #### 5.2.3 Step: New Component — `AttestForm.svelte`
 
-- [ ] 5.2.3.1 — Create `src/partials/AttestForm.svelte`
-  - [ ] Create Svelte component with form handling
+- [x] 5.2.3.1 — Create `src/partials/AttestForm.svelte`
+  - [x] Create Svelte component with form handling
 
-- [ ] 5.2.3.2 — Accept `targetPubkey` and optional `existingAttestation` props
-  - [ ] Pre-fill form when existingAttestation provided (update mode)
-  - [ ] [EH] Validate targetPubkey is non-empty before enabling submit
+- [x] 5.2.3.2 — Accept `targetPubkey` and optional `existingAttestation` props
+  - [x] Pre-fill form when existingAttestation provided (update mode)
+  - [x] [EH] Validate targetPubkey is non-empty before enabling submit
 
-- [ ] 5.2.3.3 — Render form: method select, confidence buttons, scope buttons, context input, optional expiry
-  - [ ] Method: `<select>` dropdown with METHOD_LABELS entries
-  - [ ] Confidence: 3-button toggle (high/medium/low)
-  - [ ] Scope: 3-button toggle (operational/personal/financial)
-  - [ ] Context: text input with maxlength=280 and placeholder
-  - [ ] Expiry: checkbox toggle + number input for days (1-365)
-  - [ ] [EU] Form layout should be compact (fits within WotPopover tooltip)
-  - [ ] [EU] Active selection state visually distinct (accent color)
-  - [ ] [CR] Default values: method=in-person, confidence=high, scope=operational
+- [x] 5.2.3.3 — Render form: method select, confidence buttons, scope buttons, context input, optional expiry
+  - [x] Method: `<select>` dropdown with METHOD_LABELS entries
+  - [x] Confidence: 3-button toggle (high/medium/low)
+  - [x] Scope: 3-button toggle (operational/personal/financial)
+  - [x] Context: text input with maxlength=280 and placeholder
+  - [x] Expiry: checkbox toggle + number input for days (1-365)
+  - [x] [EU] Form layout should be compact (fits within WotPopover tooltip)
+  - [x] [EU] Active selection state visually distinct (accent color)
+  - [x] [CR] Default values: method=in-person, confidence=high, scope=operational
 
-- [ ] 5.2.3.4 — Submit via `buildAttestationTemplate()` → `signAndPublish()`
-  - [ ] Build template from form values
-  - [ ] Call signAndPublish (which handles sovereign mode automatically)
-  - [ ] [EH] If signAndPublish throws → show error toast "Attestation failed"
-  - [ ] [EH] If buildAttestationTemplate throws → show validation error inline
-  - [ ] [ER] Success: dispatch `attested` event, no explicit toast (parent handles)
-  - [ ] [ER] Failure: toast with specific error message
+- [x] 5.2.3.4 — Submit via `buildAttestationTemplate()` → `signAndPublish()`
+  - [x] Build template from form values
+  - [x] Call signAndPublish (which handles sovereign mode automatically)
+  - [x] [EH] If signAndPublish throws → show error toast "Attestation failed"
+  - [x] [EH] If buildAttestationTemplate throws → show validation error inline
+  - [x] [ER] Success: dispatch `attested` event, no explicit toast (parent handles)
+  - [x] [ER] Failure: toast with specific error message
 
-- [ ] 5.2.3.5 — Dispatch `attested` event on success
-  - [ ] Use Svelte `createEventDispatcher`
-  - [ ] Parent component closes form on `attested` event
-  - [ ] [CR] Event is fire-and-forget (no data payload needed)
+- [x] 5.2.3.5 — Dispatch `attested` event on success
+  - [x] Use Svelte `createEventDispatcher`
+  - [x] Parent component closes form on `attested` event
+  - [x] [CR] Event is fire-and-forget (no data payload needed)
 
-- [ ] 5.2.3.6 — Disable submit while in-flight (`submitting` state)
-  - [ ] Set `submitting = true` before signAndPublish, false in `finally`
-  - [ ] Disable button and show "Attesting..." text
-  - [ ] [EU] Prevent double-submission on slow networks
-  - [ ] [EH] If component unmounts during submission → no-op (no state update on destroyed component)
+- [x] 5.2.3.6 — Disable submit while in-flight (`submitting` state)
+  - [x] Set `submitting = true` before signAndPublish, false in `finally`
+  - [x] Disable button and show "Attesting..." text
+  - [x] [EU] Prevent double-submission on slow networks
+  - [x] [EH] If component unmounts during submission → no-op (no state update on destroyed component)
 
 ### 5.3 Phase: Integration — Modified Files
 
 #### 5.3.1 Step: Extend WotPopover
 
-- [ ] 5.3.1.1 — Modify `src/app/shared/WotPopover.svelte`
-  - [ ] Locate existing WotPopover component structure
-  - [ ] [CR] Minimal changes — extend, don't rewrite
+- [x] 5.3.1.1 — Modify `src/app/shared/WotPopover.svelte`
+  - [x] Locate existing WotPopover component structure
+  - [x] [CR] Minimal changes — extend, don't rewrite
 
-- [ ] 5.3.1.2 — Import AttestationBadge, AttestationPanel, AttestForm
-  - [ ] Add import statements
-  - [ ] Import attestationsByTarget and getAttestationSummary from attestation module
-  - [ ] [CR] Verify no circular dependencies
+- [x] 5.3.1.2 — Import AttestationBadge, AttestationPanel, AttestForm
+  - [x] Add import statements
+  - [x] Import attestationsByTarget and getAttestationSummary from attestation module
+  - [x] [CR] Verify no circular dependencies
 
-- [ ] 5.3.1.3 — Add ✦ badge in trigger slot alongside WoT score ring
-  - [ ] Position AttestationBadge adjacent to existing WotScore SVG ring
-  - [ ] [EU] Badge should not obscure or overlap the WoT score ring
-  - [ ] [CR] Badge only renders when attestation exists (zero DOM footprint otherwise)
+- [x] 5.3.1.3 — Add ✦ badge in trigger slot alongside WoT score ring
+  - [x] Position AttestationBadge adjacent to existing WotScore SVG ring
+  - [x] [EU] Badge should not obscure or overlap the WoT score ring
+  - [x] [CR] Badge only renders when attestation exists (zero DOM footprint otherwise)
 
-- [ ] 5.3.1.4 — Add attestation section in tooltip: panel + form toggle
-  - [ ] Add new `<div>` section below existing WoT score content
-  - [ ] Separate with border-top
-  - [ ] Include AttestationPanel
-  - [ ] [EU] Section heading: "Attestations" in muted text
+- [x] 5.3.1.4 — Add attestation section in tooltip: panel + form toggle
+  - [x] Add new `<div>` section below existing WoT score content
+  - [x] Separate with border-top
+  - [x] Include AttestationPanel
+  - [x] [EU] Section heading: "Attestations" in muted text
 
-- [ ] 5.3.1.5 — Show "Attest this person" / "Update attestation" button (not for own pubkey)
-  - [ ] Conditional: `{#if pubkey !== $session?.pubkey}`
-  - [ ] Dynamic text: "Update attestation" when already attested
-  - [ ] Toggle `showAttestForm` on click
-  - [ ] [EH] Handle $session being null (not logged in) → hide button
-  - [ ] [EU] Button styled as text link (not primary button — it's secondary action)
+- [x] 5.3.1.5 — Show "Attest this person" / "Update attestation" button (not for own pubkey)
+  - [x] Conditional: `{#if pubkey !== $session?.pubkey}`
+  - [x] Dynamic text: "Update attestation" when already attested
+  - [x] Toggle `showAttestForm` on click
+  - [x] [EH] Handle $session being null (not logged in) → hide button
+  - [x] [EU] Button styled as text link (not primary button — it's secondary action)
 
-- [ ] 5.3.1.6 — Wire form submission → close form on success
-  - [ ] Listen for `attested` event from AttestForm
-  - [ ] Set `showAttestForm = false` on event
-  - [ ] [EU] Attestation panel updates reactively (new attestation appears without refresh)
+- [x] 5.3.1.6 — Wire form submission → close form on success
+  - [x] Listen for `attested` event from AttestForm
+  - [x] Set `showAttestForm = false` on event
+  - [x] [EU] Attestation panel updates reactively (new attestation appears without refresh)
 
 #### 5.3.2 Step: Extend Map Markers
 
 ##### 5.3.2.1 Task: Modify `marker-derivation.ts`
 
-- [ ] 5.3.2.1.1 — Add `attested: boolean` field to `ChannelMarker` interface
-  - [ ] Add to existing interface definition
-  - [ ] [CR] Type is boolean, not the full attestation — keep marker lightweight
+- [x] 5.3.2.1.1 — Add `attested: boolean` field to `ChannelMarker` interface
+  - [x] Add to existing interface definition
+  - [x] [CR] Type is boolean, not the full attestation — keep marker lightweight
 
-- [ ] 5.3.2.1.2 — Add optional `attestationMap` parameter to `deriveMarkers()`
-  - [ ] Parameter: `attestationMap?: Map<string, Attestation[]>`
-  - [ ] [CR] Optional parameter preserves backward compatibility
-  - [ ] [CR] Existing callers without the parameter continue to work unchanged
+- [x] 5.3.2.1.2 — Add optional `attestationMap` parameter to `deriveMarkers()`
+  - [x] Parameter: `attestationMap?: Map<string, Attestation[]>`
+  - [x] [CR] Optional parameter preserves backward compatibility
+  - [x] [CR] Existing callers without the parameter continue to work unchanged
 
-- [ ] 5.3.2.1.3 — Set `attested` to true when target has active attestation, false otherwise
-  - [ ] Check attestationMap for event author pubkey
-  - [ ] Filter to non-expired attestations
-  - [ ] `attested = activeAttestations.length > 0`
-  - [ ] [EH] Handle attestationMap being undefined → all markers `attested: false`
+- [x] 5.3.2.1.3 — Set `attested` to true when target has active attestation, false otherwise
+  - [x] Check attestationMap for event author pubkey
+  - [x] Filter to non-expired attestations
+  - [x] `attested = activeAttestations.length > 0`
+  - [x] [EH] Handle attestationMap being undefined → all markers `attested: false`
 
-- [ ] 5.3.2.1.4 — Default to `false` when `attestationMap` not provided (backward compatible)
-  - [ ] [CR] Conservative default — unattested is safe (more cautious)
+- [x] 5.3.2.1.4 — Default to `false` when `attestationMap` not provided (backward compatible)
+  - [x] [CR] Conservative default — unattested is safe (more cautious)
 
 ##### 5.3.2.2 Task: Modify `MapView.svelte`
 
-- [ ] 5.3.2.2.1 — Pass `attestationsByTarget` map to `deriveMarkers()`
-  - [ ] Import `attestationsByTarget` store
-  - [ ] Pass `$attestationsByTarget` as second argument
-  - [ ] [CR] Reactive — markers re-derive when attestation data changes
+- [x] 5.3.2.2.1 — Pass `attestationsByTarget` map to `deriveMarkers()`
+  - [x] Import `attestationsByTarget` store
+  - [x] Pass `$attestationsByTarget` as second argument
+  - [x] [CR] Reactive — markers re-derive when attestation data changes
 
-- [ ] 5.3.2.2.2 — Render attested markers: full opacity (1.0) + solid green border (2px)
-  - [ ] Set marker icon opacity to 1.0
-  - [ ] Set border: `2px solid rgba(34,197,94,0.8)` (green)
-  - [ ] [EU] Green border is the clearest trust signal at a glance
+- [x] 5.3.2.2.2 — Render attested markers: full opacity (1.0) + solid green border (2px)
+  - [x] Set marker icon opacity to 1.0
+  - [x] Set border: `2px solid rgba(34,197,94,0.8)` (green)
+  - [x] [EU] Green border is the clearest trust signal at a glance
 
-- [ ] 5.3.2.2.3 — Render unattested markers: half opacity (0.5) + dashed gray border (2px)
-  - [ ] Set marker icon opacity to 0.5
-  - [ ] Set border: `2px dashed rgba(156,163,175,0.6)` (gray)
-  - [ ] [EU] Reduced opacity is pre-attentive — visible at any zoom level
+- [x] 5.3.2.2.3 — Render unattested markers: half opacity (0.5) + dashed gray border (2px)
+  - [x] Set marker icon opacity to 0.5
+  - [x] Set border: `2px dashed rgba(156,163,175,0.6)` (gray)
+  - [x] [EU] Reduced opacity is pre-attentive — visible at any zoom level
 
-- [ ] 5.3.2.2.4 — Render expired markers: dim opacity (0.6) + dashed amber border
-  - [ ] Set marker icon opacity to 0.6
-  - [ ] Set border: `2px dashed rgba(245,158,11,0.7)` (amber)
-  - [ ] [EU] Amber signals "caution" — was attested but attestation expired
-  - [ ] [EH] Handle marker with mixed expired + active attestations → treat as attested (active wins)
+- [x] 5.3.2.2.4 — Render expired markers: dim opacity (0.6) + dashed amber border
+  - [x] Set marker icon opacity to 0.6
+  - [x] Set border: `2px dashed rgba(245,158,11,0.7)` (amber)
+  - [x] [EU] Amber signals "caution" — was attested but attestation expired
+  - [x] [EH] Handle marker with mixed expired + active attestations → treat as attested (active wins)
 
-- [ ] 5.3.2.2.5 — Extend marker popup: show attestation status ("✦ Attested" or "Not attested")
-  - [ ] Add attestation line to popup HTML template
-  - [ ] Show method and confidence when attested
-  - [ ] [EU] "Not attested" shown in muted style (not alarming)
-  - [ ] [EH] Handle popup for marker with no attestation data → show "Not attested"
+- [x] 5.3.2.2.5 — Extend marker popup: show attestation status ("✦ Attested" or "Not attested")
+  - [x] Add attestation line to popup HTML template
+  - [x] Show method and confidence when attested
+  - [x] [EU] "Not attested" shown in muted style (not alarming)
+  - [x] [EH] Handle popup for marker with no attestation data → show "Not attested"
 
 #### 5.3.3 Step: Extend Relay Subscriptions
 
-- [ ] 5.3.3.1 — Modify `src/engine/requests.ts`
-  - [ ] Locate group event subscription setup
-  - [ ] [CR] Minimal change — one additional filter clause
+- [x] 5.3.3.1 — Modify `src/engine/requests.ts`
+  - [x] Locate group event subscription setup
+  - [x] [CR] Minimal change — one additional filter clause
 
-- [ ] 5.3.3.2 — Add filter `{kinds: [30078], "#p": memberPubkeys}` alongside existing group event requests
-  - [ ] Append filter to existing relay request set
-  - [ ] [EH] Handle empty memberPubkeys array → skip filter (don't send empty #p query)
-  - [ ] [CR] Uses existing relay subscription infrastructure
-  - [ ] [CR] Filter scoped by #p ensures we only get attestations for known members
+- [x] 5.3.3.2 — Add filter `{kinds: [30078], "#p": memberPubkeys}` alongside existing group event requests
+  - [x] Append filter to existing relay request set
+  - [x] [EH] Handle empty memberPubkeys array → skip filter (don't send empty #p query)
+  - [x] [CR] Uses existing relay subscription infrastructure
+  - [x] [CR] Filter scoped by #p ensures we only get attestations for known members
 
-- [ ] 5.3.3.3 — Scope to known group member pubkeys only
-  - [ ] Extract pubkeys from group projections
-  - [ ] [CR] Don't fetch attestations for every pubkey on every relay — too expensive
-  - [ ] [CR] New members joining → subscription re-evaluates with updated pubkey list
-  - [ ] [EH] If no group members loaded yet → skip attestation subscription (will fire when members arrive)
+- [x] 5.3.3.3 — Scope to known group member pubkeys only
+  - [x] Extract pubkeys from group projections
+  - [x] [CR] Don't fetch attestations for every pubkey on every relay — too expensive
+  - [x] [CR] New members joining → subscription re-evaluates with updated pubkey list
+  - [x] [EH] If no group members loaded yet → skip attestation subscription (will fire when members arrive)
 
 #### 5.3.4 Step: Board Integration — Trust Overview Tile
 
-- [ ] 5.3.4.1 — Create `src/app/board/tiles/TrustOverviewTile.svelte`
-  - [ ] Create Svelte component
-  - [ ] Import attestation stores and group data
+- [x] 5.3.4.1 — Create `src/app/board/tiles/TrustOverviewTile.svelte`
+  - [x] Create Svelte component
+  - [x] Import attestation stores and group data
 
-- [ ] 5.3.4.2 — Compute attestation coverage: attested count vs unattested count across all groups
-  - [ ] Iterate all unique members across all groups
-  - [ ] Count attested vs unattested
-  - [ ] Display as "N attested / M total"
-  - [ ] [EH] Handle no members → show "No members to evaluate"
-  - [ ] [EU] Show as percentage bar or fraction for quick visual assessment
+- [x] 5.3.4.2 — Compute attestation coverage: attested count vs unattested count across all groups
+  - [x] Iterate all unique members across all groups
+  - [x] Count attested vs unattested
+  - [x] Display as "N attested / M total"
+  - [x] [EH] Handle no members → show "No members to evaluate"
+  - [x] [EU] Show as percentage bar or fraction for quick visual assessment
 
-- [ ] 5.3.4.3 — Show 5 most recent attestations
-  - [ ] Aggregate all active attestations, sort by createdAt descending, take 5
-  - [ ] Display: method, target (truncated pubkey or name), relative time
-  - [ ] [EH] Handle no attestations → show "No attestations recorded"
-  - [ ] [EU] Compact format (one line per attestation)
+- [x] 5.3.4.3 — Show 5 most recent attestations
+  - [x] Aggregate all active attestations, sort by createdAt descending, take 5
+  - [x] Display: method, target (truncated pubkey or name), relative time
+  - [x] [EH] Handle no attestations → show "No attestations recorded"
+  - [x] [EU] Compact format (one line per attestation)
 
-- [ ] 5.3.4.4 — Add `"trust-overview"` entry to `TILE_REGISTRY` in `board-state.ts`
-  - [ ] `{name: "Trust Overview", icon: "✦", description: "..."}`
-  - [ ] [CR] Extends existing registry — no changes to Board infrastructure
+- [x] 5.3.4.4 — Add `"trust-overview"` entry to `TILE_REGISTRY` in `board-state.ts`
+  - [x] `{name: "Trust Overview", icon: "✦", description: "..."}`
+  - [x] [CR] Extends existing registry — no changes to Board infrastructure
 
-- [ ] 5.3.4.5 — Add `"trust-overview"` to `TileType` union
-  - [ ] Extend the union type in board-state.ts
-  - [ ] [CR] BoardView dynamic dispatch handles new type via tile component lookup
+- [x] 5.3.4.5 — Add `"trust-overview"` to `TileType` union
+  - [x] Extend the union type in board-state.ts
+  - [x] [CR] BoardView dynamic dispatch handles new type via tile component lookup
 
 ### 5.4 Phase: Testing — Trust Attestation
 
 #### 5.4.1 Step: Unit Tests
 
-- [ ] 5.4.1.1 — Create `tests/unit/engine/trust/attestation.spec.ts`
-  - [ ] Set up test fixtures: mock kind-30078 events with various d-tag patterns
-  - [ ] [CR] Tests for pure functions only — no store mocking needed for parser/builder
+- [x] 5.4.1.1 — Create `tests/unit/engine/trust/attestation.spec.ts`
+  - [x] Set up test fixtures: mock kind-30078 events with various d-tag patterns
+  - [x] [CR] Tests for pure functions only — no store mocking needed for parser/builder
 
-- [ ] 5.4.1.2 — Unit test: `isAttestationEvent()` true for attestation d-tag prefix
-  - [ ] Mock event with kind=30078 and d-tag "attestation:abc123"
-  - [ ] Assert returns true
+- [x] 5.4.1.2 — Unit test: `isAttestationEvent()` true for attestation d-tag prefix
+  - [x] Mock event with kind=30078 and d-tag "attestation:abc123"
+  - [x] Assert returns true
 
-- [ ] 5.4.1.3 — Unit test: `isAttestationEvent()` false for delegation d-tag prefix
-  - [ ] Mock event with kind=30078 and d-tag "delegation:abc123"
-  - [ ] Assert returns false
+- [x] 5.4.1.3 — Unit test: `isAttestationEvent()` false for delegation d-tag prefix
+  - [x] Mock event with kind=30078 and d-tag "delegation:abc123"
+  - [x] Assert returns false
 
-- [ ] 5.4.1.4 — Unit test: `isAttestationEvent()` false for non-30078 kinds
-  - [ ] Mock event with kind=1 and attestation d-tag
-  - [ ] Assert returns false
+- [x] 5.4.1.4 — Unit test: `isAttestationEvent()` false for non-30078 kinds
+  - [x] Mock event with kind=1 and attestation d-tag
+  - [x] Assert returns false
 
-- [ ] 5.4.1.5 — Unit test: `parseAttestation()` parses valid attestation
-  - [ ] Build complete attestation event with all tags
-  - [ ] Assert all Attestation fields correctly populated
-  - [ ] Assert expired=false for future valid-until
+- [x] 5.4.1.5 — Unit test: `parseAttestation()` parses valid attestation
+  - [x] Build complete attestation event with all tags
+  - [x] Assert all Attestation fields correctly populated
+  - [x] Assert expired=false for future valid-until
 
-- [ ] 5.4.1.6 — Unit test: `parseAttestation()` returns null for delegation events
-  - [ ] Pass delegation event to parser
-  - [ ] Assert null returned
+- [x] 5.4.1.6 — Unit test: `parseAttestation()` returns null for delegation events
+  - [x] Pass delegation event to parser
+  - [x] Assert null returned
 
-- [ ] 5.4.1.7 — Unit test: `parseAttestation()` returns null for mismatched d-tag and p-tag
-  - [ ] d-tag target ≠ p-tag pubkey
-  - [ ] Assert null returned
-  - [ ] [CR] Catches malformed or suspicious events
+- [x] 5.4.1.7 — Unit test: `parseAttestation()` returns null for mismatched d-tag and p-tag
+  - [x] d-tag target ≠ p-tag pubkey
+  - [x] Assert null returned
+  - [x] [CR] Catches malformed or suspicious events
 
-- [ ] 5.4.1.8 — Unit test: `parseAttestation()` marks expired attestations
-  - [ ] Set valid-until to past timestamp
-  - [ ] Assert expired=true
+- [x] 5.4.1.8 — Unit test: `parseAttestation()` marks expired attestations
+  - [x] Set valid-until to past timestamp
+  - [x] Assert expired=true
 
-- [ ] 5.4.1.9 — Unit test: `parseAttestation()` handles missing optional tags
-  - [ ] Omit valid-until and context tags
-  - [ ] Assert attestation parsed with defaults (expired=false, context="")
+- [x] 5.4.1.9 — Unit test: `parseAttestation()` handles missing optional tags
+  - [x] Omit valid-until and context tags
+  - [x] Assert attestation parsed with defaults (expired=false, context="")
 
-- [ ] 5.4.1.10 — Unit test: `parseAttestation()` defaults confidence to "low" when missing
-  - [ ] Omit confidence tag
-  - [ ] Assert confidence === "low"
+- [x] 5.4.1.10 — Unit test: `parseAttestation()` defaults confidence to "low" when missing
+  - [x] Omit confidence tag
+  - [x] Assert confidence === "low"
 
-- [ ] 5.4.1.11 — Unit test: `parseAttestation()` defaults method to "self-declared" when missing
-  - [ ] Omit method tag
-  - [ ] Assert method === "self-declared"
+- [x] 5.4.1.11 — Unit test: `parseAttestation()` defaults method to "self-declared" when missing
+  - [x] Omit method tag
+  - [x] Assert method === "self-declared"
 
-- [ ] 5.4.1.12 — Unit test: `getAttestationSummary()` isAttested=true with active attestations
-  - [ ] Map with pubkey → [active attestation]
-  - [ ] Assert summary.isAttested === true
+- [x] 5.4.1.12 — Unit test: `getAttestationSummary()` isAttested=true with active attestations
+  - [x] Map with pubkey → [active attestation]
+  - [x] Assert summary.isAttested === true
 
-- [ ] 5.4.1.13 — Unit test: `getAttestationSummary()` isAttested=false with only expired
-  - [ ] Map with pubkey → [expired attestation only]
-  - [ ] Assert summary.isAttested === false
+- [x] 5.4.1.13 — Unit test: `getAttestationSummary()` isAttested=false with only expired
+  - [x] Map with pubkey → [expired attestation only]
+  - [x] Assert summary.isAttested === false
 
-- [ ] 5.4.1.14 — Unit test: `getAttestationSummary()` computes highestConfidence
-  - [ ] Map with pubkey → [low, high, medium]
-  - [ ] Assert highestConfidence === "high"
+- [x] 5.4.1.14 — Unit test: `getAttestationSummary()` computes highestConfidence
+  - [x] Map with pubkey → [low, high, medium]
+  - [x] Assert highestConfidence === "high"
 
-- [ ] 5.4.1.15 — Unit test: `getAttestationSummary()` collects unique methods
-  - [ ] Map with pubkey → [in-person, in-person, video-call]
-  - [ ] Assert methods === ["in-person", "video-call"] (deduplicated)
+- [x] 5.4.1.15 — Unit test: `getAttestationSummary()` collects unique methods
+  - [x] Map with pubkey → [in-person, in-person, video-call]
+  - [x] Assert methods === ["in-person", "video-call"] (deduplicated)
 
-- [ ] 5.4.1.16 — Unit test: `getAttestationSummary()` returns empty summary for unknown pubkey
-  - [ ] Query for pubkey not in map
-  - [ ] Assert {isAttested: false, count: 0, ...}
+- [x] 5.4.1.16 — Unit test: `getAttestationSummary()` returns empty summary for unknown pubkey
+  - [x] Query for pubkey not in map
+  - [x] Assert {isAttested: false, count: 0, ...}
 
-- [ ] 5.4.1.17 — Unit test: `buildAttestationTemplate()` builds correct kind 30078 event
-  - [ ] Call builder with all params
-  - [ ] Assert kind === 30078
-  - [ ] Assert d-tag starts with "attestation:"
-  - [ ] Assert all expected tags present
+- [x] 5.4.1.17 — Unit test: `buildAttestationTemplate()` builds correct kind 30078 event
+  - [x] Call builder with all params
+  - [x] Assert kind === 30078
+  - [x] Assert d-tag starts with "attestation:"
+  - [x] Assert all expected tags present
 
-- [ ] 5.4.1.18 — Unit test: `buildAttestationTemplate()` includes p-tag matching target
-  - [ ] Assert p-tag value === target pubkey
+- [x] 5.4.1.18 — Unit test: `buildAttestationTemplate()` includes p-tag matching target
+  - [x] Assert p-tag value === target pubkey
 
-- [ ] 5.4.1.19 — Unit test: `buildAttestationTemplate()` omits valid-until when not provided
-  - [ ] Call builder without validUntil
-  - [ ] Assert no valid-until tag in event
+- [x] 5.4.1.19 — Unit test: `buildAttestationTemplate()` omits valid-until when not provided
+  - [x] Call builder without validUntil
+  - [x] Assert no valid-until tag in event
 
-- [ ] 5.4.1.20 — Unit test: `buildAttestationTemplate()` truncates context to 280 chars
-  - [ ] Pass 500-char context string
-  - [ ] Assert context tag value is ≤ 280 chars
+- [x] 5.4.1.20 — Unit test: `buildAttestationTemplate()` truncates context to 280 chars
+  - [x] Pass 500-char context string
+  - [x] Assert context tag value is ≤ 280 chars
 
 #### 5.4.2 Step: E2E Tests
 
-- [ ] 5.4.2.1 — Create `cypress/e2e/beta/trust-attestation.cy.ts`
-  - [ ] Set up E2E fixtures with groups and members
-  - [ ] Seed some attestation events for known members
-  - [ ] [CR] Test isolation: clean attestation state between tests
+- [x] 5.4.2.1 — Create `cypress/e2e/beta/trust-attestation.cy.ts`
+  - [x] Set up E2E fixtures with groups and members
+  - [x] Seed some attestation events for known members
+  - [x] [CR] Test isolation: clean attestation state between tests
 
-- [ ] 5.4.2.2 — E2E test: WotPopover shows attestation section
-  - [ ] Hover over a member to show WotPopover
-  - [ ] Assert "Attestations" heading or section visible
-  - [ ] Assert "Attest this person" button visible
+- [x] 5.4.2.2 — E2E test: WotPopover shows attestation section
+  - [x] Hover over a member to show WotPopover
+  - [x] Assert "Attestations" heading or section visible
+  - [x] Assert "Attest this person" button visible
 
-- [ ] 5.4.2.3 — E2E test: creating an attestation via AttestForm
-  - [ ] Open WotPopover for a member
-  - [ ] Click "Attest this person"
-  - [ ] Fill form: method=in-person, confidence=high, scope=operational
-  - [ ] Submit
-  - [ ] Assert ✦ badge appears on the member
-  - [ ] [EH] Verify form error handling: submit with sovereign mode → queued, not failed
+- [x] 5.4.2.3 — E2E test: creating an attestation via AttestForm
+  - [x] Open WotPopover for a member
+  - [x] Click "Attest this person"
+  - [x] Fill form: method=in-person, confidence=high, scope=operational
+  - [x] Submit
+  - [x] Assert ✦ badge appears on the member
+  - [x] [EH] Verify form error handling: submit with sovereign mode → queued, not failed
 
-- [ ] 5.4.2.4 — E2E test: map markers differentiate attested vs unattested (opacity)
-  - [ ] Navigate to MAP mode
-  - [ ] Assert attested markers have full opacity
-  - [ ] Assert unattested markers have reduced opacity
-  - [ ] [CR] Verify both attested and unattested markers are visible (opacity > 0)
+- [x] 5.4.2.4 — E2E test: map markers differentiate attested vs unattested (opacity)
+  - [x] Navigate to MAP mode
+  - [x] Assert attested markers have full opacity
+  - [x] Assert unattested markers have reduced opacity
+  - [x] [CR] Verify both attested and unattested markers are visible (opacity > 0)
 
-- [ ] 5.4.2.5 — E2E test: attestation badge appears on attested members in lists
-  - [ ] Navigate to OPS mode (Board)
-  - [ ] Assert ✦ badge next to attested members
-  - [ ] Assert no badge next to unattested members
+- [x] 5.4.2.5 — E2E test: attestation badge appears on attested members in lists
+  - [x] Navigate to OPS mode (Board)
+  - [x] Assert ✦ badge next to attested members
+  - [x] Assert no badge next to unattested members
 
-- [ ] 5.4.2.6 — E2E test: "Attest this person" button not shown for own pubkey
-  - [ ] Open WotPopover for self
-  - [ ] Assert "Attest this person" button NOT visible
-  - [ ] [CR] Self-attestation is meaningless — UI prevents it
+- [x] 5.4.2.6 — E2E test: "Attest this person" button not shown for own pubkey
+  - [x] Open WotPopover for self
+  - [x] Assert "Attest this person" button NOT visible
+  - [x] [CR] Self-attestation is meaningless — UI prevents it
 
 ### 5.5 Phase: Phase 4 Validation
 
-- [ ] 5.5.1 — Validate all 19 acceptance criteria for Trust Attestation
-  - [ ] Map each criterion to at least one automated test
-  - [ ] [CR] All criteria covered by unit or E2E tests
+- [x] 5.5.1 — Validate all 19 acceptance criteria for Trust Attestation
+  - [x] Map each criterion to at least one automated test
+  - [x] [CR] All criteria covered by unit or E2E tests
 
-- [ ] 5.5.2 — Verify WoT score system unchanged (additive, not replacement)
-  - [ ] `getUserWotScore()` returns same values as before
-  - [ ] WotScore.svelte SVG ring renders identically
-  - [ ] [CR] Attestation is alongside WoT, not instead of WoT
+- [x] 5.5.2 — Verify WoT score system unchanged (additive, not replacement)
+  - [x] `getUserWotScore()` returns same values as before
+  - [x] WotScore.svelte SVG ring renders identically
+  - [x] [CR] Attestation is alongside WoT, not instead of WoT
 
-- [ ] 5.5.3 — Verify delegation system unchanged
-  - [ ] `parseDelegationCertificate()` still works
-  - [ ] `chain.ts` TrustLevel computation unchanged
-  - [ ] [CR] Attestation events don't collide with delegation d-tag namespace
+- [x] 5.5.3 — Verify delegation system unchanged
+  - [x] `parseDelegationCertificate()` still works
+  - [x] `chain.ts` TrustLevel computation unchanged
+  - [x] [CR] Attestation events don't collide with delegation d-tag namespace
 
-- [ ] 5.5.4 — Verify kind 30078 app data usage unchanged
-  - [ ] `setAppData()` still works for non-attestation d-tags
-  - [ ] [CR] d-tag "attestation:" prefix uniquely identifies attestation events
+- [x] 5.5.4 — Verify kind 30078 app data usage unchanged
+  - [x] `setAppData()` still works for non-attestation d-tags
+  - [x] [CR] d-tag "attestation:" prefix uniquely identifies attestation events
 
-- [ ] 5.5.5 — Run full beta test suite and confirm no regressions
-  - [ ] All prior phase specs pass
-  - [ ] All original 243+ specs pass
-  - [ ] New trust-attestation spec passes
-  - [ ] [ER] Any regression → isolate to Phase 4 changes
+- [x] 5.5.5 — Run full beta test suite and confirm no regressions
+  - [x] All prior phase specs pass
+  - [x] All original 243+ specs pass
+  - [x] New trust-attestation spec passes
+  - [x] [ER] Any regression → isolate to Phase 4 changes
 
-- [ ] 5.5.6 — Verify map marker trust overlay across tile sets (street/satellite/terrain)
-  - [ ] Test opacity rendering on street tiles
-  - [ ] Test opacity rendering on satellite tiles
-  - [ ] Test opacity rendering on terrain tiles
-  - [ ] [EU] Green border visible on all backgrounds
-  - [ ] [EU] Gray dashed border visible on all backgrounds
+- [x] 5.5.6 — Verify map marker trust overlay across tile sets (street/satellite/terrain)
+  - [x] Test opacity rendering on street tiles
+  - [x] Test opacity rendering on satellite tiles
+  - [x] Test opacity rendering on terrain tiles
+  - [x] [EU] Green border visible on all backgrounds
+  - [x] [EU] Gray dashed border visible on all backgrounds
 
-- [ ] 5.5.7 — Git commit Phase 4 work
-  - [ ] Stage all Phase 4 files (4+ new, 4 modified)
-  - [ ] Commit with descriptive message
+- [x] 5.5.7 — Git commit Phase 4 work
+  - [x] Stage all Phase 4 files (4+ new, 4 modified)
+  - [x] Commit with descriptive message
 
-- [ ] 5.5.8 — Update playbook.md status dashboard for Phase 4 completion
-  - [ ] Set Trust Attestation row to COMPLETE
-  - [ ] Record any design decisions made during implementation
+- [x] 5.5.8 — Update playbook.md status dashboard for Phase 4 completion
+  - [x] Set Trust Attestation row to COMPLETE
+  - [x] Record any design decisions made during implementation
 
 ---
 

@@ -20,9 +20,13 @@ import {relayHealthTracker} from "src/engine/relay/relay-health"
 import {showWarning, showActionToast} from "src/partials/Toast.svelte"
 import {onQueueQuarantine, onQueuePassphraseNeeded} from "src/engine/offline/queue-drain"
 import {pqcUnlockNeeded, pqcUnlockSkipped} from "src/engine/pqc/pq-key-store"
+import {startConnectionMonitor} from "src/engine/connection-state"
 
 // Detect stale service worker cache and reload if version mismatch
 checkSwVersionMismatch()
+
+// Start connection state monitoring (sovereign mode detection)
+startConnectionMonitor()
 
 // Notify when a relay is auto-demoted due to high failure rate
 relayHealthTracker.onDemotion(url => {

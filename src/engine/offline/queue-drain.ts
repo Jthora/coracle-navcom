@@ -1,5 +1,7 @@
-import {getPending, updateStatus, dequeue, getQuarantinedCount} from "./outbox"
+import {getPending, updateStatus, dequeue, getQuarantinedCount, getQueuedCount} from "./outbox"
 import {requestBackgroundSync} from "./sw-sync"
+import {publishThunk} from "@welshman/app"
+import {updateQueuedCount} from "src/engine/connection-state"
 
 const MAX_RELAY_RETRIES = 5
 const BASE_DELAY_MS = 2_000
@@ -39,7 +41,6 @@ function sleep(ms: number): Promise<void> {
 export async function drainQueue(): Promise<void> {
   if (draining) return
   if (typeof navigator !== "undefined" && !navigator.onLine) return
-  if (!sendMessageFn) return
 
   draining = true
 
@@ -52,8 +53,18 @@ export async function drainQueue(): Promise<void> {
       await updateStatus(msg.id, "sending")
 
       try {
-        await sendMessageFn(msg.channelId, msg.content, 0)
+        if (msg.signedEvent && msg.targetRelays) {
+          // Sovereign mode queued event — publish directly (already signed)
+          await publishThunk({event: msg.signedEvent as any, relays: msg.targetRelays})
+        } else if (sendMessageFn) {
+          await sendMessageFn(msg.channelId, msg.content, 0)
+        } else {
+          // No sendMessageFn registered yet — skip legacy message, try again later
+          await updateStatus(msg.id, "queued", msg.retryCount)
+          continue
+        }
         await dequeue(msg.id)
+        updateQueuedCount(await getQueuedCount())
       } catch (err) {
         const isNetworkError = typeof navigator !== "undefined" && !navigator.onLine
         const errMsg = err instanceof Error ? err.message : String(err)

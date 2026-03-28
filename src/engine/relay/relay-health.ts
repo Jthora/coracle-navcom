@@ -43,6 +43,17 @@ const VERIFIED_RELAYS = new Set([
 export class RelayHealthTracker {
   private entries = new Map<string, RelayHealthEntry>()
   private onDemotionCallback: ((url: string) => void) | null = null
+  private paused = false
+
+  /** Pause health tracking (e.g., during sovereign mode). */
+  pause(): void {
+    this.paused = true
+  }
+
+  /** Resume health tracking. */
+  resume(): void {
+    this.paused = false
+  }
 
   /** Register a callback that fires when a relay is auto-demoted. */
   onDemotion(callback: (url: string) => void): void {
@@ -77,6 +88,7 @@ export class RelayHealthTracker {
 
   /** Record a successful connection to a relay. */
   recordSuccess(url: string): void {
+    if (this.paused) return
     const entry = this.getEntry(url)
     entry.successes++
     entry.lastSuccess = Date.now()
@@ -88,6 +100,7 @@ export class RelayHealthTracker {
 
   /** Record a failed connection to a relay. */
   recordFailure(url: string): void {
+    if (this.paused) return
     const entry = this.getEntry(url)
     entry.failures++
     entry.lastFailure = Date.now()

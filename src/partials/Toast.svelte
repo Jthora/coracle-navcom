@@ -46,16 +46,6 @@
 
   export const showPublishInfo = (thunk: Thunk, opts = {}) =>
     showToast({thunk, type: "publish", ...opts})
-
-  window.addEventListener("online", () => {
-    if (get(toast)?.id === "offline") {
-      toast.set(null)
-    }
-  })
-
-  window.addEventListener("offline", () => {
-    showInfo("You are currently offline.", {id: "offline", timeout: null})
-  })
 </script>
 
 <script lang="ts">

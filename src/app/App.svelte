@@ -23,6 +23,7 @@
   import {ANNOUNCEMENTS_PATH} from "src/app/announcements"
   import {registerGroupRoutes} from "src/app/groups/routes"
   import Toast from "src/partials/Toast.svelte"
+  import SovereignBar from "src/partials/SovereignBar.svelte"
   import {showWarning, showActionToast} from "src/partials/Toast.svelte"
   import ChatEnable from "src/app/views/ChatEnable.svelte"
   import Menu from "src/app/Menu.svelte"
@@ -553,6 +554,7 @@
     <MainStatusBar />
     <BackupReminder />
     <ManagedExportPrompt />
+    <SovereignBar />
     <Toast />
   {/key}
 </div>

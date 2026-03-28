@@ -22,6 +22,10 @@
   import {ensureProto} from "src/util/misc"
   import {stripProtocol} from "@welshman/lib"
   import CopyValueSimple from "src/partials/CopyValueSimple.svelte"
+  import AttestationBadge from "src/partials/AttestationBadge.svelte"
+  import AttestationPanel from "src/partials/AttestationPanel.svelte"
+  import AttestForm from "src/partials/AttestForm.svelte"
+  import {attestationsByTarget, getAttestationSummary} from "src/engine/trust/attestation"
 
   export let pubkey
 
@@ -36,12 +40,15 @@
   $: zapDisplay = $profile?.lud16 || $profile?.lud06
   $: accent = following || pubkey === $session?.pubkey
   $: profileUpdated = $profilesByPubkey.get(pubkey)?.event?.created_at
+  $: attestSummary = getAttestationSummary($attestationsByTarget, pubkey)
+  let showAttestForm = false
 </script>
 
 <div on:click|stopPropagation>
   <Popover triggerType="mouseenter" opts={{hideOnClick: true}} placement="right">
-    <div slot="trigger">
+    <div slot="trigger" class="flex items-center gap-0.5">
       <WotScore score={wotScore} max={$maxWot} {accent} />
+      <AttestationBadge {pubkey} />
     </div>
     <div slot="tooltip" class="p-4">
       <strong class="cursor-pointer font-bold" on:click={showPerson}>{$profileDisplay}</strong>
@@ -83,6 +90,25 @@
           WoT Score: {wotScore}
           <i class="fa fa-info-circle" />
         </Link>
+      </div>
+      <div class="border-nc-border mt-2 border-t pt-2">
+        <AttestationPanel {pubkey} />
+        {#if pubkey !== $session?.pubkey}
+          <button
+            on:click={() => (showAttestForm = !showAttestForm)}
+            class="mt-2 text-xs text-accent hover:underline">
+            {showAttestForm
+              ? "Cancel"
+              : attestSummary.isAttested
+                ? "Update attestation"
+                : "Attest this person"}
+          </button>
+          {#if showAttestForm}
+            <div class="mt-2">
+              <AttestForm targetPubkey={pubkey} on:attested={() => (showAttestForm = false)} />
+            </div>
+          {/if}
+        {/if}
       </div>
     </div>
   </Popover>
