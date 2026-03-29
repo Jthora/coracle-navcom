@@ -35,9 +35,9 @@
 <nav class="flex h-full flex-col bg-nc-shell-deep" aria-label={$t("sidebar.channel.aria")}>
   <!-- Header -->
   <div class="flex items-center justify-between border-b border-nc-shell-border px-4 py-3">
-    <h2 class="staatliches text-lg uppercase tracking-widest text-nc-text">{$appName}</h2>
+    <h2 class="staatliches text-lg uppercase tracking-widest text-nc-text">{appName}</h2>
     <button
-      class="hidden h-8 w-8 items-center justify-center rounded text-nc-text-muted transition-colors hover:bg-nc-shell-bg hover:text-nc-text lg:flex"
+      class="hover:bg-nc-shell-bg hidden h-8 w-8 items-center justify-center rounded text-nc-text-muted transition-colors hover:text-nc-text lg:flex"
       on:click={() => router.at("/settings").open()}>
       <i class="fa fa-gear text-sm" />
     </button>
@@ -61,7 +61,7 @@
             class="hover:bg-nc-shell-bg/60 border-nc-shell-border/40 flex w-full items-center gap-3 border-b px-4 py-3 text-left transition-colors"
             on:click={() => selectChannel(channel.id)}>
             <div
-              class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-nc-shell-bg text-nc-text">
+              class="bg-nc-shell-bg flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-nc-text">
               {#if channel.picture}
                 <img src={channel.picture} alt="" class="h-10 w-10 rounded-lg object-cover" />
               {:else}
@@ -102,7 +102,7 @@
           on:click={() => selectChannel(channel.id)}>
           <!-- Avatar / icon -->
           <div
-            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-nc-shell-bg text-nc-text">
+            class="bg-nc-shell-bg flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-nc-text">
             {#if channel.picture}
               <img src={channel.picture} alt="" class="h-10 w-10 rounded-lg object-cover" />
             {:else}
