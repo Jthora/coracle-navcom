@@ -7,8 +7,8 @@
 
   const getClassName = active =>
     cx("px-4 h-6 transition-all rounded-full mr-2 mb-2 inline-block items-center", {
-      "bg-neutral-900 dark:bg-tinted-100 text-accent": active,
-      "bg-neutral-900 text-neutral-400": !active,
+      "bg-nc-shell-deep text-accent": active,
+      "bg-nc-shell-deep text-nc-text-muted": !active,
     })
 </script>
 

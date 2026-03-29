@@ -56,7 +56,7 @@
 
 <div class="flex gap-3">
   <p
-    class="-ml-1 -mt-2 flex h-12 w-12 items-center justify-center rounded-full bg-neutral-700 text-lg">
+    class="-ml-1 -mt-2 flex h-12 w-12 items-center justify-center rounded-full bg-nc-input text-lg">
     4/4
   </p>
   <p class="text-2xl font-bold">You're all set!</p>
@@ -66,7 +66,7 @@
   hand.
 </p>
 <p>Now is a great time to introduce yourself to the Nostr network!</p>
-<div class="border-l-2 border-solid border-neutral-600 pl-4">
+<div class="border-l-2 border-solid border-nc-shell-border pl-4">
   <EditorContent {editor} class="min-h-24" />
 </div>
 <div class="flex gap-2">

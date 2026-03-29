@@ -27,6 +27,6 @@
   class={cx("bg-swap", $$props.class)}
   class:bg-swap-bg={background}
   class:bg-tinted-700={background && isAlt}
-  class:bg-neutral-800={background && !isAlt}>
+  class:bg-nc-shell-bg={background && !isAlt}>
   <slot {isAlt} />
 </div>

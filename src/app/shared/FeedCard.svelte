@@ -54,7 +54,7 @@
     <span class="flex items-start gap-3">
       <div>
         <Button on:click={loadFeed} class="staatliches text-xl">
-          <span class:text-neutral-400={!feed.title} class:line-through={deleted}>
+          <span class:text-nc-text-muted={!feed.title} class:line-through={deleted}>
             {displayFeed(feed)}
           </span>
         </Button>
@@ -75,7 +75,7 @@
   {/if}
   {#if favoritedPubkeys.length > 0}
     <div class="flex gap-2">
-      <span class="text-neutral-300">Bookmarked by</span>
+      <span class="text-nc-text">Bookmarked by</span>
       <PersonCircles class="h-6 w-6" pubkeys={favoritedPubkeys.slice(0, 20)} />
     </div>
   {/if}
@@ -83,7 +83,7 @@
     <FeedSummary feed={feed.definition} />
     <div class="flex gap-1">
       <div
-        class="cursor-pointer p-1 text-neutral-400 transition-colors hover:text-neutral-100"
+        class="cursor-pointer p-1 text-nc-text-muted transition-colors hover:text-nc-text"
         on:click={$expandDefinition.toggle}>
         {#if $expandDefinition.enabled}
           <i class="fa fa-angle-down" />
@@ -92,7 +92,7 @@
         {/if}
       </div>
       <div
-        class={cx("p-1 text-neutral-400 transition-colors hover:text-neutral-100", {
+        class={cx("p-1 text-nc-text-muted transition-colors hover:text-nc-text", {
           "cursor-pointer": feed.event.pubkey !== $pubkey,
           "pointer-events-none opacity-25": feed.event.pubkey === $pubkey,
         })}
@@ -103,7 +103,7 @@
     </div>
   </div>
   {#if $expandDefinition.enabled}
-    <pre class="overflow-auto rounded bg-neutral-900" transition:slide|local>{JSON.stringify(
+    <pre class="overflow-auto rounded bg-nc-shell-deep" transition:slide|local>{JSON.stringify(
         feed.definition,
         null,
         2,

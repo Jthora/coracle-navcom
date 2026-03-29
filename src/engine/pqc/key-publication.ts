@@ -1,3 +1,5 @@
+import {mlKemKeygen, bytesToBase64} from "src/engine/pqc/crypto-provider"
+
 export const PQC_KEY_SCHEMA_VERSION = 1 as const
 export const DEFAULT_PQC_KEY_ROTATION_TTL_SECONDS = 60 * 60 * 24 * 90
 export const DEFAULT_PQC_KEY_STALE_AFTER_SECONDS = 60 * 60 * 24
@@ -153,10 +155,52 @@ export const validatePqcKeyPublicationRecord = (
   return {ok: true, value: record}
 }
 
+/**
+ * Generate a fresh ML-KEM-768 keypair for PQC key publication.
+ * Returns a PqcKeyPublicationRecord-shaped object with real key material.
+ */
+export const generatePqcKeyPair = ({
+  userPubkey,
+  deviceHint,
+  ttlSeconds = DEFAULT_PQC_KEY_ROTATION_TTL_SECONDS,
+}: {
+  userPubkey: string
+  deviceHint?: string
+  ttlSeconds?: number
+}): {record: PqcKeyPublicationRecord; secretKey: Uint8Array} => {
+  const {publicKey, secretKey} = mlKemKeygen()
+  const now = Math.floor(Date.now() / 1000)
+
+  const record: PqcKeyPublicationRecord = {
+    schema: PQC_KEY_SCHEMA_VERSION,
+    user_pubkey: userPubkey,
+    pq_alg: "mlkem768",
+    pq_pub: bytesToBase64(publicKey),
+    key_id: `mlkem768-${now}-${userPubkey.slice(0, 8)}`,
+    created_at: now,
+    expires_at: now + ttlSeconds,
+    status: "active",
+    ...(deviceHint ? {device_hint: deviceHint} : {}),
+  }
+
+  return {record, secretKey}
+}
+
 export const selectPreferredActivePqcKey = (
   records: PqcKeyPublicationRecord[],
   now = Math.floor(Date.now() / 1000),
 ) => {
+  // Explicitly reject revoked and deprecated keys (defence-in-depth)
+  const revokedCount = records.filter(r => r.status === "revoked").length
+  const deprecatedCount = records.filter(r => r.status === "deprecated").length
+
+  if (revokedCount > 0) {
+    console.warn(`[PQC] Skipped ${revokedCount} revoked key(s) during selection`)
+  }
+  if (deprecatedCount > 0) {
+    console.warn(`[PQC] Skipped ${deprecatedCount} deprecated key(s) during selection`)
+  }
+
   const eligible = records.filter(
     record => record.status === "active" && getPqcKeyFreshness(record, now) === "fresh",
   )
@@ -172,4 +216,63 @@ export const selectPreferredActivePqcKey = (
 
     return b.key_id.localeCompare(a.key_id)
   })[0]
+}
+
+export type PqcKeySelectionErrorCode =
+  | "NO_KEYS_AVAILABLE"
+  | "ALL_KEYS_REVOKED"
+  | "ALL_KEYS_EXPIRED"
+  | "ALL_KEYS_DEPRECATED"
+  | "NO_ACTIVE_FRESH_KEYS"
+
+export type PqcKeySelectionResult =
+  | {ok: true; key: PqcKeyPublicationRecord}
+  | {ok: false; code: PqcKeySelectionErrorCode; message: string}
+
+/**
+ * Like selectPreferredActivePqcKey but returns a structured error
+ * with a diagnostic reason when no valid key can be selected.
+ */
+export const selectPreferredActivePqcKeyOrError = (
+  records: PqcKeyPublicationRecord[],
+  now = Math.floor(Date.now() / 1000),
+): PqcKeySelectionResult => {
+  if (records.length === 0) {
+    return {ok: false, code: "NO_KEYS_AVAILABLE", message: "No PQC keys found for recipient"}
+  }
+
+  const revokedCount = records.filter(r => r.status === "revoked").length
+  const deprecatedCount = records.filter(r => r.status === "deprecated").length
+  const expiredCount = records.filter(
+    r => r.status === "active" && getPqcKeyFreshness(r, now) === "expired",
+  ).length
+
+  const selected = selectPreferredActivePqcKey(records, now)
+  if (selected) {
+    return {ok: true, key: selected}
+  }
+
+  if (revokedCount === records.length) {
+    return {
+      ok: false,
+      code: "ALL_KEYS_REVOKED",
+      message: "All recipient PQC keys have been revoked",
+    }
+  }
+  if (deprecatedCount === records.length) {
+    return {
+      ok: false,
+      code: "ALL_KEYS_DEPRECATED",
+      message: "All recipient PQC keys are deprecated",
+    }
+  }
+  if (expiredCount + revokedCount + deprecatedCount === records.length) {
+    return {ok: false, code: "ALL_KEYS_EXPIRED", message: "All recipient PQC keys have expired"}
+  }
+
+  return {
+    ok: false,
+    code: "NO_ACTIVE_FRESH_KEYS",
+    message: "No active and fresh PQC keys available for recipient",
+  }
 }

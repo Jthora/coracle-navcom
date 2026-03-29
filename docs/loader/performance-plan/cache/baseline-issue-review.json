@@ -1,0 +1,37 @@
+{
+  "generatedAt": "2026-02-25T04:47:29.559Z",
+  "pass": false,
+  "source": {
+    "completeness": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/loader/performance-plan/cache/baseline-completeness.json",
+    "validation": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/loader/performance-plan/cache/baseline-telemetry-validation.json",
+    "diagnosis": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/loader/performance-plan/cache/baseline-diagnosability.json",
+    "usefulness": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/loader/performance-plan/cache/baseline-telemetry-usefulness.json",
+    "remediation": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/loader/performance-plan/cache/baseline-observability-remediation.json"
+  },
+  "missingArtifacts": [],
+  "gates": {
+    "completeness": false,
+    "telemetryValidation": true,
+    "diagnosability": true,
+    "telemetryUsefulness": false,
+    "observabilityRemediation": true
+  },
+  "counts": {
+    "completenessIssues": 5,
+    "validationIssues": 0,
+    "diagnosisBlindSpots": 0,
+    "usefulnessChecks": 6,
+    "usefulnessPassedChecks": 5,
+    "remediationTickets": 0
+  },
+  "blockers": [
+    {
+      "type": "completeness",
+      "message": "Baseline completeness has 5 issues."
+    },
+    {
+      "type": "telemetry-usefulness",
+      "message": "Telemetry usefulness checklist passed 5/6 checks."
+    }
+  ]
+}

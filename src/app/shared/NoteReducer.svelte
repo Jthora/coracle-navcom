@@ -12,11 +12,20 @@
   } from "@welshman/util"
   import {repository} from "@welshman/app"
   import {repostKinds, reactionKinds} from "src/util/nostr"
-  import {isEventMuted, myLoad} from "src/engine"
+  import {isEventMuted, myLoad, startCacheMetric} from "src/engine"
+  import type {QueryKey} from "src/engine/cache"
   import {getValidZap} from "src/app/util"
 
   type GetContext = (event: TrustedEvent) => TrustedEvent[]
   type ShouldAddEvent = (event: TrustedEvent, getContext: GetContext) => boolean
+  type ReducerPhase = "context-resolve" | "reduce-apply" | "idle"
+  type ContextLink = {parent: TrustedEvent; child: TrustedEvent}
+  type PreparedEvent = {
+    original: TrustedEvent
+    display: TrustedEvent | null
+    links: ContextLink[]
+    invalidZap: boolean
+  }
 
   export let events: TrustedEvent[]
   export let depth = 0
@@ -27,9 +36,12 @@
   export let shouldAwait = false
   export let shouldAddEvent: ShouldAddEvent = undefined
   export let items: TrustedEvent[] = []
+  export let metricKey: QueryKey = null
+  export let onPhaseChange: (phase: ReducerPhase) => void = () => {}
 
   const timestamps = new Map<string, number>()
   const context = new Map<string, Set<TrustedEvent>>()
+  let applyQueue: Promise<void> = Promise.resolve()
 
   const shouldSkip = (event: TrustedEvent, strict: boolean) => {
     if (!showMuted && $isEventMuted(event, strict)) return true
@@ -64,50 +76,75 @@
     }
   }
 
-  const addEvent = async (event: TrustedEvent) => {
+  const prepareEvent = async (event: TrustedEvent): Promise<PreparedEvent> => {
     const original = event
+    let display = event
     let currentDepth = depth
-
-    timestamps.set(getIdOrAddress(event), original.created_at)
+    const links: ContextLink[] = []
+    let invalidZap = false
 
     while (currentDepth > 0) {
-      const parent = await getParent(event)
+      const parent = await getParent(display)
 
-      // Unable to get the parent? we're done traversing parents
       if (!parent) {
         break
       }
 
-      // Skip zaps that fail our zapper check
-      if (event.kind === ZAP_RESPONSE && !(await getValidZap(event, parent))) {
-        return
+      if (display.kind === ZAP_RESPONSE && !(await getValidZap(display, parent))) {
+        invalidZap = true
+        break
       }
 
-      // Link the events, even if we end up skipping this one (since we deduplicate)
-      addToMapKey(context, getIdOrAddress(parent), event)
+      links.push({parent, child: display})
+      display = parent
+      currentDepth--
+    }
 
-      // Hide replies to deleted/muted parents, or parents we've already seen
+    return {
+      original,
+      display,
+      links,
+      invalidZap,
+    }
+  }
+
+  const applyPreparedEvent = ({original, display, links, invalidZap}: PreparedEvent) => {
+    if (invalidZap || !display) {
+      return
+    }
+
+    const originalId = getIdOrAddress(original)
+
+    if (timestamps.has(originalId)) {
+      return
+    }
+
+    timestamps.set(originalId, original.created_at)
+
+    for (const {parent, child} of links) {
+      addToMapKey(context, getIdOrAddress(parent), child)
+
       if (shouldSkip(parent, true)) {
         return
       }
 
       timestamps.set(getIdOrAddress(parent), original.created_at)
-      currentDepth--
-      event = parent
     }
 
-    // If it's not displayable, skip it
-    if ([...repostKinds, ...reactionKinds].includes(event.kind)) return
+    if ([...repostKinds, ...reactionKinds].includes(display.kind)) {
+      return
+    }
 
-    // If the caller wants to skip it, skip it
-    if (shouldAddEvent && !shouldAddEvent(event, getContext)) return
+    if (shouldAddEvent && !shouldAddEvent(display, getContext)) {
+      return
+    }
 
     let inserted = false
 
     if (shouldSort) {
       for (let i = 0; i < items.length; i++) {
         if (timestamps.get(getIdOrAddress(items[i])) < original.created_at) {
-          items = insertAt(i, event, items)
+          items = insertAt(i, display, items)
           inserted = true
           break
         }
@@ -115,20 +152,59 @@
     }
 
     if (!inserted) {
-      items = [...items, event]
+      items = [...items, display]
     }
   }
 
-  const addEvents = async (events: TrustedEvent[]) => {
-    for (const event of events) {
-      if (!shouldSkip(event, false)) {
-        const promise = addEvent(event)
+  const addEvent = async (event: TrustedEvent) => {
+    onPhaseChange("context-resolve")
+    const prepared = await prepareEvent(event)
 
-        if (shouldAwait) {
-          await promise
-        }
+    onPhaseChange("reduce-apply")
+    applyQueue = applyQueue.then(() => {
+      applyPreparedEvent(prepared)
+    })
+
+    await applyQueue
+  }
+
+  const addEvents = async (events: TrustedEvent[]) => {
+    const stopReducerMetric = metricKey
+      ? startCacheMetric(metricKey, "reducer_start", {
+          shouldAwait,
+          incomingCount: events.length,
+        })
+      : null
+    let processedCount = 0
+
+    const pending: Promise<void>[] = []
+
+    for (const event of events) {
+      if (shouldSkip(event, false)) {
+        continue
+      }
+
+      processedCount++
+      const promise = addEvent(event)
+
+      if (shouldAwait) {
+        pending.push(promise)
       }
     }
+
+    if (shouldAwait) {
+      await Promise.all(pending)
+    }
+
+    onPhaseChange("idle")
+
+    stopReducerMetric?.("reducer_end", {
+      eventCount: processedCount,
+      details: {
+        shouldAwait,
+        itemCount: items.length,
+      },
+    })
   }
 
   const getContext = (event: TrustedEvent) => Array.from(context.get(getIdOrAddress(event)) || [])

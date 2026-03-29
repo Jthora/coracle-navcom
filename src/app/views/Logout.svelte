@@ -12,7 +12,7 @@
     window.location.href = "/notes"
   }, 2000)
 
-  document.title = "Log Out"
+  document.title = "Log Out | NavCom"
 </script>
 
 <Content size="lg" class="text-center">

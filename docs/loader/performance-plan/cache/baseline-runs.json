@@ -1,0 +1,32 @@
+{
+  "capturedAt": "2026-02-24T21:16:14.780Z",
+  "sessionContext": {
+    "environment": {
+      "capturedAt": "2026-02-24T21:16:14.781Z",
+      "timezone": "pending",
+      "viewport": {
+        "width": null,
+        "height": null
+      },
+      "location": {
+        "origin": "pending",
+        "pathname": "pending"
+      },
+      "navigator": {
+        "userAgent": "pending",
+        "platform": "pending",
+        "language": "pending",
+        "hardwareConcurrency": null,
+        "deviceMemory": null,
+        "connection": {
+          "effectiveType": "pending",
+          "saveData": false
+        }
+      }
+    },
+    "relayProfile": "pending",
+    "accountState": "pending",
+    "notes": "Populate with captured benchmark runs via window.__loaderBenchmark.exportRuns()."
+  },
+  "runs": []
+}

@@ -61,7 +61,7 @@
         </div>
       </div>
       <AltColor background class="overflow-hidden rounded">
-        <EditorContent {editor} class="min-h-24 bg-white p-3 text-black" />
+        <EditorContent {editor} class="min-h-24 bg-nc-input p-3 text-nc-text" />
       </AltColor>
       <Button class="btn flex-grow" type="submit">Send</Button>
     </div>

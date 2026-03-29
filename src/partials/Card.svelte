@@ -51,7 +51,7 @@
 
 <div on:mousedown={startClick} on:touchstart={startClick} on:click={onClick}>
   <AltColor
-    class={cx($$props.class, "panel text-neutral-100", {
+    class={cx($$props.class, "panel text-nc-text", {
       "px-7 py-5": !noPad,
       "panel-interactive": interactive,
     })}>

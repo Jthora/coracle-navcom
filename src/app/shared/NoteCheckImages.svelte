@@ -29,7 +29,7 @@
 </script>
 
 {#if maxScore >= threshold}
-  <div class="flex gap-2 text-neutral-300">
+  <div class="flex gap-2 text-nc-text">
     <i class="fa fa-warning m-1" />
     <p>
       This note contains sensitive content.<br />

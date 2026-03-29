@@ -31,6 +31,7 @@ const groupKinds = [
   GROUP_KINDS.NIP29.LEAVE_REQUEST,
   GROUP_KINDS.NIP_EE.GROUP_EVENT,
   GROUP_KINDS.NIP_EE.WELCOME,
+  GROUP_KINDS.NIP_EE.EPOCH_KEY_SHARE,
 ]
 
 const groupEvents = deriveEvents({
@@ -155,3 +156,11 @@ export const resetGroupsState = () => {
   groupProjections.set(new Map())
   groupsHydrated.set(false)
 }
+
+// Re-export presence store for convenience
+export {
+  groupMemberPresence,
+  getMemberPresence,
+  getGroupHealth,
+  getGroupPresenceSummary,
+} from "./presence"

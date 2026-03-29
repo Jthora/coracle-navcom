@@ -7,6 +7,10 @@ type LoaderStageId =
   | "app.bootstrap.readonly"
   | "groups.hydrate.request"
   | "groups.hydrate.apply"
+  | "feed.ingest.stream"
+  | "feed.context.resolve"
+  | "feed.reduce.apply"
+  | "feed.render.first-window"
   | "intel.map.module"
   | "intel.map.init"
   | "intel.map.feed.fetch"
@@ -93,6 +97,34 @@ const stageTemplates: Record<LoaderStageId, StageTemplate> = {
     slowAfterMs: 4000,
     message: () => "Applying group updates...",
     slowMessage: () => "Still processing group updates...",
+  },
+  "feed.ingest.stream": {
+    priority: 72,
+    blocking: true,
+    slowAfterMs: 3500,
+    message: () => "Receiving feed events from relays...",
+    slowMessage: () => "Still waiting for feed events from relays...",
+  },
+  "feed.context.resolve": {
+    priority: 74,
+    blocking: true,
+    slowAfterMs: 3500,
+    message: () => "Resolving post context...",
+    slowMessage: () => "Still resolving post context...",
+  },
+  "feed.reduce.apply": {
+    priority: 73,
+    blocking: true,
+    slowAfterMs: 3500,
+    message: () => "Processing feed items...",
+    slowMessage: () => "Still processing feed items...",
+  },
+  "feed.render.first-window": {
+    priority: 71,
+    blocking: true,
+    slowAfterMs: 3000,
+    message: () => "Rendering feed items...",
+    slowMessage: () => "Still rendering feed items...",
   },
   "intel.map.module": {
     priority: 85,
@@ -228,7 +260,7 @@ const pickVisibleStage = (stages: ActiveStage[]) => {
       return right.priority - left.priority
     }
 
-    return right.startedAt - left.startedAt
+    return left.startedAt - right.startedAt
   })[0]
 }
 

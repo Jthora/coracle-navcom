@@ -13,10 +13,21 @@
   import PersonName from "src/app/shared/PersonName.svelte"
   import NoteInfo from "src/app/shared/NoteInfo.svelte"
   import {getDmMessageSecurityState} from "src/app/shared/message-security"
-  import {ensureMessagePlaintext, userSettings} from "src/engine"
+  import {ensureMessagePlaintext, retryMessageDecryption, userSettings} from "src/engine"
   import {router} from "src/app/util/router"
 
   export let message
+
+  let retrying = false
+
+  const retryDecrypt = async () => {
+    retrying = true
+    try {
+      await retryMessageDecryption(message)
+    } finally {
+      retrying = false
+    }
+  }
 
   const getContent = e => (e.kind === 4 ? ensureMessagePlaintext(e) : e.content) || ""
 
@@ -49,13 +60,32 @@
       {#await getContent(message)}
         <!-- pass -->
       {:then content}
-        <NoteContent showEntire note={{...message, content}} />
+        {#if content}
+          <NoteContent showEntire note={{...message, content}} />
+        {:else if message.kind === 4 && message.content}
+          <div class="flex items-center gap-2 text-sm italic text-nc-text-muted">
+            <i class="fa fa-lock text-xs" />
+            <span>Message could not be decrypted</span>
+            <button
+              class="ml-1 cursor-pointer underline hover:text-nc-text"
+              disabled={retrying}
+              on:click={retryDecrypt}>
+              {#if retrying}
+                <i class="fa fa-circle-notch fa-spin text-xs" />
+              {:else}
+                Retry
+              {/if}
+            </button>
+          </div>
+        {:else}
+          <NoteContent showEntire note={{...message, content}} />
+        {/if}
       {/await}
     </div>
     <small
       class="mt-1 flex items-center justify-between gap-2 text-xs"
       class:text-tinted-700={message.pubkey === $session.pubkey}
-      class:text-neutral-100={message.pubkey !== $session.pubkey}>
+      class:text-nc-text={message.pubkey !== $session.pubkey}>
       {#if thunk}
         {#if thunkHasStatus(PublishStatus.Pending, thunk)}
           <div class="flex items-center gap-1">
@@ -75,19 +105,19 @@
       {/if}
       <div class="flex items-center gap-3">
         <i
-          class="fa fa-info-circle cursor-pointer text-neutral-400"
+          class="fa fa-info-circle cursor-pointer text-nc-text-muted"
           on:click={() => (showDetails = true)} />
         {#if message.kind === 4}
           {#if dmSecurity}
             <span
-              class="rounded border border-neutral-500 px-2 py-0.5 text-[10px] uppercase tracking-[0.08em]">
+              class="rounded border border-nc-shell-border px-2 py-0.5 text-[10px] uppercase tracking-[0.08em]">
               {dmSecurity.badge}
             </span>
           {/if}
           <Popover triggerType="mouseenter">
             <i
               slot="trigger"
-              class={`fa fa-${dmSecurity?.icon === "lock" ? "lock" : "unlock"} cursor-pointer text-neutral-400`} />
+              class={`fa fa-${dmSecurity?.icon === "lock" ? "lock" : "unlock"} cursor-pointer text-nc-text-muted`} />
             <div slot="tooltip" class="flex max-w-xs flex-col gap-2">
               {#if dmSecurity?.icon === "lock"}
                 <p>
@@ -109,7 +139,7 @@
           </Popover>
         {:else}
           <Popover triggerType="mouseenter">
-            <i slot="trigger" class="fa fa-lock cursor-pointer text-neutral-400" />
+            <i slot="trigger" class="fa fa-lock cursor-pointer text-nc-text-muted" />
             <div slot="tooltip" class="flex flex-col gap-2">
               <p>
                 This message was sent using nostr's new group chat specification, which solves

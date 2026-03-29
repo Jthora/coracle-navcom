@@ -18,6 +18,7 @@ export type GroupErrorContext =
   | "group-admin-put-member"
   | "group-admin-remove-member"
   | "group-admin-moderation-submit"
+  | "group-admin-leave"
   | "relay-policy-load"
   | "mixed-capability-simulation"
 
@@ -211,6 +212,7 @@ const GROUP_ERROR_FALLBACK_MESSAGE: Record<GroupErrorContext, string> = {
   "group-admin-put-member": "Unable to submit member update.",
   "group-admin-remove-member": "Unable to submit member removal.",
   "group-admin-moderation-submit": "Unable to submit moderation action.",
+  "group-admin-leave": "Unable to leave group.",
   "relay-policy-load": "Unable to load relay policy; defaults applied.",
   "mixed-capability-simulation": "Mixed capability simulation failed.",
 }

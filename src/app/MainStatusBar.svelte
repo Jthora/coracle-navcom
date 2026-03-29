@@ -55,10 +55,12 @@
 
 {#if innerWidth >= 1024}
   <div
-    class="bottom-sai right-sai fixed left-72 z-[500] h-8 border-t border-[#596170] bg-[linear-gradient(180deg,rgba(78,88,101,0.92),rgba(40,48,58,0.96)_16%,rgba(23,28,35,0.98)_60%,rgba(15,19,25,0.98))] shadow-[0_-2px_0_rgba(255,255,255,0.08),0_-1px_10px_rgba(0,0,0,0.55)] backdrop-blur-sm">
-    <div class="pointer-events-none absolute inset-x-0 top-0 h-px bg-white/25" aria-hidden="true" />
+    class="bottom-sai right-sai fixed left-72 z-[500] h-8 border-t border-nc-shell-border bg-[linear-gradient(180deg,rgba(var(--accent-rgb),0.06),var(--neutral-950)_60%)] shadow-[0_-2px_0_rgba(var(--nc-shell-border-rgb),0.25),0_-1px_10px_rgba(0,0,0,0.55)] backdrop-blur-sm">
     <div
-      class="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-black/65"
+      class="pointer-events-none absolute inset-x-0 top-0 h-px bg-[rgba(var(--nc-shell-border-rgb),0.25)]"
+      aria-hidden="true" />
+    <div
+      class="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-[rgba(0,0,0,0.65)]"
       aria-hidden="true" />
 
     <div class="relative flex h-full items-center px-4">

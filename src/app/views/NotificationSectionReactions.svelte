@@ -41,7 +41,7 @@
       <NoteReactions {context} {event} />
     </NotificationItem>
   {:else}
-    <div class="panel p-6 text-center text-neutral-200">
+    <div class="panel p-6 text-center text-nc-text">
       No notifications found - check back later!
     </div>
   {/each}

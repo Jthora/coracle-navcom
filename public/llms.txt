@@ -1,0 +1,47 @@
+# NavCom
+
+> Decentralized operations and intelligence platform built on the Nostr protocol. Created by Archangel.
+
+NavCom is the communications and situational-awareness client for the Earth Intelligence Network — a planetary-scale, censorship-resistant coordination system. It enables sovereign comms, structured intelligence sharing, geo-referenced reporting (GEOINT), and tiered operational security without depending on any centralized infrastructure.
+
+## Why NavCom exists
+
+A global intelligence and coordination network cannot depend on infrastructure that any single government, corporation, or adversary can shut down, surveil, or compromise. NavCom provides sovereign, encrypted, geo-aware, tiered-security communications on an open protocol.
+
+## What it does
+
+- **Ops Feed** — Operational status updates and coordination (`#starcom_ops`)
+- **Intel Feed** — Intelligence reports with structured metadata (`#starcom_intel`)
+- **GEOINT Posting** — Geo-referenced intelligence with embedded GeoJSON, coordinates, confidence levels, rendered on an interactive Nav Map
+- **Announcements** — System-wide broadcast channel
+- **Groups** — Encrypted group communications with tiered security (public OSINT / restricted ops / high-risk GEOINT)
+- **Direct Messages** — End-to-end encrypted messaging
+- **Post-Quantum Cryptography** — Hybrid PQ+classical encryption protecting against harvest-now-decrypt-later threats
+
+## Security tiers
+
+- **Tier 0: Public OSINT Collaboration** — Open; integrity and abuse resistance
+- **Tier 1: Restricted Ops Collaboration** — Controlled membership; encryption recommended
+- **Tier 2: High-Risk GEOINT Operations** — Mandatory confidentiality, metadata privacy, and downgrade resistance
+
+## Ecosystem
+
+NavCom operates within a constellation of interconnected systems:
+
+- **Starcom** — Operations command system; tagging, globe viewer, feed filtering
+- **NavCom** — The user-facing communications platform (this application)
+- **Archangel** — The organization building and governing the network
+- **Thora** — Additional system within the network
+
+## Technology
+
+- Built on the **Nostr protocol** — decentralized, relay-based, cryptographic identity
+- All posts are standard Nostr `kind:1` events — interoperable with any Nostr client
+- Web app (PWA), Android (Capacitor), fully white-label capable
+- Uses `@welshman` Nostr libraries
+
+## Links
+
+- Website: https://navcom.app
+- Full context for AI agents: https://navcom.app/llms-full.txt
+- Source: Fork of Coracle (https://github.com/coracle-social/coracle)

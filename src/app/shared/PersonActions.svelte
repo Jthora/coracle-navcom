@@ -93,7 +93,7 @@
 <Popover theme="transparent">
   <div
     slot="trigger"
-    class="cursor-pointer rounded bg-neutral-800 px-3 py-1 text-center text-neutral-50 hover:bg-neutral-700">
+    class="cursor-pointer rounded bg-nc-shell-bg px-3 py-1 text-center text-nc-text hover:bg-nc-input">
     <i class="fa fa-lg fa-ellipsis-v" />
   </div>
   <div
@@ -102,11 +102,11 @@
     class="relative flex flex-col gap-2"
     on:click={() => instance.hide()}>
     <div
-      class="absolute bottom-0 right-0 top-0 w-32 rounded-3xl bg-neutral-800"
+      class="absolute bottom-0 right-0 top-0 w-32 rounded-3xl bg-nc-shell-bg"
       style="filter: blur(15px)" />
     {#each actions as { label, icon, onClick }}
       <div
-        class="relative z-popover flex cursor-pointer items-center text-neutral-100"
+        class="relative z-popover flex cursor-pointer items-center text-nc-text"
         on:click={onClick}>
         <span class="absolute right-0 mr-12 whitespace-nowrap">{label}</span>
         <Button class="btn-tall btn btn-circle text-accent"

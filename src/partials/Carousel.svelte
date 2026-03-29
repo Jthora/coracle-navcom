@@ -72,7 +72,7 @@
       {#each urls as _, index (index)}
         <button
           class="border-primary h-2 w-2 rounded-full border"
-          class:bg-white={index === currentIndex}
+          class:bg-nc-accent={index === currentIndex}
           on:click={() => scrollToIndex(index)} />
       {/each}
     </div>

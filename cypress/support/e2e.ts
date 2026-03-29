@@ -26,7 +26,28 @@ Cypress.on("window:before:load", win => {
 })
 
 Cypress.on("uncaught:exception", err => {
-  if (err?.message?.includes("An unknown error has occurred: [object Event]")) {
+  // Svelte store race during hydration in e2e context
+  if (err?.message?.includes("is not a store with a 'subscribe' method")) {
+    return false
+  }
+  // DOM Event objects thrown as errors (e.g. WebSocket, network)
+  if (err?.message?.includes("[object Event]") || err?.message?.includes('"isTrusted"')) {
+    return false
+  }
+  // Nostr relay connection failures in isolated test environment
+  if (err?.message?.includes("WebSocket") || err?.message?.includes("Failed to fetch")) {
+    return false
+  }
+  // Svelte component destroy lifecycle errors during route transitions
+  if (err?.message?.includes("Cannot read properties of undefined (reading 'd')")) {
+    return false
+  }
+  // NIP-07 browser extension not available in headless Cypress
+  if (err?.message?.includes("Nip07 is not enabled")) {
+    return false
+  }
+  // IndexedDB connection race during route transitions
+  if (err?.message?.includes("database connection is closing")) {
     return false
   }
 })

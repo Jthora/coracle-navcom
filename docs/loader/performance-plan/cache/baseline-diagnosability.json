@@ -1,0 +1,68 @@
+{
+  "generatedAt": "2026-02-25T04:47:27.249Z",
+  "source": {
+    "runs": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/loader/performance-plan/cache/baseline-runs.json",
+    "validation": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/loader/performance-plan/cache/baseline-telemetry-validation.json"
+  },
+  "runCount": 0,
+  "validationPass": true,
+  "diagnostics": {
+    "classificationCounts": {
+      "network_delay": 0,
+      "reduction_delay": 0,
+      "render_delay": 0,
+      "mixed": 0,
+      "unknown": 0
+    },
+    "unknownRate": 0,
+    "segmentSummary": {
+      "networkMs": {
+        "count": 0,
+        "p50": null,
+        "p95": null
+      },
+      "reductionMs": {
+        "count": 0,
+        "p50": null,
+        "p95": null
+      },
+      "renderMs": {
+        "count": 0,
+        "p50": null,
+        "p95": null
+      },
+      "settleTailMs": {
+        "count": 0,
+        "p50": null,
+        "p95": null
+      }
+    }
+  },
+  "syntheticScenarioChecks": {
+    "pass": true,
+    "marginRatio": 1.2,
+    "results": [
+      {
+        "id": "network-dominant",
+        "expected": "network_delay",
+        "actual": "network_delay",
+        "pass": true
+      },
+      {
+        "id": "reduction-dominant",
+        "expected": "reduction_delay",
+        "actual": "reduction_delay",
+        "pass": true
+      },
+      {
+        "id": "render-dominant",
+        "expected": "render_delay",
+        "actual": "render_delay",
+        "pass": true
+      }
+    ]
+  },
+  "blindSpots": [],
+  "remediationTickets": [],
+  "perRun": []
+}

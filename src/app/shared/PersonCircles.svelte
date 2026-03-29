@@ -11,7 +11,7 @@
 <div class="flex pr-3">
   {#each uniq(pubkeys).slice(0, 15) as pubkey (pubkey)}
     <div class="z-feature -mr-3 inline-block">
-      <PersonCircle class={cx(klass, "border border-solid border-neutral-800")} {pubkey} />
+      <PersonCircle class={cx(klass, "border border-solid border-nc-shell-border")} {pubkey} />
     </div>
   {/each}
 </div>

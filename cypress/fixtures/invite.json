@@ -1,0 +1,5 @@
+{
+  "url": "/invite",
+  "groupId": "test-group-001",
+  "relay": "wss://relay.example.com"
+}

@@ -9,18 +9,20 @@ export type SecureGroupEpochDecryptResult =
       eventId: string
     }
 
-export const validateAndDecryptSecureGroupEventContent = ({
+export const validateAndDecryptSecureGroupEventContent = async ({
   event,
   expectedEpochId,
+  epochKeyBytes,
 }: {
   event: {id: string; kind: number; content: string}
   expectedEpochId: string
-}): SecureGroupEpochDecryptResult => {
+  epochKeyBytes: Uint8Array
+}): Promise<SecureGroupEpochDecryptResult> => {
   if (event.kind !== GROUP_KINDS.NIP_EE.GROUP_EVENT) {
     return {ok: true}
   }
 
-  const decoded = decodeSecureGroupEpochContent(event.content)
+  const decoded = await decodeSecureGroupEpochContent(event.content, epochKeyBytes)
 
   if (!decoded.ok) {
     return {

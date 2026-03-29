@@ -42,7 +42,7 @@
       {/if}
     </div>
   </div>
-  <div class="flex items-center gap-2 text-sm text-neutral-200">
+  <div class="flex items-center gap-2 text-sm text-nc-text">
     {#if event.wrap}
       <span>Private</span>
       <span>•</span>
@@ -52,8 +52,8 @@
       <PersonLink pubkey={event.pubkey} />
     </span>
   </div>
-  <div class="h-px bg-neutral-600" />
-  <div class="flex items-center gap-2 text-sm text-neutral-200">
+  <div class="h-px bg-nc-shell-border" />
+  <div class="flex items-center gap-2 text-sm text-nc-text">
     <i class="fa fa-clock" />
     {#if showDate}
       Starts on {datetimeFmt.format(startDate)} — {isSingleDay

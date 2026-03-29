@@ -24,6 +24,7 @@
   } from "@welshman/util"
   import {createScroller} from "src/util/misc"
   import {showWarning} from "src/partials/Toast.svelte"
+  import {relayHealthTracker} from "src/engine/relay/relay-health"
   import Tabs from "src/partials/Tabs.svelte"
   import Modal from "src/partials/Modal.svelte"
   import FlexColumn from "src/partials/FlexColumn.svelte"
@@ -87,15 +88,39 @@
     modal = "add_relay"
   }
 
+  let confirmUnknownRelay = false
+  let pendingRelayUrl = ""
+
   const confirmAddCustomRelay = () => {
     const url = normalizeRelayUrl(customRelay)
 
     if (!isRelayUrl(url)) {
       showWarning("Please provide a valid relay url")
+    } else if (url.startsWith("ws://")) {
+      showWarning("Unencrypted relay connections (ws://) are not allowed — use wss://")
     } else {
-      joinRelay(url)
-      closeModal()
+      const tier = relayHealthTracker.getTier(url)
+      if (tier === "unknown") {
+        pendingRelayUrl = url
+        confirmUnknownRelay = true
+      } else {
+        joinRelay(url)
+        closeModal()
+      }
     }
+  }
+
+  const confirmAddUnknownRelay = () => {
+    relayHealthTracker.markKnown(pendingRelayUrl)
+    joinRelay(pendingRelayUrl)
+    confirmUnknownRelay = false
+    pendingRelayUrl = ""
+    closeModal()
+  }
+
+  const cancelUnknownRelay = () => {
+    confirmUnknownRelay = false
+    pendingRelayUrl = ""
   }
 
   const closeModal = () => {
@@ -148,7 +173,7 @@
     }
   })
 
-  document.title = "Relays"
+  document.title = "Relays | NavCom"
 </script>
 
 <FlexColumn bind:element>
@@ -162,14 +187,14 @@
     </Button>
   </div>
   <div class="panel p-4">
-    <p class="mt-2 text-neutral-200">
+    <p class="mt-2 text-nc-text">
       Relays are hubs for your content and connections. At least one is required to interact with
       the network, but you can join as many as you like.
     </p>
   </div>
   {#if currentRelayUrls.length === 0}
     <div class="mt-6">
-      <div class="panel flex items-center justify-center gap-3 p-4 text-center text-neutral-100">
+      <div class="panel flex items-center justify-center gap-3 p-4 text-center text-nc-text">
         <i class="fa fa-triangle-exclamation text-warning" />
         <span>No relays connected</span>
       </div>
@@ -185,7 +210,7 @@
     <h2 class="staatliches text-2xl">Other relays</h2>
   </div>
   <div class="panel p-4">
-    <p class="mt-2 text-neutral-200">
+    <p class="mt-2 text-nc-text">
       Below are relays used by people in your network. Adding these may improve your ability to load
       profiles and content.
     </p>
@@ -215,11 +240,21 @@
 
 {#if modal}
   <Modal onEscape={closeModal}>
-    <Subheading>Add a relay</Subheading>
-    <p>Enter a relay url below to add it to your relay selections.</p>
-    <Input autofocus bind:value={customRelay} placeholder="wss://...">
-      <i slot="before" class="fa fa-server" />
-    </Input>
-    <Button class="btn btn-accent" on:click={confirmAddCustomRelay}>Add Relay</Button>
+    {#if confirmUnknownRelay}
+      <Subheading>Unverified Relay</Subheading>
+      <p class="text-warning">This relay is unverified — messages may not be delivered reliably.</p>
+      <p class="text-sm text-nc-text-muted">URL: {pendingRelayUrl}</p>
+      <div class="flex gap-2">
+        <Button class="btn btn-accent" on:click={confirmAddUnknownRelay}>Add Anyway</Button>
+        <Button class="btn" on:click={cancelUnknownRelay}>Cancel</Button>
+      </div>
+    {:else}
+      <Subheading>Add a relay</Subheading>
+      <p>Enter a relay url below to add it to your relay selections.</p>
+      <Input autofocus bind:value={customRelay} placeholder="wss://...">
+        <i slot="before" class="fa fa-server" />
+      </Input>
+      <Button class="btn btn-accent" on:click={confirmAddCustomRelay}>Add Relay</Button>
+    {/if}
   </Modal>
 {/if}

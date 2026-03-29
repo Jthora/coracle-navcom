@@ -24,7 +24,7 @@
 
   const values = {...$profilesByPubkey.get($pubkey)}
 
-  document.title = "Profile"
+  document.title = "Profile | NavCom"
 </script>
 
 <form on:submit|preventDefault={submit} class="relative">

@@ -7,14 +7,20 @@
   import {derived} from "svelte/store"
   import {fly} from "src/util/transition"
   import {createScroller, pluralize} from "src/util/misc"
-  import {showWarning} from "src/partials/Toast.svelte"
+  import {showWarning, showError, showActionToast} from "src/partials/Toast.svelte"
   import Spinner from "src/partials/Spinner.svelte"
   import Link from "src/partials/Link.svelte"
   import Button from "src/partials/Button.svelte"
   import FlexColumn from "src/partials/FlexColumn.svelte"
   import Modal from "src/partials/Modal.svelte"
   import Subheading from "src/partials/Subheading.svelte"
-  import {getPqcDmSendBlockFeedback, hasNip44, sendMessage, userSettings} from "src/engine"
+  import {
+    getPqcDmSendBlockFeedback,
+    hasNip44,
+    isRecipientKeyRevoked,
+    sendMessage,
+    userSettings,
+  } from "src/engine"
   import {makeEditor} from "src/app/editor"
   import Message from "src/app/shared/Message.svelte"
   import EditorContent from "src/app/editor/EditorContent.svelte"
@@ -82,20 +88,37 @@
   const send = async () => {
     const content = editor.getText({blockSeparator: "\n"}).trim()
 
-    editor.commands.clearContent()
-
     if (content) {
       sending = true
 
       try {
         await sendMessage(channelId, content, $userSettings.send_delay)
+        editor.commands.clearContent()
       } catch (e: any) {
+        // Restore content on failure so user doesn't lose their message
+        editor.commands.setContent(content)
         const feedback = getPqcDmSendBlockFeedback(e)
+        const msg = e?.message || e?.error || ""
 
         if (feedback) {
-          showWarning(feedback.summary)
+          if (feedback.code === "DM_KEY_REVOKED" || feedback.code === "DM_POLICY_BLOCKED") {
+            showError(feedback.summary)
+          } else if (feedback.code === "DM_KEY_STALE") {
+            // Queue retry — show action toast so user can retry after key refreshes
+            showActionToast(
+              "Recipient's encryption key is outdated — waiting for updated key.",
+              "Retry",
+              () => send(),
+            )
+          } else {
+            showWarning(feedback.summary)
+          }
+        } else if (msg.includes("auth") || msg.includes("permission") || msg.includes("denied")) {
+          showError(
+            "Message failed — authentication or permission error. Check your login status and try again.",
+          )
         } else {
-          showWarning(`Failed to send message: ${e.error || e.message || "unknown error"}`)
+          showWarning(`Failed to send message: ${msg || "unknown error"}`)
         }
       }
 
@@ -117,6 +140,9 @@
   let groupedMessages = []
 
   $: userHasMessaging = !$pubkeysWithoutMessaging.includes($session?.pubkey)
+
+  // Check if any DM recipient has only revoked PQC keys
+  $: recipientKeysRevoked = pubkeys.some(pk => pk !== $session?.pubkey && isRecipientKeyRevoked(pk))
 
   // Group messages so we're only showing the person once per chunk
   $: {
@@ -150,8 +176,8 @@
     showNewMessages = false
   }} />
 
-<div class="inset-sai fixed z-chat flex flex-col bg-neutral-800 lg:ml-72">
-  <div class="bg-neutral-900">
+<div class="inset-sai bg-nc-shell-bg fixed z-chat flex flex-col lg:ml-72">
+  <div class="bg-nc-shell-deep">
     <slot name="header" />
   </div>
   <div
@@ -177,21 +203,30 @@
     {/await}
   </div>
   {#if $hasNip44}
-    <div class="flex border-t border-solid border-tinted-700 bg-neutral-900 dark:bg-neutral-600">
+    {#if recipientKeysRevoked}
+      <div
+        class="border-red-500/50 bg-red-900/20 text-red-300 flex items-center gap-2 border-t border-solid px-4 py-2 text-sm">
+        <i class="fa fa-ban" />
+        <span>Cannot send — recipient's encryption key has been revoked</span>
+      </div>
+    {/if}
+    <div class="flex border-t border-solid border-tinted-700 bg-nc-shell-deep">
       <EditorContent
         {editor}
-        class="w-full resize-none border-r border-solid border-tinted-700 bg-transparent p-2 text-neutral-100 outline-0 placeholder:text-neutral-100" />
+        class="w-full resize-none border-r border-solid border-tinted-700 bg-transparent p-2 text-nc-text outline-0 placeholder:text-nc-text" />
       <div>
         <button
           class="flex cursor-pointer flex-col justify-center gap-2 p-3
-                 py-6 text-neutral-100 transition-all hover:bg-accent hover:text-white"
+                 py-6 text-nc-text transition-all hover:bg-accent hover:text-white"
           on:click={() => editor.chain().selectFiles().run()}>
           <i class="fa-solid fa-paperclip fa-lg" />
         </button>
         <button
           on:click={sendOrConfirm}
+          disabled={recipientKeysRevoked}
           class="flex cursor-pointer flex-col justify-center gap-2 p-3
-               py-6 text-neutral-100 transition-all hover:bg-accent hover:text-white">
+               py-6 text-nc-text transition-all hover:bg-accent hover:text-white
+               disabled:cursor-not-allowed disabled:opacity-40">
           {#if sending}
             <i class="fa fa-circle-notch fa-spin fa-lg" />
           {:else}
@@ -201,7 +236,7 @@
       </div>
     </div>
   {:else}
-    <FlexColumn class="bg-neutral-900 px-4 py-2">
+    <FlexColumn class="bg-nc-shell-deep px-4 py-2">
       <p class="flex items-center gap-2">
         <i class="fa fa-info-circle p-1" />
         You are using a login method that doesn't yet support group chats. Please consider upgrading
@@ -214,7 +249,7 @@
       class="fixed bottom-32 flex w-full cursor-pointer justify-center"
       transition:fly|local={{y: 20}}
       on:click={scrollToBottom}>
-      <div class="rounded-full bg-accent px-4 py-2 text-neutral-100">New messages found</div>
+      <div class="rounded-full bg-accent px-4 py-2 text-nc-text">New messages found</div>
     </div>
   {/if}
 </div>

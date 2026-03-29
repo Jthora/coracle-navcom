@@ -26,16 +26,41 @@ export type RelayPolicyValidation = {
 
 const makePolicyKey = (groupId: string) => `group_relay_policy:${groupId}`
 
-const makeRelayId = () => `relay_${Math.random().toString(36).slice(2, 10)}`
+const makeRelayId = () => {
+  const bytes = new Uint8Array(6)
+  crypto.getRandomValues(bytes)
+  return `relay_${Array.from(bytes, b => b.toString(36).padStart(2, "0"))
+    .join("")
+    .slice(0, 8)}`
+}
 
-const normalizeRelayUrl = (url: string) => {
+export const normalizeRelayUrl = (url: string) => {
   const trimmed = (url || "").trim()
   const lower = trimmed.toLowerCase()
 
-  return lower.replace(/\/+$/, "")
+  // Collapse double-slash protocol variations (e.g. "wss:///host" → "wss://host")
+  const cleaned = lower.replace(/^(wss?:\/\/)\/+/, "$1")
+
+  return cleaned.replace(/\/+$/, "")
 }
 
-export const isValidRelayUrl = (url: string) => /^wss?:\/\/[a-z0-9.-]+(:\d+)?(\/.*)?$/i.test(url)
+/**
+ * Extract normalized relay URLs from a room relay policy.
+ * Used by the relay fingerprint gate assembly.
+ */
+export const extractRelayUrls = (policy: RoomRelayPolicy): string[] =>
+  policy.relays.map(r => normalizeRelayUrl(r.url))
+
+export const isValidRelayUrl = (url: string) => /^wss:\/\/[a-z0-9.-]+(:\d+)?(\/.*)?$/i.test(url)
+
+/**
+ * Block relay URLs pointing at private/internal networks (SSRF prevention).
+ * Allows explicit local relay bypass only via isLocalRelay().
+ */
+const PRIVATE_IP_PATTERN =
+  /^wss:\/\/(localhost|127\.[\d.]+|10\.[\d.]+|172\.(1[6-9]|2\d|3[01])\.[\d.]+|192\.168\.[\d.]+|\[?::1\]?|\[?::ffff:(10|127|192\.168)\.[\d.]+\]?)(:\d+)?(\/.*)?$/i
+
+export const isPrivateRelayUrl = (url: string) => PRIVATE_IP_PATTERN.test(url)
 
 export const createRelayEntry = (
   input: Partial<Pick<RoomRelayPolicyEntry, "url" | "role" | "isPrivate" | "claim" | "health">>,
@@ -94,6 +119,13 @@ export const validateRelayPolicy = (policy: RoomRelayPolicy): RelayPolicyValidat
 
     if (!isValidRelayUrl(relay.url)) {
       errors.push(`Invalid relay URL format: ${relay.url}`)
+    }
+
+    if (isPrivateRelayUrl(relay.url)) {
+      console.warn(
+        `[SecurityAudit] Private-IP relay blocked for group "${policy.groupId}": ${relay.url}`,
+      )
+      errors.push(`Private/internal network addresses are not allowed as relay URLs: ${relay.url}`)
     }
 
     if (seen.has(relay.url)) {

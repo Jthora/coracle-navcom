@@ -1,0 +1,73 @@
+{
+  "generatedAt": "2026-02-25T04:47:28.066Z",
+  "pass": false,
+  "source": {
+    "runs": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/loader/performance-plan/cache/baseline-runs.json",
+    "validation": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/loader/performance-plan/cache/baseline-telemetry-validation.json",
+    "diagnosis": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/loader/performance-plan/cache/baseline-diagnosability.json"
+  },
+  "runCount": 0,
+  "checks": [
+    {
+      "id": "2.2.2.1.1",
+      "label": "Validate event ordering across phases",
+      "pass": true,
+      "evidence": {
+        "validationPass": true,
+        "nonMonotonicTimestamps": 0,
+        "missingPhases": 0
+      }
+    },
+    {
+      "id": "2.2.2.1.2",
+      "label": "Test known synthetic slow scenarios",
+      "pass": true,
+      "evidence": {
+        "syntheticScenarioPass": true,
+        "scenarioCount": 3
+      }
+    },
+    {
+      "id": "2.2.2.1.3",
+      "label": "Confirm metric granularity supports diagnosis",
+      "pass": false,
+      "evidence": {
+        "runCount": 0,
+        "hasNetworkGranularity": false,
+        "hasReductionGranularity": false,
+        "hasRenderGranularity": false,
+        "unknownRate": 0,
+        "classifierDistinguishes": false
+      }
+    },
+    {
+      "id": "2.2.2.2.1",
+      "label": "List missing timers and counters",
+      "pass": true,
+      "evidence": {
+        "blindSpotCount": 0,
+        "blindSpotIds": []
+      }
+    },
+    {
+      "id": "2.2.2.2.2",
+      "label": "Rank blind spots by debugging impact",
+      "pass": true,
+      "evidence": {
+        "rankedBlindSpots": []
+      }
+    },
+    {
+      "id": "2.2.2.2.3",
+      "label": "Create remediation tickets",
+      "pass": true,
+      "evidence": {
+        "blindSpotCount": 0,
+        "remediationTicketCount": 0,
+        "remediationTicketIds": []
+      }
+    }
+  ],
+  "blindSpots": [],
+  "remediationTickets": []
+}

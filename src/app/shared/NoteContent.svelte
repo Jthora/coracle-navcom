@@ -43,7 +43,7 @@
 
 <div class:blur-sm={env.BLUR_CONTENT} class="overflow-hidden text-ellipsis">
   {#if warning}
-    <div class="flex gap-2 text-neutral-300">
+    <div class="flex gap-2 text-nc-text">
       <i class="fa fa-warning m-1" />
       <p>
         This note has been flagged by the author as "{warning}".<br />

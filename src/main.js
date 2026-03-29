@@ -1,5 +1,6 @@
 import "src/app.css"
 import "@capacitor-community/safe-area"
+import {initI18n} from "src/locales"
 import {loginWithNip01, loginWithNip46, nip46Perms} from "@welshman/app"
 import {Nip46Broker} from "@welshman/signer"
 import {makeSecret} from "@welshman/util"
@@ -7,11 +8,81 @@ import {App as CapacitorApp} from "@capacitor/app"
 import {nsecDecode} from "src/util/nostr"
 import {router} from "src/app/util"
 import {initializeSecurePilotRuntime} from "src/app/groups/secure-pilot-bootstrap"
+import {installLoaderBenchmarkRuntime} from "src/app/loader-benchmark/runtime"
 import App from "src/app/App.svelte"
 import {installPrompt} from "src/partials/state"
 import {env} from "src/engine"
 import {setSecurePilotEnabled} from "src/engine/group-transport-secure"
 import {replaySecureGroupKeyRotationJobs} from "src/engine/group-key-rotation-service"
+import {checkSwVersionMismatch} from "src/engine/sw-version-check"
+import {swUpdateState} from "src/app/shared/sw-update-state"
+import {relayHealthTracker} from "src/engine/relay/relay-health"
+import {showWarning, showActionToast} from "src/partials/Toast.svelte"
+import {onQueueQuarantine, onQueuePassphraseNeeded} from "src/engine/offline/queue-drain"
+import {pqcUnlockNeeded, pqcUnlockSkipped} from "src/engine/pqc/pq-key-store"
+import {startConnectionMonitor} from "src/engine/connection-state"
+
+// Detect stale service worker cache and reload if version mismatch
+checkSwVersionMismatch()
+
+// Start connection state monitoring (sovereign mode detection)
+startConnectionMonitor()
+
+// Notify when a relay is auto-demoted due to high failure rate
+relayHealthTracker.onDemotion(url => {
+  showWarning(`Relay removed due to repeated failures: ${url}`)
+})
+
+// Notify when queued messages are quarantined due to encryption key mismatch
+onQueueQuarantine(count => {
+  showActionToast(
+    `${count} queued message(s) could not be sent — encryption key mismatch`,
+    "View",
+    () => {
+      window.location.hash = "#/settings/data"
+    },
+  )
+})
+
+// Non-blocking prompt when queue drain needs passphrase to unlock keys
+onQueuePassphraseNeeded(() => {
+  showActionToast("Queued messages need your passphrase to send", "Unlock", () => {
+    pqcUnlockSkipped.set(false)
+    pqcUnlockNeeded.set(true)
+  })
+})
+
+// Listen for service worker updates and show prompt
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.ready
+    .then(registration => {
+      registration.addEventListener("updatefound", () => {
+        const newWorker = registration.installing
+        if (!newWorker) return
+        newWorker.addEventListener("statechange", () => {
+          if (newWorker.state === "installed" && navigator.serviceWorker.controller) {
+            swUpdateState.set({
+              available: true,
+              updateSW: async () => {
+                newWorker.postMessage({type: "SKIP_WAITING"})
+                window.location.reload()
+              },
+              registrationError: false,
+              securityCritical: false,
+            })
+          }
+        })
+      })
+    })
+    .catch(() => {
+      swUpdateState.set({
+        available: false,
+        updateSW: null,
+        registrationError: true,
+        securityCritical: false,
+      })
+    })
+}
 
 // Nstart login - hash is replaced somewhere else, maybe router?
 if (window.location.hash?.startsWith("#nostr-login")) {
@@ -45,6 +116,9 @@ if (window.location.hash?.startsWith("#nostr-login")) {
     } catch (e) {
       console.error(e)
     }
+
+    // Clear sensitive login data from URL immediately
+    history.replaceState(null, "", window.location.pathname + window.location.search)
 
     if (success) {
       setTimeout(() => {
@@ -106,6 +180,11 @@ Promise.resolve(
 ).catch(() => {
   // backButton is only available in native contexts
 })
+
+installLoaderBenchmarkRuntime()
+
+// Initialize internationalization before first render
+initI18n()
 
 export default new App({
   target: document.getElementById("app"),

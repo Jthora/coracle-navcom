@@ -1,0 +1,152 @@
+# NavCom — Full Context for AI Agents
+
+> Decentralized operations and intelligence platform built on the Nostr protocol. Created by Archangel as part of the Earth Intelligence Network.
+
+## Mission
+
+NavCom exists because a planetary-scale intelligence and coordination network cannot depend on infrastructure that any single government, corporation, or adversary can shut down, surveil, or compromise. It provides sovereign, encrypted, geo-aware, tiered-security communications built on open protocols.
+
+## What NavCom is
+
+NavCom is a white-labeled fork of Coracle (an open-source Nostr client), extended by Archangel into a decentralized operations and intelligence platform. It runs on the Nostr protocol — no central servers own the data or control who can participate. Anyone can run a relay; the data persists across many.
+
+## Core capabilities
+
+### Post types
+
+NavCom supports structured post types beyond standard social media:
+
+1. **Default Note** — Standard Nostr kind:1 post. General audience. No forced tags.
+2. **Starcom Ops** — Operational status updates. Appends `#starcom_ops` to content. Tagged with `["app", "starcom"]`. Appears in the dedicated Ops Feed.
+3. **GEOINT (Geo-Intelligence)** — Geo-referenced intelligence reports. Requires coordinates (lat/lon). Appends `#starcom_intel` to content. Embeds GeoJSON payload via `---GEOJSON---` delimiter. Includes tags: `app/starcom-geoint`, `client/navcom`, `geo` (coordinates), optional `g` (geohash), `geoint-type` (subtype). Rendered on the interactive Nav Map at `/intel/map`.
+
+### Feeds and navigation
+
+- **Announcements** — System-wide broadcast; the default landing page
+- **Ops Feed** — Filtered view of `#starcom_ops` tagged posts
+- **Intel Feed** — Filtered view of `#starcom_intel` tagged posts
+- **Nav Map** — Interactive map at `/intel/map` rendering GEOINT posts as pins with metadata
+- **Open Feed** — General/public Nostr content
+- **Groups** — Encrypted group communications with tiered security
+- **Direct Messages** — End-to-end encrypted one-on-one messaging
+
+### Security architecture
+
+#### Mission tiers
+
+NavCom defines three security tiers for different operational contexts:
+
+**Tier 0: Public OSINT Collaboration**
+- Data sensitivity: low
+- Expected adversary: casual observers and spam actors
+- Required: integrity, abuse resistance, auditability
+- Confidentiality: optional
+
+**Tier 1: Restricted Ops Collaboration**
+- Data sensitivity: moderate
+- Expected adversary: targeted nuisance actors and relay scraping
+- Required: controlled membership, reliable moderation
+- Confidentiality: recommended
+
+**Tier 2: High-Risk GEOINT Operations**
+- Data sensitivity: high
+- Expected adversary: capable targeted actors
+- Required: strong confidentiality and key hygiene
+- Confidentiality: mandatory
+- Metadata privacy: mandatory
+- Downgrade resistance: mandatory
+
+#### Adversary model
+
+- A1: Passive relay observer
+- A2: Malicious relay operator
+- A3: Malicious group member
+- A4: Compromised endpoint device
+- A5: Network-level traffic analyst
+- A6: Social engineering attacker
+
+#### Post-quantum cryptography (PQC)
+
+NavCom has a full PQC security program to protect against harvest-now-decrypt-later threats:
+
+- Hybrid PQ + classical encryption for DMs and group chats
+- No central key servers or cloud trust anchors — decentralization preserved
+- Capability negotiation for mixed-client networks
+- Strict and compatibility modes with explicit downgrade semantics
+- User-visible trust indicators
+- Epoch-based keying for group chat
+- Key publication, discovery, rotation, and revocation policies
+
+### Interoperability
+
+All NavCom posts remain valid Nostr `kind:1` events. Any Nostr client can read them. The structured tags (`app/starcom-geoint`, `client/navcom`, `geo`, etc.) are additive — they enable rich rendering in NavCom and Starcom while degrading gracefully in generic clients.
+
+#### GEOINT content format example
+
+```
+Recon report. #starcom_intel ---GEOJSON---{"type":"Feature","geometry":{"type":"Point","coordinates":[12.4924,41.8902]},"properties":{"timestamp":"2026-02-11T10:00:00Z","type":"report","description":"Recon report.","confidence":0.6,"version":1}}
+```
+
+#### Tag schema for GEOINT posts
+- `["app", "starcom-geoint"]` — Application identifier
+- `["client", "navcom"]` — Client identifier
+- `["geo", "lat:41.8902,lon:12.4924"]` — Coordinates
+- `["g", "<geohash>"]` — Optional geohash
+- `["geoint-type", "<subtype>"]` — Report subtype
+- `["t", "starcom_intel"]` — Topic hashtag
+
+## Ecosystem
+
+NavCom is one node in a constellation of interconnected systems:
+
+| System | Role |
+|--------|------|
+| **Starcom** | Operations command — ops/intel tagging, globe viewer, feed filtering |
+| **NavCom** | The user-facing communications and posting platform |
+| **Archangel** | The organization building and governing the network |
+| **Thora** | Additional system within the network |
+
+Default topics: `starcom`, `navcom`, `archangel`, `thora`
+
+New users' HQ feed starts scoped to Starcom topics.
+
+## Why Nostr specifically
+
+- **Relay-first architecture** — Users choose and manage their own relay connections; no single point of failure
+- **Cryptographic identity** — No usernames/passwords on a server; users own their keys
+- **Censorship resistance** — No single entity can de-platform users or shut down the network
+- **Web-of-trust moderation** — Spam and content quality handled through cryptographic trust graphs
+- **Protocol interoperability** — NavCom content is readable by any Nostr client worldwide
+
+## Technology
+
+- Frontend: Svelte + TypeScript
+- Protocol: Nostr (NIPs: 04, 05, 17, 42, 50, 51, 52, 65, 72, 87, 89, 96, 99 and others)
+- Libraries: `@welshman` Nostr library suite
+- Platforms: Progressive Web App (PWA), Android (via Capacitor)
+- Encryption: NIP-04/NIP-44 classical + hybrid post-quantum (ML-KEM / Kyber)
+- Fully white-label capable via environment configuration
+
+## Key differentiators vs. generic Nostr clients
+
+1. **Structured intelligence post types** — Not just social media; Ops, Intel, and GEOINT are first-class content types
+2. **Geo-intelligence with embedded GeoJSON** — Location-aware reporting rendered on interactive maps
+3. **Three-tier operational security model** — Mission-appropriate security from open OSINT to mandatory encryption
+4. **Post-quantum cryptographic readiness** — Forward-looking protection against quantum computing threats
+5. **Purpose-built for coordination** — Announcements, ops feeds, intel feeds, and a nav map; not a generic timeline
+
+## User onboarding
+
+NavCom prioritizes rapid onboarding:
+- Target: new user posting in under 60 seconds
+- Managed key by default (app generates and holds the key; user can export)
+- Auto-applied default relays and starter follows
+- No mandatory protocol education; external links for the curious
+- Self-custody and advanced signer options available as secondary paths
+
+## Links
+
+- Website: https://navcom.app
+- Concise version: https://navcom.app/llms.txt
+- Source: Fork of Coracle — https://github.com/coracle-social/coracle
+- Nostr protocol: https://nostr.com

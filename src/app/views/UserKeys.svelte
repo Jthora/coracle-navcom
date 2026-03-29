@@ -11,7 +11,7 @@
   const keypairUrl = "https://www.cloudflare.com/learning/ssl/how-does-public-key-encryption-work/"
   const getBunkerUrl = () => ($signer.signer as Nip46Signer).broker.getBunkerUrl()
 
-  document.title = "Keys"
+  document.title = "Keys | NavCom"
 </script>
 
 <FlexColumn xl>
@@ -29,7 +29,7 @@
     </p>
     <div>
       <CopyValue label="Public Key" value={$session?.pubkey} encode={nip19.npubEncode} />
-      <small class="text-neutral-100">
+      <small class="text-nc-text">
         Your public key identifies your account. You can share this with people trying to find you
         on nostr.
       </small>
@@ -42,7 +42,7 @@
           value={$session?.secret}
           encode={nsecEncode}
           hasEncryptPrompt />
-        <small class="text-neutral-100">
+        <small class="text-nc-text">
           Your private key is used to prove your identity by cryptographically signing messages. <strong
             >Do not share this with anyone.</strong>
           Be careful about copying this into other apps - instead, consider using a <Link
@@ -55,7 +55,7 @@
     {#if $session?.method === "nip46"}
       <div>
         <CopyValue label="Bunker URL" value={getBunkerUrl()} />
-        <small class="text-neutral-100">
+        <small class="text-nc-text">
           Your bunker url works like password, and can be used instead of your private key to log in
           to other apps. This is safer than sharing your private key, but you should still be
           careful to keep your bunker url private.

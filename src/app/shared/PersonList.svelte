@@ -7,6 +7,7 @@
   import Card from "src/partials/Card.svelte"
   import FlexColumn from "src/partials/FlexColumn.svelte"
   import PersonSummary from "src/app/shared/PersonSummary.svelte"
+  import VirtualList from "src/app/shared/VirtualList.svelte"
 
   export let pubkeys
 
@@ -38,7 +39,20 @@
 
 <FlexColumn bind:element>
   {#if results.length === 0}
-    <div class="panel p-6 text-center text-neutral-200">No people found</div>
+    <div class="panel p-6 text-center text-nc-text">No people found</div>
+  {:else if results.length > 50}
+    <!-- Virtualized for large member lists -->
+    <VirtualList
+      count={results.length}
+      estimateSize={48}
+      overscan={8}
+      containerClass="h-[60vh] max-h-[500px]">
+      <div slot="default" let:index>
+        <Card>
+          <PersonSummary pubkey={results[index]} />
+        </Card>
+      </div>
+    </VirtualList>
   {:else}
     {#each results as pubkey (pubkey)}
       <Card>

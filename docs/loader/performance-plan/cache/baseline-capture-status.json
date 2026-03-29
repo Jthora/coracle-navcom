@@ -1,0 +1,73 @@
+{
+  "generatedAt": "2026-02-25T01:50:14.796Z",
+  "source": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/loader/performance-plan/cache/baseline-runs.json",
+  "requiredRunsPerSurface": 10,
+  "totalRequiredRuns": 50,
+  "totalCapturedRuns": 0,
+  "remainingRuns": 50,
+  "completionPercent": 0,
+  "completeSurfaceCount": 0,
+  "totalSurfaceCount": 5,
+  "pass": false,
+  "surfaces": [
+    {
+      "surface": "feed",
+      "label": "Feed",
+      "runCount": 0,
+      "requiredRuns": 10,
+      "remainingRuns": 10,
+      "complete": false,
+      "completionPercent": 0
+    },
+    {
+      "surface": "intel map",
+      "label": "Intel Map",
+      "runCount": 0,
+      "requiredRuns": 10,
+      "remainingRuns": 10,
+      "complete": false,
+      "completionPercent": 0
+    },
+    {
+      "surface": "notifications",
+      "label": "Notifications",
+      "runCount": 0,
+      "requiredRuns": 10,
+      "remainingRuns": 10,
+      "complete": false,
+      "completionPercent": 0
+    },
+    {
+      "surface": "groups",
+      "label": "Groups",
+      "runCount": 0,
+      "requiredRuns": 10,
+      "remainingRuns": 10,
+      "complete": false,
+      "completionPercent": 0
+    },
+    {
+      "surface": "bootstrap",
+      "label": "Bootstrap",
+      "runCount": 0,
+      "requiredRuns": 10,
+      "remainingRuns": 10,
+      "complete": false,
+      "completionPercent": 0
+    }
+  ],
+  "nextActions": [
+    "Capture 10 additional runs for Feed",
+    "Capture 10 additional runs for Intel Map",
+    "Capture 10 additional runs for Notifications",
+    "Capture 10 additional runs for Groups",
+    "Capture 10 additional runs for Bootstrap"
+  ],
+  "nextTarget": {
+    "surface": "feed",
+    "label": "Feed",
+    "remainingRuns": 10,
+    "runCount": 0,
+    "requiredRuns": 10
+  }
+}

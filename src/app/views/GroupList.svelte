@@ -31,7 +31,7 @@
 
   onMount(() => {
     ensureGroupsHydrated()
-    document.title = "Groups"
+    document.title = "Groups | NavCom"
   })
 </script>
 
@@ -44,12 +44,12 @@
       <Popover triggerType="mouseenter" placement="bottom-start" opts={{maxWidth: 320}}>
         <button
           slot="trigger"
-          class="text-neutral-400 transition hover:text-neutral-200"
+          class="text-nc-text-muted transition hover:text-nc-text"
           type="button"
           aria-label="Groups info">
           <i class="fa fa-info-circle" />
         </button>
-        <div slot="tooltip" class="space-y-2 text-sm text-neutral-200">
+        <div slot="tooltip" class="space-y-2 text-sm text-nc-text">
           <p>Relay-managed groups you can browse, join, and administer.</p>
           <p>Security labels are shown on each group card and expanded in Chat/Settings.</p>
         </div>
@@ -68,9 +68,9 @@
     <div class="mt-3 rounded border border-warning px-3 py-2 text-sm text-warning">
       <div>{guardMessage}</div>
       {#if guardFrom}
-        <div class="mt-1 text-xs text-neutral-300">Redirected from {guardFrom}</div>
+        <div class="mt-1 text-xs text-nc-text">Redirected from {guardFrom}</div>
       {/if}
-      <div class="mt-1 text-xs text-neutral-300">
+      <div class="mt-1 text-xs text-nc-text">
         Next step: create a new group, join from invite, or select an existing group below.
       </div>
       <div class="mt-2 flex gap-2">
@@ -82,21 +82,21 @@
 </div>
 
 {#if !$groupsHydrated}
-  <div class="panel p-6 text-center text-neutral-300">Loading groups…</div>
+  <div class="panel p-6 text-center text-nc-text">Loading groups…</div>
 {:else}
   {#each $groupSummaries as group (group.id)}
     <div class="panel p-4">
       <div class="flex items-center justify-between gap-4">
         <div>
           <Link
-            class="font-semibold text-neutral-50 hover:text-neutral-200"
+            class="font-semibold text-nc-text hover:text-nc-text"
             href={toGroupOverviewHref(group.id)}>{getGroupTitle(group)}</Link>
           {#if showFullGroupId(group)}
-            <p class="mt-1 font-mono text-xs text-neutral-500">{group.id}</p>
+            <p class="mt-1 font-mono text-xs text-nc-text-muted">{group.id}</p>
           {/if}
-          <p class="mt-1 text-sm text-neutral-300">{group.description || "No description yet."}</p>
+          <p class="mt-1 text-sm text-nc-text">{group.description || "No description yet."}</p>
         </div>
-        <div class="text-right text-xs text-neutral-400">
+        <div class="text-right text-xs text-nc-text-muted">
           {#if getUnreadCount(group.id) > 0}
             <div
               class="mb-1 inline-flex items-center gap-1 rounded border border-accent px-2 py-0.5 text-accent">
@@ -108,7 +108,7 @@
           <div>{group.protocol.toUpperCase()}</div>
           <div>
             <span
-              class="inline-flex rounded border border-neutral-700 px-2 py-0.5 text-neutral-300"
+              class="inline-flex rounded border border-nc-shell-border px-2 py-0.5 text-nc-text"
               title={getSecurityState(group.transportMode).hint}>
               {getSecurityState(group.transportMode).label}
             </span>
@@ -121,11 +121,9 @@
       </div>
     </div>
   {:else}
-    <div class="panel p-6 text-center text-neutral-200">
+    <div class="panel p-6 text-center text-nc-text">
       <p>No groups available yet.</p>
-      <p class="mt-2 text-sm text-neutral-400">
-        Join from invite or create a group to begin.
-      </p>
+      <p class="mt-2 text-sm text-nc-text-muted">Join from invite or create a group to begin.</p>
     </div>
   {/each}
 {/if}

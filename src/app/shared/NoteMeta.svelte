@@ -19,7 +19,7 @@
 
 {#if zaps.length > 0}
   {@const pubkeys = uniq(zaps.map(e => getTagValue("P", e.tags)).filter(identity))}
-  <p class="flex items-center gap-1 pb-2 text-sm text-neutral-300">
+  <p class="flex items-center gap-1 pb-2 text-sm text-nc-text">
     <Icon icon="bolt" />
     Zapped by
     {#if pubkeys.length === 1}
@@ -30,7 +30,7 @@
   </p>
 {:else if reposts.length > 0}
   {@const pubkeys = getPubkeys(reposts)}
-  <p class="flex items-center gap-1 pb-2 text-sm text-neutral-300">
+  <p class="flex items-center gap-1 pb-2 text-sm text-nc-text">
     <i class="fa fa-rotate" />
     Reposted by
     {#if pubkeys.length === 1}
@@ -40,7 +40,7 @@
     {/if}
   </p>
 {:else if reactions.length > 0}
-  <p class="flex items-center gap-1 pb-2 text-sm text-neutral-300">
+  <p class="flex items-center gap-1 pb-2 text-sm text-nc-text">
     {#if reactions.length === 1}
       <PersonLink pubkey={reactions[0].pubkey} />
       reacted with

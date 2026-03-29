@@ -46,6 +46,7 @@ export type GroupTransportMessageRequest = {
   resolvedMode?: GroupTransportModeId
   downgradeConfirmed?: boolean
   allowTier2Override?: boolean
+  extraTags?: string[][]
 }
 
 export type GroupTransportErrorCode =

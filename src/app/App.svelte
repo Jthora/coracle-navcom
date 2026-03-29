@@ -23,14 +23,20 @@
   import {ANNOUNCEMENTS_PATH} from "src/app/announcements"
   import {registerGroupRoutes} from "src/app/groups/routes"
   import Toast from "src/partials/Toast.svelte"
+  import SovereignBar from "src/partials/SovereignBar.svelte"
+  import {showWarning, showActionToast} from "src/partials/Toast.svelte"
   import ChatEnable from "src/app/views/ChatEnable.svelte"
   import Menu from "src/app/Menu.svelte"
   import Routes from "src/app/Routes.svelte"
+  import ErrorBoundary from "src/app/ErrorBoundary.svelte"
   import Nav from "src/app/Nav.svelte"
+  import ModeTabBar from "src/app/views/ModeTabBar.svelte"
   import MainStatusBar from "src/app/MainStatusBar.svelte"
   import ForegroundButtons from "src/app/ForegroundButtons.svelte"
   import LoaderStatusBanner from "src/app/shared/LoaderStatusBanner.svelte"
+  import SwUpdateBanner from "src/app/shared/SwUpdateBanner.svelte"
   import {enterLoaderStatus, exitLoaderStatus} from "src/app/status/loader-status"
+  import {announcement, announcementPriority, skipToMain} from "src/partials/accessibility"
   import Bech32Entity from "src/app/views/Bech32Entity.svelte"
   import ChannelCreate from "src/app/views/ChannelCreate.svelte"
   import ChannelsDetail from "src/app/views/ChannelsDetail.svelte"
@@ -52,6 +58,15 @@
   import Notifications from "src/app/views/Notifications.svelte"
   import Onboarding from "src/app/views/Onboarding.svelte"
   import BackupReminder from "src/app/views/onboarding/BackupReminder.svelte"
+  import UnlockScreen from "src/app/views/UnlockScreen.svelte"
+  import {
+    pqcUnlockNeeded,
+    pqcUnlockSkipped,
+    setActivePassphrase,
+    skipPqcUnlock,
+    checkPqcUnlockNeeded,
+    migrateLegacyPqcKeys,
+  } from "src/engine/pqc/pq-key-store"
   import ManagedExportPrompt from "src/app/views/onboarding/ManagedExportPrompt.svelte"
   import PersonDetail from "src/app/views/PersonDetail.svelte"
   import PersonFollowers from "src/app/views/PersonFollowers.svelte"
@@ -62,8 +77,10 @@
   import Search from "src/app/views/Search.svelte"
   import ThreadDetail from "src/app/views/ThreadDetail.svelte"
   import Zap from "src/app/views/Zap.svelte"
-  import {onMount} from "svelte"
+  import {onMount, onDestroy} from "svelte"
   import {logUsage} from "src/app/state"
+  import {setMode} from "src/app/navcom-mode"
+  import type {NavComMode} from "src/app/navcom-mode"
   import {
     router,
     asChannelId,
@@ -122,8 +139,6 @@
       initialGroupAddress: asUrlComponent("initialGroupAddress"),
     },
   })
-
-  router.registerLazy("/intel/map", () => import("src/app/views/IntelNavMap.svelte"))
 
   router.register("/feeds", FeedList)
   router.register("/feeds/create", FeedCreate)
@@ -428,6 +443,21 @@
 
   // App data boostrap and relay meta fetching
 
+  // NavCom mode keyboard shortcuts: Ctrl/Cmd+1=comms, Ctrl/Cmd+2=map, Ctrl/Cmd+3=ops
+  const modeKeys: Record<string, NavComMode> = {"1": "comms", "2": "map", "3": "ops"}
+
+  function handleModeShortcut(e: KeyboardEvent) {
+    if (!(e.ctrlKey || e.metaKey)) return
+    const mode = modeKeys[e.key]
+    if (mode) {
+      e.preventDefault()
+      setMode(mode)
+    }
+  }
+
+  window.addEventListener("keydown", handleModeShortcut)
+  onDestroy(() => window.removeEventListener("keydown", handleModeShortcut))
+
   const APP_BOOTSTRAP_OPERATION = "app-bootstrap"
 
   enterLoaderStatus("app.bootstrap.engine", APP_BOOTSTRAP_OPERATION)
@@ -437,6 +467,9 @@
       // before loading app data
       enterLoaderStatus("app.bootstrap.store-settle", APP_BOOTSTRAP_OPERATION)
       await sleep(350)
+
+      // Check if PQC secure store needs unlocking
+      await checkPqcUnlockNeeded()
 
       if ($session) {
         enterLoaderStatus("app.bootstrap.user-data", APP_BOOTSTRAP_OPERATION)
@@ -453,16 +486,75 @@
     })
 </script>
 
-<div class="text-neutral-100">
-  <Routes />
+<div class="text-nc-text">
+  <!-- Accessibility: Skip-to-content link (appears on Tab) -->
+  <a class="sr-only focus:not-sr-only" href="#main-content" on:click|preventDefault={skipToMain}>
+    Skip to content
+  </a>
+
+  <!-- Accessibility: Global ARIA live region for screen reader announcements -->
+  <div aria-live={$announcementPriority} aria-atomic="true" class="sr-only" role="status">
+    {$announcement}
+  </div>
+
+  {#if $pqcUnlockNeeded}
+    <UnlockScreen
+      on:unlock={async e => {
+        setActivePassphrase(e.detail.passphrase)
+        const result = await migrateLegacyPqcKeys()
+        if (result.failed > 0) {
+          showActionToast(
+            `${result.failed} key(s) could not be re-encrypted with your passphrase`,
+            "Retry",
+            async () => {
+              const retry = await migrateLegacyPqcKeys()
+              if (retry.failed > 0) {
+                showWarning(`${retry.failed} key(s) still failed to migrate`)
+              }
+            },
+          )
+        }
+      }}
+      on:skip={skipPqcUnlock} />
+  {:else}
+    <ErrorBoundary>
+      <main id="main-content" tabindex="-1" aria-label="Main content">
+        <Routes />
+      </main>
+    </ErrorBoundary>
+  {/if}
   <LoaderStatusBanner />
+  <SwUpdateBanner />
+  {#if $pqcUnlockSkipped}
+    <div class="fixed left-0 right-0 top-0 z-toast flex justify-center">
+      <div
+        class="border-amber-500 bg-amber-900/80 m-2 max-w-xl flex-grow rounded border p-3 text-center text-sm text-nc-text shadow-xl">
+        <i class="fa fa-shield-halved mr-1" />
+        Your encryption keys are not fully protected.
+        <button
+          class="ml-2 underline hover:text-white"
+          on:click={() => {
+            pqcUnlockNeeded.set(true)
+            pqcUnlockSkipped.set(false)
+          }}>
+          Set passphrase
+        </button>
+      </div>
+    </div>
+  {/if}
   {#key $pubkey}
     <ForegroundButtons />
-    <Nav />
+    <nav aria-label="Main navigation">
+      <Nav />
+    </nav>
+    <nav aria-label="Mode navigation">
+      <ModeTabBar />
+    </nav>
     <Menu />
     <MainStatusBar />
     <BackupReminder />
     <ManagedExportPrompt />
+    <SovereignBar />
     <Toast />
   {/key}
 </div>

@@ -16,7 +16,7 @@
   $: detail = projection ? buildGroupDetailViewModel(projection) : null
   $: securityState = getProjectionSecurityState(projection)
   $: section = getGroupRouteSection(window.location.pathname)
-  $: document.title = detail ? `${detail.title} · Groups` : "Group · Groups"
+  $: document.title = detail ? `${detail.title} · Groups | NavCom` : "Groups | NavCom"
   $: breadcrumbs = buildGroupBreadcrumbItems({
     section,
     groupId,
@@ -45,16 +45,16 @@
 </script>
 
 {#if !$groupsHydrated}
-  <div class="panel p-6 text-center text-neutral-300">Loading group details…</div>
+  <div class="panel p-6 text-center text-nc-text">Loading group details…</div>
 {:else if !detail}
-  <div class="panel p-6 text-center text-neutral-200">
+  <div class="panel p-6 text-center text-nc-text">
     {#if guardMessage}
       <div class="mb-4 rounded border border-warning px-3 py-2 text-sm text-warning">
         <div>{guardMessage}</div>
         {#if guardFrom}
-          <div class="mt-1 text-xs text-neutral-300">Redirected from {guardFrom}</div>
+          <div class="mt-1 text-xs text-nc-text">Redirected from {guardFrom}</div>
         {/if}
-        <div class="mt-1 text-xs text-neutral-300">
+        <div class="mt-1 text-xs text-nc-text">
           Next step: continue in Group Chat for this group, or open another invite from Groups.
         </div>
         <div class="mt-2">
@@ -63,7 +63,7 @@
       </div>
     {/if}
     <p>Group not found.</p>
-    <p class="mt-2 text-sm text-neutral-400">Check the link or return to the groups list.</p>
+    <p class="mt-2 text-sm text-nc-text-muted">Check the link or return to the groups list.</p>
     <div class="mt-4">
       <Link class="btn" href="/groups">Back to Groups</Link>
     </div>
@@ -73,28 +73,28 @@
     <GroupBreadcrumbs items={breadcrumbs} />
     <div class="flex items-start justify-between gap-4">
       <div>
-        <h2 class="text-xl font-semibold text-neutral-50">{detail.title}</h2>
-        <p class="mt-1 text-sm text-neutral-300">
+        <h2 class="text-xl font-semibold text-nc-text">{detail.title}</h2>
+        <p class="mt-1 text-sm text-nc-text">
           {detail.description || "No group description yet."}
         </p>
       </div>
       <div class="flex flex-wrap justify-end gap-2 text-xs">
-        <span class="rounded border border-neutral-700 px-2 py-1 text-neutral-300">
+        <span class="rounded border border-nc-shell-border px-2 py-1 text-nc-text">
           {detail.protocol.toUpperCase()}
         </span>
-        <span class="rounded border border-neutral-700 px-2 py-1 text-neutral-300">
+        <span class="rounded border border-nc-shell-border px-2 py-1 text-nc-text">
           {detail.transportMode}
         </span>
-        <span class="rounded border border-neutral-700 px-2 py-1" class:text-warning={detail.stale}>
+        <span class="rounded border border-nc-shell-border px-2 py-1" class:text-warning={detail.stale}>
           {detail.stale ? "Stale" : "Live"}
         </span>
-        <span class="rounded border border-neutral-700 px-2 py-1 text-neutral-300">
+        <span class="rounded border border-nc-shell-border px-2 py-1 text-nc-text">
           {securityState.label}
         </span>
       </div>
     </div>
 
-    <div class="mt-3 rounded border border-neutral-700 px-3 py-2 text-sm text-neutral-300">
+    <div class="mt-3 rounded border border-nc-shell-border px-3 py-2 text-sm text-nc-text">
       {securityState.hint}
     </div>
 
@@ -102,9 +102,9 @@
       <div class="mt-3 rounded border border-warning px-3 py-2 text-sm text-warning">
         <div>{guardMessage}</div>
         {#if guardFrom}
-          <div class="mt-1 text-xs text-neutral-300">Redirected from {guardFrom}</div>
+          <div class="mt-1 text-xs text-nc-text">Redirected from {guardFrom}</div>
         {/if}
-        <div class="mt-1 text-xs text-neutral-300">
+        <div class="mt-1 text-xs text-nc-text">
           Next step: continue in Group Chat for this group, or open another invite from Groups.
         </div>
         <div class="mt-2">
@@ -129,12 +129,12 @@
         href={toRoute("settings")}>Settings</Link>
     </div>
 
-    <div class="mt-4 grid gap-2 text-sm text-neutral-300 sm:grid-cols-3">
-      <div class="rounded border border-neutral-700 px-3 py-2">Members: {detail.memberCount}</div>
-      <div class="rounded border border-neutral-700 px-3 py-2">
+    <div class="mt-4 grid gap-2 text-sm text-nc-text sm:grid-cols-3">
+      <div class="rounded border border-nc-shell-border px-3 py-2">Members: {detail.memberCount}</div>
+      <div class="rounded border border-nc-shell-border px-3 py-2">
         Active: {detail.activeMemberCount}
       </div>
-      <div class="rounded border border-neutral-700 px-3 py-2">
+      <div class="rounded border border-nc-shell-border px-3 py-2">
         Pending: {detail.pendingMemberCount}
       </div>
     </div>
@@ -142,16 +142,16 @@
 
   {#if section === "members"}
     <div class="panel p-4">
-      <h3 class="text-sm uppercase tracking-[0.08em] text-neutral-300">Members</h3>
+      <h3 class="text-sm uppercase tracking-[0.08em] text-nc-text">Members</h3>
       {#if allMembers.length === 0}
-        <p class="mt-3 text-sm text-neutral-400">No membership records yet.</p>
+        <p class="mt-3 text-sm text-nc-text-muted">No membership records yet.</p>
       {:else}
         <div class="mt-3 space-y-2">
           {#each allMembers as member (member.pubkey)}
             <div
-              class="flex items-center justify-between rounded border border-neutral-700 px-3 py-2 text-sm">
-              <div class="font-mono text-neutral-200">{asShortKey(member.pubkey)}</div>
-              <div class="flex items-center gap-3 text-neutral-300">
+              class="flex items-center justify-between rounded border border-nc-shell-border px-3 py-2 text-sm">
+              <div class="font-mono text-nc-text">{asShortKey(member.pubkey)}</div>
+              <div class="flex items-center gap-3 text-nc-text">
                 <span class="uppercase">{member.role}</span>
                 <span class="capitalize">{member.status}</span>
               </div>
@@ -162,18 +162,18 @@
     </div>
   {:else}
     <div class="panel p-4">
-      <h3 class="text-sm uppercase tracking-[0.08em] text-neutral-300">
+      <h3 class="text-sm uppercase tracking-[0.08em] text-nc-text">
         Overview · Membership Preview
       </h3>
       {#if detail.memberPreview.length === 0}
-        <p class="mt-3 text-sm text-neutral-400">No membership records yet.</p>
+        <p class="mt-3 text-sm text-nc-text-muted">No membership records yet.</p>
       {:else}
         <div class="mt-3 space-y-2">
           {#each detail.memberPreview as member (member.pubkey)}
             <div
-              class="flex items-center justify-between rounded border border-neutral-700 px-3 py-2 text-sm">
-              <div class="font-mono text-neutral-200">{asShortKey(member.pubkey)}</div>
-              <div class="flex items-center gap-3 text-neutral-300">
+              class="flex items-center justify-between rounded border border-nc-shell-border px-3 py-2 text-sm">
+              <div class="font-mono text-nc-text">{asShortKey(member.pubkey)}</div>
+              <div class="flex items-center gap-3 text-nc-text">
                 <span class="uppercase">{member.role}</span>
                 <span class="capitalize">{member.status}</span>
               </div>
@@ -184,20 +184,20 @@
     </div>
 
     <div class="panel p-4">
-      <h3 class="text-sm uppercase tracking-[0.08em] text-neutral-300">Recent Timeline</h3>
+      <h3 class="text-sm uppercase tracking-[0.08em] text-nc-text">Recent Timeline</h3>
       {#if detail.auditPreview.length === 0}
-        <p class="mt-3 text-sm text-neutral-400">No moderation events yet.</p>
+        <p class="mt-3 text-sm text-nc-text-muted">No moderation events yet.</p>
       {:else}
         <div class="mt-3 space-y-2">
           {#each detail.auditPreview as entry, i (`${entry.action}-${entry.createdAt}-${i}`)}
-            <div class="rounded border border-neutral-700 px-3 py-2 text-sm text-neutral-300">
+            <div class="rounded border border-nc-shell-border px-3 py-2 text-sm text-nc-text">
               <div class="flex items-center justify-between gap-2">
-                <span class="font-semibold text-neutral-100">{entry.action}</span>
-                <span class="text-xs text-neutral-400">{formatTimestamp(entry.createdAt)}</span>
+                <span class="font-semibold text-nc-text">{entry.action}</span>
+                <span class="text-xs text-nc-text-muted">{formatTimestamp(entry.createdAt)}</span>
               </div>
-              <div class="mt-1 text-xs text-neutral-400">Actor {asShortKey(entry.actor)}</div>
+              <div class="mt-1 text-xs text-nc-text-muted">Actor {asShortKey(entry.actor)}</div>
               {#if entry.reason}
-                <div class="mt-1 text-neutral-300">{entry.reason}</div>
+                <div class="mt-1 text-nc-text">{entry.reason}</div>
               {/if}
             </div>
           {/each}

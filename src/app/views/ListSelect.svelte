@@ -38,7 +38,7 @@
         <div class="flex items-center justify-between">
           <span class="staatliches flex items-center gap-3 text-xl">
             <i class="fa fa-list" />
-            <span class:text-neutral-400={!list.title}>
+            <span class:text-nc-text-muted={!list.title}>
               {displayUserList(list)}
             </span>
           </span>

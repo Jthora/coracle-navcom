@@ -17,12 +17,18 @@ describe("group-kinds", () => {
   it("detects NIP-EE kinds", () => {
     expect(isNipEeGroupKind(GROUP_KINDS.NIP_EE.KEY_PACKAGE)).toBe(true)
     expect(isNipEeGroupKind(GROUP_KINDS.NIP_EE.GROUP_EVENT)).toBe(true)
+    expect(isNipEeGroupKind(GROUP_KINDS.NIP_EE.EPOCH_KEY_SHARE)).toBe(true)
     expect(isNipEeGroupKind(1)).toBe(false)
+  })
+
+  it("registers EPOCH_KEY_SHARE as kind 446", () => {
+    expect(GROUP_KINDS.NIP_EE.EPOCH_KEY_SHARE).toBe(446)
   })
 
   it("detects group kind across protocols", () => {
     expect(isGroupKind(GROUP_KINDS.NIP29.EDIT_METADATA)).toBe(true)
     expect(isGroupKind(GROUP_KINDS.NIP_EE.WELCOME)).toBe(true)
+    expect(isGroupKind(GROUP_KINDS.NIP_EE.EPOCH_KEY_SHARE)).toBe(true)
     expect(isGroupKind(31990)).toBe(false)
   })
 
@@ -32,6 +38,7 @@ describe("group-kinds", () => {
     expect(classifyGroupEventKind(GROUP_KINDS.NIP29.DELETE_EVENT)).toBe("moderation")
     expect(classifyGroupEventKind(GROUP_KINDS.NIP_EE.GROUP_EVENT)).toBe("message")
     expect(classifyGroupEventKind(GROUP_KINDS.NIP_EE.KEY_PACKAGE)).toBe("key-package")
+    expect(classifyGroupEventKind(GROUP_KINDS.NIP_EE.EPOCH_KEY_SHARE)).toBe("invite")
     expect(classifyGroupEventKind(1)).toBe("unknown")
   })
 })

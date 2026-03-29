@@ -31,18 +31,21 @@
 
   export const showWarning = (message, opts = {}) => showToast({message, theme: "warning", ...opts})
 
+  export const showError = (message, opts = {}) => showToast({message, theme: "error", ...opts})
+
+  export const showActionToast = (message, actionLabel, onAction, opts = {}) =>
+    showToast({
+      message,
+      type: "action",
+      actionLabel,
+      onAction,
+      theme: "warning",
+      timeout: 10,
+      ...opts,
+    })
+
   export const showPublishInfo = (thunk: Thunk, opts = {}) =>
     showToast({thunk, type: "publish", ...opts})
-
-  window.addEventListener("online", () => {
-    if (get(toast)?.id === "offline") {
-      toast.set(null)
-    }
-  })
-
-  window.addEventListener("offline", () => {
-    showInfo("You are currently offline.", {id: "offline", timeout: null})
-  })
 </script>
 
 <script lang="ts">
@@ -95,7 +98,7 @@
   })
 </script>
 
-{#each [$toast].filter(identity) as { id, type, theme, thunk, message, onCancel } (id)}
+{#each [$toast].filter(identity) as { id, type, theme, thunk, message, onCancel, actionLabel, onAction } (id)}
   <div
     on:touchstart={onTouchStart}
     on:touchmove={onTouchMove}
@@ -108,12 +111,21 @@
         "pointer-events-auto m-2 rounded border p-3 pr-8 text-center shadow-xl sm:ml-2",
         "relative max-w-xl flex-grow transition-all",
         {
-          "border-neutral-600 bg-tinted-700 text-neutral-100": theme === "info",
-          "border-warning bg-tinted-700 text-neutral-100": theme === "warning",
+          "border-nc-shell-border bg-tinted-700 text-nc-text": theme === "info",
+          "border-warning bg-tinted-700 text-nc-text": theme === "warning",
+          "border-red-500 bg-red-900/80 text-nc-text": theme === "error",
         },
       )}>
       {#if type === "text"}
         {message}
+      {:else if type === "action"}
+        {message}
+        <Button
+          class="ml-3 inline-flex underline"
+          on:click={() => {
+            onAction?.()
+            toast.set(null)
+          }}>{actionLabel || "Retry"}</Button>
       {:else if type === "delay"}
         Sending in {timeLeft} seconds...
         <Button

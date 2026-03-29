@@ -1,18 +1,10 @@
 import {
-  displayProfileByPubkey,
   ensurePlaintext,
-  followListsByPubkey,
-  profilesByPubkey,
-  getNetwork,
   getPlaintext,
   getSession,
   getSigner,
-  getUserWotScore,
   loadRelay,
-  getMaxWot,
-  userMuteList,
   plaintext,
-  userPinList,
   sessions,
   pubkey,
   repository,
@@ -23,101 +15,24 @@ import {
   appContext,
   wrapManager,
   shouldUnwrap,
-  getFollows,
 } from "@welshman/app"
-import {makeAuthorFeed, makeScopeFeed, Scope} from "@welshman/feeds"
-import {
-  TaskQueue,
-  groupBy,
-  identity,
-  now,
-  pushToMapKey,
-  simpleCache,
-  cached,
-  sort,
-  uniq,
-  prop,
-  sortBy,
-  max,
-  always,
-  tryCatch,
-  first,
-} from "@welshman/lib"
+import {TaskQueue, uniq} from "@welshman/lib"
 import {routerContext} from "@welshman/router"
-import type {Socket, RequestOptions} from "@welshman/net"
-import {
-  SocketEvent,
-  Pool,
-  load,
-  request,
-  makeSocketPolicyAuth,
-  defaultSocketPolicies,
-  LOCAL_RELAY_URL,
-} from "@welshman/net"
+import type {RequestOptions} from "@welshman/net"
+import {load, request, defaultSocketPolicies, LOCAL_RELAY_URL} from "@welshman/net"
 import {Nip01Signer} from "@welshman/signer"
-import {
-  deriveEvents,
-  deriveItemsByKey,
-  deriveItems,
-  synced,
-  localStorageProvider,
-  withGetter,
-  sync,
-} from "@welshman/store"
-import type {
-  EventTemplate,
-  PublishedList,
-  SignedEvent,
-  TrustedEvent,
-  HashedEvent,
-  StampedEvent,
-} from "@welshman/util"
+import {deriveEvents, withGetter} from "@welshman/store"
+import type {EventTemplate, SignedEvent, TrustedEvent} from "@welshman/util"
 import {
   APP_DATA,
-  DIRECT_MESSAGE,
-  FEED,
-  FEEDS,
   FOLLOWS,
-  HANDLER_INFORMATION,
-  HANDLER_RECOMMENDATION,
-  LABEL,
   MUTES,
-  NAMED_BOOKMARKS,
-  asDecryptedEvent,
-  getAddress,
-  getAddressTagValues,
   getIdentifier,
-  getListTags,
-  getPubkeyTagValues,
   getTagValue,
-  getTagValues,
-  makeList,
   normalizeRelayUrl,
-  readList,
-  getAncestors,
-  getTag,
-  getIdAndAddress,
-  getIdFilters,
 } from "@welshman/util"
-import Fuse from "fuse.js"
-import {getPow} from "nostr-tools/nip13"
-import type {PublishedFeed, PublishedListFeed, PublishedUserList} from "src/domain"
-import {
-  CollectionSearch,
-  EDITABLE_LIST_KINDS,
-  UserListSearch,
-  displayFeed,
-  getHandlerAddress,
-  mapListToFeed,
-  readCollections,
-  readFeed,
-  readHandlers,
-  readUserList,
-  subscriptionNotices,
-  makeFeed,
-  normalizeFeedDefinition,
-} from "src/domain"
-import type {AnonymousUserState, Channel, SessionWithMeta} from "src/engine/model"
+import {subscriptionNotices} from "src/domain"
+import type {AnonymousUserState, SessionWithMeta} from "src/engine/model"
 import {
   RelaysStorageAdapter,
   HandlesStorageAdapter,
@@ -129,13 +44,13 @@ import {
   rankEventByRetentionClass,
   initStorage,
 } from "src/engine/storage"
-import {SearchHelper, fromCsv, parseJson, ensureProto} from "src/util/misc"
+import {fromCsv, parseJson, ensureProto} from "src/util/misc"
 import {appDataKeys, noteKinds, reactionKinds, metaKinds} from "src/util/nostr"
 import {createStateSocial} from "src/engine/state-social"
 import {createStateContent} from "src/engine/state-content"
 import {createStateStorageInit} from "src/engine/state-storage-init"
 import {resolveMessagePlaintext} from "src/engine/state-message-plaintext"
-import {readable, derived, writable} from "svelte/store"
+import {derived, writable} from "svelte/store"
 
 export const env = {
   CLIENT_ID: import.meta.env.VITE_CLIENT_ID as string,
@@ -195,7 +110,7 @@ export const ensureMessagePlaintext = async (e: TrustedEvent) => {
       if (result) {
         setPlaintext(
           e,
-          resolveMessagePlaintext({
+          await resolveMessagePlaintext({
             event: e,
             decryptedContent: result,
             policyMode: getSetting("pqc_dm_policy_mode") === "strict" ? "strict" : "compatibility",
@@ -209,6 +124,19 @@ export const ensureMessagePlaintext = async (e: TrustedEvent) => {
   }
 
   return getPlaintext(e)
+}
+
+/**
+ * Retry decryption for a message by clearing its cached plaintext and re-decrypting.
+ */
+export const retryMessageDecryption = async (e: TrustedEvent) => {
+  // Clear cached plaintext to allow re-attempt
+  plaintext.update(map => {
+    const copy = {...map}
+    delete copy[e.id]
+    return copy
+  })
+  return ensureMessagePlaintext(e)
 }
 
 // Decrypt stuff as it comes in

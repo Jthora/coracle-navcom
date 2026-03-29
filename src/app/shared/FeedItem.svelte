@@ -127,7 +127,7 @@
               stroke-dashoffset="54"
               stroke-dasharray="100 100"
               transform-origin="center"
-              class={isAlt ? "stroke-tinted-700" : "stroke-neutral-800"} />
+              class={isAlt ? "stroke-tinted-700" : "stroke-nc-shell-border"} />
           </svg>
         </AltColor>
         {#if isLastReply}
@@ -183,7 +183,7 @@
                 showHiddenReplies = true
               }}>
               <i class="fa fa-up-down text-sm text-accent" />
-              <span class="text-sm text-neutral-100"
+              <span class="text-sm text-nc-text"
                 >Show {quantify(hiddenReplies.length, "other reply", "more replies")}</span>
             </button>
             {#if visibleReplies.length > 0}

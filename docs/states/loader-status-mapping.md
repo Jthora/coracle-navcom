@@ -177,27 +177,20 @@ Status keys and copy:
 - post.submit.done
   - Post submitted. Syncing relay preferences...
 
-## G) Intel Map Loader Path
+## G) Intel Map Loader Path _(REMOVED)_
 
-Source:
-- src/app/views/IntelNavMap.svelte
+> **Obsolete (2026-03-21):** `IntelNavMap.svelte` and its `/intel/map` route have been removed.
+> Map functionality is now integrated into `MapView.svelte` (NavCom Map mode) with its own
+> Leaflet initialization. The status keys below are no longer active.
 
-Current technical steps:
-1. Dynamic import of Leaflet.
-2. Map initialization.
-3. Feed loading and settle timer.
+~~Source: src/app/views/IntelNavMap.svelte~~
 
-Status keys and copy:
-- intel.map.module
-  - Loading map engine...
-- intel.map.init
-  - Initializing map view...
-- intel.map.feed.connect
-  - Waiting for live feed connection...
-- intel.map.feed.fetch
-  - Fetching latest map events...
-- intel.map.feed.settle
-  - Finalizing feed snapshot...
+~~Status keys:~~
+~~- intel.map.module — Loading map engine...~~
+~~- intel.map.init — Initializing map view...~~
+~~- intel.map.feed.connect — Waiting for live feed connection...~~
+~~- intel.map.feed.fetch — Fetching latest map events...~~
+~~- intel.map.feed.settle — Finalizing feed snapshot...~~
 
 ## Required UX Rules
 

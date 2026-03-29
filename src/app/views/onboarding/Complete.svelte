@@ -1,6 +1,7 @@
 <script lang="ts">
   import Button from "src/partials/Button.svelte"
   import Popover from "src/partials/Popover.svelte"
+  import SecurityPosturePanel from "./SecurityPosturePanel.svelte"
 
   export let onFinish: () => void
   export let onBack: () => void
@@ -12,41 +13,42 @@
 <div class="flex items-start gap-3">
   <div class="flex items-center gap-2">
     <p
-      class="-ml-1 -mt-1 flex h-10 w-10 items-center justify-center rounded-full bg-neutral-700 text-base text-neutral-100">
+      class="-ml-1 -mt-1 flex h-10 w-10 items-center justify-center rounded-full bg-nc-input text-base text-nc-text">
       4/4
     </p>
     <Popover triggerType="mouseenter" class="inline-flex items-center align-middle">
-      <span slot="trigger" class="text-neutral-300"><i class="fa fa-info-circle" /></span>
-      <div slot="tooltip" class="max-w-xs text-sm text-neutral-100">
+      <span slot="trigger" class="text-nc-text"><i class="fa fa-info-circle" /></span>
+      <div slot="tooltip" class="max-w-xs text-sm text-nc-text">
         Final step. You can still go back to adjust profile or key choices if needed.
       </div>
     </Popover>
   </div>
   <div class="flex flex-col gap-1">
     <div class="flex items-center gap-2">
-      <p class="text-2xl font-bold text-neutral-100">You're ready</p>
+      <p class="text-2xl font-bold text-nc-text">Infrastructure status</p>
       <Popover triggerType="mouseenter" class="inline-flex items-center align-middle">
-        <span slot="trigger" class="text-neutral-300"><i class="fa fa-info-circle" /></span>
-        <div slot="tooltip" class="max-w-xs text-sm text-neutral-100">
-          Posting is enabled. You can tweak relays, follows, and backups later in settings.
+        <span slot="trigger" class="text-nc-text"><i class="fa fa-info-circle" /></span>
+        <div slot="tooltip" class="max-w-xs text-sm text-nc-text">
+          Your identity credential is configured and relay connections are established. Review the
+          status below.
         </div>
       </Popover>
     </div>
-    <p class="text-neutral-200">
-      Posting is enabled. Defaults are applied so your feed isn’t empty.
+    <p class="text-nc-text">
+      Your credential is active. Review your security posture before proceeding.
     </p>
   </div>
 </div>
 
-<div class="panel mt-4 space-y-2 p-4 text-neutral-200">
+<div class="panel mt-4 space-y-2 p-4 text-nc-text">
   <div class="flex flex-wrap items-center justify-between gap-2">
     <div class="flex items-center gap-2">
-      <span>Relay defaults</span>
+      <span>Relay infrastructure</span>
       <Popover triggerType="mouseenter" class="inline-flex items-center align-middle">
-        <span slot="trigger" class="text-neutral-300"><i class="fa fa-info-circle" /></span>
-        <div slot="tooltip" class="max-w-xs text-sm text-neutral-100">
-          We preloaded relays so you can read and post immediately. You can change them later in
-          settings.
+        <span slot="trigger" class="text-nc-text"><i class="fa fa-info-circle" /></span>
+        <div slot="tooltip" class="max-w-xs text-sm text-nc-text">
+          Relay servers route your encrypted messages. These defaults ensure connectivity. Configure
+          dedicated relays per group in settings.
         </div>
       </Popover>
     </div>
@@ -55,11 +57,11 @@
   </div>
   <div class="flex flex-wrap items-center justify-between gap-2">
     <div class="flex items-center gap-2">
-      <span>Starter follows</span>
+      <span>Network connections</span>
       <Popover triggerType="mouseenter" class="inline-flex items-center align-middle">
-        <span slot="trigger" class="text-neutral-300"><i class="fa fa-info-circle" /></span>
-        <div slot="tooltip" class="max-w-xs text-sm text-neutral-100">
-          A short curated list so your feed isn’t empty. You can unfollow any of them anytime.
+        <span slot="trigger" class="text-nc-text"><i class="fa fa-info-circle" /></span>
+        <div slot="tooltip" class="max-w-xs text-sm text-nc-text">
+          Initial connections to the relay network. You can modify these in settings.
         </div>
       </Popover>
     </div>
@@ -68,16 +70,16 @@
   </div>
   <div class="flex flex-wrap items-center justify-between gap-2">
     <div class="flex items-center gap-2">
-      <span>Backup reminder</span>
+      <span>Credential backup</span>
       <Popover triggerType="mouseenter">
-        <span slot="trigger" class="text-neutral-300"><i class="fa fa-info-circle" /></span>
-        <div slot="tooltip" class="max-w-xs text-sm text-neutral-100">
-          If you created or imported a key here, we’ll remind you to export or confirm a backup so
-          you don’t lose access.
+        <span slot="trigger" class="text-nc-text"><i class="fa fa-info-circle" /></span>
+        <div slot="tooltip" class="max-w-xs text-sm text-nc-text">
+          Your private key exists only on this device. If you lose access to this device and
+          haven't exported your key, your identity is lost permanently.
         </div>
       </Popover>
     </div>
-    <span class={backupNeeded ? "text-warning" : "text-neutral-300"}
+    <span class={backupNeeded ? "text-warning" : "text-nc-text"}
       >{backupNeeded ? "We'll remind you" : "Not required"}</span>
   </div>
 </div>
@@ -87,6 +89,8 @@
     <i class="fa fa-arrow-left" /> Back
   </Button>
   <Button class="btn btn-accent flex-1 whitespace-normal text-center" on:click={onFinish}>
-    Go to Navcom
+    Begin operations
   </Button>
 </div>
+
+<SecurityPosturePanel />

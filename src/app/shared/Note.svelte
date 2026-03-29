@@ -114,7 +114,7 @@
       <NoteHeader {event} {showParent} />
     {/if}
     {#if hidden && !showHidden}
-      <p class="ml-14 mt-4 border-l-2 border-solid border-neutral-600 pl-4 text-neutral-100">
+      <p class="ml-14 mt-4 border-l-2 border-solid border-nc-shell-border pl-4 text-nc-text">
         You have hidden this note.
         <Button
           stopPropagation

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import {repository, pubkey, profilesByPubkey} from "@welshman/app"
+  import {repository, pubkey} from "@welshman/app"
   import {Capacitor} from "@capacitor/core"
   import {Filesystem, Directory, Encoding} from "@capacitor/filesystem"
   import FieldInline from "src/partials/FieldInline.svelte"
@@ -7,7 +7,7 @@
   import Button from "src/partials/Button.svelte"
   import FlexColumn from "src/partials/FlexColumn.svelte"
   import Heading from "src/partials/Heading.svelte"
-  import {showInfo} from "src/partials/Toast.svelte"
+  import {showInfo, showError, showActionToast} from "src/partials/Toast.svelte"
 
   let userOnly = true
 
@@ -16,7 +16,13 @@
       const permissionStatus = await Filesystem.checkPermissions()
 
       if (permissionStatus.publicStorage !== "granted") {
-        await Filesystem.requestPermissions()
+        const requested = await Filesystem.requestPermissions()
+        if (requested.publicStorage !== "granted") {
+          showError(
+            "Export failed — storage permission is required. Please grant storage access in your device settings.",
+          )
+          return
+        }
       }
 
       await Filesystem.writeFile({
@@ -29,25 +35,44 @@
       showInfo(`File saved to your documents folder as ${filename}.jsonl`)
     } catch (error) {
       console.error("Error saving file:", error)
-      showInfo("Error saving file. Please try again.")
+      const msg = error instanceof Error ? error.message : ""
+      if (msg.includes("SecurityException") || msg.includes("permission")) {
+        showError(
+          "Export failed — storage permission may be required. Check your device settings and try again.",
+        )
+      } else if (msg.includes("FileNotFoundException") || msg.includes("No such file")) {
+        showActionToast("Export failed — target folder not found.", "Retry", () =>
+          downloadNative(filename, jsonl),
+        )
+      } else {
+        showActionToast("Export failed. Please try again.", "Retry", () =>
+          downloadNative(filename, jsonl),
+        )
+      }
     }
   }
 
   const downloadWeb = (filename, jsonl) => {
-    const data = new TextEncoder().encode(jsonl)
-    const blob = new Blob([data], {type: "application/octet-stream"})
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement("a")
+    try {
+      const data = new TextEncoder().encode(jsonl)
+      const blob = new Blob([data], {type: "application/octet-stream"})
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement("a")
 
-    a.href = url
-    a.download = `${filename}.jsonl`
-    a.click()
+      a.href = url
+      a.download = `${filename}.jsonl`
+      a.click()
 
-    URL.revokeObjectURL(url)
+      URL.revokeObjectURL(url)
+    } catch (error) {
+      console.error("Error exporting file:", error)
+      showError("Export failed — could not create download. Please try again.")
+    }
   }
 
   const submit = async () => {
-    const filename = $profilesByPubkey.get($pubkey)?.nip05 || $pubkey.slice(0, 16)
+    const date = new Date().toISOString().slice(0, 10)
+    const filename = `navcom-export-${date}`
     const events = Array.from(repository.query([userOnly ? {authors: [$pubkey]} : {}]))
     const jsonl = events
       .filter(e => e.sig)

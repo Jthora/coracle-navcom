@@ -15,6 +15,7 @@ import {
 } from "../../../../src/engine/group-epoch-state"
 import {validateRemovedMemberWrapExclusion} from "../../../../src/engine/group-wrap-exclusion"
 import type {GroupKeyLifecycleState} from "../../../../src/engine/group-key-lifecycle"
+import {mlKemKeygen} from "../../../../src/engine/pqc/crypto-provider"
 
 const now = 1739836800
 
@@ -63,7 +64,9 @@ const makeActiveKeyState = (groupId: string): GroupKeyLifecycleState => ({
 })
 
 describe("engine/pqc/secure-path-integration", () => {
-  it("runs strict DM preflight and envelope roundtrip in hybrid mode", () => {
+  it("runs strict DM preflight and envelope roundtrip in hybrid mode", async () => {
+    const peerKemKeys = mlKemKeygen()
+
     const preflight = runDmPqcSendPreflight({
       policyMode: "strict",
       preferredHybridAlg: "hybrid-mlkem768+x25519-aead-v1",
@@ -81,24 +84,29 @@ describe("engine/pqc/secure-path-integration", () => {
     expect(preflight.negotiation.mode).toBe("hybrid")
     expect(preflight.telemetryReason).toBe("DM_PREFLIGHT_OK")
 
-    const built = buildDmPqcEnvelope({
+    const recipientPqPublicKeys = new Map<string, Uint8Array>([["peer", peerKemKeys.publicKey]])
+
+    const built = await buildDmPqcEnvelope({
       plaintext: "pqc strict path",
       senderPubkey: "sender",
       recipients: ["peer"],
       mode: "hybrid",
       algorithm: preflight.negotiation.alg || "hybrid-mlkem768+x25519-aead-v1",
+      recipientPqPublicKeys,
       createdAt: now,
       messageId: "msg-strict-1",
-      nonceSeed: "seed",
     })
 
     expect(built.ok).toBe(true)
 
     if (built.ok) {
-      const resolved = resolveDmReceiveContent({
+      const resolved = await resolveDmReceiveContent({
         tags: [["pqc", "hybrid"]],
         decryptedContent: built.content,
         policyMode: "strict",
+        recipientSecretKey: peerKemKeys.secretKey,
+        recipientPubkey: "peer",
+        senderPubkey: "sender",
         expectedSenderPubkey: "sender",
         expectedRecipientPubkey: "peer",
       })

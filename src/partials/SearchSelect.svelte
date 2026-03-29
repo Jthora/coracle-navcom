@@ -120,7 +120,7 @@
   <div class="text-sm">
     {#each value as item (getKey(item))}
       <div
-        class="mb-1 mr-1 inline-flex h-7 items-center rounded-full bg-neutral-900 px-3 text-neutral-400">
+        class="mb-1 mr-1 inline-flex h-7 items-center rounded-full bg-nc-shell-deep px-3 text-nc-text-muted">
         <div class="flex h-7 w-5 cursor-pointer items-center" on:click={() => remove(item)}>
           <i class="fa fa-times" />
         </div>
@@ -134,7 +134,7 @@
 
 <div>
   <Input
-    class={cx(inputClass, "cursor-text text-black outline-0")}
+    class={cx(inputClass, "cursor-text outline-0")}
     {autofocus}
     {placeholder}
     bind:value={term}

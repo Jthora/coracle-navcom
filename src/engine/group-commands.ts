@@ -367,6 +367,7 @@ export const publishGroupMessage = async ({
   actorRole = "member",
   downgradeConfirmed = false,
   allowTier2Override = false,
+  extraTags,
 }: {
   groupId: string
   content: string
@@ -377,6 +378,7 @@ export const publishGroupMessage = async ({
   actorRole?: GroupMemberRole
   downgradeConfirmed?: boolean
   allowTier2Override?: boolean
+  extraTags?: string[][]
 }) => {
   const normalizedGroupId = groupId.trim()
   const normalizedContent = content.trim()
@@ -415,6 +417,7 @@ export const publishGroupMessage = async ({
       missionTier,
       downgradeConfirmed,
       allowTier2Override,
+      extraTags,
     },
     {
       onFallback: input => {

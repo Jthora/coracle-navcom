@@ -64,7 +64,7 @@
     </p>
   {/if}
 {:else}
-  <div class="panel flex items-start gap-3 p-4 text-neutral-200">
+  <div class="panel flex items-start gap-3 p-4 text-nc-text">
     <i class="fa fa-triangle-exclamation text-warning" />
     <div>
       <Heading class="mb-1">No information on "{toTitle(topic)}"</Heading>

@@ -118,12 +118,12 @@
 
 <div class="flex gap-3">
   <p
-    class="-ml-1 -mt-2 flex h-12 w-12 items-center justify-center rounded-full bg-neutral-700 text-lg">
+    class="-ml-1 -mt-2 flex h-12 w-12 items-center justify-center rounded-full bg-nc-input text-lg">
     3/4
   </p>
   <p class="text-2xl font-bold">Find your people</p>
 </div>
-<p class="text-neutral-300">
+<p class="text-nc-text">
   Your HQ feed starts scoped to Starcom topics (Starcom/Navcom/Archangel/Thora). You can switch to
   your own feed later.
 </p>
@@ -140,7 +140,7 @@
       on:click={() => openList(event)}>
       <p class="text-xl font-bold">{title}</p>
       <p class="pb-5">{description}</p>
-      <div class="absolute bottom-4 text-neutral-200">
+      <div class="absolute bottom-4 text-nc-text">
         {getPubkeyTagValues(event.tags).length} people
       </div>
     </Card>
@@ -206,7 +206,7 @@
     <div />
     {#if state.follows.length === 0}
       <div class="my-8">
-        <div class="panel flex items-center justify-center gap-3 p-4 text-center text-neutral-200">
+        <div class="panel flex items-center justify-center gap-3 p-4 text-center text-nc-text">
           <i class="fa fa-triangle-exclamation text-warning" />
           <span>No people selected</span>
         </div>
@@ -235,7 +235,7 @@
     <div />
     {#if state.relays.length === 0}
       <div class="my-8">
-        <div class="panel flex items-center justify-center gap-3 p-4 text-center text-neutral-200">
+        <div class="panel flex items-center justify-center gap-3 p-4 text-center text-nc-text">
           <i class="fa fa-triangle-exclamation text-warning" />
           <span>No relays selected</span>
         </div>

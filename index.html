@@ -4,10 +4,33 @@
     <meta charset="UTF-8" />
     <meta
       http-equiv="Content-Security-Policy"
-      content="script-src 'self' 'wasm-unsafe-eval'; worker-src 'self' blob:; style-src 'self' 'unsafe-inline'; frame-src open.spotify.com embed.tidal.com; child-src 'none'; form-action 'none';" />
+      content="script-src 'self' 'wasm-unsafe-eval'; worker-src 'self' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' https: data: blob:; frame-src open.spotify.com embed.tidal.com; child-src 'none'; form-action 'none';" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content" />
     <link rel="icon" type="image/png" sizes="32x32" href="/images/navcom-favicon-32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="/images/navcom-favicon-16.png" />
+    <link rel="canonical" href="https://navcom.app" />
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "NavCom",
+      "url": "https://navcom.app",
+      "description": "Decentralized operations and intelligence platform. Sovereign comms, GEOINT posting, tiered security, and post-quantum encryption on the Nostr protocol. Built by Archangel.",
+      "applicationCategory": "CommunicationsApplication",
+      "operatingSystem": "Web, Android",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "author": {
+        "@type": "Organization",
+        "name": "Archangel",
+        "url": "https://navcom.app"
+      },
+      "keywords": "decentralized communications, GEOINT, intelligence platform, Nostr, post-quantum cryptography, operational security, OSINT, sovereign communications"
+    }
+    </script>
   </head>
   <body class="w-full">
     <div id="app"></div>

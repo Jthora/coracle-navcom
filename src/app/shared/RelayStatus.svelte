@@ -22,8 +22,8 @@
 <Popover triggerType="mouseenter">
   <div
     slot="trigger"
-    class="h-2 w-2 cursor-pointer rounded-full bg-neutral-600"
-    class:bg-neutral-600={ConnectionType.NotConnected === status}
+    class="h-2 w-2 cursor-pointer rounded-full bg-nc-shell-border"
+    class:bg-nc-shell-border={ConnectionType.NotConnected === status}
     class:bg-danger={[ConnectionType.LoginFailed, ConnectionType.ConnectFailed].includes(status)}
     class:bg-success={ConnectionType.Connected === status}
     class:bg-warning={[

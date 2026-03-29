@@ -1,0 +1,107 @@
+{
+  "generatedAt": "2026-02-25T04:47:34.099Z",
+  "pass": false,
+  "strict": false,
+  "source": {
+    "completeness": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/loader/performance-plan/cache/baseline-completeness.json",
+    "validation": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/loader/performance-plan/cache/baseline-telemetry-validation.json",
+    "diagnosis": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/loader/performance-plan/cache/baseline-diagnosability.json",
+    "usefulness": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/loader/performance-plan/cache/baseline-telemetry-usefulness.json",
+    "remediation": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/loader/performance-plan/cache/baseline-observability-remediation.json",
+    "issueReview": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/loader/performance-plan/cache/baseline-issue-review.json",
+    "postCaptureChecklist": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/loader/performance-plan/cache/baseline-post-capture-checklist.json"
+  },
+  "gates": [
+    {
+      "id": "completeness",
+      "label": "Baseline completeness",
+      "pass": false,
+      "source": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/loader/performance-plan/cache/baseline-completeness.json",
+      "failureDetail": {
+        "summary": "5 issues detected (0/50 runs).",
+        "action": "Capture additional baseline runs, then re-run refresh-and-sync."
+      }
+    },
+    {
+      "id": "telemetry-validation",
+      "label": "Telemetry validation",
+      "pass": true,
+      "source": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/loader/performance-plan/cache/baseline-telemetry-validation.json"
+    },
+    {
+      "id": "diagnosability",
+      "label": "Diagnosability",
+      "pass": true,
+      "source": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/loader/performance-plan/cache/baseline-diagnosability.json"
+    },
+    {
+      "id": "telemetry-usefulness",
+      "label": "Telemetry usefulness",
+      "pass": false,
+      "source": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/loader/performance-plan/cache/baseline-telemetry-usefulness.json",
+      "failureDetail": {
+        "summary": "Checklist coverage 5/6.",
+        "action": "Capture missing diagnostic evidence called out in baseline-telemetry-usefulness.md."
+      }
+    },
+    {
+      "id": "observability-remediation",
+      "label": "Observability remediation",
+      "pass": true,
+      "source": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/loader/performance-plan/cache/baseline-observability-remediation.json"
+    },
+    {
+      "id": "issue-review",
+      "label": "Issue review",
+      "pass": false,
+      "source": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/loader/performance-plan/cache/baseline-issue-review.json",
+      "failureDetail": {
+        "summary": "2 blockers active (completeness, telemetry-usefulness).",
+        "action": "Resolve active gate failures, then re-run refresh-and-sync to clear issue-review blockers."
+      }
+    },
+    {
+      "id": "post-capture-checklist",
+      "label": "Post-capture checklist",
+      "pass": false,
+      "source": "/home/jono/workspace/coracle-navcom/coracle-navcom/docs/loader/performance-plan/cache/baseline-post-capture-checklist.json",
+      "failureDetail": {
+        "summary": "4 checks failing (capture-target, completeness-gate, usefulness-gate, issue-review).",
+        "action": "Execute failed post-capture checklist actions, then re-run refresh-and-sync."
+      }
+    }
+  ],
+  "missingArtifacts": [],
+  "failedGates": [
+    "completeness",
+    "telemetry-usefulness",
+    "issue-review",
+    "post-capture-checklist"
+  ],
+  "failedGateDetails": [
+    {
+      "id": "completeness",
+      "label": "Baseline completeness",
+      "summary": "5 issues detected (0/50 runs).",
+      "action": "Capture additional baseline runs, then re-run refresh-and-sync."
+    },
+    {
+      "id": "telemetry-usefulness",
+      "label": "Telemetry usefulness",
+      "summary": "Checklist coverage 5/6.",
+      "action": "Capture missing diagnostic evidence called out in baseline-telemetry-usefulness.md."
+    },
+    {
+      "id": "issue-review",
+      "label": "Issue review",
+      "summary": "2 blockers active (completeness, telemetry-usefulness).",
+      "action": "Resolve active gate failures, then re-run refresh-and-sync to clear issue-review blockers."
+    },
+    {
+      "id": "post-capture-checklist",
+      "label": "Post-capture checklist",
+      "summary": "4 checks failing (capture-target, completeness-gate, usefulness-gate, issue-review).",
+      "action": "Execute failed post-capture checklist actions, then re-run refresh-and-sync."
+    }
+  ]
+}

@@ -122,6 +122,8 @@ export const getAvgRating = (events: TrustedEvent[]) => avg(events.map(getRating
 
 export const isHex = x => x?.length === 64 && x?.match(/^[a-f0-9]{64}$/)
 
+export const asShortKey = (key: string) => key.slice(0, 8) + "..."
+
 const BAD_DOMAINS = ["libfans.com", "matrix.org/_matrix/media/v3/download"]
 
 const getBadDomainsWarning = (e: TrustedEvent) => {

@@ -17,13 +17,13 @@
 </script>
 
 {#if adminUi[GROUP_ADMIN_UI_CONTROL.MODERATION_COMPOSER].visible}
-  <div class="mt-3 rounded border border-neutral-700 p-3">
-    <h4 class="text-sm uppercase tracking-[0.08em] text-neutral-300">Moderation Action Composer</h4>
+  <div class="mt-3 rounded border border-nc-shell-border p-3">
+    <h4 class="text-sm uppercase tracking-[0.08em] text-nc-text">Moderation Action Composer</h4>
     <div class="mt-2 grid gap-2 sm:grid-cols-3">
-      <label class="text-sm text-neutral-300">
+      <label class="text-sm text-nc-text">
         Action type
         <select
-          class="mt-1 h-9 w-full rounded border border-neutral-700 bg-neutral-900 px-3 text-neutral-100"
+          class="mt-1 h-9 w-full rounded border border-nc-shell-border bg-nc-shell-deep px-3 text-nc-text"
           disabled={!adminUi[GROUP_ADMIN_UI_CONTROL.MODERATION_COMPOSER].enabled}
           value={moderationDraft.action}
           on:change={onModerationActionChange}>
@@ -33,10 +33,10 @@
         </select>
       </label>
 
-      <label class="text-sm text-neutral-300">
+      <label class="text-sm text-nc-text">
         Reason code
         <select
-          class="mt-1 h-9 w-full rounded border border-neutral-700 bg-neutral-900 px-3 text-neutral-100"
+          class="mt-1 h-9 w-full rounded border border-nc-shell-border bg-nc-shell-deep px-3 text-nc-text"
           disabled={!adminUi[GROUP_ADMIN_UI_CONTROL.MODERATION_COMPOSER].enabled}
           value={moderationDraft.reasonCode}
           on:change={onModerationReasonCodeChange}>

@@ -7,7 +7,7 @@
   <slot name="label">
     <div class="grid grid-cols-2 gap-2">
       <label
-        class="flex items-center gap-2 font-semibold uppercase tracking-[0.06em] text-neutral-100">
+        class="flex items-center gap-2 font-semibold uppercase tracking-[0.06em] text-nc-text">
         {#if icon}
           <i class={`fa ${icon}`} />
         {/if}
@@ -16,7 +16,7 @@
       <slot />
     </div>
   </slot>
-  <p class="text-sm text-neutral-400">
+  <p class="text-sm text-nc-text-muted">
     <slot name="info" />
   </p>
 </div>

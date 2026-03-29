@@ -10,14 +10,14 @@
 <div class="flex items-start gap-3">
   <div class="flex items-center gap-2">
     <p
-      class="-ml-1 -mt-1 flex h-10 w-10 items-center justify-center rounded-full bg-neutral-700 text-base text-neutral-100">
+      class="-ml-1 -mt-1 flex h-10 w-10 items-center justify-center rounded-full bg-nc-input text-base text-nc-text">
       1/4
     </p>
     <Popover triggerType="mouseenter" class="inline-flex items-center align-middle">
-      <span slot="trigger" class="text-neutral-300">
+      <span slot="trigger" class="text-nc-text">
         <i class="fa fa-info-circle" />
       </span>
-      <div slot="tooltip" class="max-w-xs text-sm text-neutral-100">
+      <div slot="tooltip" class="max-w-xs text-sm text-nc-text">
         This is step 1 of 4. Your progress is saved as you go, and you can move back and forth
         without losing choices.
       </div>
@@ -25,73 +25,84 @@
   </div>
   <div class="flex flex-col gap-1">
     <div class="flex items-center gap-2">
-      <p class="text-2xl font-bold text-neutral-100">Get started</p>
+      <p class="text-2xl font-bold text-nc-text">Operational briefing</p>
       <Popover triggerType="mouseenter" class="inline-flex items-center align-middle">
-        <span slot="trigger" class="text-neutral-300">
+        <span slot="trigger" class="text-nc-text">
           <i class="fa fa-info-circle" />
         </span>
-        <div slot="tooltip" class="max-w-xs text-sm text-neutral-100">
-          This guided setup won’t post anything yet. It just prepares your key and preferences so
-          you can start posting smoothly afterwards.
+        <div slot="tooltip" class="max-w-xs text-sm text-nc-text">
+          This briefing prepares your identity credential and infrastructure connections. Nothing
+          is transmitted until you choose to.
         </div>
       </Popover>
     </div>
-    <p class="text-neutral-200">
-      Set up a Navcom key and post in under a minute. No jargon, minimal steps.
+    <p class="text-nc-text">
+      NavCom is a sovereign communications platform. No central server. No corporate gatekeeper.
+      Your messages are encrypted and signed by keys only you control.
     </p>
   </div>
 </div>
-<div class="panel mt-4 space-y-3 p-4 text-neutral-200">
+<div class="panel mt-4 space-y-3 p-4 text-nc-text">
   <div class="flex items-center gap-2">
-    <p>What to expect:</p>
+    <p>What happens next:</p>
     <Popover triggerType="mouseenter" class="inline-flex items-center align-middle">
-      <span slot="trigger" class="text-neutral-300">
+      <span slot="trigger" class="text-nc-text">
         <i class="fa fa-info-circle" />
       </span>
-      <div slot="tooltip" class="max-w-xs text-sm text-neutral-100">
-        A quick preview of what we’ll do: create or import a key, set optional profile details, and
-        apply defaults so you see content right away.
+      <div slot="tooltip" class="max-w-xs text-sm text-nc-text">
+        This briefing covers your identity credential, operator card, and infrastructure
+        connections. Nothing is transmitted until you choose to.
       </div>
     </Popover>
   </div>
-  <ul class="list-disc space-y-1 pl-5 text-neutral-300">
+  <ul class="list-disc space-y-1 pl-5 text-nc-text">
     <li>
-      We create a Navcom key for you (export anytime).
+      You receive an identity credential (cryptographic key pair) — this is how the network knows you.
       <Popover triggerType="mouseenter" class="ml-1 inline-flex items-center align-middle">
-        <span slot="trigger" class="text-neutral-300"><i class="fa fa-info-circle" /></span>
-        <div slot="tooltip" class="max-w-xs text-sm text-neutral-100">
-          We generate a private key and keep it available to you; you can download/export it later
-          or switch to another signer whenever you want.
+        <span slot="trigger" class="text-nc-text"><i class="fa fa-info-circle" /></span>
+        <div slot="tooltip" class="max-w-xs text-sm text-nc-text">
+          A key pair is generated locally on your device. The private key never leaves your device.
+          You can export it or replace it with your own key at any time.
         </div>
       </Popover>
     </li>
     <li>
-      Optional: bring your own key instead.
+      Optional: import your own credential if you have one.
       <Popover triggerType="mouseenter" class="ml-1 inline-flex items-center align-middle">
-        <span slot="trigger" class="text-neutral-300"><i class="fa fa-info-circle" /></span>
-        <div slot="tooltip" class="max-w-xs text-sm text-neutral-100">
-          If you already have an nsec or encrypted key, you can paste it and keep full custody.
-          We’ll never store it without your say-so.
+        <span slot="trigger" class="text-nc-text"><i class="fa fa-info-circle" /></span>
+        <div slot="tooltip" class="max-w-xs text-sm text-nc-text">
+          If you already have a Nostr private key (nsec) or encrypted key, you can import it. Full
+          custody remains with you.
         </div>
       </Popover>
     </li>
     <li>
-      Optional profile fields; you can skip.
+      Optional: configure your operator card (callsign, display name).
       <Popover triggerType="mouseenter" class="ml-1 inline-flex items-center align-middle">
-        <span slot="trigger" class="text-neutral-300"><i class="fa fa-info-circle" /></span>
-        <div slot="tooltip" class="max-w-xs text-sm text-neutral-100">
-          Handle and display name are optional. You can fill them in now or update them later in
-          settings.
+        <span slot="trigger" class="text-nc-text"><i class="fa fa-info-circle" /></span>
+        <div slot="tooltip" class="max-w-xs text-sm text-nc-text">
+          Other operators will see your callsign and display name. Use operational handles, not
+          personal names. You can change these later.
         </div>
       </Popover>
     </li>
     <li>
-      Defaults applied silently so you can see posts immediately.
+      Infrastructure defaults are applied so you can communicate immediately.
       <Popover triggerType="mouseenter" class="ml-1 inline-flex items-center align-middle">
-        <span slot="trigger" class="text-neutral-300"><i class="fa fa-info-circle" /></span>
-        <div slot="tooltip" class="max-w-xs text-sm text-neutral-100">
-          We add starter relays and follows so your feed isn’t empty. You can remove or change them
-          anytime after onboarding.
+        <span slot="trigger" class="text-nc-text"><i class="fa fa-info-circle" /></span>
+        <div slot="tooltip" class="max-w-xs text-sm text-nc-text">
+          Pre-configured relay connections ensure you can send and receive messages immediately.
+          You can change relay configuration later in settings.
+        </div>
+      </Popover>
+    </li>
+    <li>
+      You will see what's protected and what's visible before you begin.
+      <Popover triggerType="mouseenter" class="ml-1 inline-flex items-center align-middle">
+        <span slot="trigger" class="text-nc-text"><i class="fa fa-info-circle" /></span>
+        <div slot="tooltip" class="max-w-xs text-sm text-nc-text">
+          Before you start operating, we'll show you exactly what's encrypted and what relay
+          operators can observe. No surprises.
         </div>
       </Popover>
     </li>

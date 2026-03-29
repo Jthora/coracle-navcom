@@ -11,9 +11,9 @@
     width: 42%;
     background: linear-gradient(
       90deg,
-      rgba(148, 163, 184, 0),
-      rgba(148, 163, 184, 0.9),
-      rgba(148, 163, 184, 0)
+      rgba(var(--nc-shell-border-rgb), 0),
+      rgba(var(--nc-shell-border-rgb), 0.9),
+      rgba(var(--nc-shell-border-rgb), 0)
     );
     animation: nav-map-loader 1.4s ease-in-out infinite;
   }
@@ -59,18 +59,18 @@
 </script>
 
 <div
-  class="bg-black/72 pointer-events-auto absolute bottom-0 left-0 right-0 z-[420] flex h-10 items-center gap-2 border-t border-black/80 px-3 text-[11px] text-black shadow-lg backdrop-blur-sm md:text-xs">
+  class="bg-black/72 pointer-events-auto absolute bottom-0 left-0 right-0 z-[420] flex h-10 items-center gap-2 border-t border-black/80 px-3 text-[11px] text-nc-text shadow-lg backdrop-blur-sm md:text-xs">
   <div class="min-w-0 flex-1">
     <div class="flex items-center gap-2">
-      <span class="font-semibold text-black">{statusLabel}</span>
-      <span class="truncate text-black">{detailsLabel}</span>
+      <span class="font-semibold text-nc-text">{statusLabel}</span>
+      <span class="truncate text-nc-text-muted">{detailsLabel}</span>
     </div>
-    <div class="truncate text-black">{lastSeenLabel}</div>
+    <div class="truncate text-nc-text-muted">{lastSeenLabel}</div>
   </div>
 
   {#if loading && !loadError}
     <div class="w-20 shrink-0">
-      <div class="nav-map-loader-track h-1.5 rounded-full bg-neutral-700" />
+      <div class="nav-map-loader-track h-1.5 rounded-full bg-nc-input" />
     </div>
   {/if}
 </div>

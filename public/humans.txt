@@ -1,0 +1,16 @@
+/* TEAM */
+Organization: Archangel
+Product: NavCom
+Site: https://navcom.app
+Platform: Nostr Protocol
+Based on: Coracle (https://github.com/coracle-social/coracle)
+
+/* THANKS */
+hodlbod - Coracle creator
+The Nostr community
+
+/* TECHNOLOGY */
+Frontend: Svelte, TypeScript
+Protocol: Nostr
+Libraries: @welshman
+Platforms: PWA, Android (Capacitor)

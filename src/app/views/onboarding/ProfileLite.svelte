@@ -37,22 +37,24 @@
 <div class="flex items-start gap-3">
   <div class="flex items-center gap-2">
     <p
-      class="-ml-1 -mt-1 flex h-10 w-10 items-center justify-center rounded-full bg-neutral-700 text-base text-neutral-100">
+      class="-ml-1 -mt-1 flex h-10 w-10 items-center justify-center rounded-full bg-nc-input text-base text-nc-text">
       3/4
     </p>
   </div>
   <div class="flex flex-col gap-1">
     <div class="flex items-center gap-2">
-      <p class="text-2xl font-bold text-neutral-100">Profile (optional)</p>
+      <p class="text-2xl font-bold text-nc-text">Operator card (optional)</p>
       <Popover triggerType="mouseenter" class="inline-flex items-center align-middle">
-        <span slot="trigger" class="text-neutral-300"><i class="fa fa-info-circle" /></span>
-        <div slot="tooltip" class="max-w-xs text-sm text-neutral-100">
-          Adding profile info is optional. You can skip now and edit it later in settings.
+        <span slot="trigger" class="text-nc-text"><i class="fa fa-info-circle" /></span>
+        <div slot="tooltip" class="max-w-xs text-sm text-nc-text">
+          Your operator card is visible to other operators on the network. All fields are optional
+          and can be changed later in settings.
         </div>
       </Popover>
     </div>
-    <p class="text-neutral-200">
-      Add a handle or display name, or skip. Starter follows help you see posts immediately.
+    <p class="text-nc-text">
+      A callsign and display name help other operators identify you. Use operational handles, not
+      personal information.
     </p>
   </div>
 </div>
@@ -61,15 +63,16 @@
   <Field>
     <div slot="label" class="flex justify-between">
       <label
-        class="flex items-center gap-2 font-semibold uppercase tracking-[0.06em] text-neutral-100">
-        Handle (optional)
+        class="flex items-center gap-2 font-semibold uppercase tracking-[0.06em] text-nc-text">
+        Callsign (optional)
       </label>
       <Popover
         triggerType="mouseenter"
-        class="inline-flex shrink-0 items-center align-middle text-neutral-300">
+        class="inline-flex shrink-0 items-center align-middle text-nc-text">
         <span slot="trigger"><i class="fa fa-info-circle" /></span>
-        <div slot="tooltip" class="max-w-xs text-sm text-neutral-100">
-          A short name others can mention you with. Avoid sensitive info; you can change it later.
+        <div slot="tooltip" class="max-w-xs text-sm text-nc-text">
+          A unique identifier other operators can use to reference you. Avoid real names or
+          personally identifying information.
         </div>
       </Popover>
     </div>
@@ -85,15 +88,15 @@
   <Field>
     <div slot="label" class="flex justify-between">
       <label
-        class="flex items-center gap-2 font-semibold uppercase tracking-[0.06em] text-neutral-100">
+        class="flex items-center gap-2 font-semibold uppercase tracking-[0.06em] text-nc-text">
         Display name (optional)
       </label>
       <Popover
         triggerType="mouseenter"
-        class="inline-flex shrink-0 items-center align-middle text-neutral-300">
+        class="inline-flex shrink-0 items-center align-middle text-nc-text">
         <span slot="trigger"><i class="fa fa-info-circle" /></span>
-        <div slot="tooltip" class="max-w-xs text-sm text-neutral-100">
-          How your name appears in feeds. Freeform text; you can edit it anytime.
+        <div slot="tooltip" class="max-w-xs text-sm text-nc-text">
+          How your name appears in messages and on the map. Freeform text; editable anytime.
         </div>
       </Popover>
     </div>
@@ -109,18 +112,20 @@
   <div class="panel space-y-2 p-4">
     <div class="flex flex-wrap items-center justify-between gap-2">
       <div class="flex items-center gap-2">
-        <p class="text-lg font-semibold">Starter follows</p>
+        <p class="text-lg font-semibold">Connect to default relay network</p>
         <Popover triggerType="mouseenter" class="inline-flex items-center align-middle">
-          <span slot="trigger" class="text-neutral-300"><i class="fa fa-info-circle" /></span>
-          <div slot="tooltip" class="max-w-xs text-sm text-neutral-100">
-            Adds a small curated list so your feed isn’t empty. You can unfollow any of them later.
+          <span slot="trigger" class="text-nc-text"><i class="fa fa-info-circle" /></span>
+          <div slot="tooltip" class="max-w-xs text-sm text-nc-text">
+            Pre-configured relay connections so you can communicate immediately. You can modify
+            relay configuration later in settings.
           </div>
         </Popover>
       </div>
       <Toggle bind:value={starterFollows} on:change={() => update({starterFollows})} />
     </div>
-    <p class="text-neutral-300">
-      Adds a small curated list so your feed isn’t empty. You can unfollow anytime.
+    <p class="text-nc-text">
+      Pre-configured relay connections so you can communicate immediately. You can modify relay
+      configuration later in settings.
     </p>
   </div>
 </div>

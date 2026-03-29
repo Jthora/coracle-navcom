@@ -1,4 +1,5 @@
 <script lang="ts">
+  /* eslint-disable no-undef */
   import {identity, equals} from "@welshman/lib"
   import {BLOSSOM_SERVERS, tagger, getListTags, getTagValues, makeEvent} from "@welshman/util"
   import {Router} from "@welshman/router"
@@ -18,6 +19,8 @@
   import WorkEstimate from "src/partials/WorkEstimate.svelte"
   import SearchSelect from "src/partials/SearchSelect.svelte"
   import {env, userSettings, publishSettings} from "src/engine"
+  import PqcKeySettings from "src/app/views/PqcKeySettings.svelte"
+  import ThemeControls from "src/app/shared/ThemeControls.svelte"
 
   const initialBlossomServers = getTagValues("server", getListTags($userBlossomServerList))
 
@@ -44,7 +47,7 @@
 
   let blossomServers = Array.from(initialBlossomServers)
 
-  document.title = "Settings"
+  document.title = "Settings | NavCom"
 </script>
 
 <form on:submit|preventDefault={submit}>
@@ -156,6 +159,18 @@
         with troubleshooting, and allows other people to find out about {appName}.
       </p>
     </FieldInline>
+  </div>
+  <div class="mt-8">
+    <Field label="Theme">
+      <p slot="info">Customize NavCom's visual atmosphere. Mix Shell, Surface, and Accent palettes.</p>
+      <ThemeControls />
+    </Field>
+  </div>
+  <div class="mt-8">
+    <PqcKeySettings />
+  </div>
+  <div class="mt-6 text-center text-sm text-nc-text-muted">
+    NavCom v{__APP_VERSION__}
   </div>
   <Footer>
     <Button class="btn flex-grow" type="submit">Save</Button>

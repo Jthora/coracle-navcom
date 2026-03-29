@@ -7,7 +7,7 @@
   <slot name="label">
     <div class="flex justify-between">
       <label
-        class="flex items-center gap-2 font-semibold uppercase tracking-[0.06em] text-neutral-100">
+        class="flex items-center gap-2 font-semibold uppercase tracking-[0.06em] text-nc-text">
         {#if icon}
           <i class={`fa ${icon}`} />
         {/if}
@@ -17,7 +17,7 @@
     </div>
   </slot>
   <slot />
-  <p class="text-sm text-neutral-400">
+  <p class="text-sm text-nc-text-muted">
     <slot name="info" />
   </p>
 </div>

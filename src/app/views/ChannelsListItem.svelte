@@ -30,7 +30,7 @@
       {/if}
     </div>
     <div class="relative">
-      <i class="fa fa-bell" class:text-neutral-600={!showAlert} />
+      <i class="fa fa-bell" class:text-nc-text-muted={!showAlert} />
       {#if showAlert}
         <div class="absolute right-0 top-0 mt-1 h-1 w-1 rounded-full bg-accent" />
       {/if}

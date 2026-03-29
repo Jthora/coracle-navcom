@@ -1,0 +1,5 @@
+{
+  "id": "test-group-001",
+  "name": "Test Group",
+  "relay": "wss://relay.example.com"
+}

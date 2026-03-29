@@ -12,6 +12,7 @@
   import RelayStatus from "src/app/shared/RelayStatus.svelte"
   import RelayCardActions from "src/app/shared/RelayCardActions.svelte"
   import {setMessagingPolicy, setOutboxPolicy} from "src/engine"
+  import {relayHealthTracker} from "src/engine/relay/relay-health"
   import {slide} from "svelte/transition"
   import Modal from "src/partials/Modal.svelte"
 
@@ -56,6 +57,10 @@
   }
 
   $: isMobile = innerWidth < 768
+  $: trustTier = relayHealthTracker.getTier(url)
+  $: trustBadge = trustTier === "verified" ? "🟢" : trustTier === "known" ? "🟡" : "🔴"
+  $: trustLabel =
+    trustTier === "verified" ? "Verified" : trustTier === "known" ? "Known" : "Unknown"
 </script>
 
 <svelte:window bind:innerWidth />
@@ -67,7 +72,7 @@
         <img class="h-9 w-9 min-w-9 rounded-full border" src={$relay.icon} />
       {:else}
         <div class="flex h-9 w-9 min-w-9 items-center justify-center rounded-full border">
-          <i class="fa fa-server text-xl text-neutral-100"></i>
+          <i class="fa fa-server text-xl text-nc-text"></i>
         </div>
       {/if}
       <div class="flex min-w-0 flex-col pr-8">
@@ -75,11 +80,12 @@
           <div class="text-md overflow-hidden text-ellipsis whitespace-nowrap">
             {displayRelayUrl(url)}
           </div>
+          <span class="text-xs" title="{trustLabel} relay">{trustBadge}</span>
           {#if showStatus}
             <RelayStatus {url} />
           {/if}
         </div>
-        <div class="flex gap-4 text-xs text-neutral-400">
+        <div class="flex gap-4 text-xs text-nc-text-muted">
           {#if $relay?.supported_nips}
             <span>
               {$relay.supported_nips.length} NIPs
@@ -94,7 +100,7 @@
         <div class="hidden items-center gap-1 px-4 text-sm sm:flex">
           <Rating inert value={getAvgRating(ratings)} />
           {#if !hideRatingsCount}
-            <span class="text-neutral-400">({ratings.length} reviews)</span>
+            <span class="text-nc-text-muted">({ratings.length} reviews)</span>
           {/if}
         </div>
       {/if}
@@ -142,7 +148,7 @@
               "opacity-50": !$readRelayUrls.includes(url),
             })}
             on:click={policySetter("read")}>
-            <i class="fa fa-book-open text-neutral-300" /> Read
+            <i class="fa fa-book-open text-nc-text" /> Read
           </Chip>
         </div>
         <div slot="tooltip">
@@ -160,7 +166,7 @@
               "opacity-50": !$writeRelayUrls.includes(url),
             })}
             on:click={policySetter("write")}>
-            <i class="fa fa-feather text-neutral-300" /> Write
+            <i class="fa fa-feather text-nc-text" /> Write
           </Chip>
         </div>
         <div slot="tooltip">
@@ -178,7 +184,7 @@
                 "opacity-50": !$messagingRelayUrls.includes(url),
               })}
               on:click={policySetter("messaging")}>
-              <i class="fa fa-inbox text-neutral-300" /> Messaging
+              <i class="fa fa-inbox text-nc-text" /> Messaging
             </Chip>
           </div>
           <div slot="tooltip">

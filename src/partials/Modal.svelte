@@ -113,7 +113,7 @@
       class:pointer-events-none={closing}
       class:ml-72={innerWidth >= 1024 && !overlay}>
       <div
-        class="absolute inset-0 cursor-pointer bg-[radial-gradient(circle_at_50%_20%,rgba(34,211,238,0.08),rgba(0,0,0,0.68))] backdrop-blur-sm"
+        class="absolute inset-0 cursor-pointer bg-[radial-gradient(circle_at_50%_20%,rgba(var(--accent-rgb),0.08),rgba(0,0,0,0.68))] backdrop-blur-sm"
         on:click|stopPropagation={tryClose} />
       <div
         class="modal-content scroll-container p-sai ml-0 h-full overflow-auto"
@@ -144,7 +144,7 @@
                 <div
                   class:hidden={!isNested || !canCloseAll}
                   class="clear-modals pointer-events-auto flex h-10 w-10 cursor-pointer items-center justify-center
-                         rounded-full border border-solid border-tinted-700 bg-neutral-600 text-neutral-100 transition-colors hover:bg-neutral-600"
+                         rounded-full border border-solid border-tinted-700 bg-nc-shell-border text-nc-text transition-colors hover:bg-nc-shell-border"
                   on:click|stopPropagation={() => router.clearModals()}>
                   <i class="fa-angles-down fa fa-lg" />
                 </div>
@@ -152,7 +152,7 @@
             {/if}
             <div on:click|stopPropagation class="">
               <div
-                class="relative m-auto h-full min-h-screen w-full cursor-auto overflow-hidden rounded-[14px] border border-neutral-700 bg-[linear-gradient(180deg,rgba(15,17,20,0.95),rgba(5,6,8,0.98))] shadow-[0_20px_60px_rgba(0,0,0,0.55),0_0_0_1px_rgba(99,230,255,0.12)]">
+                class="relative m-auto h-full min-h-screen w-full cursor-auto overflow-hidden rounded-[14px] border border-nc-shell-border bg-[linear-gradient(180deg,rgba(var(--nc-shell-bg-rgb),0.95),rgba(var(--nc-shell-deep-rgb),0.98))] shadow-[0_20px_60px_rgba(0,0,0,0.55),0_0_0_1px_rgba(var(--accent-rgb),0.12)]">
                 <div class="modal-content-inner m-auto flex max-w-2xl flex-col gap-4 p-4">
                   <slot />
                 </div>

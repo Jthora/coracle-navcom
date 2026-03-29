@@ -181,17 +181,17 @@
   tabindex="-1"
   on:keydown={handleKeydown}>
   <div
-    class="h-full max-h-full w-full overflow-y-auto rounded-2xl bg-neutral-900 p-4 shadow-2xl md:h-auto md:max-h-[90vh] md:max-w-3xl">
+    class="h-full max-h-full w-full overflow-y-auto rounded-2xl bg-nc-shell-deep p-4 shadow-2xl md:h-auto md:max-h-[90vh] md:max-w-3xl">
     <div class="mb-3 flex items-center justify-between">
       <div>
-        <p class="text-lg font-semibold text-white">Pick location</p>
-        <p class="text-sm text-neutral-300">
+        <p class="text-lg font-semibold text-nc-text">Pick location</p>
+        <p class="text-sm text-nc-text">
           Use the draggable pin or click the map to set coordinates.
         </p>
       </div>
       <button
         type="button"
-        class="flex h-11 w-11 items-center justify-center text-neutral-300 md:h-auto md:w-auto"
+        class="flex h-11 w-11 items-center justify-center text-nc-text md:h-auto md:w-auto"
         bind:this={closeButton}
         on:click={onClose}
         aria-label="Close map picker">
@@ -204,7 +204,7 @@
         <p>{loadError}</p>
         <button
           type="button"
-          class="w-fit rounded border border-neutral-600 px-3 py-2 text-xs text-white hover:border-neutral-400"
+          class="w-fit rounded border border-nc-shell-border px-3 py-2 text-xs text-white hover:border-nc-shell-border"
           on:click={retry}>
           Retry loading map
         </button>
@@ -213,20 +213,20 @@
       <div class="relative">
         {#if loading}
           <div
-            class="z-10 bg-neutral-900/70 pointer-events-none absolute inset-0 flex items-center justify-center rounded-xl text-neutral-200">
+            class="z-10 bg-nc-shell-deep/70 pointer-events-none absolute inset-0 flex items-center justify-center rounded-xl text-nc-text">
             Loading map…
           </div>
         {/if}
         <div
           bind:this={mapContainer}
-          class="h-[52dvh] min-h-[280px] w-full overflow-hidden rounded-xl bg-neutral-800 md:h-[420px]"
+          class="bg-nc-shell-bg h-[52dvh] min-h-[280px] w-full overflow-hidden rounded-xl md:h-[420px]"
           aria-busy={loading} />
       </div>
     {/if}
 
     <div
-      class="sticky bottom-0 mt-3 flex flex-wrap items-center justify-between gap-3 bg-neutral-900 pb-[calc(env(safe-area-inset-bottom)+0.25rem)] pt-2 md:static md:bg-transparent md:pb-0 md:pt-0">
-      <div class="text-xs text-neutral-200 sm:text-sm">
+      class="sticky bottom-0 mt-3 flex flex-wrap items-center justify-between gap-3 bg-nc-shell-deep pb-[calc(env(safe-area-inset-bottom)+0.25rem)] pt-2 md:static md:bg-transparent md:pb-0 md:pt-0">
+      <div class="text-xs text-nc-text sm:text-sm">
         <span class="font-semibold">Lat:</span>
         {markerLat.toFixed(6)}
         <span class="ml-3 font-semibold">Lon:</span>
@@ -235,11 +235,11 @@
       <div class="flex gap-2">
         <button
           type="button"
-          class="rounded border border-neutral-600 px-4 py-2 text-sm"
+          class="rounded border border-nc-shell-border px-4 py-2 text-sm"
           on:click={onClose}>Cancel</button>
         <button
           type="button"
-          class="rounded bg-white px-4 py-2 text-sm font-semibold text-black disabled:opacity-60"
+          class="rounded bg-nc-accent px-4 py-2 text-sm font-semibold text-neutral-900 disabled:opacity-60"
           disabled={!ready || loading}
           on:click={save}>
           Use this location

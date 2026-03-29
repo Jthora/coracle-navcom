@@ -7,15 +7,15 @@
 
 <nav
   aria-label="Group breadcrumbs"
-  class="mb-3 flex flex-wrap items-center gap-1 text-xs text-neutral-400">
+  class="mb-3 flex flex-wrap items-center gap-1 text-xs text-nc-text-muted">
   {#each items as item, index (`breadcrumb-${item.label}-${index}`)}
     {#if index > 0}
-      <span class="text-neutral-600">/</span>
+      <span class="text-nc-text-muted">/</span>
     {/if}
     {#if item.href && !item.current}
-      <Link class="hover:text-neutral-200" href={item.href}>{item.label}</Link>
+      <Link class="hover:text-nc-text" href={item.href}>{item.label}</Link>
     {:else}
-      <span class="text-neutral-200" aria-current={item.current ? "page" : undefined}
+      <span class="text-nc-text" aria-current={item.current ? "page" : undefined}
         >{item.label}</span>
     {/if}
   {/each}

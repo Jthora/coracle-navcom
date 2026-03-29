@@ -35,13 +35,13 @@
   {#each $handle.relays || [] as url}
     <RelayCard {url} />
   {:else}
-    <div class="panel mt-2 flex items-center gap-2 p-3 text-neutral-200">
+    <div class="panel mt-2 flex items-center gap-2 p-3 text-nc-text">
       <i class="fa fa-info-circle text-warning" />
       <span>No relays are advertised at {display}.</span>
     </div>
   {/each}
 {:else}
-  <div class="panel mt-2 flex items-center gap-2 p-3 text-neutral-200">
+  <div class="panel mt-2 flex items-center gap-2 p-3 text-nc-text">
     <i class="fa-solid fa-info-circle text-warning" />
     <span>No Nostr address found.</span>
   </div>
@@ -49,7 +49,7 @@
 {#if lightningAddress}
   <CopyValue label="Lightning Address" value={lightningAddress} />
 {:else}
-  <div class="panel mt-2 flex items-center gap-2 p-3 text-neutral-200">
+  <div class="panel mt-2 flex items-center gap-2 p-3 text-nc-text">
     <i class="fa-solid fa-info-circle text-warning" />
     <span>No lightning address found.</span>
   </div>

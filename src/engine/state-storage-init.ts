@@ -1,8 +1,11 @@
 import {SocketEvent, Pool, makeSocketPolicyAuth} from "@welshman/net"
 import type {Socket} from "@welshman/net"
-import type {StampedEvent, TrustedEvent} from "@welshman/util"
+import type {StampedEvent} from "@welshman/util"
 import {always, now, pushToMapKey} from "@welshman/lib"
 import {sync, localStorageProvider} from "@welshman/store"
+import {shouldConnect, setActiveCount, getActiveCount} from "src/engine/relay/pool-gate"
+
+import {startQueueWatcher} from "src/engine/offline/queue-drain"
 
 export const createStateStorageInit = ({
   env,
@@ -73,6 +76,18 @@ export const createStateStorageInit = ({
     })
 
     Pool.get().subscribe((socket: Socket) => {
+      // Gate connection: reject sockets that fail relay validation / policy
+      if (!shouldConnect(socket.url)) {
+        socket.cleanup()
+        return
+      }
+      setActiveCount(getActiveCount() + 1)
+      socket.on(SocketEvent.Status, status => {
+        if (status === "closed" || status === "error") {
+          setActiveCount(Math.max(0, getActiveCount() - 1))
+        }
+      })
+
       socket.on(SocketEvent.Receive, (message, url) => {
         if (noticeVerbs.includes(message[0])) {
           subscriptionNotices.update($notices => {
@@ -86,7 +101,10 @@ export const createStateStorageInit = ({
 
     ready = initStorage("navcom", 9, adapters)
 
-    ready.then(() => Promise.all(initialRelays.map(url => loadRelay(url))))
+    ready.then(() => {
+      Promise.all(initialRelays.map(url => loadRelay(url)))
+      startQueueWatcher()
+    })
   }
 
   return {ready}

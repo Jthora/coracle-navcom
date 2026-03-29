@@ -1,4 +1,5 @@
 import {buildDmPqcEnvelope} from "src/engine/pqc/dm-envelope"
+import type {DmEnvelopeBuildResult} from "src/engine/pqc/dm-envelope"
 import {resolveDmReceiveContent} from "src/engine/pqc/dm-receive-envelope"
 
 export type LatencyPercentiles = {
@@ -114,7 +115,8 @@ export const benchmarkDmEncryptDecryptLatency = ({
         recipients: [recipientPubkey],
         mode: "hybrid",
         algorithm: "hybrid-mlkem768+x25519-aead-v1",
-      })
+        recipientPqPublicKeys: new Map(),
+      } as any) as unknown as DmEnvelopeBuildResult
 
       if (result.ok === false) {
         throw new Error(result.message)
@@ -128,7 +130,8 @@ export const benchmarkDmEncryptDecryptLatency = ({
     recipients: [recipientPubkey],
     mode: "hybrid",
     algorithm: "hybrid-mlkem768+x25519-aead-v1",
-  })
+    recipientPqPublicKeys: new Map(),
+  } as any) as unknown as DmEnvelopeBuildResult
 
   if (envelope.ok === false) {
     throw new Error(envelope.message)
@@ -144,7 +147,10 @@ export const benchmarkDmEncryptDecryptLatency = ({
         policyMode: "strict",
         expectedSenderPubkey: senderPubkey,
         expectedRecipientPubkey: recipientPubkey,
-      })
+        recipientSecretKey: new Uint8Array(0),
+        recipientPubkey,
+        senderPubkey,
+      } as any)
     },
   })
 
@@ -159,7 +165,10 @@ export const benchmarkDmEncryptDecryptLatency = ({
         allowLegacyFallback: true,
         expectedSenderPubkey: senderPubkey,
         expectedRecipientPubkey: recipientPubkey,
-      })
+        recipientSecretKey: new Uint8Array(0),
+        recipientPubkey,
+        senderPubkey,
+      } as any)
     },
   })
 

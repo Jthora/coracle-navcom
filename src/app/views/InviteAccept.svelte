@@ -146,17 +146,17 @@
         <p>Use these group invite entries to open the join flow with prefilled context.</p>
         <div class="grid grid-cols-1 gap-4">
           {#each parsedGroups as group, i (`group-${group.groupId}-${i}`)}
-            <div class="rounded border border-neutral-700 p-3">
+            <div class="rounded border border-nc-shell-border p-3">
               <div class="flex items-center justify-between gap-3">
                 <div>
-                  <div class="text-sm font-semibold text-neutral-100">
+                  <div class="text-sm font-semibold text-nc-text">
                     {group.label || group.groupId}
                   </div>
                   {#if group.label}
-                    <div class="text-xs text-neutral-400">{group.groupId}</div>
+                    <div class="text-xs text-nc-text-muted">{group.groupId}</div>
                   {/if}
                   {#if getGroupInviteEntryMeta(group)}
-                    <div class="mt-1 text-xs text-neutral-400">
+                    <div class="mt-1 text-xs text-nc-text-muted">
                       {getGroupInviteEntryMeta(group)}
                     </div>
                   {/if}
@@ -185,5 +185,9 @@
   {/if}
   <Link class="btn btn-accent" href="/">Done</Link>
 {:else}
-  <Onboarding invite={{people, relays, groups: parsedGroups, parsedRelays}} />
+  <Onboarding
+    invite={{people, relays, groups: parsedGroups, parsedRelays}}
+    returnTo={parsedGroups.length === 1
+      ? `/groups/${encodeURIComponent(parsedGroups[0].groupId)}/chat`
+      : null} />
 {/if}

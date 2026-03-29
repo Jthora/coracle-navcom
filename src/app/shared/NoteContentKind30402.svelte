@@ -41,15 +41,15 @@
       </span>
     </div>
     {#if location}
-      <div class="flex items-center gap-2 text-sm text-neutral-300">
+      <div class="flex items-center gap-2 text-sm text-nc-text">
         <i class="fa fa-location-dot" />
         {location}
       </div>
     {/if}
     {#if summary !== note.content}
-      <p class="text-neutral-200">{summary}</p>
+      <p class="text-nc-text">{summary}</p>
     {/if}
-    <div class="h-px bg-neutral-600" />
+    <div class="h-px bg-nc-shell-border" />
     <NoteContentKind1 {note} {showEntire} {showMedia} />
   </div>
   <NoteContentTopics {note} />

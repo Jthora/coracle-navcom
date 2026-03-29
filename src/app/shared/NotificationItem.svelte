@@ -18,8 +18,8 @@
 
 {#if prev !== date && items.length > 0}
   <div class="flex items-center gap-4">
-    <small class="whitespace-nowrap text-neutral-100">{date}</small>
-    <div class="h-px w-full bg-neutral-600" />
+    <small class="whitespace-nowrap text-nc-text">{date}</small>
+    <div class="h-px w-full bg-nc-shell-border" />
   </div>
 {/if}
 

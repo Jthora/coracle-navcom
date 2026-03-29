@@ -28,6 +28,7 @@
     publishGroupMetadataEdit,
     publishGroupPutMember,
     publishGroupRemoveMember,
+    publishGroupLeave,
   } from "src/engine"
   import {
     ADMIN_DESTRUCTIVE_ACTION,
@@ -60,6 +61,8 @@
     validateModerationDraft,
   } from "src/app/groups/moderation-composer"
   import {reportGroupError} from "src/app/groups/error-reporting"
+  import {evaluateRelayFingerprintGate} from "src/engine/relay-fingerprint-gate"
+  import type {GateInput} from "src/engine/relay-fingerprint-gate"
 
   export let groupId: string
 
@@ -160,6 +163,23 @@
   const onRelayPolicyChanged = (next: RoomRelayPolicy) => {
     relayPolicy = next
   }
+
+  // Relay fingerprint gate: check for member personal relay ↔ group relay overlaps
+  $: gateInput = (() => {
+    if (!projection) return null
+    const memberRelays = new Map<string, string[]>()
+    // Member personal relays would come from kind-10002; for now we check
+    // group relays against each other per-member to flag obvious overlaps.
+    // Full personal relay integration deferred until kind-10002 relay list store exists.
+    return {
+      memberRelays,
+      groupRelays: relayPolicy.relays.map(r => r.url),
+      memberPubkeys: Object.keys(projection.members),
+    } as GateInput
+  })()
+
+  $: gateResult = gateInput ? evaluateRelayFingerprintGate(gateInput) : {ok: true, violations: []}
+  $: gateBlocked = !gateResult.ok
 
   const onRelayPolicySaved = ({ok, message}: {ok: boolean; message: string}) => {
     emitRelayPolicyOutcomeTelemetry({
@@ -410,9 +430,37 @@
     }
   }
 
+  let showLeaveConfirm = false
+  let leaveConfirmInput = ""
+  $: isGroupOwner = actorRole === "owner"
+  $: leaveGroupTitle = projection?.group?.title || groupId
+  $: leaveConfirmed =
+    leaveConfirmInput.trim().toLowerCase() === leaveGroupTitle.trim().toLowerCase()
+
+  const onLeaveGroup = async () => {
+    if (!leaveConfirmed || isGroupOwner) return
+    try {
+      await publishGroupLeave({groupId}, actorRole)
+      showInfo("You have left the group.")
+      showLeaveConfirm = false
+      leaveConfirmInput = ""
+      // Navigate back to groups list
+      window.location.hash = "#/groups"
+    } catch (error) {
+      const reported = reportGroupError({
+        context: "group-admin-leave",
+        error,
+        flow: "create",
+        groupId,
+        source: "group-settings-admin",
+      })
+      showWarning(reported.userMessage)
+    }
+  }
+
   $: document.title = projection
-    ? `${projection.group.title || projection.group.id} · ${adminSectionTitle}`
-    : "Group Admin"
+    ? `${projection.group.title || projection.group.id} · ${adminSectionTitle} | NavCom`
+    : "Group Admin | NavCom"
 
   $: if (projection) {
     uiMode = getGroupAdminMode(groupId)
@@ -420,9 +468,9 @@
 </script>
 
 {#if !$groupsHydrated}
-  <div class="panel p-6 text-center text-neutral-300">Loading group admin panel…</div>
+  <div class="panel p-6 text-center text-nc-text">Loading group admin panel…</div>
 {:else if !projection}
-  <div class="panel p-6 text-center text-neutral-200">
+  <div class="panel p-6 text-center text-nc-text">
     <p>Group not found.</p>
     <div class="mt-4">
       <Link class="btn" href="/groups">Back to Groups</Link>
@@ -434,15 +482,15 @@
     <div class="flex items-center justify-between gap-3">
       <h2 class="text-lg uppercase tracking-[0.08em]">{adminSectionTitle} · Admin</h2>
       <div class="flex flex-wrap items-center justify-end gap-2">
-        <span class="rounded border border-neutral-700 px-2 py-1 text-xs text-neutral-300">
+        <span class="rounded border border-nc-shell-border px-2 py-1 text-xs text-nc-text">
           Role: {actorRole}
         </span>
-        <span class="rounded border border-neutral-700 px-2 py-1 text-xs text-neutral-300">
+        <span class="rounded border border-nc-shell-border px-2 py-1 text-xs text-nc-text">
           {securityState.label}
         </span>
       </div>
     </div>
-    <p class="mt-2 text-sm text-neutral-300">{adminSectionDescription}</p>
+    <p class="mt-2 text-sm text-nc-text">{adminSectionDescription}</p>
     <div class="mt-3 flex flex-wrap gap-2 text-sm">
       <Link
         class={adminSection === "settings" ? "btn btn-accent" : "btn"}
@@ -454,7 +502,7 @@
       <Link class="btn" href={`/groups/${encodeURIComponent(groupId)}/chat`}>Chat</Link>
       <Link class="btn" href={`/groups/${encodeURIComponent(groupId)}/members`}>Members</Link>
     </div>
-    <div class="mt-3 rounded border border-neutral-700 px-3 py-2 text-sm text-neutral-300">
+    <div class="mt-3 rounded border border-nc-shell-border px-3 py-2 text-sm text-nc-text">
       {securityState.hint}
     </div>
   </div>
@@ -472,16 +520,38 @@
       policy={relayPolicy}
       onChange={onRelayPolicyChanged}
       onSaved={onRelayPolicySaved} />
+
+    {#if gateBlocked}
+      <div class="panel border-red-900/40 mt-2 border p-4">
+        <p class="text-sm font-semibold text-danger">⚠ Relay isolation violation</p>
+        <p class="mt-1 text-sm text-nc-text-muted">
+          Member personal relays overlap with group relays, creating a fingerprinting risk.
+        </p>
+        {#if gateResult.violations.length > 0}
+          <ul class="mt-2 list-disc pl-5 text-xs text-nc-text-muted">
+            {#each gateResult.violations as v}
+              <li>
+                <code class="font-mono">{v.personalRelay}</code> — member
+                <span class="font-semibold">{v.pubkey.slice(0, 12)}…</span>
+              </li>
+            {/each}
+          </ul>
+          <p class="mt-2 text-xs text-nc-text-muted">
+            Change relay URLs to be unique per group, or remove overlapping member relays.
+          </p>
+        {/if}
+      </div>
+    {/if}
   {:else}
     <div class="panel p-4">
-      <h3 class="text-sm uppercase tracking-[0.08em] text-neutral-300">Guided Summary</h3>
-      <p class="mt-2 text-sm text-neutral-400">
+      <h3 class="text-sm uppercase tracking-[0.08em] text-nc-text">Guided Summary</h3>
+      <p class="mt-2 text-sm text-nc-text-muted">
         Advanced controls are hidden in guided mode. Current policy state remains preserved.
       </p>
-      <div class="mt-3 rounded border border-neutral-700 px-3 py-2 text-sm text-neutral-300">
-        Current policy: <span class="text-neutral-100">{policySummary}</span>
+      <div class="mt-3 rounded border border-nc-shell-border px-3 py-2 text-sm text-nc-text">
+        Current policy: <span class="text-nc-text">{policySummary}</span>
       </div>
-      <div class="mt-2 rounded border border-neutral-700 px-3 py-2 text-sm text-neutral-400">
+      <div class="mt-2 rounded border border-nc-shell-border px-3 py-2 text-sm text-nc-text-muted">
         Switch to Expert mode to edit advanced policy, diagnostics, and moderation controls.
       </div>
     </div>
@@ -505,7 +575,7 @@
 
   {#if isExpertMode && hasVisibleAdminActions}
     <div class="panel p-4">
-      <h3 class="text-sm uppercase tracking-[0.08em] text-neutral-300">Admin Actions</h3>
+      <h3 class="text-sm uppercase tracking-[0.08em] text-nc-text">Admin Actions</h3>
 
       <GroupSettingsModerationComposer
         {adminUi}
@@ -538,8 +608,8 @@
     </div>
   {:else if isExpertMode}
     <div class="panel p-4">
-      <h3 class="text-sm uppercase tracking-[0.08em] text-neutral-300">Admin Actions</h3>
-      <p class="mt-3 rounded border border-neutral-700 px-3 py-2 text-sm text-neutral-400">
+      <h3 class="text-sm uppercase tracking-[0.08em] text-nc-text">Admin Actions</h3>
+      <p class="mt-3 rounded border border-nc-shell-border px-3 py-2 text-sm text-nc-text-muted">
         No admin controls are available for your current role.
       </p>
     </div>
@@ -548,4 +618,51 @@
   {#if isExpertMode && adminUi[GROUP_ADMIN_UI_CONTROL.AUDIT_HISTORY].visible}
     <GroupAuditHistoryPanel {projection} actorPubkey={$pubkey || undefined} />
   {/if}
+
+  <!-- Danger Zone: Leave Group -->
+  <div class="panel border-red-900/40 mt-6 border p-4">
+    <h3 class="text-red-400 text-sm uppercase tracking-[0.08em]">Danger Zone</h3>
+    {#if isGroupOwner}
+      <p class="mt-2 text-sm text-nc-text-muted">
+        Group owners cannot leave their own group. Transfer ownership first.
+      </p>
+    {:else if !showLeaveConfirm}
+      <p class="mt-2 text-sm text-nc-text-muted">
+        Leaving this group will remove your membership and you will lose access to group messages.
+      </p>
+      <button
+        class="bg-red-900/30 text-red-300 hover:bg-red-900/50 mt-3 rounded-lg px-4 py-2 text-sm font-medium transition-colors"
+        on:click={() => (showLeaveConfirm = true)}>
+        Leave Group
+      </button>
+    {:else}
+      <p class="mt-2 text-sm text-nc-text">
+        Type <strong class="text-red-300">{leaveGroupTitle}</strong> to confirm:
+      </p>
+      <input
+        type="text"
+        bind:value={leaveConfirmInput}
+        placeholder="Type group name to confirm"
+        class="focus:border-red-500 mt-2 w-full rounded-lg border border-nc-shell-border bg-nc-input px-3 py-2 text-sm text-nc-text placeholder-nc-text-muted focus:outline-none" />
+      <div class="mt-3 flex gap-2">
+        <button
+          class="rounded-lg bg-nc-input px-4 py-2 text-sm text-nc-text transition-colors hover:bg-nc-shell-border"
+          on:click={() => {
+            showLeaveConfirm = false
+            leaveConfirmInput = ""
+          }}>
+          Cancel
+        </button>
+        <button
+          class="rounded-lg px-4 py-2 text-sm font-medium transition-colors
+            {leaveConfirmed
+            ? 'bg-red-700 hover:bg-red-600 text-white'
+            : 'cursor-not-allowed bg-nc-input text-nc-text-muted'}"
+          disabled={!leaveConfirmed}
+          on:click={onLeaveGroup}>
+          Confirm Leave
+        </button>
+      </div>
+    {/if}
+  </div>
 {/if}

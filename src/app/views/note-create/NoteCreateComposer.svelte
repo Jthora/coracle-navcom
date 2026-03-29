@@ -55,13 +55,13 @@
             <span>GEOINT posts are public. Share coordinates responsibly.</span>
             <div class="flex flex-wrap gap-2">
               <button
-                class="rounded bg-white px-3 py-1 text-xs font-semibold text-black"
+                class="rounded bg-nc-accent px-3 py-1 text-xs font-semibold text-neutral-900"
                 type="button"
                 on:click={onOpenGeoModal}>
                 {hasValidGeo() ? "Edit location" : "Add location"}
               </button>
               <button
-                class="rounded border border-neutral-600 px-3 py-1 text-xs text-white"
+                class="rounded border border-nc-shell-border px-3 py-1 text-xs text-nc-text"
                 type="button"
                 on:click={onClearGeo}>
                 Clear
@@ -87,9 +87,9 @@
     <FlexColumn>
       <Field label="What do you want to say?">
         <div
-          class="rounded-xl border border-solid border-neutral-600 p-3"
-          class:bg-white={!showPreview}
-          class:text-black={!showPreview}
+          class="rounded-xl border border-solid border-nc-shell-border p-3"
+          class:bg-nc-input={!showPreview}
+          class:text-nc-text={!showPreview}
           class:bg-tinted-700={showPreview}>
           {#if showPreview}
             <div class="flex flex-col gap-3">
@@ -97,11 +97,11 @@
 
               {#if selectedType === "geoint" && hasValidGeo() && previewData.payload}
                 <div
-                  class="rounded border border-neutral-600 bg-neutral-900 p-3 text-sm text-white">
+                  class="rounded border border-nc-shell-border bg-nc-shell-deep p-3 text-sm text-nc-text">
                   <div class="flex items-center justify-between">
                     <span class="font-semibold">GEOJSON payload (sent compacted)</span>
                     <button
-                      class="text-xs text-neutral-300 underline"
+                      class="text-xs text-nc-text underline"
                       type="button"
                       on:click={onToggleGeoJsonPreview}>
                       {showGeoJsonPreview ? "Hide" : "Show"}
@@ -114,7 +114,7 @@
                         null,
                         2,
                       )}</pre>
-                    <p class="mt-2 text-xs text-neutral-300">Delimiter: {GEOJSON_DELIMITER}</p>
+                    <p class="mt-2 text-xs text-nc-text">Delimiter: {GEOJSON_DELIMITER}</p>
                   {/if}
                 </div>
               {/if}
@@ -124,7 +124,7 @@
             <EditorContent {editor} class="min-h-24" />
           </div>
         </div>
-        <div class="flex items-center justify-end gap-2 text-neutral-200">
+        <div class="flex items-center justify-end gap-2 text-nc-text">
           <small>
             {commaFormat(charCount)} characters
           </small>
@@ -162,7 +162,7 @@
           {/if}
         </Button>
         <button
-          class="hover:bg-white-l staatliches flex h-7 w-7 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded bg-white px-6 text-xl text-black transition-all"
+          class="hover:bg-nc-card-hover staatliches flex h-7 w-7 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded bg-nc-card px-6 text-xl text-nc-text transition-all"
           on:click|preventDefault={onUploadClick}>
           <i class="fa fa-upload" />
         </button>

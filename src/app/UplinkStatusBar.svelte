@@ -53,10 +53,10 @@
 
 {#if innerWidth >= 1024}
   <div
-    class="bottom-sai right-sai border-neutral-700/80 bg-neutral-950/95 border-b-neutral-900/95 pointer-events-none fixed left-72 z-feature h-7 border-b border-t-2 backdrop-blur-sm">
+    class="bottom-sai right-sai border-nc-shell-border/80 bg-nc-shell-deep/95 border-b-nc-shell-deep/95 pointer-events-none fixed left-72 z-feature h-7 border-b border-t-2 backdrop-blur-sm">
     <div class="relative flex h-full items-center overflow-hidden">
-      <div class="bg-neutral-500/50 absolute inset-x-0 top-0 h-px" aria-hidden="true" />
-      <div class="bg-neutral-800/95 absolute inset-x-0 top-[1px] h-px" aria-hidden="true" />
+      <div class="bg-nc-shell-border/50 absolute inset-x-0 top-0 h-px" aria-hidden="true" />
+      <div class="bg-nc-shell-bg/95 absolute inset-x-0 top-[1px] h-px" aria-hidden="true" />
 
       <UplinkStatusVent side="left" />
       <UplinkStatusVent side="right" />

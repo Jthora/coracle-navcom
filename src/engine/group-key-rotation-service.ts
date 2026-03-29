@@ -137,7 +137,9 @@ const loadPersistedRotationJobs = (storage: StorageLike | null | undefined, stor
   } catch {
     try {
       storage.removeItem(storageKey)
-    } catch {}
+    } catch {
+      /* noop */
+    }
 
     return []
   }
@@ -189,7 +191,9 @@ export const createGroupKeyRotationService = (
           jobs: Array.from(jobsByGroup.values()),
         }),
       )
-    } catch {}
+    } catch {
+      /* noop */
+    }
   }
 
   for (const job of loadPersistedRotationJobs(storage, storageKey)) {

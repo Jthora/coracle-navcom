@@ -100,3 +100,12 @@ export const resolveDmSendPolicy = ({
     recipientDecisions,
   }
 }
+
+/**
+ * Check whether a recipient's PQC key is revoked, making encrypted DM impossible.
+ * Returns true if the peer has a security context with a revoked key record.
+ */
+export const isRecipientKeyRevoked = (recipientPubkey: string): boolean => {
+  const context = dmPeerSecurityContextResolver(recipientPubkey)
+  return context?.peerKeyRecord?.status === "revoked"
+}

@@ -41,12 +41,12 @@
 {#if data.length > 0 || (create && term)}
   <div
     transition:slide|local={{duration: 100}}
-    class="mt-2 flex max-h-[350px] flex-col overflow-y-auto overflow-x-hidden border border-solid border-neutral-600">
+    class="mt-2 flex max-h-[350px] flex-col overflow-y-auto overflow-x-hidden border border-solid border-nc-shell-border">
     {#if create && term && (!termIsValid || termIsValid(term))}
       {@const i = data.length}
       <button
-        class="flex cursor-pointer items-center gap-1 border-l-2 border-solid px-4 py-2 text-left text-neutral-100 hover:border-accent hover:bg-tinted-700"
-        class:bg-neutral-800={index !== i}
+        class="flex cursor-pointer items-center gap-1 border-l-2 border-solid px-4 py-2 text-left text-nc-text hover:border-accent hover:bg-tinted-700"
+        class:bg-nc-shell-bg={index !== i}
         class:bg-tinted-700={index === i}
         class:border-transparent={index !== i}
         class:border-accent={index === i}
@@ -57,8 +57,8 @@
     {/if}
     {#each data.slice(0, 30) as item, i (getKey(item))}
       <button
-        class="cursor-pointer border-l-2 border-solid px-4 py-2 text-left text-neutral-100 hover:border-accent hover:bg-tinted-700"
-        class:bg-neutral-800={index !== i}
+        class="cursor-pointer border-l-2 border-solid px-4 py-2 text-left text-nc-text hover:border-accent hover:bg-tinted-700"
+        class:bg-nc-shell-bg={index !== i}
         class:bg-tinted-700={index === i}
         class:border-transparent={index !== i}
         class:border-accent={index === i}
@@ -70,7 +70,7 @@
   </div>
 {/if}
 {#if loading && data.length > 0}
-  <div transition:slide|local class="flex gap-2 bg-tinted-700 px-4 py-2 text-neutral-200">
+  <div transition:slide|local class="flex gap-2 bg-tinted-700 px-4 py-2 text-nc-text">
     <div>
       <i class="fa fa-circle-notch fa-spin" />
     </div>

@@ -79,7 +79,8 @@ describe("group-command-feedback", () => {
     if (!typedPolicy.ok) {
       expect(typedPolicy.reason).toBe(GROUP_COMMAND_REASON.POLICY_BLOCKED)
       expect(typedPolicy.retryable).toBe(false)
-      expect(typedPolicy.details).toEqual({stage: "tier-policy"})
+      // details is intentionally omitted from sanitized output (security: no raw error leaking)
+      expect(typedPolicy.details).toBeUndefined()
     }
 
     expect(typedDispatch.ok).toBe(false)
@@ -113,5 +114,24 @@ describe("group-command-feedback", () => {
 
     expect(result.ok).toBe(true)
     expect(attempts).toBe(2)
+  })
+
+  it("never leaks raw error messages to user-facing output", () => {
+    const rawInternal = mapGroupCommandError(
+      new Error("ECONNREFUSED 10.0.0.1:8080 relay handshake"),
+    )
+    expect(rawInternal.ok).toBe(false)
+    if (!rawInternal.ok) {
+      expect(rawInternal.message).not.toContain("ECONNREFUSED")
+      expect(rawInternal.message).not.toContain("10.0.0.1")
+      expect(rawInternal.details).toBeUndefined()
+    }
+
+    const unknown = mapGroupCommandError(new Error("Unexpected token in JSON at position 42"))
+    expect(unknown.ok).toBe(false)
+    if (!unknown.ok) {
+      expect(unknown.message).not.toContain("JSON")
+      expect(unknown.message).not.toContain("position 42")
+    }
   })
 })
