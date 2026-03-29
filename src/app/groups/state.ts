@@ -156,11 +156,3 @@ export const resetGroupsState = () => {
   groupProjections.set(new Map())
   groupsHydrated.set(false)
 }
-
-// Re-export presence store for convenience
-export {
-  groupMemberPresence,
-  getMemberPresence,
-  getGroupHealth,
-  getGroupPresenceSummary,
-} from "./presence"
