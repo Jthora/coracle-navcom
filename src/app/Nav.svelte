@@ -5,22 +5,16 @@
   import Button from "src/partials/Button.svelte"
   import Link from "src/partials/Link.svelte"
   import SearchResults from "src/app/shared/SearchResults.svelte"
-  import PersonCircle from "src/app/shared/PersonCircle.svelte"
-  import {hasUnreadGroupMessages} from "src/app/groups/state"
   import PersonBadge from "src/app/shared/PersonBadge.svelte"
-  import {menuIsOpen, searchTerm} from "src/app/state"
+  import {searchTerm} from "src/app/state"
   import {router} from "src/app/util/router"
-  import {hasNewMessages, hasNewNotifications, env} from "src/engine"
+  import {env} from "src/engine"
 
   let innerWidth = 0
   let searching = false
   let searchInput
 
   const {page} = router
-
-  const openMenu = () => menuIsOpen.set(true)
-
-  const openSearch = () => router.at("/search").open()
 
   const onSearchBlur = () => searchTerm.set(null)
 
@@ -112,56 +106,6 @@
               <Link modal class="btn btn-accent" href="/signup">Get started</Link>
             {:else}
               <Link modal class="btn btn-accent" href="/login">Log in</Link>
-            {/if}
-          {/if}
-        </div>
-      </div>
-    </div>
-  </div>
-{/if}
-
-<!-- bottom nav -->
-{#if innerWidth < 1024}
-  <div
-    class="px-sai pb-sai fixed bottom-0 left-0 right-0 z-nav border-t border-tinted-600 bg-[linear-gradient(180deg,rgba(var(--nc-shell-bg-rgb),0.92),rgba(var(--nc-shell-deep-rgb),0.96))] shadow-[0_-8px_26px_rgba(0,0,0,0.45)] backdrop-blur-sm">
-    <div class="flex items-center justify-between rounded-t-xl px-4 py-2">
-      <div class="w-1/3">
-        <div
-          class="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-nc-shell-border bg-nc-shell-deep text-accent shadow-[0_0_0_1px_rgba(var(--accent-rgb),0.2),0_0_12px_rgba(var(--accent-rgb),0.25)]"
-          on:click={openSearch}>
-          <i class="fa fa-search -mb-1 -mr-1 text-xl" />
-        </div>
-      </div>
-      <div>
-        {#if $signer}
-          <Button class="btn btn-accent" on:click={createNote}>Post +</Button>
-        {:else if !$pubkey}
-          {#if env.ENABLE_GUIDED_SIGNUP}
-            <Link modal class="btn btn-accent" href="/signup">Get started</Link>
-          {:else}
-            <Link modal class="btn btn-accent" href="/login">Log in</Link>
-          {/if}
-        {/if}
-      </div>
-      <div class="relative flex w-1/3 justify-end">
-        <div class="flex cursor-pointer items-center" on:click={openMenu}>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 448 512"
-            fill="currentColor"
-            class="pt-1 text-nc-text-muted"
-            width="36"
-            height="36">
-            <path
-              fill="currentColor"
-              d="M0 88C0 74.7 10.7 64 24 64H424c13.3 0 24 10.7 24 24s-10.7 24-24 24H24C10.7 112 0 101.3 0 88zM0 248c0-13.3 10.7-24 24-24H424c13.3 0 24 10.7 24 24s-10.7 24-24 24H24c-13.3 0-24-10.7-24-24zM448 408c0 13.3-10.7 24-24 24H24c-13.3 0-24-10.7-24-24s10.7-24 24-24H424c13.3 0 24 10.7 24 24z" />
-          </svg>
-          {#if $signer}
-            <PersonCircle
-              class="-ml-4 h-11 w-11 border-4 border-nc-shell-border"
-              pubkey={$pubkey} />
-            {#if $hasNewNotifications || $hasNewMessages || $hasUnreadGroupMessages}
-              <div class="absolute right-1 top-1 h-2 w-2 rounded bg-accent" />
             {/if}
           {/if}
         </div>

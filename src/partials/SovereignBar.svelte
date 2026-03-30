@@ -17,10 +17,21 @@
   // Tick every 30s to update elapsed time
   let tick = 0
   const interval = setInterval(() => tick++, 30_000)
-  onDestroy(() => clearInterval(interval))
+  onDestroy(() => {
+    clearInterval(interval)
+    document.documentElement.style.setProperty("--sovereign-bar-height", "0px")
+  })
 
   // Reactive: re-evaluate when tick changes
   $: elapsed = tick !== undefined ? formatElapsed(sinceTs) : ""
+
+  // Update CSS variable when sovereign mode toggles
+  $: {
+    document.documentElement.style.setProperty(
+      "--sovereign-bar-height",
+      mode === "sovereign" ? "2rem" : "0px",
+    )
+  }
 </script>
 
 {#if mode === "sovereign"}
@@ -28,7 +39,7 @@
     transition:fade={{duration: 200}}
     class="border-red-500 bg-red-900/90 fixed left-0 right-0 top-0 z-popover flex
            items-center justify-between border-b px-4 py-1.5 font-mono text-xs text-nc-text
-           backdrop-blur-sm"
+           backdrop-blur-sm lg:top-16"
     role="status"
     aria-live="polite">
     <div class="flex items-center gap-2">

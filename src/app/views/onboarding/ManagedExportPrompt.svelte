@@ -9,11 +9,10 @@
 
 {#if $onboardingState.complete && !$onboardingState.backupNeeded && $onboardingState.path === "managed" && !$onboardingState.managedExportDismissed}
   <div
-    class="bg-nc-shell-deep fixed bottom-4 right-4 z-toast max-w-sm rounded border border-nc-shell-border p-3 shadow-2xl">
+    class="fixed right-4 z-toast max-w-sm rounded border border-nc-shell-border bg-nc-shell-deep p-3 shadow-2xl"
+    style="bottom: calc(var(--bottom-chrome) + 1rem)">
     <p class="text-sm font-semibold text-nc-text">Export your Navcom key</p>
-    <p class="mt-1 text-sm text-nc-text">
-      Optional: save a backup so you can sign in elsewhere.
-    </p>
+    <p class="mt-1 text-sm text-nc-text">Optional: save a backup so you can sign in elsewhere.</p>
     <div class="mt-2 flex gap-2">
       <Button class="btn btn-low flex-1 whitespace-normal text-center" on:click={dismiss}>
         Dismiss

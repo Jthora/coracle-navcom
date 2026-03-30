@@ -144,7 +144,7 @@
                 <div
                   class:hidden={!isNested || !canCloseAll}
                   class="clear-modals pointer-events-auto flex h-10 w-10 cursor-pointer items-center justify-center
-                         rounded-full border border-solid border-tinted-700 bg-nc-shell-border text-nc-text transition-colors hover:bg-nc-shell-border"
+                         rounded-full border border-solid border-nc-shell-border bg-nc-shell-border text-nc-text transition-colors hover:bg-nc-shell-border"
                   on:click|stopPropagation={() => router.clearModals()}>
                   <i class="fa-angles-down fa fa-lg" />
                 </div>

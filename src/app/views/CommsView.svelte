@@ -148,7 +148,7 @@
       <ChannelSidebar onChannelSelect={handleChannelSelect} />
       <div class="flex gap-2 border-t border-nc-shell-border bg-nc-shell-deep px-4 py-2.5">
         <button
-          class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-nc-shell-bg py-2 text-sm text-nc-text transition-colors hover:bg-nc-input"
+          class="bg-nc-shell-bg flex flex-1 items-center justify-center gap-2 rounded-lg py-2 text-sm text-nc-text transition-colors hover:bg-nc-input"
           on:click={sendCheckIn}
           disabled={checkInLoading || !$signer}>
           <i class="fa fa-satellite-dish text-xs text-success" />
@@ -156,7 +156,7 @@
         </button>
         <div class="relative flex-1">
           <button
-            class="flex w-full items-center justify-center gap-2 rounded-lg bg-nc-shell-bg py-2 text-sm text-nc-text transition-colors hover:bg-nc-input"
+            class="bg-nc-shell-bg flex w-full items-center justify-center gap-2 rounded-lg py-2 text-sm text-nc-text transition-colors hover:bg-nc-input"
             on:click={togglePrioritySelector}
             disabled={alertLoading || !$signer}>
             <i class="fa fa-triangle-exclamation text-xs text-danger" />
@@ -164,7 +164,7 @@
           </button>
           {#if showPrioritySelector}
             <div
-              class="absolute bottom-full left-0 mb-1 w-full rounded-lg border border-nc-shell-border bg-nc-shell-bg p-2 shadow-lg"
+              class="bg-nc-shell-bg absolute bottom-full left-0 mb-1 w-full rounded-lg border border-nc-shell-border p-2 shadow-lg"
               on:click|stopPropagation>
               <p class="mb-1.5 text-[11px] text-nc-text-muted">Priority</p>
               <div class="flex gap-1">
@@ -208,7 +208,7 @@
           </div>
           <div class="flex gap-2">
             <button
-              class="flex items-center gap-1.5 rounded-lg bg-nc-shell-bg px-3 py-1.5 text-xs text-nc-text transition-colors hover:bg-nc-input"
+              class="bg-nc-shell-bg flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs text-nc-text transition-colors hover:bg-nc-input"
               on:click={sendCheckIn}
               disabled={checkInLoading || !$signer}>
               <i class="fa fa-satellite-dish text-success" />
@@ -216,7 +216,7 @@
             </button>
             <div class="relative">
               <button
-                class="flex items-center gap-1.5 rounded-lg bg-nc-shell-bg px-3 py-1.5 text-xs text-nc-text transition-colors hover:bg-nc-input"
+                class="bg-nc-shell-bg flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs text-nc-text transition-colors hover:bg-nc-input"
                 on:click={togglePrioritySelector}
                 disabled={alertLoading || !$signer}>
                 <i class="fa fa-triangle-exclamation text-danger" />
@@ -224,7 +224,7 @@
               </button>
               {#if showPrioritySelector}
                 <div
-                  class="z-10 absolute right-0 top-full mt-1 w-48 rounded-lg border border-nc-shell-border bg-nc-shell-bg p-2 shadow-lg"
+                  class="bg-nc-shell-bg absolute right-0 top-full z-popover mt-1 w-48 rounded-lg border border-nc-shell-border p-2 shadow-lg"
                   on:click|stopPropagation>
                   <p class="mb-1.5 text-[11px] text-nc-text-muted">Priority</p>
                   <div class="flex gap-1">

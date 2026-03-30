@@ -110,17 +110,28 @@
 {#key $pubkey}
   <div
     id="page"
-    class={cx("m-sai scroll-container relative text-nc-text lg:pl-72 lg:pt-16", {
-      "pointer-events-none": $menuIsOpen,
-      "overflow-auto": !isCurrentFullBleed && !($navcomMode === "map" && isModePage),
-      "overflow-hidden": isCurrentFullBleed || ($navcomMode === "map" && isModePage),
-      "pb-32": !isCurrentFullBleed && !($navcomMode === "map" && isModePage),
-      "pb-0": isCurrentFullBleed || ($navcomMode === "map" && isModePage),
-    })}>
+    class={cx(
+      "m-sai scroll-container relative text-nc-text lg:pl-72 lg:pt-[calc(4rem+var(--sovereign-bar-height))]",
+      {
+        "pointer-events-none": $menuIsOpen,
+        "overflow-auto": !isCurrentFullBleed && !($navcomMode === "map" && isModePage),
+        "overflow-hidden": isCurrentFullBleed || ($navcomMode === "map" && isModePage),
+        "pb-32": !isCurrentFullBleed && !($navcomMode === "map" && isModePage),
+        "pb-0": isCurrentFullBleed || ($navcomMode === "map" && isModePage),
+      },
+    )}>
     <StatusBar />
     {#if $page}
       {#if isModePage}
-        {#if $navcomMode === "comms"}
+        {#if !$pubkey}
+          <!-- Unauthenticated: show registered route (Announcements) as landing page -->
+          {@const {route} = router.getMatch($page.path)}
+          <div class="m-auto w-full max-w-2xl">
+            <div class="flex max-w-2xl flex-grow flex-col gap-4 p-4">
+              <LazyRouteHost {route} props={router.getProps($page)} />
+            </div>
+          </div>
+        {:else if $navcomMode === "comms"}
           <div class="m-auto w-full max-w-2xl">
             <div class="flex max-w-2xl flex-grow flex-col gap-4 p-4">
               <CommsView />
@@ -128,7 +139,7 @@
           </div>
         {:else if $navcomMode === "map"}
           <div
-            class="h-[calc(100dvh-8rem)] w-full lg:h-[calc(100dvh-4rem-var(--main-status-height))]">
+            class="h-[calc(100dvh-var(--bottom-chrome)-var(--saib,0px))] w-full lg:h-[calc(100dvh-4rem-var(--bottom-chrome))]">
             <MapView />
           </div>
         {:else if $navcomMode === "ops"}
@@ -144,7 +155,7 @@
         {#key router.getKey($page)}
           {#if isFullBleed}
             <div
-              class="h-[calc(100dvh-8rem)] w-full lg:h-[calc(100dvh-4rem-var(--main-status-height))]">
+              class="h-[calc(100dvh-var(--bottom-chrome)-var(--saib,0px))] w-full lg:h-[calc(100dvh-4rem-var(--bottom-chrome))]">
               <LazyRouteHost {route} props={router.getProps($page)} />
             </div>
           {:else}

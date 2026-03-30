@@ -55,7 +55,7 @@
 
 {#if innerWidth >= 1024}
   <div
-    class="bottom-sai right-sai fixed left-72 z-[500] h-8 border-t border-nc-shell-border bg-[linear-gradient(180deg,rgba(var(--accent-rgb),0.06),var(--neutral-950)_60%)] shadow-[0_-2px_0_rgba(var(--nc-shell-border-rgb),0.25),0_-1px_10px_rgba(0,0,0,0.55)] backdrop-blur-sm">
+    class="right-sai fixed bottom-[calc(var(--saib,0px)+var(--mode-tab-height))] left-72 z-feature h-8 border-t border-nc-shell-border bg-[linear-gradient(180deg,rgba(var(--accent-rgb),0.06),var(--neutral-950)_60%)] shadow-[0_-2px_0_rgba(var(--nc-shell-border-rgb),0.25),0_-1px_10px_rgba(0,0,0,0.55)] backdrop-blur-sm">
     <div
       class="pointer-events-none absolute inset-x-0 top-0 h-px bg-[rgba(var(--nc-shell-border-rgb),0.25)]"
       aria-hidden="true" />

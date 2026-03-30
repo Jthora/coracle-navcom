@@ -43,9 +43,9 @@
 <div in:fly={{y: 20}} class="grid gap-2 py-1">
   <div
     class={cx("flex max-w-xl flex-col gap-2 rounded-2xl px-4 py-2", {
-      "ml-12 justify-self-end rounded-br-none bg-neutral-100 text-neutral-800":
+      "bg-nc-surface-elevated ml-12 justify-self-end rounded-br-none text-nc-text":
         message.pubkey === $session.pubkey,
-      "mr-12 rounded-bl-none bg-tinted-800": message.pubkey !== $session.pubkey,
+      "mr-12 rounded-bl-none bg-nc-shell-deep": message.pubkey !== $session.pubkey,
     })}>
     {#if message.showProfile && message.pubkey !== $session.pubkey}
       <Link
@@ -84,7 +84,7 @@
     </div>
     <small
       class="mt-1 flex items-center justify-between gap-2 text-xs"
-      class:text-tinted-700={message.pubkey === $session.pubkey}
+      class:text-nc-text-muted={message.pubkey === $session.pubkey}
       class:text-nc-text={message.pubkey !== $session.pubkey}>
       {#if thunk}
         {#if thunkHasStatus(PublishStatus.Pending, thunk)}
@@ -93,7 +93,7 @@
             Sending...
             {#if remaining > 0}
               <button
-                class="cursor-pointer py-1 text-tinted-700-d underline"
+                class="cursor-pointer py-1 text-nc-text-muted underline"
                 on:click={() => abortThunk(thunk)}>Cancel</button>
             {/if}
           </div>

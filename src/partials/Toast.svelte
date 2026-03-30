@@ -111,8 +111,8 @@
         "pointer-events-auto m-2 rounded border p-3 pr-8 text-center shadow-xl sm:ml-2",
         "relative max-w-xl flex-grow transition-all",
         {
-          "border-nc-shell-border bg-tinted-700 text-nc-text": theme === "info",
-          "border-warning bg-tinted-700 text-nc-text": theme === "warning",
+          "bg-nc-surface-card border-nc-shell-border text-nc-text": theme === "info",
+          "bg-nc-surface-card border-warning text-nc-text": theme === "warning",
           "border-red-500 bg-red-900/80 text-nc-text": theme === "error",
         },
       )}>

@@ -175,7 +175,7 @@
 </script>
 
 <div
-  class="fixed inset-0 z-[120] flex items-center justify-center bg-black/70 p-2 md:p-4"
+  class="fixed inset-0 z-modal flex items-center justify-center bg-black/70 p-2 md:p-4"
   role="dialog"
   aria-modal="true"
   tabindex="-1"

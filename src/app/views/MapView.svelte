@@ -391,7 +391,7 @@
   <div class="absolute inset-0 bg-nc-shell-deep">
     <!-- Tools button -->
     <button
-      class="z-20 bg-nc-shell-bg/90 absolute right-3 top-3 rounded-lg border border-nc-shell-border px-3 py-2 text-xs text-nc-text backdrop-blur-sm transition-colors hover:bg-nc-shell-border"
+      class="bg-nc-shell-bg/90 absolute right-3 top-3 z-nav rounded-lg border border-nc-shell-border px-3 py-2 text-xs text-nc-text backdrop-blur-sm transition-colors hover:bg-nc-shell-border"
       class:hidden={showLayerPanel}
       on:click={() => (showLayerPanel = true)}
       aria-label={$t("map.tools.aria")}>
@@ -401,10 +401,10 @@
 
     {#if gpsAvailable}
       <button
-        class="z-20 bg-nc-shell-bg/90 text-blue-400 absolute bottom-3 left-3 rounded-lg border border-nc-shell-border px-2.5 py-2 text-sm backdrop-blur-sm transition-colors hover:bg-nc-shell-border"
+        class="bg-nc-shell-bg/90 text-blue-400 absolute bottom-3 left-3 z-nav rounded-lg border border-nc-shell-border px-2.5 py-2 text-sm backdrop-blur-sm transition-colors hover:bg-nc-shell-border"
         on:click={centerOnMe}
         title="Center on my location"
-        style={isMobile ? "margin-bottom: 4rem" : ""}>
+        style={isMobile ? "margin-bottom: var(--mode-tab-height)" : ""}>
         <i class="fa fa-crosshairs" />
       </button>
     {/if}
@@ -422,8 +422,8 @@
     <!-- Marker summary strip -->
     {#if markers.length > 0}
       <div
-        class="z-10 bg-nc-shell-deep/80 absolute bottom-0 left-0 right-0 flex gap-2 overflow-x-auto border-t border-nc-shell-border px-3 py-2 backdrop-blur-sm"
-        style={isMobile ? "margin-bottom: 3.5rem" : ""}>
+        class="bg-nc-shell-deep/80 absolute bottom-0 left-0 right-0 z-feature flex gap-2 overflow-x-auto border-t border-nc-shell-border px-3 py-2 backdrop-blur-sm"
+        style={isMobile ? "margin-bottom: var(--mode-tab-height)" : ""}>
         {#if clusters.length > 0}
           {#each clusters as cl, i (i)}
             <button
@@ -464,8 +464,8 @@
   {#if isMobile}
     <!-- Mobile: Bottom sheet drawer -->
     <div
-      class="z-20 absolute bottom-0 left-0 right-0 rounded-t-xl border-t border-nc-shell-border bg-nc-shell-deep transition-all"
-      style="height: {drawerHeight}px; margin-bottom: 3.5rem;">
+      class="absolute bottom-0 left-0 right-0 z-nav rounded-t-xl border-t border-nc-shell-border bg-nc-shell-deep transition-all"
+      style="height: {drawerHeight}px; margin-bottom: var(--mode-tab-height);">
       <!-- Drag handle -->
       <div
         class="flex h-8 cursor-grab touch-none items-center justify-center active:cursor-grabbing"
@@ -524,7 +524,7 @@
   {:else}
     <!-- Desktop: Fixed right comms pane -->
     <aside
-      class="z-10 absolute bottom-0 right-0 top-0 flex w-80 flex-col border-l border-nc-shell-border bg-nc-shell-deep">
+      class="absolute bottom-0 right-0 top-0 z-feature flex w-80 flex-col border-l border-nc-shell-border bg-nc-shell-deep">
       <header class="flex items-center justify-between border-b border-nc-shell-border px-3 py-3">
         <span class="truncate text-sm font-medium text-nc-text">{channelTitle}</span>
         {#if $activeChannel}

@@ -3,7 +3,7 @@
 </script>
 
 {#if $activeLoaderStatus}
-  <div class="z-50 pointer-events-none fixed left-1/2 top-20 -translate-x-1/2 px-4">
+  <div class="pointer-events-none fixed left-1/2 top-20 z-toast -translate-x-1/2 px-4">
     <div
       class="bg-nc-shell-deep/95 rounded-md px-4 py-2 text-center text-sm text-nc-text shadow-lg backdrop-blur-sm">
       <div>{$activeLoaderStatus.message}</div>

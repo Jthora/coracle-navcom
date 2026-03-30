@@ -165,7 +165,13 @@ select {
 
 :root {
   font-family: Aldrich, "IBM Plex Sans", Lato, sans-serif;
-  --main-status-height: 2rem;
+
+  /* ── Bottom / Top Chrome Heights ── */
+  --mode-tab-height: 3.5rem;          /* ModeTabBar h-14 = 56px */
+  --main-status-height: 2rem;         /* MainStatusBar h-8 = 32px */
+  --bottom-chrome: var(--mode-tab-height);          /* mobile default */
+  --sovereign-bar-height: 0px;
+
   --accent-glow-subtle: rgba(var(--accent-rgb), 0.12);
   --accent-glow-medium: rgba(var(--accent-rgb), 0.25);
   --accent-glow-strong: rgba(var(--accent-rgb), 0.4);
@@ -195,6 +201,12 @@ select {
   --nc-duration-fast: 120ms;
   --nc-duration-base: 200ms;
   --nc-duration-slow: 400ms;
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --bottom-chrome: calc(var(--mode-tab-height) + var(--main-status-height));
+  }
 }
 
 /* ── NavCom Operational Animations ── */
